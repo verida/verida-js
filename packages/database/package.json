@@ -1,0 +1,57 @@
+{
+  "name": "@verida/database",
+  "version": "0.1.0",
+  "description": "Verida database",
+  "author": "Verida Pte Ltd",
+  "homepage": "",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "mocha -mocha --require @babel/polyfill --require @babel/register './test/**/*.js'",
+    "build": "tsc",
+    "preinstall": "yarn install --ignore-scripts",
+    "prepublish": "yarn run build",
+    "postinstall": "yarn run build"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.8",
+    "@babel/core": "^7.12.9",
+    "@babel/node": "^7.12.6",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
+    "mocha": "^8.2.1",
+    "ts-node": "^9.1.0",
+    "typescript": "^4.1.2",
+    "webpack": "^5.10.0",
+    "webpack-cli": "^4.2.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "engines": {
+    "node": "^12.0.0"
+  },
+  "dependencies": {
+    "pouchdb": "^7.2.2",
+    "pouchdb-find": "^7.2.2"
+  }
+}
