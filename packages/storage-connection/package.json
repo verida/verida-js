@@ -1,0 +1,15 @@
+{
+  "name": "@verida/storage-connection",
+  "version": "0.1.0",
+  "description": "An abstract class representing a connection between a DID and a storage configuration",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "dependencies": {},
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}
