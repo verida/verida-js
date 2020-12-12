@@ -1,0 +1,16 @@
+{
+  "name": "@verida/storage-connection-3id",
+  "version": "0.1.0",
+  "description": "3ID implementation of a verida storage connection",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "dependencies": {
+    "@verida/storage-connection": "^0.1.0"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^4.1.3"
+  }
+}
