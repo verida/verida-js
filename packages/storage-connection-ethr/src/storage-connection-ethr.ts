@@ -1,7 +1,8 @@
 import { StorageConnection, ConnectionConfig, StorageConfig } from '@verida/storage-connection'
+import { DIDDocument } from "@blobaa/did-document-ts"
 import { ethers } from 'ethers'
 
-export default class StorageConnectionEthr implements StorageConnection {
+export default class StorageConnectionEthr extends StorageConnection {
 
     /**
      * Name of this DID method (ie: `ethr`)
@@ -9,13 +10,16 @@ export default class StorageConnectionEthr implements StorageConnection {
     public static didMethod: string = 'ethr'
 
     private wallet: ethers.Wallet
+    private address: string
 
     constructor(config: ConnectionConfig) {
+        super()
         if (!config.privateKey) {
             throw new Error('Private key must be specified')
         }
 
         this.wallet = new ethers.Wallet(config.privateKey)
+        this.address = this.getAddress()
     }
 
     /**
@@ -25,24 +29,25 @@ export default class StorageConnectionEthr implements StorageConnection {
      * @param storageName 
      */
     public async get(did: string, storageName: string): Promise<StorageConfig> {
+        // @todo: fetch from API / DID resolver
         const config = {
             publicKeys: [
                 {
-                    "id": `${did}#asym`,
+                    "id": `${this.getDid()}#asym`,
                     "type": "Curve25519EncryptionPublicKey",
-                    "controller": "did:vid:0x1cbec5eed940523bdcd1121d51ba3c799cf1b8b74fa77e3e10e4fe0d24b5e772",
+                    "controller": `${this.getDid()}`,
                     "publicKeyHex": "0x3a9db7d3dbc4314e60dcbe2b4e010c084d478ad24fb3c8ccbc5b01f5cf81f46b"
                 },
                 {
-                    "id": `${did}#sign`,
+                    "id": `${this.getDid()}#sign`,
                     "type": "Secp256k1VerificationKey2018",
-                    "controller": "did:vid:0x1cbec5eed940523bdcd1121d51ba3c799cf1b8b74fa77e3e10e4fe0d24b5e772",
+                    "controller": `${this.getDid()}`,
                     "publicKeyHex": "0x1ed6be53d8ad36d5869f307ba9c5b762a86f4e9254a41e73e071356343c87580"
                 }
             ],
             authKeys: [
                 {
-                    "publicKey": `${did}#sign`,
+                    "publicKey": `${this.getDid()}#sign`,
                     "type": "Secp256k1SignatureAuthentication2018"
                 }
             ],
@@ -53,15 +58,12 @@ export default class StorageConnectionEthr implements StorageConnection {
         return config
     }
 
-    /**
-     * Link a DID and storage name to a given storage configuration
-     * 
-     * @param did 
-     * @param storageName 
-     * @param storageConfig 
-     */
-    public async link(did: string, storageName: string, storageConfig: StorageConfig): Promise<boolean> {
-        return true
+    public async getDoc(did: string): Promise<DIDDocument> {
+        return new DIDDocument({})
+    }
+
+    public async saveDoc(didDocument: DIDDocument): Promise<DIDDocument> {
+        return new DIDDocument({})
     }
 
     /**
@@ -81,7 +83,7 @@ export default class StorageConnectionEthr implements StorageConnection {
      * @param signature 
      * @todo
      */
-    public verify(expectedDid: string, message: string, signature: string): boolean {
+    public async verify(expectedDid: string, message: string, signature: string): Promise<boolean> {
         const did = StorageConnectionEthr.recoverDid(message, signature)
         if (!did) {
             return false
@@ -103,6 +105,10 @@ export default class StorageConnectionEthr implements StorageConnection {
 
     public getAddress(): string {
         return ethers.utils.computeAddress(this.wallet.privateKey)
+    }
+
+    public getDid(): string {
+        return `did:${StorageConnectionEthr.didMethod}:${this.address}`
     }
 
 }

@@ -10,7 +10,7 @@ describe('Connection', () => {
     let did = `did:ethr:${address}`
 
     describe('signing', function() {
-        it('can sign', async function() {
+        it('can sign, verify and recover', async function() {
             const message = 'hello world'
             const signedMessage = await connection.sign(message)
     
@@ -20,5 +20,16 @@ describe('Connection', () => {
             const signingDid = StorageConnectionEthr.recoverDid(message, signedMessage)
             assert(signingDid, did, 'fetched correct signing DID')
         });
+    })
+
+    describe('did management', function() {
+        it('can create did', async function() {
+            const doc = await connection.link(did, 'MyCompany: MyApplication Name', {
+                databaseUri: 'https://db.testnet.verida.io:5001/'
+            })
+            console.log(doc.publish())
+
+            assert(true, true, 'is true')
+        })
     })
 });
