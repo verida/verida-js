@@ -31,17 +31,19 @@ export default abstract class StorageConnection {
     public abstract link(did: string, storageName: string, storageConfig: StorageConfig): Promise<boolean>
 
     /**
-     * Sign data as the currently authenticated DID
+     * Sign message as the currently authenticated DID
      * 
      * @param data 
      */
-    public abstract sign(data: object): Promise<string>
+    public abstract sign(message: string): Promise<string>
 
     /**
-     * Authenticate a DID using this current DID method
+     * Verify message was signed by a particular DID
      * 
-     * @param config 
+     * @param did 
+     * @param message 
+     * @param signature 
      */
-    public abstract authenticate(config: any): Promise<boolean>
+    public abstract verify(did: string, message: string, signature: string): Promise<boolean>
 
 }

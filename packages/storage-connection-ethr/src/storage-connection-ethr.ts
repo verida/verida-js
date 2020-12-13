@@ -1,13 +1,21 @@
 import { StorageConnection, ConnectionConfig, StorageConfig } from '@verida/storage-connection'
+import { ethers } from 'ethers'
 
 export default class StorageConnectionEthr implements StorageConnection {
 
     /**
      * Name of this DID method (ie: `ethr`)
      */
-    public didMethod = 'ethr'
+    public static didMethod: string = 'ethr'
 
-    constructor(config?: ConnectionConfig) {
+    private wallet: ethers.Wallet
+
+    constructor(config: ConnectionConfig) {
+        if (!config.privateKey) {
+            throw new Error('Private key must be specified')
+        }
+
+        this.wallet = new ethers.Wallet(config.privateKey)
     }
 
     /**
@@ -61,17 +69,40 @@ export default class StorageConnectionEthr implements StorageConnection {
      * 
      * @param data 
      */
-    public async sign(data: object): Promise<string> {
-        return 'hi'
+    public async sign(message: string): Promise<string> {
+        return await this.wallet.signMessage(message)
     }
 
     /**
-     * Authenticate a DID using this current DID method
+     * Verify message was signed by a particular DID
      * 
-     * @param config 
+     * @param did 
+     * @param message 
+     * @param signature 
+     * @todo
      */
-    public async authenticate(config: any): Promise<boolean> {
-        return true
+    public verify(expectedDid: string, message: string, signature: string): boolean {
+        const did = StorageConnectionEthr.recoverDid(message, signature)
+        if (!did) {
+            return false
+        }
+
+        return expectedDid == did
+    }
+
+    public static recoverDid(message: string, signature: string) {
+        const address = ethers.utils.verifyMessage(message, signature)
+        if (address) {
+            return `did:${StorageConnectionEthr.didMethod}:${address}`
+        }
+    }
+
+    public getPublicKey(privateKey: string): string {
+        return this.wallet.publicKey
+    }
+
+    public getAddress(): string {
+        return ethers.utils.computeAddress(this.wallet.privateKey)
     }
 
 }
