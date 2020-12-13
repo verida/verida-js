@@ -42,105 +42,54 @@ export default abstract class StorageConnection {
         const signMessage = `Do you approve access to view and update "${storageConfig.name}"?\n\n${did}`
         const signature = await this.sign(signMessage)
 
-        const didAsymKey = await this.buildKey(did, signature, 'asym-key')
-        const didSignKey = await this.buildKey(did, signature, 'sign-key')
-
-        const didAsymKeyObject = didAsymKey.publish()
-        const didSignKeyObject = didSignKey.publish()
-
         const hash = new jsSHA('SHA-256', 'TEXT')
         hash.update(storageConfig.name)
         const storageNameHashHex = hash.getHash('HEX')
 
+        const didAsymKey = await this.buildKey(did, signature, storageNameHashHex, 'asym')
+        const didSignKey = await this.buildKey(did, signature, storageNameHashHex, 'sign')
+
+        const didAsymKeyObject = didAsymKey.publish()
+        const didSignKeyObject = didSignKey.publish()
+ 
         const storageServerService = new DIDDocService({
-            name: storageNameHashHex,
+            name: `${storageNameHashHex}-server`,
             description: storageConfig.name,
             type: "verida.StorageServer",
             serviceEndpoint: storageConfig.databaseUri,
             asyncPublicKey: didAsymKeyObject.id,
             signPublicKey: didSignKeyObject.id
-        });
+        })
+
+        const storageApplicationService = new DIDDocService({
+            name: `${storageNameHashHex}-application`,
+            description: storageConfig.name,
+            type: "verida.Application",
+            serviceEndpoint: storageConfig.applicationUri
+        })
+
+        const authentication = new DIDDocRelationship({
+            relationshipType: DIDDocRelationshipType.AUTHENTICATION,
+            publicKeysAsRef: [ didSignKey ]
+            //publicKeys: [ didSignKeyObject ]
+        })
 
         const now = new Date().toISOString();
+
         const document = new DIDDocument({
             did: did,
             publicKeys: [ didAsymKeyObject, didSignKeyObject ],
-            services: [ storageServerService ],
-            
-            //relationships: [ authentication, assertion, invocation ],
-            //services: [ vcService, myService ],
+            services: [ storageServerService, storageApplicationService ],
+            relationships: [ authentication ],
             created: now,
             updated: now
         })
 
         return document
-
-        /*// @todo: update existing did doc
-
-        doc.addPublicKey({
-            id: `${vid}#asymKey`,
-            type: 'Curve25519EncryptionPublicKey',
-            publicKeyHex: publicKeys.asym
-        });
-
-        doc.addPublicKey({
-            id: `${vid}#sign`,
-            type: 'Secp256k1VerificationKey2018',
-            publicKeyHex: publicKeys.sign
-        });
-
-        doc.addAuthentication({
-            publicKey: `${vid}#sign`,
-            type: 'Secp256k1SignatureAuthentication2018'
-        });
-
-        doc.addService({
-            id: `${vid}#application`,
-            type: 'verida.App',
-            serviceEndpoint: 'https://wallet.verida.io',
-            description: 'Verida Wallet'
-        });
-
-        doc.addService({
-            id: `${vid}#Verida-Demo-Application`,
-            type: 'verida.Application',
-            serviceEndpoint: 'https://demoapp.verida.io',
-            description: 'Verida Demo Application'
-        });
-
-        return this.saveDoc(doc)*/
-
-        /*const config = {
-            publicKeys: [
-                {
-                    "id": `${this.did}#asym`,
-                    "type": "Curve25519EncryptionPublicKey",
-                    "controller": `${this.did}`,
-                    "publicKeyHex": "0x3a9db7d3dbc4314e60dcbe2b4e010c084d478ad24fb3c8ccbc5b01f5cf81f46b"
-                },
-                {
-                    "id": `${this.did}#sign`,
-                    "type": "Secp256k1VerificationKey2018",
-                    "controller": `${this.did}`,
-                    "publicKeyHex": "0x1ed6be53d8ad36d5869f307ba9c5b762a86f4e9254a41e73e071356343c87580"
-                }
-            ],
-            authKeys: [
-                {
-                    "publicKey": `${this.did}#sign`,
-                    "type": "Secp256k1SignatureAuthentication2018"
-                }
-            ],
-            databaseUri: 'https://dataserver.alpha.verida.io:5000',
-            applicationUri: 'https://demos.alpha.verida.io:3001'
-        }
-
-        return true
-        */
     }
 
-    private async buildKey(did: string, signature: string, entropy: string): Promise<DIDDocKey> {
-        const inputMessage = `${signature}-${entropy}`
+    private async buildKey(did: string, signature: string, storageNameHashHex: string, keyType: string): Promise<DIDDocKey> {
+        const inputMessage = `${signature}-${keyType}`
 
         const hash = new jsSHA('SHA-256', 'TEXT')
         hash.update(inputMessage)
@@ -154,11 +103,11 @@ export default abstract class StorageConnection {
         const keyMaterial = key.export({publicKey: true, privateKey: true})
 
         const didKey = new DIDDocKey({
-            did: did,
-            keyType: DIDDocKeyType.Ed25519,
-            controller: did
+            keyType: DIDDocKeyType.Ed25519
         })
         didKey.importKeyMaterial({
+            id: `${did}#${storageNameHashHex}-${keyType}`,
+            controller: did,
             type: DIDDocKeyType.Ed25519,
             publicKeyBase58: keyMaterial.publicKeyBase58,
             privateKeyBase58: keyMaterial.privateKeyBase58

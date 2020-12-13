@@ -26,7 +26,8 @@ describe('Connection', () => {
         it('can create did', async function() {
             const doc = await connection.link(did, {
                 name: 'MyCompany: MyApplication Name',
-                databaseUri: 'https://db.testnet.verida.io:5001/'
+                databaseUri: 'https://db.testnet.verida.io:5001/',
+                applicationUri: 'https://myapp.com/',
             })
             console.log(doc.publish())
 
