@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/chriswere/.nvm/versions/node/v12.15.0/bin/node /usr/local/Cellar/yarn/1.22.0/libexec/bin/yarn.js add 3id-did-provider
+  /Users/chriswere/.nvm/versions/node/v12.15.0/bin/node /usr/local/Cellar/yarn/1.22.0/libexec/bin/yarn.js add mocha --dev
 
 PATH: 
   /Users/chriswere/.nvm/versions/node/v12.15.0/bin:/Users/chriswere/Library/Android/sdk/platform-tools:/usr/local/opt/php@5.6/sbin:/usr/local/opt/php@5.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Apple/usr/bin:/Users/chriswere/.nvm/versions/node/v12.15.0/bin:/Users/chriswere/Library/Android/sdk/platform-tools:/usr/local/opt/php@5.6/sbin:/usr/local/opt/php@5.6/bin:/Users/chriswere/.composer/vendor/bin/:/usr/local/Cellar/aws-elasticbeanstalk/3.12.0/bin/:/Users/chriswere/.composer/vendor/bin/:/usr/local/Cellar/aws-elasticbeanstalk/3.12.0/bin/
@@ -32,15 +32,23 @@ npm manifest:
     "version": "0.1.0",
     "description": "3ID implementation of a verida storage connection",
     "main": "dist/index.js",
+    "directories": {
+      "src": "src",
+      "test": "tests"
+    },
     "license": "ISC",
     "dependencies": {
       "@verida/storage-connection": "^0.1.0"
     },
     "scripts": {
+      "test": "mocha -mocha --require @babel/polyfill --require @babel/register './test/**/*.js'",
       "build": "tsc"
     },
     "devDependencies": {
       "typescript": "^4.1.3"
+    },
+    "engines": {
+      "node": "^12.0.0"
     }
   }
 

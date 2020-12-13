@@ -1,0 +1,29 @@
+{
+  "name": "@verida/did-storage-manager",
+  "version": "0.1.0",
+  "description": "Manage access to Verida compliant storage",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "dependencies": {
+    "3id-did-provider": "^0.1.2",
+    "ethers": "^5.0.24",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.2"
+  },
+  "engines": {
+    "node": "^12.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/node": "^7.12.10",
+    "@babel/preset-env": "^7.12.10",
+    "@babel/register": "^7.12.10",
+    "@types/expect": "^24.3.0",
+    "@types/mocha": "^8.2.0",
+    "@verida/wallet-utils": "^1.2.0",
+    "mocha": "^8.2.1",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}

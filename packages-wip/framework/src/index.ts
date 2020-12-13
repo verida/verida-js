@@ -1,4 +1,4 @@
-import VeridaDatabase from '@verida/database'
+/*import VeridaDatabase from '@verida/database'
 
 class Verida {
 
@@ -33,4 +33,4 @@ class Verida {
 
 }
 
-export default Verida
+export default Verida*/

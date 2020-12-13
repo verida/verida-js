@@ -1,0 +1,91 @@
+Arguments: 
+  /Users/chriswere/.nvm/versions/node/v12.15.0/bin/node /usr/local/Cellar/yarn/1.22.0/libexec/bin/yarn.js install --ignore-scripts
+
+PATH: 
+  /var/folders/lw/8r9z31yn5r322f16s501w3nw0000gn/T/yarn--1607834769924-0.5417320705080002:/Users/chriswere/mozzler/verida/verida-js/node_modules/@verida/framework/node_modules/.bin:/Users/chriswere/.config/yarn/link/node_modules/.bin:/Users/chriswere/mozzler/verida/verida-js/node_modules/.bin:/Users/chriswere/.nvm/versions/node/v12.15.0/libexec/lib/node_modules/npm/bin/node-gyp-bin:/Users/chriswere/.nvm/versions/node/v12.15.0/lib/node_modules/npm/bin/node-gyp-bin:/Users/chriswere/.nvm/versions/node/v12.15.0/bin/node_modules/npm/bin/node-gyp-bin:/Users/chriswere/.nvm/versions/node/v12.15.0/bin:/Users/chriswere/Library/Android/sdk/platform-tools:/usr/local/opt/php@5.6/sbin:/usr/local/opt/php@5.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Apple/usr/bin:/Users/chriswere/.nvm/versions/node/v12.15.0/bin:/Users/chriswere/Library/Android/sdk/platform-tools:/usr/local/opt/php@5.6/sbin:/usr/local/opt/php@5.6/bin:/Users/chriswere/.composer/vendor/bin/:/usr/local/Cellar/aws-elasticbeanstalk/3.12.0/bin/:/Users/chriswere/.composer/vendor/bin/:/usr/local/Cellar/aws-elasticbeanstalk/3.12.0/bin/
+
+Yarn version: 
+  1.22.0
+
+Node version: 
+  12.15.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: EEXIST: file already exists, symlink '../../packages/storage-connection' -> '/Users/chriswere/mozzler/verida/verida-js/node_modules/@verida/storage-connection'
+
+npm manifest: 
+  {
+    "name": "@verida/framework",
+    "version": "0.8.0",
+    "description": "Verida decentralized framework",
+    "author": "Verida Pte Ltd",
+    "homepage": "",
+    "license": "Apache-2.0",
+    "main": "dist/index.js",
+    "directories": {
+      "src": "src",
+      "test": "tests"
+    },
+    "files": [
+      "dist"
+    ],
+    "scripts": {
+      "test": "mocha -mocha --require @babel/polyfill --require @babel/register './test/**/*.js'",
+      "generate-api-docs": "./node_modules/.bin/jsdoc ./ -r -c .jsdoc.conf -d apidocs -u tutorials --readme README.api.md",
+      "serve-docs": "~/.npm-global/bin/docsify serve docs",
+      "build": "tsc",
+      "preinstall": "yarn install --ignore-scripts",
+      "prepublish": "yarn run build",
+      "postinstall": "yarn run build"
+    },
+    "devDependencies": {
+      "@babel/cli": "^7.12.8",
+      "@babel/core": "^7.12.9",
+      "@babel/node": "^7.12.6",
+      "@babel/plugin-proposal-class-properties": "^7.12.1",
+      "@babel/plugin-transform-runtime": "^7.12.1",
+      "@babel/polyfill": "^7.12.1",
+      "@babel/preset-env": "^7.12.7",
+      "@babel/register": "^7.12.10",
+      "@types/expect": "^24.3.0",
+      "@types/mocha": "^8.2.0",
+      "@verida/wallet-utils": "^1.2.0",
+      "jsdoc": "^3.6.6",
+      "minami": "^1.2.3",
+      "mocha": "^8.2.1",
+      "ts-mocha": "^8.0.0",
+      "ts-node": "^9.1.0",
+      "typescript": "^4.1.2",
+      "webpack": "^5.10.0",
+      "webpack-cli": "^4.2.0"
+    },
+    "eslintConfig": {
+      "root": true,
+      "env": {
+        "node": true
+      },
+      "extends": [
+        "eslint:recommended"
+      ],
+      "rules": {},
+      "parserOptions": {
+        "parser": "babel-eslint"
+      }
+    },
+    "engines": {
+      "node": "^12.0.0"
+    },
+    "dependencies": {
+      "3id-did-provider": "^0.1.2",
+      "ethers": "^5.0.24"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
