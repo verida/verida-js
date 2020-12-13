@@ -12,6 +12,7 @@ export interface ConnectionConfig {
  * Configuration for a DID Storage instance
  */
 export interface StorageConfig {
+    name: string,
     databaseUri: string,
     applicationUri: string
 }   

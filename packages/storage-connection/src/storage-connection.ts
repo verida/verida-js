@@ -34,12 +34,12 @@ export default abstract class StorageConnection {
      * @param storageName 
      * @param storageConfig 
      */
-    public async link(did: string, storageName: string, storageConfig: StorageConfig): Promise<DIDDocument> {
+    public async link(did: string, storageConfig: StorageConfig): Promise<DIDDocument> {
         // @todo: get existing did doc (create if it doesn't exist)
         //const existingDoc = await this.getDoc(did)
 
-        // @todo: deterministically generate asym keypair for the given storageName, signing key (see did-helper?)
-        const signMessage = `Do you approve access to view and update "${storageName}"?\n\n${did}`
+        // Deterministically generate asym keypair for the given storageName
+        const signMessage = `Do you approve access to view and update "${storageConfig.name}"?\n\n${did}`
         const signature = await this.sign(signMessage)
 
         const didAsymKey = await this.buildKey(did, signature, 'asym-key')
@@ -49,12 +49,12 @@ export default abstract class StorageConnection {
         const didSignKeyObject = didSignKey.publish()
 
         const hash = new jsSHA('SHA-256', 'TEXT')
-        hash.update(storageName)
+        hash.update(storageConfig.name)
         const storageNameHashHex = hash.getHash('HEX')
 
         const storageServerService = new DIDDocService({
             name: storageNameHashHex,
-            description: storageName,
+            description: storageConfig.name,
             type: "verida.StorageServer",
             serviceEndpoint: storageConfig.databaseUri,
             asyncPublicKey: didAsymKeyObject.id,
