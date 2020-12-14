@@ -17,7 +17,7 @@ describe('Connection', () => {
             const verified = connection.verify(did, message, signedMessage)
             assert(verified, true, 'confirm message signed by did')
 
-            const signingDid = StorageConnectionEthr.recoverDid(message, signedMessage)
+            const signingDid = connection.recoverDid(message, signedMessage)
             assert(signingDid, did, 'fetched correct signing DID')
         });
     })
@@ -27,7 +27,18 @@ describe('Connection', () => {
             const doc = await connection.link(did, {
                 name: 'MyCompany: MyApplication Name',
                 databaseUri: 'https://db.testnet.verida.io:5001/',
-                applicationUri: 'https://myapp.com/',
+                applicationUri: 'https://myapp.com/'
+            })
+            console.log(doc)
+
+            assert(true, true, 'is true')
+        })
+
+        it('can get did', async function() {
+            const doc = await connection.get(did, {
+                name: 'MyCompany: MyApplication Name',
+                databaseUri: 'https://db.testnet.verida.io:5001/',
+                applicationUri: 'https://myapp.com/'
             })
             console.log(doc)
 

@@ -1,7 +1,7 @@
 {
-  "name": "@verida/storage-connection",
+  "name": "@verida/storage",
   "version": "0.1.0",
-  "description": "An abstract class representing a connection between a DID and a storage configuration",
+  "description": "The main storage helpers (keyring, connection)",
   "main": "dist/index.js",
   "license": "ISC",
   "scripts": {

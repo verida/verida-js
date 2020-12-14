@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@blobaa/did-document-ts": "^0.1.7",
-    "@verida/storage-connection": "^0.1.0",
+    "@verida/storage": "^0.1.0",
     "ethers": "^5.0.24"
   },
   "devDependencies": {

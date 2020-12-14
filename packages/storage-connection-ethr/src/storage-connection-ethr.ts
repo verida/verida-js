@@ -1,4 +1,4 @@
-import { StorageConnection, ConnectionConfig, StorageConfig } from '@verida/storage-connection'
+import { StorageConnection, ConnectionConfig, StorageConfig } from '@verida/storage'
 import { DIDDocument } from "@blobaa/did-document-ts"
 import { ethers } from 'ethers'
 
@@ -7,7 +7,7 @@ export default class StorageConnectionEthr extends StorageConnection {
     /**
      * Name of this DID method (ie: `ethr`)
      */
-    public static didMethod: string = 'ethr'
+    public didMethod: string = 'ethr'
 
     private wallet: ethers.Wallet
     private address: string
@@ -20,23 +20,6 @@ export default class StorageConnectionEthr extends StorageConnection {
 
         this.wallet = new ethers.Wallet(config.privateKey)
         this.address = this.getAddress()
-    }
-
-    /**
-     * Get a StorageConfig instance from a DID and storage name
-     * 
-     * @param did 
-     * @param storageName 
-     */
-    public async get(did: string, storageName: string): Promise<StorageConfig> {
-        // @todo: fetch from API / DID resolver
-        const config = {
-            name: 'Test app',
-            databaseUri: 'https://dataserver.alpha.verida.io:5000',
-            applicationUri: 'https://demos.alpha.verida.io:3001'
-        }
-
-        return config
     }
 
     public async getDoc(did: string): Promise<any> {
@@ -65,7 +48,7 @@ export default class StorageConnectionEthr extends StorageConnection {
      * @todo
      */
     public async verify(expectedDid: string, message: string, signature: string): Promise<boolean> {
-        const did = StorageConnectionEthr.recoverDid(message, signature)
+        const did = await this.recoverDid(message, signature)
         if (!did) {
             return false
         }
@@ -73,10 +56,10 @@ export default class StorageConnectionEthr extends StorageConnection {
         return expectedDid == did
     }
 
-    public static recoverDid(message: string, signature: string) {
+    public async recoverDid(message: string, signature: string) {
         const address = ethers.utils.verifyMessage(message, signature)
         if (address) {
-            return `did:${StorageConnectionEthr.didMethod}:${address}`
+            return `did:${this.didMethod}:${address}`
         }
     }
 
@@ -89,7 +72,7 @@ export default class StorageConnectionEthr extends StorageConnection {
     }
 
     public getDid(): string {
-        return `did:${StorageConnectionEthr.didMethod}:${this.address}`
+        return `did:${this.didMethod}:${this.address}`
     }
 
 }
