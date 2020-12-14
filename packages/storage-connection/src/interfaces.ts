@@ -15,4 +15,4 @@ export interface StorageConfig {
     name: string,
     databaseUri: string,
     applicationUri: string
-}   
+}

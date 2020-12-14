@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "license": "ISC",
   "scripts": {
+    "test": "ts-mocha './test/**/*.ts'",
     "build": "tsc"
   },
   "devDependencies": {
@@ -16,9 +17,9 @@
     "typescript": "^4.1.3"
   },
   "dependencies": {
-    "@blobaa/did-document-ts": "^0.1.7",
-    "@digitalbazaar/ed25519-verification-key-2018": "^1.1.0",
-    "crypto-ld": "^4.0.3",
-    "jssha": "^3.2.0"
+    "bs58": "^4.0.1",
+    "did-document": "^0.6.2",
+    "jssha": "^3.2.0",
+    "tweetnacl": "^1.0.3"
   }
 }
