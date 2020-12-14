@@ -29,7 +29,7 @@ describe('Connection', () => {
                 databaseUri: 'https://db.testnet.verida.io:5001/',
                 applicationUri: 'https://myapp.com/',
             })
-            console.log(doc.publish())
+            console.log(doc)
 
             assert(true, true, 'is true')
         })
