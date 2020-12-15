@@ -1,5 +1,5 @@
 
-import { ConnectionConfig, StorageConfig, StorageIndex } from './interfaces'
+import { ConnectionConfig, StorageConfig, StorageIndex, Keyrings } from './interfaces'
 const jsSHA = require("jssha")
 const bs58 = require('bs58')
 import { DIDDocument } from 'did-document'
@@ -15,12 +15,14 @@ export default abstract class StorageConnection {
      */
     public didMethod: string = ''
 
+    private keyringCache: Keyrings = {}
+
     constructor(config?: ConnectionConfig) {}
 
     /**
      * Get a StorageConfig instance for a given DID and storage name
      * 
-     * This basically looks up the DID document to find the databaseUri for the
+     * This basically looks up the DID document to find the serverUri for the
      * requested DID and storage name.
      * 
      * If not found, you may need to create using `link()`
@@ -28,22 +30,21 @@ export default abstract class StorageConnection {
      * @param did 
      * @param config 
      */
-    public async get(did: string, storageConfig: StorageConfig): Promise<StorageIndex> {
-        //const didDoc = await this.getDoc(did)
-        const didDoc = await this.link(did, storageConfig)
+    public async get(did: string, storageName: string): Promise<StorageIndex | undefined> {
+        const didDoc = await this.getDoc(did)
         if (!didDoc) {
-            throw new Error(`Unable to locate DID document for ${did}`)
+            return
         }
 
-        const storageNameHashHex = this.buildStorageNameHashHex(storageConfig.name)
+        const storageNameHashHex = this.hash(storageName)
         const asymKey = didDoc.publicKey.find((entry: any) => entry.id.includes('asymKey'))
         const signKey = didDoc.publicKey.find((entry: any) => entry.id.includes('signKey'))
-        const database = didDoc.service.find((entry: any) => entry.id.includes(`${storageNameHashHex}-database`))
+        const server = didDoc.service.find((entry: any) => entry.id.includes(`${storageNameHashHex}-server`))
         const application = didDoc.service.find((entry: any) => entry.id.includes(`${storageNameHashHex}-application`))
 
         const storageIndex = {
-            name: storageConfig.name,
-            databaseUri: database.serviceEndpoint,
+            name: storageName,
+            serverUri: server.serviceEndpoint,
             applicationUri: application.serviceEndpoint,
             asymPublicKey: bs58.decode(asymKey.publicKeyBase58),
             signPublicKey: bs58.decode(signKey.publicKeyBase58)
@@ -59,11 +60,11 @@ export default abstract class StorageConnection {
      * @param storageName 
      * @param storageConfig 
      */
-    public async link(did: string, storageConfig: StorageConfig): Promise<any> {
-        // @todo: get existing did doc (create if it doesn't exist)
+    public async link(did: string, storageConfig: StorageConfig): Promise<StorageIndex> {
+        // @todo: get existing did doc so it can be updated
         //const existingDoc = await this.getDoc(did)
 
-        const storageNameHashHex = this.buildStorageNameHashHex(storageConfig.name)
+        const storageNameHashHex = this.hash(storageConfig.name)
         const keyring = await this.getKeyring(did, storageConfig.name)
         const publicKeys = await keyring.publicKeys()
 
@@ -89,10 +90,10 @@ export default abstract class StorageConnection {
         });
  
         doc.addService({
-            id: `${did}#${storageNameHashHex}-database`,
+            id: `${did}#${storageNameHashHex}-server`,
             description: storageConfig.name,
-            type: "verida.StorageDatabase",
-            serviceEndpoint: storageConfig.databaseUri,
+            type: "verida.StorageServer",
+            serviceEndpoint: storageConfig.serverUri,
             asyncPublicKey: `${did}#${storageNameHashHex}-asymKey`,
             signPublicKey: `${did}#${storageNameHashHex}-signKey`
         })
@@ -104,26 +105,59 @@ export default abstract class StorageConnection {
             serviceEndpoint: storageConfig.applicationUri
         })
 
-        return doc
+        return {
+            name: storageConfig.name,
+            serverUri: storageConfig.serverUri,
+            applicationUri: storageConfig.applicationUri,
+            asymPublicKey: bs58.decode(publicKeys.asymPublicKeyBase58),
+            signPublicKey: bs58.decode(publicKeys.signPublicKeyBase58),
+        }
     }
 
-    private buildStorageNameHashHex(storageName: string): string {
+    private hash(input: string): string {
         const hash = new jsSHA('SHA-256', 'TEXT')
-        hash.update(storageName)
+        hash.update(input)
         return hash.getHash('HEX')
     }
 
+    /**
+     * Get a Keyring
+     * 
+     * Supports caching keyrings to avoid requesting the same keyring everytime
+     * 
+     * @param did 
+     * @param storageName 
+     */
     public async getKeyring(did: string, storageName: string): Promise<Keyring> {
+        const keyringHash = this.hash(`${did}/${storageName}`)
+        if (this.keyringCache[keyringHash]) {
+            return this.keyringCache[keyringHash]
+        }
+
         const signMessage = `Do you approve access to view and update "${storageName}"?\n\n${did}`
         const signature = await this.sign(signMessage)
 
         // Deterministically generate keyring from the signature for this storage config
-        return new Keyring(signature)
+        const keyring = new Keyring(signature)
+
+        this.keyringCache[keyringHash] = keyring
+        return this.keyringCache[keyringHash]
     }
     
 
+    /**
+     * Get a DID document.
+     * 
+     * Requires implementation by each DID method
+     */
     public abstract getDoc(did: string): Promise<any>
 
+    /**
+     * Save a DID document
+     * 
+     * Requires implementation by each DID method
+     * @param didDocument 
+     */
     public abstract saveDoc(didDocument: object): Promise<any>
 
     /**
@@ -136,6 +170,7 @@ export default abstract class StorageConnection {
     /**
      * Verify message was signed by a particular DID
      * 
+     * Requires implementation by each DID method
      * @param did 
      * @param message 
      * @param signature 

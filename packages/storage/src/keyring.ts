@@ -1,6 +1,7 @@
 import { box, sign } from "tweetnacl"
 const bs58 = require('bs58')
 const jsSHA = require("jssha")
+import Encryption from '@verida/encryption-utils'
 
 import { KeyringKeyType } from './interfaces'
 
@@ -59,12 +60,33 @@ export default class StorageKeyring {
         }
     }
 
-    /*
-    signData(data: object) // signKey
-    encryptData() // symKey
-    decryptData() // symKey
-    sharedKeyStart()    // asymKey
-    sharedKeyEnd()      // asymKey*/
+    public sign(data: string): string {
+        return Encryption.signData(data, this.signKeyPair!.secretKey)
+    }
+
+    public symEncrypt(data: string) {
+        return Encryption.symEncrypt(data, this.symKey!)
+    }
+
+    public symDecrypt(data: string) {
+        return Encryption.symDecrypt(data, this.symKey!)
+    }
+
+    public asymEncrypt(data: string, secretOrSharedKey: Uint8Array) {
+        return Encryption.asymEncrypt(data, secretOrSharedKey)
+    }
+
+    public asymDecrypt(messageWithNonce: string, secretOrSharedKey: Uint8Array) {
+        return Encryption.asymDecrypt(messageWithNonce, secretOrSharedKey)
+    }
+
+    public buildSharedKeyStart(privateKey: Uint8Array) {
+        return box.before(this.asymKeyPair!.publicKey, privateKey);
+    }
+
+    public buildSharedKeyEnd(publicKey: Uint8Array) {
+        return box.before(publicKey, this.asymKeyPair!.secretKey);
+    }
 
     //getDataServer(): DataServer   -- new StorageDataserver(did, uri, symKey, signkey)
     //setDataServer(uri)

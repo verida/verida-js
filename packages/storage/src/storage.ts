@@ -1,27 +1,36 @@
+import StorageServer from './storage-server'
 import StorageExternal from './storage-external'
-import StorageConnection from './storage-connection'
+import { StorageIndex } from './interfaces'
 import Keyring from './keyring'
 
+/**
+ * Storage for an authenticated user
+ */
 export default class Storage extends StorageExternal {
 
-    keyring?: Keyring
+    public keyring: Keyring
 
-    constructor(did: string, storageName: string, connection: StorageConnection) {
-        super(did, storageName, connection)
+    constructor(did: string, storageIndex: StorageIndex, keyring: Keyring) {
+        super(did, storageIndex)
+        this.keyring = keyring
     }
 
-    private async _init() {
-        this.keyring = await this.connection.getKeyring(this.did, this.storageName)
+    public getStorageServer(): StorageServer {
+        const storageConfig = {
+            name: this.storageIndex.name,
+            serverUri: this.storageIndex.serverUri
+        }
+
+        // @todo: pull anything relevant from datastore.js
+        const serverConfig = {
+            keyring: this.keyring
+        }
+
+        return new StorageServer(storageConfig, serverConfig)
     }
 
-    
-/*
-    signData(data: object) (using the storage specific key)
-    encryptData()
-    decryptData()
-    sharedKeyStart()
-    sharedKeyEnd()
-    setDataServer(uri)*/
-
+    public setStorageServer(uri: string) {
+        //@todo
+    }
 
 }

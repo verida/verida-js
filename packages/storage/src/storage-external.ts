@@ -1,19 +1,33 @@
-import StorageConnection from './storage-connection'
+import { StorageIndex } from './interfaces'
+import StorageServer from './storage-server'
 
+/**
+ * Storage for an external user
+ */
 export default class StorageExternal {
 
-    connection: StorageConnection
+    storageIndex: StorageIndex
     did: string
-    storageName: string
 
-    constructor(did: string, storageName: string, connection: StorageConnection) {
-        this.connection = connection
+    constructor(did: string, storageIndex: StorageIndex) {
+        this.storageIndex = storageIndex
         this.did = did
-        this.storageName = storageName
+    }
+
+    public getStorageServer(): StorageServer {
+        const storageConfig = {
+            name: this.storageIndex.name,
+            serverUri: this.storageIndex.serverUri
+        }
+
+        // @todo: pull anything relevant from datastore.js
+        const serverConfig = {
+        }
+
+        return new StorageServer(storageConfig, serverConfig)
     }
 
     /*
-    getDataServer(): DataServer
     publicKeys()
     //verifySignedData(data: object, sig: string)?
     */

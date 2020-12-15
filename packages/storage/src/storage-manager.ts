@@ -6,8 +6,13 @@ import { StorageConnections } from './interfaces'
 export class StorageManager {
 
     public didMethods: StorageConnections = {}
+    public defaultServerUri: string
+    public applicationUri: string
 
-    constructor(connections: StorageConnection[]) {
+    constructor(connections: StorageConnection[], defaultServerUri: string, applicationUri: string) {
+        this.defaultServerUri = defaultServerUri
+        this.applicationUri = applicationUri
+
         connections.forEach(connection => {
             this.addProvider(connection)
         })
@@ -20,23 +25,43 @@ export class StorageManager {
     }
 
     /**
-     * Get a storage connection for a given DID
-     * provider.get() to obtain StorageConfig
-        IF authenticate = true
-        provider.sign() consent message to obtain private key for storage
-        Generate and return Storage
-        ELSE return StorageExternal
-        //  <Storage | StorageExternal>
-    */
+     * Get a storage connection for the current user's DID
+     */
     public async getStorage(did: string, storageName: string, authenticate: boolean): Promise<Storage> {
         const connection = this.findConnection(did)
 
-        return new Storage(did, storageName, connection)
+        // did -> storage connection instance -> get() -- if fails, do link() -> create Storage
+        const storageIndex = await connection.get(did, storageName)
+        if (!storageIndex) {
+            const storageConfig = {
+                name: storageName,
+                serverUri: this.defaultServerUri,
+                applicationUri: this.applicationUri
+            }
+
+            const storageIndex = await connection.link(did, storageConfig)
+        }
+
+        const keyring = await connection.getKeyring(did, storageName)
+        return new Storage(did, storageIndex!, keyring)
     }
 
+    /**
+     * Get a storage connection for an external DID
+     * 
+     * @param did 
+     * @param storageName 
+     */
     public async getStorageExternal(did: string, storageName: string): Promise<StorageExternal> {
         const connection = this.findConnection(did)
-        return new StorageExternal(did, storageName, connection)
+
+        // did -> storage connection instance -> get() -- if fails, throw error -> create StorageExternal
+        const storageIndex = await connection.get(did, storageName)
+        if (!storageIndex) {
+            throw new Error(`Unable to locate DID document for ${did}`)
+        }
+
+        return new StorageExternal(did, storageIndex)
     }
     
     /**
@@ -62,6 +87,5 @@ export class StorageManager {
         
         return this.didMethods[didMethod]
     }
-    
 
 }
