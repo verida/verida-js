@@ -27,19 +27,24 @@ export class StorageManager {
     /**
      * Get a storage connection for the current user's DID
      */
-    public async getStorage(did: string, storageName: string, authenticate: boolean): Promise<Storage> {
+    public async getStorage(did: string, storageName: string, forceCreate: boolean): Promise<Storage | undefined> {
         const connection = this.findConnection(did)
 
         // did -> storage connection instance -> get() -- if fails, do link() -> create Storage
         const storageIndex = await connection.get(did, storageName)
         if (!storageIndex) {
-            const storageConfig = {
-                name: storageName,
-                serverUri: this.defaultServerUri,
-                applicationUri: this.applicationUri
-            }
+            if (forceCreate) {
+                const storageConfig = {
+                    name: storageName,
+                    serverUri: this.defaultServerUri,
+                    applicationUri: this.applicationUri
+                }
 
-            const storageIndex = await connection.link(did, storageConfig)
+                const storageIndex = await connection.link(did, storageConfig)
+            }
+            else {
+                return
+            }
         }
 
         const keyring = await connection.getKeyring(did, storageName)
@@ -63,16 +68,6 @@ export class StorageManager {
 
         return new StorageExternal(did, storageIndex)
     }
-    
-    /**
-     * Save the storage config
-     * 
-     * Deterministically generate authKeys & publicKeys using provider.sign() to generate StorageConfig instance
-     * [storage connection].save()
-     * Generate and return Storage
-     * 
-     */
-    //saveStorage(did: string, storageName: string, databaseUri: string, applicationUri: string) <Storage>
 
     private findConnection(did: string): StorageConnection {
         const parts = did.split(':')

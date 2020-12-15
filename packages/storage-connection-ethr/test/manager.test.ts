@@ -1,0 +1,1 @@
+// @todo: test store-manager addProvider, getStorage, getStorageExternal
