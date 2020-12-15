@@ -1,6 +1,7 @@
 import { StorageConnection, ConnectionConfig, StorageConfig } from '@verida/storage'
-import { DIDDocument } from "@blobaa/did-document-ts"
+import { DIDDocument } from 'did-document'
 import { ethers } from 'ethers'
+import Axios from 'axios'
 
 export default class StorageConnectionEthr extends StorageConnection {
 
@@ -11,8 +12,9 @@ export default class StorageConnectionEthr extends StorageConnection {
 
     private wallet: ethers.Wallet
     private address: string
+    private endpointUri: string
 
-    constructor(config: ConnectionConfig) {
+    constructor(config: ConnectionConfig, endpointUri='http://localhost:5001/') {
         super()
         if (!config.privateKey) {
             throw new Error('Private key must be specified')
@@ -20,14 +22,60 @@ export default class StorageConnectionEthr extends StorageConnection {
 
         this.wallet = new ethers.Wallet(config.privateKey)
         this.address = this.getAddress()
+        this.endpointUri = endpointUri
     }
 
     public async getDoc(did: string): Promise<any> {
-        return new DIDDocument({})
+        try {
+            let response = await Axios.get(this.endpointUri + 'load?did=' + did);
+            let document = response.data.data.document;
+            let doc = new DIDDocument(document, document['@context']);
+
+            return doc;
+        } catch (err) {
+            console.log(err.response.data)
+            return null;
+        }
     }
 
-    public async saveDoc(didDocument: DIDDocument): Promise<any> {
-        return new DIDDocument({})
+    public async saveDoc(did: string, didDocument: any): Promise<any> {
+        didDocument = await this.createProof(didDocument)
+
+        try {
+            await Axios.post(this.endpointUri + 'commit', {
+                params: {
+                    document: didDocument,
+                    did: did
+                }
+            });
+
+            return true
+        } catch (err) {
+            console.log(err)
+            if (err.response && typeof err.response.data && err.response.data.status == 'fail') {
+                throw new Error(err.response.data.message)
+            }
+
+            throw err
+        }
+    }
+
+    public async createProof(doc: any) {
+        let data = doc.toJSON();
+        delete data['proof']
+
+        //let messageUint8 = decodeUTF8(JSON.stringify(data))
+        //let signature = encodeBase64(sign.detached(messageUint8, this.wallet.))
+
+        // Sign the document using the Etherem key
+        const signature = await this.sign(JSON.stringify(data))
+
+        data['proof'] = {
+            alg: 'Ed25519',
+            signature: signature
+        };
+
+        return new DIDDocument(data)
     }
 
     /**

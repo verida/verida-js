@@ -40,12 +40,11 @@ export default abstract class StorageConnection {
         const asymKey = didDoc.publicKey.find((entry: any) => entry.id.includes('asymKey'))
         const signKey = didDoc.publicKey.find((entry: any) => entry.id.includes('signKey'))
         const server = didDoc.service.find((entry: any) => entry.id.includes(`${storageNameHashHex}-server`))
-        const application = didDoc.service.find((entry: any) => entry.id.includes(`${storageNameHashHex}-application`))
 
         const storageIndex = {
             name: storageName,
             serverUri: server.serviceEndpoint,
-            applicationUri: application.serviceEndpoint,
+            applicationUri: server.applicationEndpoint,
             asymPublicKey: bs58.decode(asymKey.publicKeyBase58),
             signPublicKey: bs58.decode(signKey.publicKeyBase58)
         }
@@ -61,17 +60,21 @@ export default abstract class StorageConnection {
      * @param storageConfig 
      */
     public async link(did: string, storageConfig: StorageConfig): Promise<StorageIndex> {
-        // @todo: get existing did doc so it can be updated
-        //const existingDoc = await this.getDoc(did)
+        let doc = await this.getDoc(did)
 
         const storageNameHashHex = this.hash(storageConfig.name)
         const keyring = await this.getKeyring(did, storageConfig.name)
         const publicKeys = await keyring.publicKeys()
 
-        const doc = new DIDDocument({
-            did: did
-        });
+        if (!doc) {
+            doc = new DIDDocument({
+                did: did
+            })
+        }
 
+        /**
+         * Add public asymKey and signKey for this storage name
+         */
         doc.addPublicKey({
             id: `${did}#${storageNameHashHex}-asymKey`,
             type: 'Curve25519EncryptionPublicKey',
@@ -89,21 +92,20 @@ export default abstract class StorageConnection {
             type: 'Secp256k1SignatureAuthentication2018'
         });
  
+        /**
+         * Add server and application service endpoints for this storage name
+         */
         doc.addService({
             id: `${did}#${storageNameHashHex}-server`,
             description: storageConfig.name,
             type: "verida.StorageServer",
             serviceEndpoint: storageConfig.serverUri,
             asyncPublicKey: `${did}#${storageNameHashHex}-asymKey`,
-            signPublicKey: `${did}#${storageNameHashHex}-signKey`
+            signPublicKey: `${did}#${storageNameHashHex}-signKey`,
+            applicationEndpoint: storageConfig.applicationUri
         })
 
-        doc.addService({
-            id: `${did}#${storageNameHashHex}-application`,
-            description: storageConfig.name,
-            type: "verida.Application",
-            serviceEndpoint: storageConfig.applicationUri
-        })
+        await this.saveDoc(did, doc)
 
         return {
             name: storageConfig.name,
@@ -112,6 +114,10 @@ export default abstract class StorageConnection {
             asymPublicKey: bs58.decode(publicKeys.asymPublicKeyBase58),
             signPublicKey: bs58.decode(publicKeys.signPublicKeyBase58),
         }
+    }
+
+    public async unlink(did: string, storageConfig: StorageConfig) {
+        throw new Error("Not implemented")
     }
 
     private hash(input: string): string {
@@ -158,7 +164,7 @@ export default abstract class StorageConnection {
      * Requires implementation by each DID method
      * @param didDocument 
      */
-    public abstract saveDoc(didDocument: object): Promise<any>
+    public abstract saveDoc(did: string, didDocument: any): Promise<any>
 
     /**
      * Sign message as the currently authenticated DID
