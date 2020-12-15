@@ -1,14 +1,14 @@
 
-import { ConnectionConfig, StorageConfig, StorageIndex, Keyrings } from './interfaces'
+import { ConnectionConfig, StorageConfig, StorageIndex, Keyrings } from '../interfaces'
 const jsSHA = require("jssha")
 const bs58 = require('bs58')
 import { DIDDocument } from 'did-document'
-import Keyring from './keyring'
+import Keyring from '../utils/keyring'
 
 /**
  * An abstract class representing a connection between a DID and a storage configuration
  */
-export default abstract class StorageConnection {
+export default abstract class Connection {
 
     /**
      * Name of this DID method (ie: `ethr`)

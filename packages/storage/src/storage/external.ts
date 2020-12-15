@@ -1,10 +1,10 @@
-import { StorageIndex } from './interfaces'
-import StorageServer from './storage-server'
+import { StorageIndex } from '../interfaces'
+import StorageServer from './server'
 
 /**
  * Storage for an external user
  */
-export default class StorageExternal {
+export default class External {
 
     storageIndex: StorageIndex
     did: string

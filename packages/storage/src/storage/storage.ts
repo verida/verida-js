@@ -1,12 +1,12 @@
-import StorageServer from './storage-server'
-import StorageExternal from './storage-external'
-import { StorageIndex } from './interfaces'
-import Keyring from './keyring'
+import Server from './server'
+import External from './external'
+import { StorageIndex } from '../interfaces'
+import Keyring from '../utils/keyring'
 
 /**
  * Storage for an authenticated user
  */
-export default class Storage extends StorageExternal {
+export default class Storage extends External {
 
     public keyring: Keyring
 
@@ -15,7 +15,7 @@ export default class Storage extends StorageExternal {
         this.keyring = keyring
     }
 
-    public getStorageServer(): StorageServer {
+    public getStorageServer(): Server {
         const storageConfig = {
             name: this.storageIndex.name,
             serverUri: this.storageIndex.serverUri
@@ -26,7 +26,7 @@ export default class Storage extends StorageExternal {
             keyring: this.keyring
         }
 
-        return new StorageServer(storageConfig, serverConfig)
+        return new Server(storageConfig, serverConfig)
     }
 
     public setStorageServer(uri: string) {

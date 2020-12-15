@@ -3,7 +3,7 @@ const bs58 = require('bs58')
 const jsSHA = require("jssha")
 import Encryption from '@verida/encryption-utils'
 
-import { KeyringKeyType } from './interfaces'
+import { KeyringKeyType } from '../interfaces'
 
 /**
  * @todo: Use verida encryption-utils, rename to StorageKeyring?

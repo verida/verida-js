@@ -1,15 +1,15 @@
 import Storage from './storage'
-import StorageExternal from './storage-external'
-import StorageConnection from './storage-connection'
-import { StorageConnections } from './interfaces'
+import External from './external'
+import Connection from './connection'
+import { StorageConnections } from '../interfaces'
 
-export class StorageManager {
+export class Manager {
 
     public didMethods: StorageConnections = {}
     public defaultServerUri: string
     public applicationUri: string
 
-    constructor(connections: StorageConnection[], defaultServerUri: string, applicationUri: string) {
+    constructor(connections: Connection[], defaultServerUri: string, applicationUri: string) {
         this.defaultServerUri = defaultServerUri
         this.applicationUri = applicationUri
 
@@ -20,7 +20,7 @@ export class StorageManager {
 
     
     // Add a storage connection interface
-    public addProvider(connection: StorageConnection) {
+    public addProvider(connection: Connection) {
         this.didMethods[connection.didMethod] = connection
     }
 
@@ -57,7 +57,7 @@ export class StorageManager {
      * @param did 
      * @param storageName 
      */
-    public async getStorageExternal(did: string, storageName: string): Promise<StorageExternal> {
+    public async getStorageExternal(did: string, storageName: string): Promise<External> {
         const connection = this.findConnection(did)
 
         // did -> storage connection instance -> get() -- if fails, throw error -> create StorageExternal
@@ -66,10 +66,10 @@ export class StorageManager {
             throw new Error(`Unable to locate DID document for ${did}`)
         }
 
-        return new StorageExternal(did, storageIndex)
+        return new External(did, storageIndex)
     }
 
-    private findConnection(did: string): StorageConnection {
+    private findConnection(did: string): Connection {
         const parts = did.split(':')
         if (parts.length < 3) {
             throw new Error('Invalid DID provided')

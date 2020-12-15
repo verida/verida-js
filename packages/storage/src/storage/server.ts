@@ -1,6 +1,6 @@
-import { StorageConfig, StorageServerConfig } from './interfaces'
+import { StorageConfig, StorageServerConfig } from '../interfaces'
 
-export default class StorageServer {
+export default class Server {
 
     constructor(storageConfig: StorageConfig, serverConfig: StorageServerConfig) {
 

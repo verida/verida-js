@@ -1,5 +1,5 @@
-import StorageConnection from './storage-connection'
-import Keyring from './keyring'
+import StorageConnection from './storage/connection'
+import Keyring from './utils/keyring'
 
 /**
  * Configuration for a DID connection configuration
