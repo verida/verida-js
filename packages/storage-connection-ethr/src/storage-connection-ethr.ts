@@ -1,9 +1,9 @@
-import { StorageConnection, ConnectionConfig, StorageConfig } from '@verida/storage'
+import { Connection, ConnectionConfig } from '@verida/storage'
 import { DIDDocument } from 'did-document'
 import { ethers } from 'ethers'
 import Axios from 'axios'
 
-export default class StorageConnectionEthr extends StorageConnection {
+export default class StorageConnectionEthr extends Connection {
 
     /**
      * Name of this DID method (ie: `ethr`)
@@ -33,7 +33,6 @@ export default class StorageConnectionEthr extends StorageConnection {
 
             return doc;
         } catch (err) {
-            console.log(err.response.data)
             return null;
         }
     }

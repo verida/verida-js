@@ -1,20 +1,20 @@
 import { StorageIndex } from '../interfaces'
-import StorageServer from './server'
+import RemoteServer from './remote-server'
 
 /**
  * Storage for an external user
  */
 export default class External {
 
-    storageIndex: StorageIndex
-    did: string
+    public storageIndex: StorageIndex
+    public did: string
 
     constructor(did: string, storageIndex: StorageIndex) {
         this.storageIndex = storageIndex
         this.did = did
     }
 
-    public getStorageServer(): StorageServer {
+    public getStorageServer(): RemoteServer {
         const storageConfig = {
             name: this.storageIndex.name,
             serverUri: this.storageIndex.serverUri
@@ -24,7 +24,7 @@ export default class External {
         const serverConfig = {
         }
 
-        return new StorageServer(storageConfig, serverConfig)
+        return new RemoteServer(storageConfig, serverConfig)
     }
 
     /*

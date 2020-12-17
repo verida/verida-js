@@ -1,9 +1,11 @@
 
 import { ConnectionConfig, StorageConfig } from './interfaces'
-import StorageConnection from './storage/connection'
+import Connection from './storage/connection'
+import Manager from './storage/manager'
 
 export {
     ConnectionConfig,
     StorageConfig,
-    StorageConnection
+    Connection,
+    Manager
 }

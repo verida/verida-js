@@ -1,4 +1,4 @@
-import Server from './server'
+import RemoteServer from './remote-server'
 import External from './external'
 import { StorageIndex } from '../interfaces'
 import Keyring from '../utils/keyring'
@@ -15,7 +15,7 @@ export default class Storage extends External {
         this.keyring = keyring
     }
 
-    public getStorageServer(): Server {
+    public getStorageServer(): RemoteServer {
         const storageConfig = {
             name: this.storageIndex.name,
             serverUri: this.storageIndex.serverUri
@@ -26,7 +26,7 @@ export default class Storage extends External {
             keyring: this.keyring
         }
 
-        return new Server(storageConfig, serverConfig)
+        return new RemoteServer(storageConfig, serverConfig)
     }
 
     public setStorageServer(uri: string) {

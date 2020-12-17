@@ -41,6 +41,11 @@ export default abstract class Connection {
         const signKey = didDoc.publicKey.find((entry: any) => entry.id.includes('signKey'))
         const server = didDoc.service.find((entry: any) => entry.id.includes(`${storageNameHashHex}-server`))
 
+        // No serviceEndpoint for this application
+        if (!server) {
+            return
+        }
+
         const storageIndex = {
             name: storageName,
             serverUri: server.serviceEndpoint,

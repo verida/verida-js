@@ -48,3 +48,12 @@ export interface KeyringPublicKeys {
     signPublicKey: Uint8Array,
     signPublicKeyBase58: string,
 }
+
+export interface RemoteDatabaseOptions {
+
+}
+
+export interface RemoteClientAuthentication {
+    username: string,
+    signature: string
+}
