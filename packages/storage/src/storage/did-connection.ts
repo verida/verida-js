@@ -8,7 +8,7 @@ import Keyring from '../utils/keyring'
 /**
  * An abstract class representing a connection between a DID and a storage configuration
  */
-export default abstract class Connection {
+export default abstract class DIDConnection {
 
     /**
      * Name of this DID method (ie: `ethr`)

@@ -1,6 +1,6 @@
 import Storage from './storage'
 import External from './external'
-import Connection from './connection'
+import DIDConnection from './did-connection'
 import { StorageConnections } from '../interfaces'
 
 export default class Manager {
@@ -9,7 +9,7 @@ export default class Manager {
     public defaultServerUri: string
     public applicationUri: string
 
-    constructor(connections: Connection[], defaultServerUri: string, applicationUri: string) {
+    constructor(connections: DIDConnection[], defaultServerUri: string, applicationUri: string) {
         this.defaultServerUri = defaultServerUri
         this.applicationUri = applicationUri
 
@@ -20,7 +20,7 @@ export default class Manager {
 
     
     // Add a storage connection interface
-    public addProvider(connection: Connection) {
+    public addProvider(connection: DIDConnection) {
         this.didMethods[connection.didMethod] = connection
     }
 
@@ -69,7 +69,7 @@ export default class Manager {
         return new External(did, storageIndex)
     }
 
-    private findConnection(did: string): Connection {
+    private findConnection(did: string): DIDConnection {
         const parts = did.split(':')
         if (parts.length < 3 || parts[2].length != 42) {
             throw new Error('Invalid DID provided')

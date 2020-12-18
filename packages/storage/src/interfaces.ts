@@ -1,4 +1,4 @@
-import StorageConnection from './storage/connection'
+import StorageConnection from './storage/did-connection'
 import Keyring from './utils/keyring'
 
 /**

@@ -1,9 +1,9 @@
-import { Connection, ConnectionConfig } from '@verida/storage'
+import { DIDConnection, ConnectionConfig } from '@verida/storage'
 import { DIDDocument } from 'did-document'
 import { ethers } from 'ethers'
 import Axios from 'axios'
 
-export default class StorageConnectionEthr extends Connection {
+export default class StorageConnectionEthr extends DIDConnection {
 
     /**
      * Name of this DID method (ie: `ethr`)
