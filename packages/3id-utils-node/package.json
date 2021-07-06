@@ -1,0 +1,30 @@
+{
+  "name": "@verida/3id-utils-node",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "ts-mocha './test/**/*.ts'",
+    "build": "tsc"
+  },
+  "engines": {
+    "node": "^12.0.0"
+  },
+  "dependencies": {
+    "@3id/connect": "^0.1.6",
+    "@3id/manager": "^0.1.6",
+    "@ceramicnetwork/http-client": "^1.0.7",
+    "dids": "^2.2.1",
+    "ethers": "^5.4.1"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}
