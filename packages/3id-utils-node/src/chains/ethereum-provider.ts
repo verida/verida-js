@@ -13,7 +13,7 @@ export default class EthereumProvider extends EventEmitter {
     async send(
         request: { method: string; params: Array<any> },
         callback: (err: Error | null | undefined, res?: any) => void
-    ): void {
+    ): Promise<void> {
         if (request.method === 'eth_chainId') {
             callback(null, { result: '1' })
         } else if (request.method === 'personal_sign') {

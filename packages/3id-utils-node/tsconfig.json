@@ -3,6 +3,7 @@
       "target": "es5",
       "module": "commonjs",
       "declaration": true,
+      "skipLibCheck": true, // disable TS checking of dependencies
       "outDir": "./dist",
       "strict": true,
       "lib": [
