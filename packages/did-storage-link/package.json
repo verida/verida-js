@@ -18,9 +18,7 @@
     "@ceramicnetwork/http-client": "^1.0.7",
     "@ceramicstudio/idx": "^0.12.1",
     "@verida/3id-utils-node": "*",
-    "install": "^0.13.0",
-    "jssha": "^3.2.0",
-    "npm": "^7.19.1"
+    "jssha": "^3.2.0"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
