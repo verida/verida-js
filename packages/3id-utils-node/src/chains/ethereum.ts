@@ -4,7 +4,6 @@ import { Manager } from '@3id/manager'
 import CeramicClient from '@ceramicnetwork/http-client'
 
 import EthereumProvider from './ethereum-provider'
-import { DID } from 'dids'
 
 
 export default class EthereumUtils {
@@ -18,10 +17,10 @@ export default class EthereumUtils {
      * 
      * @returns DID instance
      */
-    static async createAccount(privateKey: string, ceramic: CeramicClient): Promise<DID | undefined>  {
+    static async createAccount(privateKey: string, ceramic: CeramicClient): Promise<CeramicClient | undefined>  {
         const manager = await EthereumUtils._getManager(privateKey, ceramic)
         const did = await manager.createAccount()
-        return ceramic.did
+        return ceramic
     }
 
     // link an ethereum wallet to an existing 3ID
@@ -33,11 +32,13 @@ export default class EthereumUtils {
      * 
      * @returns DID instance
      */
-     static async linkAccount(privateKey: string, did3id: string, ceramic: CeramicClient) {
+     static async linkAccount(privateKey: string, did3id: string, ceramic: CeramicClient): Promise<CeramicClient> {
         const manager = await EthereumUtils._getManager(privateKey, ceramic)
         await manager.addAuthAndLink(did3id)
-        return ceramic.did
+        return ceramic
     }
+
+    // @todo: Unlink an account
 
     static async _getManager(privateKey: string, ceramic: CeramicClient): Promise<Manager> {
         const wallet = new ethers.Wallet(privateKey)

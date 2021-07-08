@@ -18,16 +18,16 @@ describe('3ID Node Utils', () => {
             const utils = new Utils()
 
             // Create a new 3ID for the wallet
-            const did1 = await utils.createAccount('ethr', wallet1.privateKey)
-            assert.ok(did1.id, '3ID created')
+            const ceramic1 = await utils.createAccount('ethr', wallet1.privateKey)
+            assert.ok(ceramic1.did.id, '3ID created')
 
-            const new3Id = did1.id
+            const new3Id = ceramic1.did.id
 
             // Clear the ceramic instance and go again, ensuring we get the same 3ID
             utils.ceramic = null
-            const did1Again = await utils.createAccount('ethr', wallet1.privateKey)
-            assert.ok(did1Again.id, '3ID retreived')
-            assert.equal(did1.id, did1Again.id, 'Same 3ID returned')
+            const ceramic2 = await utils.createAccount('ethr', wallet1.privateKey)
+            assert.ok(ceramic2.did.id, '3ID retreived')
+            assert.equal(ceramic1.did.id, ceramic2.did.id, 'Same 3ID returned')
         })
 
         it('can link a second ethereum account', async function() {
@@ -35,18 +35,18 @@ describe('3ID Node Utils', () => {
             const utils = new Utils()
 
             // Get the 3ID for the existing account
-            const did1 = await utils.createAccount('ethr', wallet1.privateKey)
-            assert.ok(did1.id, '3ID retreived')
+            const ceramic1 = await utils.createAccount('ethr', wallet1.privateKey)
+            assert.ok(ceramic1.did.id, '3ID retreived')
 
             // Link the 3ID to the second Ethereum account
-            const did2 = await utils.linkAccount('ethr', wallet2.privateKey, did1.id)
-            assert.equal(did1.id, did2.id, 'Second ethereum account linked with the same DID')
+            const ceramic2 = await utils.linkAccount('ethr', wallet2.privateKey, ceramic1.did.id)
+            assert.equal(ceramic1.did.id, ceramic2.did.id, 'Second ethereum account linked with the same DID')
 
             // Clear the ceramic instance and go again, ensuring we get the same 3ID
             utils.ceramic = null
-            const did2Again = await utils.createAccount('ethr', wallet2.privateKey)
-            assert.ok(did2Again.id, '3ID retreived')
-            assert.equal(did2.id, did1.id, 'Same 3ID returned')
+            const ceramic3 = await utils.createAccount('ethr', wallet2.privateKey)
+            assert.ok(ceramic3.did.id, '3ID retreived')
+            assert.equal(ceramic3.did.id, ceramic3.did.id, 'Same 3ID returned')
         })
 
     })

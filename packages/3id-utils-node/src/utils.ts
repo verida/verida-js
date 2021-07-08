@@ -16,19 +16,19 @@ const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
  */
 export default class utils {
 
-    ceramicUrl: string
+    ceramicUrl?: string
     ceramic?: CeramicClient
 
     constructor(ceramicUrl?: string) {
         this.ceramicUrl = ceramicUrl ? ceramicUrl : CERAMIC_URL
     }
 
-    async createAccount(chain: string, privateKey: string): Promise<DID | undefined>  {
+    async createAccount(chain: string, privateKey: string): Promise<CeramicClient | undefined>  {
         const ceramic = this.getCeramic()
         return chains[chain].createAccount(privateKey, ceramic)
     }
 
-    async linkAccount(chain: string, privateKey: string, did3id: string) {
+    async linkAccount(chain: string, privateKey: string, did3id: string): Promise<CeramicClient> {
         const ceramic = this.getCeramic()
         return chains[chain].linkAccount(privateKey, did3id, ceramic)
     }
