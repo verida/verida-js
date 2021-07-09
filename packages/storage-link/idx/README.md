@@ -24,3 +24,4 @@ idx definition:create did:key:z6MkfPM7WbUpnQZyaxLevGCMkcGz3MYMaraqsRZKAGstVANa -
 ```
 
 This will return a definition ID that can be used directly or added to Ceramic configuration in the SDK with an alias.
+
