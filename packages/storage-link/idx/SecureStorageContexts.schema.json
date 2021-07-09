@@ -61,7 +61,10 @@
           },
           "base58": {
             "type": "string",
-            "title": "Base58 representation of the key" // @todo: set correct pattern "pattern": "^[5KL][1-9A-HJ-NP-Za-km-z]{50,51}$"
+            "title": "Base58 representation of the key",
+            "maxLength": 44,
+            "minLength": 44,
+            "pattern": "^[1-9A-HJ-NP-Za-km-z]{44}$"
           } 
         }
       }
