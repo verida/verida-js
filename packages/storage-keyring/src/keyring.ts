@@ -83,42 +83,42 @@ export default class Keyring {
         }
     }
 
-    public async sign(data: string): string {
+    public async sign(data: string): Promise<string> {
         await this._init()
         return Encryption.signData(data, this.signKeyPair!.secretKey)
     }
 
-    public async verifySig(data: string, sig: string) {
+    public async verifySig(data: string, sig: string): Promise<boolean> {
         await this._init()
         return Encryption.verifySig(data, sig, this.signKeyPair!.publicKey)
     }
 
-    public async symEncrypt(data: string) {
+    public async symEncrypt(data: string): Promise<string> {
         await this._init()
         return Encryption.symEncrypt(data, this.symKey!)
     }
 
-    public async symDecrypt(data: string) {
+    public async symDecrypt(data: string): Promise<any> {
         await this._init()
         return Encryption.symDecrypt(data, this.symKey!)
     }
 
-    public async asymEncrypt(data: string, secretOrSharedKey: Uint8Array) {
+    public async asymEncrypt(data: string, secretOrSharedKey: Uint8Array): Promise<string> {
         await this._init()
         return Encryption.asymEncrypt(data, secretOrSharedKey)
     }
 
-    public async asymDecrypt(messageWithNonce: string, secretOrSharedKey: Uint8Array) {
+    public async asymDecrypt(messageWithNonce: string, secretOrSharedKey: Uint8Array): Promise<any> {
         await this._init()
         return Encryption.asymDecrypt(messageWithNonce, secretOrSharedKey)
     }
 
-    public async buildSharedKeyStart(privateKey: Uint8Array) {
+    public async buildSharedKeyStart(privateKey: Uint8Array): Promise<Uint8Array> {
         await this._init()
         return box.before(this.asymKeyPair!.publicKey, privateKey);
     }
 
-    public async buildSharedKeyEnd(publicKey: Uint8Array) {
+    public async buildSharedKeyEnd(publicKey: Uint8Array): Promise<Uint8Array> {
         await this._init()
         return box.before(publicKey, this.asymKeyPair!.secretKey);
     }
