@@ -15,14 +15,12 @@ describe("Keyring", function() {
     });
 
     describe("Signing", function() {
-
         it("should generate a verified signature", async function() {
             let data = {
-                "hello": "world"
+                "Margaret": "Hamilton"
             };
 
             const sig = await keyring.sign(data)
-            console.log("signature", sig)
 
             const verified = await keyring.verifySig(data, sig)
             
@@ -33,7 +31,7 @@ describe("Keyring", function() {
     describe("Symmetric encryption", function() {
         it("should symmetrically encrypt and decrypt", async function() {
             const data = {
-                "hello": "world"
+                "Stephanie": "Shirley"
             };
 
             const encryptedMessage = await keyring.symEncrypt(data);
@@ -46,10 +44,10 @@ describe("Keyring", function() {
     describe("Asymmetric encryption", function() {
         it("should assymetrically encrypt and decrypt a message with shared key", async function() {
             const data = {
-                "hello": "world"
+                "Joan": "Clarke"
             };
     
-            // create a test key pair representing the user submitting to an inbox
+            // create a test key pair for a third party
             const otherKeyPair = box.keyPair();
             
             // encrypt the data
