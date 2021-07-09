@@ -20,6 +20,7 @@
     "@ceramicstudio/idx": "^0.12.1",
     "@verida/3id-utils-node": "*",
     "@verida/storage-keyring": "*",
+    "@verida/authenticator": "*",
     "jssha": "^3.2.0"
   },
   "devDependencies": {

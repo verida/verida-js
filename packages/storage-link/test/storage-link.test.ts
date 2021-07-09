@@ -9,7 +9,7 @@ import { IDX } from '@ceramicstudio/idx'
 // Test Ethereum Private key used to create / unlock a 3ID
 const ETH_PRIVATE_KEY = '0xc0da48347b4bcb2cfb08d6b8c26b52b47fd36ca6114974a0104d15fab076f553'
 const CERAMIC_URL = 'http://localhost:7007' // Note: Requires running ceramic locally
-const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw14amu3d1hh0nry9tulaeqn4qvrpminonz4coxr61v9sgpw24s8yz'
+const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145rikixwqf0qf6d69982b72mtxbp96snvop9nsvlaf1avydww9f'
 
 StorageLink.setSchemaId(SECURE_CONTEXTS_SCHEMA_ID)
 
@@ -19,16 +19,22 @@ const testConfig: SecureStorageContextConfig = {
     publicKeys: {
         asymKey: {
             type: 'Curve25519EncryptionPublicKey',
-            base58: 'abc'
+            base58: '2oCCWT6ryrrDjTDbUFYJ4Q6RiN9n4ZMKeZCgf6qY81Dh'
         },
         signKey: {
             type: 'ED25519SignatureVerification',
-            base58: 'abcdef'
+            base58: 'HtJ9j1kWdohkGBhgrWjPTa8UkzEdfTJvF93eMzJJ9Za6'
         }
     },
     services: {
-        storageEndpoint: 'https://storage.endpoint/',
-        messageEndpoint: 'https://message.endpoint/'
+        storageServer: {
+            type: 'VeridaCouchDb',
+            endpointUri: 'https://storage.endpoint'
+        },
+        messageServer: {
+            type: 'VeridaCouchDb',
+            endpointUri: 'https://message.endpoint'
+        }
     }
 }
 const TEST_APP_NAME2 = 'Test App 2'

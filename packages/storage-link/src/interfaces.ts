@@ -9,9 +9,14 @@ export interface SecureStorageContextPublicKeys {
     signKey: SecureContextPublicKey,
 }
 
+export interface SecureStorageServer {
+    type: string,
+    endpointUri: string
+}
+
 export interface SecureStorageContextServices {
-    storageEndpoint: string,
-    messageEndpoint: string
+    storageServer: SecureStorageServer,
+    messageServer: SecureStorageServer
 }
 
 export interface SecureStorageContextConfig {
