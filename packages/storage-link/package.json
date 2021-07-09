@@ -8,7 +8,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "ts-mocha './test/**/*.ts'",
+    "tests": "ts-mocha './test/**/*.ts'",
+    "test": "ts-mocha",
     "build": "tsc"
   },
   "engines": {
@@ -18,6 +19,7 @@
     "@ceramicnetwork/http-client": "^1.0.7",
     "@ceramicstudio/idx": "^0.12.1",
     "@verida/3id-utils-node": "*",
+    "@verida/storage-keyring": "*",
     "jssha": "^3.2.0"
   },
   "devDependencies": {
