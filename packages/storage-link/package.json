@@ -10,7 +10,7 @@
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha",
-    "build": "tsc"
+    "build": "rm -rf dist; tsc"
   },
   "engines": {
     "node": "^12.0.0"
@@ -19,8 +19,8 @@
     "@ceramicnetwork/http-client": "^1.0.7",
     "@ceramicstudio/idx": "^0.12.1",
     "@verida/3id-utils-node": "*",
-    "@verida/storage-keyring": "*",
-    "@verida/authenticator": "*",
+    "@verida/keyring": "*",
+    "@verida/account": "*",
     "jssha": "^3.2.0"
   },
   "devDependencies": {

@@ -1,6 +1,5 @@
-import { Keyring } from "@verida/storage-keyring"
-import { AuthenticatorInterface } from "@verida/authenticator"
-import { SecureStorageContextConfig, SecureStorageContextServices } from "./interfaces"
+import { AccountInterface } from '@verida/account'
+import { SecureStorageContextConfig, SecureStorageContextServices } from './interfaces'
 
 export default class DIDStorageConfig {
 
@@ -10,12 +9,9 @@ export default class DIDStorageConfig {
      * @param did 
      * @param contextName 
      */
-    static async generate(authenticator: AuthenticatorInterface, contextName: string, servicesConfig: SecureStorageContextServices): Promise<SecureStorageContextConfig> {
-        const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?`
-        const sig = await authenticator.sign(consentMessage)
-        const keyring = new Keyring(sig)
+    static async generate(account: AccountInterface, contextName: string, servicesConfig: SecureStorageContextServices): Promise<SecureStorageContextConfig> {
+        const keyring = await account.keyring(contextName)
         const publicKeys = await keyring.publicKeys()
-
         const config: SecureStorageContextConfig = {
             id: contextName,
             publicKeys: {
