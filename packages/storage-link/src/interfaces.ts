@@ -11,7 +11,8 @@ export interface SecureStorageContextPublicKeys {
 
 export interface SecureStorageServer {
     type: string,
-    endpointUri: string
+    endpointUri: string,
+    config?: object
 }
 
 export interface SecureStorageContextServices {

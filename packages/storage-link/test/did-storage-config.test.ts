@@ -21,11 +21,11 @@ describe('DID Storage Config', () => {
             const authenticator = new AutoAccount(ceramic)
             const config = await DIDStorageConfig.generate(authenticator, 'Test Context', {
                 storageServer: {
-                    type: 'VeridaCouchDb',
+                    type: 'VeridaStorage',
                     endpointUri: 'https://'
                 },
                 messageServer: {
-                    type: 'VeridaCouchDb',
+                    type: 'VeridaStorage',
                     endpointUri: 'https://'
                 }
             })
