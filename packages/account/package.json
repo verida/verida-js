@@ -8,7 +8,8 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "ts-mocha './test/**/*.ts'",
+    "tests": "ts-mocha './test/**/*.ts'",
+    "test": "ts-mocha",
     "build": "rm -rf dist; tsc"
   },
   "engines": {
