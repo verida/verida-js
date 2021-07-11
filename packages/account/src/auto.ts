@@ -19,18 +19,18 @@ export default class AutoAccount implements AccountInterface {
         }
     }
 
-    async keyring(contextName: string) {
+    public async keyring(contextName: string) {
         const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?`
         const signature = await this.sign(consentMessage)
         return new Keyring(signature)
     }
 
-    async sign(input: string): Promise<string> {
+    public async sign(input: string): Promise<string> {
         const jws = await this.ceramic.did!.createJWS(input)
         return jws.signatures[0].signature
     }
 
-    async did(): Promise<string> {
+    public async did(): Promise<string> {
         return this.ceramic.did!.id
     }
 
@@ -39,7 +39,7 @@ export default class AutoAccount implements AccountInterface {
      * 
      * @param storageConfig 
      */
-     async linkStorage(storageConfig: Interfaces.SecureStorageContextConfig): Promise<void> {
+     public async linkStorage(storageConfig: Interfaces.SecureStorageContextConfig): Promise<void> {
          await StorageLink.setLink(this.ceramic, this.ceramic.did!.id, storageConfig)
      }
 
@@ -48,7 +48,7 @@ export default class AutoAccount implements AccountInterface {
       * 
       * @param contextName 
       */
-     async unlinkStorage(contextName: string): Promise<boolean> {
+      public async unlinkStorage(contextName: string): Promise<boolean> {
          return await StorageLink.unlink(this.ceramic, this.ceramic.did!.id, contextName)
      }
 
