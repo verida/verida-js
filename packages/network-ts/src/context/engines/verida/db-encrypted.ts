@@ -114,8 +114,10 @@ export default class EncryptedDatabase extends BaseDb {
                 }).on("denied", function(err: any) {
                     console.error(`Permission denied to sync with remote database: ${databaseName} (${dsn})`)
                     console.error(err)
-                });
-            });
+                })
+            })
+        
+        this.db = this._localDb
     }
 
     public async updateUsers(readList: string[] = [], writeList: string[] = []) {

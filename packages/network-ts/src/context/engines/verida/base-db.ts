@@ -43,10 +43,10 @@ export default class BaseDb extends EventEmitter implements Database {
         // User will be the user who owns this database
         // Will be null if the user isn't the current user
         // (ie: for a public / external database)
-        this.user = config.account;
+        this.account = config.account;
 
         // Signing user will be the logged in user
-        this.signUser = config.signAccount || config.account;
+        this.signAccount = config.signAccount || config.account;
         this.signData = config.signData === false ? false : true;
         this.signStorageContext = config.signStorageContext || this.storageContext;
 
@@ -350,7 +350,7 @@ export default class BaseDb extends EventEmitter implements Database {
      * @todo Think about signing data and versions / insertedAt etc.
      */
     protected async _signData(data: any) {
-        if (!this.signUser) {
+        if (!this.signAccount) {
             throw new Error("Unable to sign data. No signing user specified.")
         }
 
@@ -363,7 +363,7 @@ export default class BaseDb extends EventEmitter implements Database {
         };
 
         try {
-            await this.client.createDatabase(this.did, this.databaseHash, options);
+            await this.client.createDatabase(this.did, this.databaseHash, options)
             // There's an odd timing issue that needs a deeper investigation
             await Utils.sleep(1000)
         } catch (err) {

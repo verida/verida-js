@@ -17,15 +17,16 @@ const CONTEXT_NAME = 'My Test Application'
 describe('Storage initialization tests', () => {
     // Instantiate utils
     const utils = new Utils(CERAMIC_URL)
-    let ceramic, context
+    let ceramic, context, storage
+
     const network = new VeridaNetwork({
         defaultStorageServer: {
             type: 'VeridaStorage',
-            endpointUri: 'https://localhost:7001/'
+            endpointUri: 'http://localhost:5000/'
         },
         defaultMessageServer: {
             type: 'VeridaStorage',
-            endpointUri: 'https://localhost:7001/'
+            endpointUri: 'http://localhost:5000/'
         },
         ceramicUrl: CERAMIC_URL
     })
@@ -38,6 +39,8 @@ describe('Storage initialization tests', () => {
             const account = new AutoAccount(ceramic)
             await network.connect(account)
 
+            await StorageLink.unlink(ceramic, ceramic.did.id, CONTEXT_NAME)
+
             context = await network.openContext(CONTEXT_NAME, true)
             assert.ok(context, 'Account context opened')
 
@@ -46,7 +49,17 @@ describe('Storage initialization tests', () => {
         })
 
         it('can fetch a user storage instance', async function() {
-            const storage = context.getStorage()
+            storage = await context.getStorage()
+            assert.ok(storage)
+        })
+
+        it('can open a database with owner/owner permissions', async function() {
+            const database = await storage.openDatabase('Test db')
+            assert.ok(database)
+
+            await database.save({'hello': 'world'})
+            const data = await database.getMany()
+            console.log(data)
         })
         
     })
