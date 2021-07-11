@@ -1,5 +1,5 @@
-import PouchDB from 'pouchdb'
-import PouchDBFind from 'pouchdb-find'
+const PouchDB = require('pouchdb')
+const PouchDBFind = require('pouchdb-find')
 PouchDB.plugin(PouchDBFind)
 
 import BaseDb from './base-db'

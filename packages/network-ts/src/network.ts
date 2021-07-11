@@ -9,7 +9,7 @@ import AccountStorage from './storage/account'
 
 const DEFAULT_CERAMIC_URL = 'http://localhost:7001/'
 
-export default class Manager {
+export default class Network {
 
     public defaultStorageServer: Interfaces.SecureStorageServer
     public defaultMessageServer: Interfaces.SecureStorageServer
@@ -38,6 +38,10 @@ export default class Manager {
     public async connect(account: AccountInterface) {
         this.account = account
         this.did = await this.account!.did()
+    }
+
+    public isConnected() {
+        return this.did ? true : false
     }
 
     /**

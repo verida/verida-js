@@ -1,5 +1,3 @@
-import Manager from './manager'
+import Network from './network'
 
-export {
-    Manager
-}
+export default Network

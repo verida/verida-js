@@ -1,6 +1,6 @@
-import PouchDBCrypt from 'pouchdb'
-import PouchDB from 'pouchdb'
-import PouchDBFind from 'pouchdb-find'
+const PouchDB = require('pouchdb')
+const PouchDBFind = require('pouchdb-find')
+const PouchDBCrypt = require('pouchdb')
 
 PouchDBCrypt.plugin(PouchDBFind)
 PouchDB.plugin(PouchDBFind)

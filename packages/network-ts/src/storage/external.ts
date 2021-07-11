@@ -6,7 +6,7 @@ import { StorageEngineTypes } from './interfaces'
 
 // @todo: make extendable
 const STORAGE_ENGINES: StorageEngineTypes = {
-    'Verida': typeof StorageEngineVerida
+    'VeridaStorage': typeof StorageEngineVerida
 }
 
 /**
