@@ -57,17 +57,21 @@ export default class Network {
             throw new Error('Unable to locate requested storage context for this user -- Not authenticated')
         }
 
-        const fetchedStorageConfig = await StorageLink.getLink(this.ceramic, this.did, contextName)
+        let storageConfig = await StorageLink.getLink(this.ceramic, this.did, contextName)
 
-        if (!fetchedStorageConfig && !forceCreate) {
-            throw new Error('Unable to locate requested storage context for this user -- Storage context doesn\'t exist (try force create?)')
+        if (!storageConfig) {
+            if (!forceCreate) {
+                throw new Error('Unable to locate requested storage context for this user -- Storage context doesn\'t exist (try force create?)')
+            }
+
+            // Force creation of storage context
+            storageConfig = await DIDStorageConfig.generate(this.account, contextName, {
+                storageServer: this.defaultStorageServer,
+                messageServer: this.defaultMessageServer
+            })
+
+            await this.account!.linkStorage(storageConfig)
         }
-
-        // Force creationg of storage context
-        const storageConfig = await DIDStorageConfig.generate(this.account, contextName, {
-            storageServer: this.defaultStorageServer,
-            messageServer: this.defaultMessageServer
-        })
 
         return new AccountStorage(storageConfig, this.account)
     }
