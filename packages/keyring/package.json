@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "ts-mocha './test/**/*.ts'",
-    "build": "tsc"
+    "build": "rm -rf dist; tsc"
   },
   "engines": {
     "node": "^12.0.0"
@@ -18,7 +18,8 @@
     "@verida/encryption-utils": "^0.2.1",
     "bs58": "^4.0.1",
     "jssha": "^3.2.0",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "mocha": "^8.2.1",

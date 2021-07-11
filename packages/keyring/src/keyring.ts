@@ -14,11 +14,12 @@ import { KeyringKeyType } from './interfaces'
  */
 export default class Keyring {
 
-    private seed: string
-
     public asymKeyPair?: nacl.BoxKeyPair    // was 'any'
     public signKeyPair?: nacl.SignKeyPair   // was 'any'
     public symKey?: Uint8Array
+
+    private seed: string
+    private storageContextKeys: any = {}      // @todo proper typing
 
     /**
      * A string used as a seed for this keyring.
@@ -121,6 +122,25 @@ export default class Keyring {
     public async buildSharedKeyEnd(publicKey: Uint8Array): Promise<Uint8Array> {
         await this._init()
         return box.before(publicKey, this.asymKeyPair!.secretKey);
+    }
+
+    public getSeed() {
+        return this.seed
+    }
+
+    public async getStorageContextKey(contextName: string) {
+        if (this.storageContextKeys[contextName]) {
+            return this.storageContextKeys[contextName]
+        }
+
+        // Sign a consent message using the current db signing key
+        const consent = `Authorized to own database: ${contextName}`
+        const signature = await this.sign(consent);
+        
+        // Create a deterministic symmetric key for this database
+        this.storageContextKeys[contextName] = await this.buildKey(signature, KeyringKeyType.SYM)
+
+        return this.storageContextKeys[contextName];
     }
 
 }
