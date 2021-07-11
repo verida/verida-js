@@ -21,6 +21,10 @@ export default class BaseStorage {
         throw new Error('Not implemented')
     }
 
+    public getStorageConfig(): Interfaces.SecureStorageContextConfig {
+        return this.storageConfig
+    }
+
     /*
      * @todo: create and use ./messaging/
     public async getMessaging(): Promise<BaseStorageEngine> {
