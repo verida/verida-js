@@ -17,7 +17,7 @@ const CONTEXT_NAME = 'My Test Application'
 describe('Storage initialization tests', () => {
     // Instantiate utils
     const utils = new Utils(CERAMIC_URL)
-    let ceramic
+    let ceramic, context
     const network = new VeridaNetwork({
         defaultStorageServer: {
             type: 'VeridaStorage',
@@ -31,18 +31,22 @@ describe('Storage initialization tests', () => {
     })
 
     describe('Initialize user storage contexts', function() {
-        this.timeout(200000)
+        this.timeout(100000)
 
         it(`can open a user storage context when authenticated`, async function() {
             ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
             const account = new AutoAccount(ceramic)
             await network.connect(account)
 
-            const accountStorage = await network.openStorageContext(CONTEXT_NAME, true)
-            assert.ok(accountStorage, 'Account storage opened')
+            context = await network.openContext(CONTEXT_NAME, true)
+            assert.ok(context, 'Account context opened')
 
             const fetchedStorageConfig = await StorageLink.getLink(ceramic, ceramic.did.id, CONTEXT_NAME)
-            assert.deepEqual(fetchedStorageConfig, accountStorage.getStorageConfig(), 'Storage context config matches')
+            assert.deepEqual(fetchedStorageConfig, context.getStorageConfig(), 'Storage context config matches')
+        })
+
+        it('can fetch a user storage instance', async function() {
+            const storage = context.getStorage()
         })
         
     })

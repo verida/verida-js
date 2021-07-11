@@ -4,8 +4,8 @@ import { AccountInterface } from '@verida/account'
 import CeramicClient from '@ceramicnetwork/http-client'
 
 import { ManagerConfig, StorageConnections } from './interfaces'
-import BaseStorage from './storage/base'
-import AccountStorage from './storage/account'
+import BaseStorage from './context/base'
+import AccountContext from './context/account'
 
 const DEFAULT_CERAMIC_URL = 'http://localhost:7001/'
 
@@ -45,9 +45,9 @@ export default class Network {
     }
 
     /**
-     * Get a storage connection for the current user
+     * Get a storage context for the current user
      */
-    public async openStorageContext(contextName: string, forceCreate: boolean): Promise<BaseStorage | undefined> {
+    public async openContext(contextName: string, forceCreate: boolean): Promise<BaseStorage | undefined> {
         if (this.storageConnections[contextName]) {
             return this.storageConnections[contextName]
         }
@@ -73,7 +73,7 @@ export default class Network {
             await this.account!.linkStorage(storageConfig)
         }
 
-        return new AccountStorage(storageConfig, this.account)
+        return new AccountContext(storageConfig, this.account)
     }
 
     /**

@@ -2,12 +2,12 @@ import { AccountInterface } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 
 import BaseStorageEngine from './engines/base'
-import ExternalStorage from './external'
+import ExternalContext from './external'
 
 /**
  * Storage for an authenticated user
  */
-export default class AccountStorage extends ExternalStorage {
+export default class AccountContext extends ExternalContext {
 
     public account: AccountInterface
 

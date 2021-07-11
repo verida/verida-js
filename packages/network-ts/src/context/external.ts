@@ -1,4 +1,4 @@
-import BaseStorage from './base'
+import BaseContext from './base'
 
 import BaseStorageEngine from './engines/base'
 import StorageEngineVerida from './engines/verida/engine'
@@ -12,7 +12,7 @@ const STORAGE_ENGINES: StorageEngineTypes = {
 /**
  * Storage for an external user
  */
-export default class ExternalStorage extends BaseStorage {
+export default class ExternalContext extends BaseContext {
 
     public async getStorage(): Promise<BaseStorageEngine> {
         if (this.storageEngine) {

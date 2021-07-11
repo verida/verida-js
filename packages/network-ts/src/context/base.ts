@@ -6,7 +6,7 @@ import BaseStorageEngine from './engines/base'
 /**
  * Storage for an external user
  */
-export default class BaseStorage {
+export default class BaseContext {
 
     public storageConfig: Interfaces.SecureStorageContextConfig
     

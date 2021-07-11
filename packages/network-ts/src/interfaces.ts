@@ -1,6 +1,6 @@
 import { AccountInterface } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
-import BaseStorage from './storage/base'
+import BaseStorage from './context/base'
 
 export interface ManagerConfig {
     defaultStorageServer: Interfaces.SecureStorageServer,
