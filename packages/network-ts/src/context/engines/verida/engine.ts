@@ -25,7 +25,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         super.connectAccount(account)
 
         this.did = await this.account!.did()
-        this.client.setAccount(account)
+        await this.client.setAccount(account)
 
         // Fetch user details from server
         let response
@@ -142,7 +142,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         this.client = new DatastoreServerClient(this.storageContext, this.endpointUri)
     }
 
-    private async getPublicCredentials() {
+    /*private async getPublicCredentials() {
         if (this.publicCredentials) {
             return this.publicCredentials
         }
@@ -150,6 +150,6 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         const response = await this.client.getPublicUser()
         this.publicCredentials = response.data.user
         return this.publicCredentials
-    }
+    }*/
 
 }
