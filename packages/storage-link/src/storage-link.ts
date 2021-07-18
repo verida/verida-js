@@ -4,7 +4,7 @@ import { IDX } from '@ceramicstudio/idx'
 const jsSHA = require("jssha")
 
 // Latest on Clay Testnet 9 July 2021
-const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145rikixwqf0qf6d69982b72mtxbp96snvop9nsvlaf1avydww9f'
+const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw1466rirx86uwwvvpwvy5vw5k1f6cegq2rgzv00u1h0r3gpu15uuv'
 
 /**
  * Class representing the link between a DID and Storage context
@@ -19,7 +19,7 @@ export default class StorageLink {
 
     static async getLinks(ceramic: CeramicClient, did: string): Promise<SecureStorageContextConfig[]> {
         const idx = new IDX({ ceramic })
-        const secureContexts = <SecureStorageContexts> await idx.get(SECURE_CONTEXTS_SCHEMA_ID, did)
+        const secureContexts = <SecureStorageContexts> await idx.get(StorageLink.schemaId, did)
 
         return secureContexts ? secureContexts.contexts : []
     }
@@ -53,7 +53,7 @@ export default class StorageLink {
         contexts.push(storageConfig)
 
         const idx = new IDX({ ceramic })
-        await idx.set(SECURE_CONTEXTS_SCHEMA_ID, {
+        await idx.set(StorageLink.schemaId, {
             contexts: contexts
         })
     }
@@ -66,7 +66,7 @@ export default class StorageLink {
         })
 
         const idx = new IDX({ ceramic })
-        await idx.set(SECURE_CONTEXTS_SCHEMA_ID, {
+        await idx.set(StorageLink.schemaId, {
             contexts: contexts
         })
 
