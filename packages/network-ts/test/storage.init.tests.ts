@@ -7,6 +7,7 @@ import { AutoAccount } from '@verida/account'
 import { StorageLink } from '@verida/storage-link'
 
 import CONFIG from './config'
+StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 
 import { Wallet } from 'ethers'
 const wallet = Wallet.createRandom()
