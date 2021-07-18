@@ -1,6 +1,14 @@
 
-## Storage Link
+# verida-ts
 
-Helper package that links 3ID's to secure storage on the Verida network
+## Tests
 
-See `idx/README.md` for instructions on how to configure the schemas in IDX / Ceramic.
+
+
+```
+$ ceramic daemon --network inmemory
+$ // follow steps in `storage-link/idx/README.md` to create local schemas
+$ // update test/config.ts
+$ yarn run tests
+$ yarn run test test/storage.context.tests.ts
+```
