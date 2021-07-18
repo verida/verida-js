@@ -78,7 +78,7 @@ export default class BaseDb extends EventEmitter implements Database {
         const hash = jsHash.getHash('HEX')
 
         // Database name in CouchDB must start with a letter, so pre-pend a `v`
-        return "v" + hash;
+        return "v" + hash
     }
 
     /**

@@ -8,6 +8,8 @@ import { StorageLink } from '@verida/storage-link'
 import CONFIG from './config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 
+const TEST_DB_NAME = 'TestDb'
+
 /**
  * 
  */
@@ -51,11 +53,14 @@ describe('Storage initialization tests', () => {
         })
 
         it('can open a database with owner/owner permissions', async function() {
-            const database = await storage.openDatabase('Test database')
+            const database = await storage.openDatabase(TEST_DB_NAME)
 
             await database.save({'hello': 'world'})
             const data = await database.getMany()
-            console.log(data)
+
+            assert.ok(data, 'Data returned')
+            assert.ok(data.length && data.length > 1, 'Array returned with at least one row')
+            assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
         
     })
