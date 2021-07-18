@@ -11,6 +11,10 @@ Quick hack instructions to create the necessary schema
 
 ## Example
 
+```
+$ export CERAMIC_URL=http://localhost:7007/
+```
+
 Publish a schema:
 
 ```
@@ -20,7 +24,7 @@ $ idx schema:publish did:key:z6MkfPM7WbUpnQZyaxLevGCMkcGz3MYMaraqsRZKAGstVANa '{
 Create a definition linked to the schema:
 
 ```
-idx definition:create did:key:z6MkfPM7WbUpnQZyaxLevGCMkcGz3MYMaraqsRZKAGstVANa --name="SecureContexts" --description="Verida Secure Contexts" --schema=ceramic://k3y52l7qbv1frygi424x7j9e2wiza45vj1u32rwllfyon0mk1sctvo9qo4ci3lon4
+idx definition:create did:key:z6MkfPM7WbUpnQZyaxLevGCMkcGz3MYMaraqsRZKAGstVANa --name="SecureContexts" --description="Verida Secure Contexts" --schema=ceramic://k3y52l7qbv1frxlhvbzfp99rfix9im48a9xf0eua7509mplg4hu3xqvgchwzlnmdc
 ```
 
 This will return a definition ID that can be used directly or added to Ceramic configuration in the SDK with an alias.
