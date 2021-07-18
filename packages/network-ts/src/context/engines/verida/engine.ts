@@ -116,12 +116,12 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             if (!dsn) {
                 throw "Unable to locate DSN for public database: " + this.dbHumanName;
             }*/
-            throw new Error('not implemented')
+            throw new Error('Public databases have not been implemented')
 
         } else if (config.permissions!.read == "users" || config.permissions!.write == "users") {
-            throw new Error('not implemented')
+            throw new Error('Databases with users permissions not yet implemented')
         } else {
-            throw new Error("Unable to create database or it doesn't exist")
+            throw new Error("Unable to create database. Invalid permissions configuration.")
         }
 
         // @todo Cache databases so we don't open the same one more than once
