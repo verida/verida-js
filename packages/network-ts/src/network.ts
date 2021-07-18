@@ -47,7 +47,7 @@ export default class Network {
     /**
      * Get a storage context for the current user
      */
-    public async openContext(contextName: string, forceCreate: boolean): Promise<BaseStorage | undefined> {
+    public async openContext(contextName: string, forceCreate: boolean = true): Promise<BaseStorage | undefined> {
         if (this.storageConnections[contextName]) {
             return this.storageConnections[contextName]
         }
