@@ -1,13 +1,13 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaNetwork from '../src/index'
+import VeridaNetwork from '../../src/index'
 import { Utils } from '@verida/3id-utils-node'
 import { AutoAccount } from '@verida/account'
 import { StorageLink } from '@verida/storage-link'
-import CONFIG from './config'
+import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
-import { assertIsValidDbResponse } from './utils'
+import { assertIsValidDbResponse } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerTestDb'
 const DB_NAME_USER = 'UserTestDb'

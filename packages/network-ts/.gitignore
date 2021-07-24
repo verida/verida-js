@@ -15,4 +15,4 @@ yarn-error.log
 *.sln
 *.sw?
 
-v*/
+/v*/
