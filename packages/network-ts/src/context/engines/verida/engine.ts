@@ -101,7 +101,8 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 permissions: config.permissions,
                 readOnly: config.readOnly,
                 encryptionKey,
-                client: this.client
+                client: this.client,
+                isOwner: true
             })
 
             await db.init()
@@ -119,7 +120,8 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 account: config.account,
                 permissions: config.permissions,
                 readOnly: config.readOnly,
-                client: this.client
+                client: this.client,
+                isOwner: true
             })
             
             await db.init()
