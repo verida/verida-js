@@ -16,7 +16,7 @@ const TEST_DB_NAME = 'TestDb'
 describe('Storage initialization tests', () => {
     // Instantiate utils
     const utils = new Utils(CONFIG.CERAMIC_URL)
-    let ceramic, context, storage
+    let ceramic, context
 
     const network = new VeridaNetwork({
         defaultStorageServer: {
@@ -44,16 +44,12 @@ describe('Storage initialization tests', () => {
             assert.ok(context, 'Account context opened')
 
             const fetchedStorageConfig = await StorageLink.getLink(ceramic, ceramic.did.id, CONFIG.CONTEXT_NAME)
-            assert.deepEqual(fetchedStorageConfig, context.getStorageConfig(), 'Storage context config matches')
-        })
-
-        it('can fetch a user storage instance', async function() {
-            storage = await context.getStorage()
-            assert.ok(storage)
+            const storageConfig = await context.getStorageConfig()
+            assert.deepEqual(fetchedStorageConfig, storageConfig, 'Storage context config matches')
         })
 
         it('can open a database with owner/owner permissions', async function() {
-            const database = await storage.openDatabase(TEST_DB_NAME)
+            const database = await context.openDatabase(TEST_DB_NAME)
 
             await database.save({'hello': 'world'})
             const data = await database.getMany()

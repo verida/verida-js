@@ -35,13 +35,13 @@ describe('Storage initialization tests', () => {
     describe('Initialize user storage contexts', function() {
         this.timeout(200000)
 
-        it('can not open a user storage context if not authenticated', async function() {
+        it('can not force create a user storage context if not authenticated', async function() {
             const promise = new Promise((resolve, rejects) => {
-                network.openContext(CONFIG.CONTEXT_NAME).then(rejects, resolve)
+                network.openContext(CONFIG.CONTEXT_NAME, true).then(rejects, resolve)
             })
             const result = await promise
 
-            assert.deepEqual(result, new Error('Unable to locate requested storage context for this user -- Not authenticated'))
+            assert.deepEqual(result, new Error('Unable to force create a storage context when not connected'))
         })
 
         it('can authenticate a user', async function() {
@@ -70,12 +70,13 @@ describe('Storage initialization tests', () => {
         })
 
         it(`can force open a user storage context that doesn't exist when authenticated`, async function() {
-            const accountStorage = await network.openContext(CONFIG.CONTEXT_NAME, true)
+            const accountContext = await network.openContext(CONFIG.CONTEXT_NAME, true)
+            assert.ok(accountContext, 'Account storage opened')
 
-            assert.ok(accountStorage, 'Account storage opened')
+            const accountStoageConfig = await accountContext.getStorageConfig()
 
             const fetchedStorageConfig = await StorageLink.getLink(ceramic, ceramic.did.id, CONFIG.CONTEXT_NAME)
-            assert.deepEqual(fetchedStorageConfig, accountStorage.getStorageConfig(), 'Storage context config matches')
+            assert.deepEqual(fetchedStorageConfig, accountStoageConfig, 'Storage context config matches')
         })
     })
 })

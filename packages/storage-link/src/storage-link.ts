@@ -4,7 +4,7 @@ import { IDX } from '@ceramicstudio/idx'
 const jsSHA = require("jssha")
 
 // Latest on Clay Testnet 9 July 2021
-const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw1466rirx86uwwvvpwvy5vw5k1f6cegq2rgzv00u1h0r3gpu15uuv'
+const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw14b8dysk9qw6eefny1u2ppdk53gxqeo6nuhrdhnoidp58hteoe5m'
 
 /**
  * Class representing the link between a DID and Storage context

@@ -1,32 +1,26 @@
-import { Interfaces } from '@verida/storage-link'
-import { StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { AccountInterface } from '@verida/account'
 import CeramicClient from '@ceramicnetwork/http-client'
 
-import { ManagerConfig, StorageConnections } from './interfaces'
-import BaseStorage from './context/base'
-import AccountContext from './context/account'
+import { ManagerConfig } from './interfaces'
+import Context from './context/context'
+import DIDContextManager from './did-context-manager'
 
 const DEFAULT_CERAMIC_URL = 'http://localhost:7001/'
 
 export default class Network {
 
-    public defaultStorageServer: Interfaces.SecureStorageServer
-    public defaultMessageServer: Interfaces.SecureStorageServer
     public ceramicUrl: string
-    
-    private storageConnections: StorageConnections = {}
+
     private ceramic: CeramicClient
+    private didContextManager: DIDContextManager
 
     private account?: AccountInterface
     private did?: string
 
     constructor(config: ManagerConfig) {
-        this.defaultStorageServer = config.defaultMessageServer
-        this.defaultMessageServer = config.defaultStorageServer
-
         this.ceramicUrl = config.ceramicUrl ? config.ceramicUrl : DEFAULT_CERAMIC_URL
         this.ceramic = new CeramicClient(this.ceramicUrl)
+        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultStorageServer, config.defaultMessageServer)
     }
 
     /**
@@ -38,6 +32,7 @@ export default class Network {
     public async connect(account: AccountInterface) {
         this.account = account
         this.did = await this.account!.did()
+        this.didContextManager.setAccount(this.account)   
     }
 
     public isConnected() {
@@ -47,51 +42,20 @@ export default class Network {
     /**
      * Get a storage context for the current user
      */
-    public async openContext(contextName: string, forceCreate: boolean = true): Promise<BaseStorage | undefined> {
-        if (this.storageConnections[contextName]) {
-            return this.storageConnections[contextName]
-        }
-
-        // Storage not in local cache, need to try and load it from the user's saved secure storage index
-        if (!this.did || !this.account) {
-            throw new Error('Unable to locate requested storage context for this user -- Not authenticated')
-        }
-
-        let storageConfig = await StorageLink.getLink(this.ceramic, this.did, contextName)
-
-        if (!storageConfig) {
-            if (!forceCreate) {
-                throw new Error('Unable to locate requested storage context for this user -- Storage context doesn\'t exist (try force create?)')
+    public async openContext(contextName: string, forceCreate: boolean = true): Promise<Context | undefined> {
+        if (forceCreate) {
+            if (!this.did || !this.account) {
+                throw new Error('Unable to force create a storage context when not connected')
             }
-
-            // Force creation of storage context
-            storageConfig = await DIDStorageConfig.generate(this.account, contextName, {
-                storageServer: this.defaultStorageServer,
-                messageServer: this.defaultMessageServer
-            })
-
-            await this.account!.linkStorage(storageConfig)
         }
 
-        return new AccountContext(storageConfig, this.account)
+        const contextConfig = await this.didContextManager.getDIDContextConfig(this.did!, contextName, forceCreate)
+        if (!contextConfig) {
+            throw new Error ('Unable to locate requested storage context for this user. Force create?')
+        }
+
+        // @todo cache the storage contexts
+        return new Context(contextName, this.didContextManager, this.account)
     }
-
-    /**
-     * Get a storage connection for an external DID
-     * 
-     * @param did 
-     * @param storageName 
-     */
-    /*public async openExternalStorageContext(did: string, storageName: string): Promise<External | undefined> {
-        const connection = this.findConnection(did)
-
-        // did -> storage connection instance -> get() -- if fails, throw error -> create StorageExternal
-        const storageIndex = await connection.get(did, storageName)
-        if (!storageIndex) {
-            return
-        }
-
-        return new External(did, storageIndex)
-    }*/
 
 }

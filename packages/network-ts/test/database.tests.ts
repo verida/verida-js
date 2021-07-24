@@ -19,7 +19,7 @@ const DB_NAME_PUBLIC = 'PublicTestDb'
 describe('Storage initialization tests', () => {
     // Instantiate utils
     const utils = new Utils(CONFIG.CERAMIC_URL)
-    let ceramic, context, storage
+    let ceramic, context
 
     const network = new VeridaNetwork({
         defaultStorageServer: {
@@ -41,8 +41,7 @@ describe('Storage initialization tests', () => {
             const account = new AutoAccount(ceramic)
             await network.connect(account)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
-            storage = await context.getStorage()
-            const database = await storage.openDatabase(DB_NAME_OWNER)
+            const database = await context.openDatabase(DB_NAME_OWNER)
 
             await database.save({'hello': 'world'})
             const data = await database.getMany()
@@ -52,7 +51,7 @@ describe('Storage initialization tests', () => {
         })
 
         it('can open a database with user permissions', async function() {
-            const database = await storage.openDatabase(DB_NAME_USER, {
+            const database = await context.openDatabase(DB_NAME_USER, {
                 permissions: {
                     read: 'users',
                     write: 'users'
@@ -67,7 +66,7 @@ describe('Storage initialization tests', () => {
         })
 
         it('can open a database with public read permissions', async function() {
-            const database = await storage.openDatabase(DB_NAME_PUBLIC, {
+            const database = await context.openDatabase(DB_NAME_PUBLIC, {
                 permissions: {
                     read: 'public',
                     write: 'owner'

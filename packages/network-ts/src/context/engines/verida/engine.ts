@@ -3,6 +3,7 @@ import EncryptedDatabase from "./db-encrypted"
 import { Database, DatabaseConfig, DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
 import DatastoreServerClient from "./client"
 import { AccountInterface } from '@verida/account'
+import PublicDatabase from "./db-public"
 
 const _ = require('lodash')
 
@@ -49,6 +50,13 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         this.dsn = user.dsn
     }
 
+    /**
+     * Open a database owned by this user
+     * 
+     * @param databaseName 
+     * @param options 
+     * @returns 
+     */
     public async openDatabase(databaseName: string, options: DatabaseOpenConfig): Promise<Database> {
         const config: DatabaseOpenConfig = _.merge({
             permissions: {
@@ -82,10 +90,9 @@ export default class StorageEngineVerida extends BaseStorageEngine {
 
         did = did!.toLowerCase()
 
-        let db
         if (config.permissions!.read == "owner" && config.permissions!.write == "owner") {
             const encryptionKey = await this.keyring!.getStorageContextKey(databaseName)
-            db = new EncryptedDatabase({
+            const db = new EncryptedDatabase({
                 databaseName,
                 did,
                 storageContext: this.storageContext,
@@ -100,23 +107,23 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             await db.init()
             return db
         } else if (config.permissions!.read == "public") {
-
-            // If the current application user is the owner of this database, request
-            // consent from the user for full access. Otherwise, use public credentials
-            // to access the database
-
-            // CODE FROM publicdatabase constructor
-            /*if (this.isOwner) {
-                dsn = await this.dataserver.getDsn();
-            } else {
-                let publicCreds = await this.dataserver.getPublicCredentials();
-                dsn = publicCreds.dsn;
+            if (!config.isOwner) {
+                throw new Error("Unable to open database. You are not the owner. Try opening as an external database?")
             }
+
+            const db = new PublicDatabase({
+                databaseName,
+                did,
+                storageContext: this.storageContext,
+                dsn: this.dsn!,
+                account: config.account,
+                permissions: config.permissions,
+                readOnly: config.readOnly,
+                client: this.client
+            })
             
-            if (!dsn) {
-                throw "Unable to locate DSN for public database: " + this.dbHumanName;
-            }*/
-            throw new Error('Public databases have not been implemented')
+            await db.init()
+            return db
 
         } else if (config.permissions!.read == "users" || config.permissions!.write == "users") {
             throw new Error('Databases with users permissions not yet implemented')
@@ -137,12 +144,101 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         throw new Error('Not implemented')
     }
 
+    /**
+     * Open an external database (owned by another DID)
+     * 
+     * @param databaseName 
+     * @param did 
+     * @param options 
+     */
+    public async openExternalDatabase(databaseName: string, did: string, options: DatabaseOpenConfig) {
+        // If the current application user is the owner of this database, request
+        // consent from the user for full access. Otherwise, use public credentials
+        // to access the database
+        /*let dsn = null
+        if (config.isOwner && this.dsn!) {
+            // Current user is authenticated and the database being requested
+            // is owned by the current user, so use their DSN
+            dsn = this.dsn!
+        } else {
+            // Locate the public credentials
+            let publicCreds = await this.getPublicCredentials()
+            dsn = publicCreds.dsn;
+        }
+        
+        if (!dsn) {
+            throw new Error("Unable to locate DSN for public database: " + databaseName)
+        }*/
+
+        did = did!.toLowerCase()
+
+        const config: DatabaseOpenConfig = _.merge({
+            permissions: {
+                read: "public",
+                write: "owner"
+            },
+            did: did,
+            saveDatabase: false,
+            readOnly: true
+        }, options)
+
+        ////
+
+        /*
+        // use this.contextName
+        config = _.merge({
+            appName: App.config.appName,
+            did: did
+        }, config);*/
+
+
+        // @todo support caching?
+        /*if (App.cache.dataservers[did + ':' + config.appName]) {
+            return App.cache.dataservers[did + ':' + config.appName];
+        }*/
+
+        // get the DID's DSN
+
+
+        /////
+
+        // Get user's VID to obtain their dataserver address
+        /*let vidDoc = await VidHelper.getByDid(did, config.appName);
+
+        if (!vidDoc) {
+            throw "Unable to locate application VID. User hasn't initialised this application? ("+did+" / "+config.appName+")";
+        }
+
+        let dataserverDoc = vidDoc.service.find(entry => entry.id.includes('dataserver'));
+        let dataserverUrl = dataserverDoc.serviceEndpoint;
+
+        // Build dataserver config, merging defaults and user defined config
+        config = _.merge({
+            isProfile: false,
+            serverUrl: dataserverUrl
+        }, config);
+
+        // Build dataserver
+        let dataserver = new DataServer(config);
+        dataserver.loadExternal({
+            vid: vidDoc.id
+        });
+
+        // Cache and return dataserver
+        App.cache.dataservers[did + ':' + config.appName] = dataserver;
+        return App.cache.dataservers[did + ':' + config.appName];*/
+    }
+
+    public async openExternalDatastore(schemaName: string, did: string, options: DatastoreOpenConfig) {
+        throw new Error('Not implemented')
+    }
+
     public logout() {
         super.logout()
         this.client = new DatastoreServerClient(this.storageContext, this.endpointUri)
     }
 
-    /*private async getPublicCredentials() {
+    private async getPublicCredentials() {
         if (this.publicCredentials) {
             return this.publicCredentials
         }
@@ -150,6 +246,6 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         const response = await this.client.getPublicUser()
         this.publicCredentials = response.data.user
         return this.publicCredentials
-    }*/
+    }
 
 }
