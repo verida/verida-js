@@ -108,10 +108,6 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             await db.init()
             return db
         } else if (config.permissions!.read == "public") {
-            if (!config.isOwner) {
-                throw new Error("Unable to open database. You are not the owner. Try opening as an external database?")
-            }
-
             const db = new PublicDatabase({
                 databaseName,
                 did,
@@ -128,7 +124,23 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             return db
 
         } else if (config.permissions!.read == "users" || config.permissions!.write == "users") {
-            throw new Error('Databases with users permissions not yet implemented')
+            const encryptionKey = config.encryptionKey ? config.encryptionKey : await this.keyring!.getStorageContextKey(databaseName)
+
+            const db = new EncryptedDatabase({
+                databaseName,
+                did,
+                storageContext: this.storageContext,
+                dsn: this.dsn!,
+                account: config.account,
+                permissions: config.permissions,
+                readOnly: config.readOnly,
+                encryptionKey,
+                client: this.client,
+                isOwner: true
+            })
+            
+            await db.init()
+            return db
         } else {
             throw new Error("Unable to create database. Invalid permissions configuration.")
         }

@@ -7,7 +7,8 @@ export interface DatabaseOpenConfig {
     did?: string,
     saveDatabase?: boolean,
     readOnly?: boolean,
-    isOwner?: boolean
+    isOwner?: boolean,
+    encryptionKey?: string
 }
 
 export interface DatastoreOpenConfig {
