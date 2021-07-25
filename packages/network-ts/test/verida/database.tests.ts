@@ -114,12 +114,30 @@ describe('Storage initialization tests', () => {
                 }
             })
 
-            assert.ok(database && database.constructor.name == 'PublicDatabase', 'Have database instance returned')
+            assert.ok(database && database.constructor.name == 'PublicDatabase', 'Valid database instance returned')
+            const data = await database.getMany()
+
+            assertIsValidDbResponse(assert, data)
+            assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
 
-        // open an external context
-        // read from an external storage context with public read
-        // write to an external storage context with public write
+        it(`can't write to an external storage context with public read, but owner write`, async function() {
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, CONFIG.DID, {
+                permissions: {
+                    read: 'public',
+                    write: 'owner'
+                }
+            })
+
+            const promise = new Promise((resolve, rejects) => {
+                database.save({'cant': 'write'}).then(rejects, resolve)
+            })
+            const result = await promise
+
+            assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
+        })
+
+        // can write to an external storage context with public write
         // can't read from an external storage context with read=owner
         // can't read from an external storage context with read=users
         // can't write to an external storage context with write=owner

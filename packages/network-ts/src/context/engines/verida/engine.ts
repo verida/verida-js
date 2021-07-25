@@ -90,7 +90,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         }
 
         let dsn = config.dsn
-        if (config.isOwner && this.dsn) {
+        if (config.isOwner) {
             dsn = this.dsn!
         }
 
@@ -116,6 +116,17 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             await db.init()
             return db
         } else if (config.permissions!.read == "public") {
+            // If we aren't the owner of this database use the public credentials
+            // to access this database
+            if (!config.isOwner) {
+                const publicCreds = await this.getPublicCredentials()
+                dsn = publicCreds.dsn
+
+                if (config.permissions!.write != 'public') {
+                    config.readOnly = true
+                }
+            }
+
             const db = new PublicDatabase({
                 databaseName,
                 did,

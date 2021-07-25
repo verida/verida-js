@@ -106,7 +106,7 @@ export default class BaseDb extends EventEmitter implements Database {
     public async save(data: any, options: any = {}): Promise<boolean> {
         await this.init()
         if (this.readOnly) {
-            throw "Unable to save. Read only."
+            throw new Error("Unable to save. Database is read only.")
         }
 
         let defaults = {
