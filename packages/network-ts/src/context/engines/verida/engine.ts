@@ -79,12 +79,12 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         did = did!.toLowerCase()
 
         // If permissions require "owner" access, connect the current user
-        if (config.isOwner && (config.permissions!.read == "owner" || config.permissions!.write == "owner") && !config.readOnly) {
+        if ((config.permissions!.read == "owner" || config.permissions!.write == "owner") && !config.readOnly) {
             if (!config.readOnly && !config.account) {
                 throw new Error("Unable to open database. Permissions require \"owner\" access, but no account supplied in config.")
             }
 
-            if (!config.readOnly) {
+            if (!config.readOnly && config.isOwner) {
                 await this.connectAccount(config.account!) // @todo: there was , true here to force connection. need to audit if this is still needed.
             }
         }
@@ -96,6 +96,10 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         }
 
         if (config.permissions!.read == "owner" && config.permissions!.write == "owner") {
+            if (!this.keyring) {
+                throw new Error("Unable to open database. Persmissions require \"owner\" access, but no account supplied in config.")
+            }
+
             const encryptionKey = await this.keyring!.getStorageContextKey(databaseName)
             const db = new EncryptedDatabase({
                 databaseName,
@@ -140,6 +144,10 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             return db
 
         } else if (config.permissions!.read == "users" || config.permissions!.write == "users") {
+            if (!this.keyring) {
+                throw new Error("Unable to open database. Persmissions require \"users\" access, but no account supplied in config.")
+            }
+
             const encryptionKey = config.encryptionKey ? config.encryptionKey : await this.keyring!.getStorageContextKey(databaseName)
 
             const db = new EncryptedDatabase({

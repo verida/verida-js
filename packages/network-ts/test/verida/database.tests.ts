@@ -117,7 +117,7 @@ describe('Storage initialization tests', () => {
          * We initialize a second account and have it attempt to access the
          * databases created earlier in this set of tests (see above)
          */
-        it('read from an external storage context with public read', async function() {
+        it('can read from an external storage context with public read', async function() {
             ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
             const account = new AutoAccount(ceramic2)
             await network2.connect(account)
@@ -186,8 +186,30 @@ describe('Storage initialization tests', () => {
             await assertIsValidSignature(assert, network2, CONFIG.DID_2, data)
         })
 
-        // can write to an external storage context with public write
-        // can't read from an external storage context with read=owner
+        it(`can't access an external storage context with owner read`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context2.openExternalDatabase(DB_NAME_OWNER, CONFIG.DID).then(rejects, resolve)
+            })
+            const result = await promise
+
+            assert.deepEqual(result, new Error('Unable to open database. Persmissions require \"owner\" access, but no account supplied in config.'))
+        })
+
+        it(`can't access an external storage context with access users and user no access`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context2.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                    permissions: {
+                        read: 'users',
+                        write: 'users'
+                    }
+                }).then(rejects, resolve)
+            })
+            const result = await promise
+
+            assert.deepEqual(result, new Error('Unable to open database. Persmissions require \"users\" access, but no account supplied in config.'))
+        })
+
+        // can't write to an external storage context with write=users read=public
         // can't read from an external storage context with read=users
         // can't write to an external storage context with write=owner
         // can't write to an external storage context with write=users
