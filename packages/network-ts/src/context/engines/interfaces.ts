@@ -5,6 +5,7 @@ export interface DatabaseOpenConfig {
     permissions?: PermissionsConfig,
     account?: AccountInterface,
     did?: string,
+    dsn?: string,
     saveDatabase?: boolean,
     readOnly?: boolean,
     isOwner?: boolean,

@@ -1,6 +1,6 @@
 import BaseStorageEngine from "../base"
 import EncryptedDatabase from "./db-encrypted"
-import { Database, DatabaseConfig, DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
+import { Database, DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
 import DatastoreServerClient from "./client"
 import { AccountInterface } from '@verida/account'
 import PublicDatabase from "./db-public"
@@ -69,8 +69,17 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             readOnly: false
         }, options)
 
+        // Default to user's did if not specified
+        let did = config.did
+        const accountDid = await config.account?.did()
+        if (config.account) {
+            did = config.did || this.did!
+            config.isOwner = (did == (config.account ? accountDid : false))
+        }
+        did = did!.toLowerCase()
+
         // If permissions require "owner" access, connect the current user
-        if ((config.permissions!.read == "owner" || config.permissions!.write == "owner") && !config.readOnly) {
+        if (config.isOwner && (config.permissions!.read == "owner" || config.permissions!.write == "owner") && !config.readOnly) {
             if (!config.readOnly && !config.account) {
                 throw new Error("Unable to open database. Permissions require \"owner\" access, but no account supplied in config.")
             }
@@ -80,15 +89,14 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             }
         }
 
-        // Default to user's did if not specified
-        let did = config.did
-        const accountDid = await config.account?.did()
-        if (config.account) {
-            did = config.did || this.did!
-            config.isOwner = (did == (config.account ? accountDid : false))
+        let dsn = config.dsn
+        if (config.isOwner && this.dsn) {
+            dsn = this.dsn!
         }
 
-        did = did!.toLowerCase()
+        if (!dsn) {
+            throw new Error("Unable to determine DSN for this user and this context")
+        }
 
         if (config.permissions!.read == "owner" && config.permissions!.write == "owner") {
             const encryptionKey = await this.keyring!.getStorageContextKey(databaseName)
@@ -96,13 +104,13 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 databaseName,
                 did,
                 storageContext: this.storageContext,
-                dsn: this.dsn!,
+                dsn,
                 account: config.account,
                 permissions: config.permissions,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
-                isOwner: true
+                isOwner: config.isOwner
             })
 
             await db.init()
@@ -112,12 +120,12 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 databaseName,
                 did,
                 storageContext: this.storageContext,
-                dsn: this.dsn!,
+                dsn,
                 account: config.account,
                 permissions: config.permissions,
                 readOnly: config.readOnly,
                 client: this.client,
-                isOwner: true
+                isOwner: config.isOwner
             })
             
             await db.init()
@@ -130,19 +138,19 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 databaseName,
                 did,
                 storageContext: this.storageContext,
-                dsn: this.dsn!,
+                dsn,
                 account: config.account,
                 permissions: config.permissions,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
-                isOwner: true
+                isOwner: config.isOwner
             })
             
             await db.init()
             return db
         } else {
-            throw new Error("Unable to create database. Invalid permissions configuration.")
+            throw new Error("Unable to open database. Invalid permissions configuration.")
         }
 
         // @todo Cache databases so we don't open the same one more than once
@@ -166,6 +174,17 @@ export default class StorageEngineVerida extends BaseStorageEngine {
      * @param options 
      */
     public async openExternalDatabase(databaseName: string, did: string, options: DatabaseOpenConfig) {
+        
+
+        /*did = did.toLowerCase()
+        let dataserver = await App.buildDataserver(did, {
+            appName: config.appName || App.config.appName
+        });
+
+        config.did = did
+        return .openDatabase(dbName, config)*/
+
+
         // If the current application user is the owner of this database, request
         // consent from the user for full access. Otherwise, use public credentials
         // to access the database

@@ -8,6 +8,8 @@ import DIDContextManager from '../did-context-manager'
 import { StorageEngines } from '../interfaces'
 import { Database, DatabaseOpenConfig } from './engines/interfaces'
 
+const _ = require('lodash')
+
 const STORAGE_ENGINES: StorageEngineTypes = {
     'VeridaStorage': StorageEngineVerida
 }
@@ -100,6 +102,12 @@ export default class Context {
      */
     public async openExternalDatabase(databaseName: string, did: string, options: DatabaseOpenConfig): Promise<Database> {
         const storageEngine = await this.getStorageEngine(did)
+        const storageConfig = await this.getStorageConfig(did)
+        options = _.merge({
+            did,
+            dsn: storageConfig.services.storageServer.endpointUri
+        }, options)
+
         return storageEngine.openDatabase(databaseName, options)
     }
 

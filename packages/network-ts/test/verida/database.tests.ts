@@ -20,8 +20,21 @@ describe('Storage initialization tests', () => {
     // Instantiate utils
     const utils = new Utils(CONFIG.CERAMIC_URL)
     let ceramic, context
+    let ceramic2, context2
 
     const network = new VeridaNetwork({
+        defaultStorageServer: {
+            type: 'VeridaStorage',
+            endpointUri: 'http://localhost:5000/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaStorage',
+            endpointUri: 'http://localhost:5000/'
+        },
+        ceramicUrl: CONFIG.CERAMIC_URL
+    })
+
+    const network2 = new VeridaNetwork({
         defaultStorageServer: {
             type: 'VeridaStorage',
             endpointUri: 'http://localhost:5000/'
@@ -84,6 +97,26 @@ describe('Storage initialization tests', () => {
     describe('Access public storage contexts', function() {
         this.timeout(100000)
 
+        /**
+         * We initialize a second account and have it attempt to access the
+         * databases created earlier in this set of tests (see above)
+         */
+        it('read from an external storage context with public read', async function() {
+            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
+            const account = new AutoAccount(ceramic2)
+            await network2.connect(account)
+            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
+
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, CONFIG.DID, {
+                permissions: {
+                    read: 'public',
+                    write: 'owner'
+                }
+            })
+
+            assert.ok(database && database.constructor.name == 'PublicDatabase', 'Have database instance returned')
+        })
+
         // open an external context
         // read from an external storage context with public read
         // write to an external storage context with public write
@@ -105,5 +138,7 @@ describe('Storage initialization tests', () => {
 
         // can't read from an external storage context with read=owner
         // can't write to an external storage context with write=owner
+
+        // test providing the encryption key for an external storage
     })
 })
