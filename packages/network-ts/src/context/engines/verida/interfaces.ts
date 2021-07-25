@@ -12,7 +12,8 @@ export interface VeridaDatabaseConfig {
     permissions?: PermissionsConfig,
     
     signAccount?: AccountInterface,
-    signData?: boolean
+    signData?: boolean,
+    signContextName?: string,
 
     readOnly?: boolean,
     isOwner?: boolean,

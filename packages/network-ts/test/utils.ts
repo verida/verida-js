@@ -1,8 +1,15 @@
-
+import { SigningUtils } from '@verida/keyring'
+import Network from '../src'
 
 export const assertIsValidDbResponse = function(assert: any, data: any) {
     assert.ok(data, 'Data returned')
     assert.ok(data.length && data.length > 1, 'Array returned with at least one row')
     // @todo: add seom helpful utilities to ensure resopnse is what is expected
     // assert.ok(data[0].hello == 'world', 'First result has expected value')
+}
+
+
+export const assertIsValidSignature = async function(assert: any, network: Network, did: string, data: any) {
+    const validSignatures = await network.getValidDataSignatures(data, did)
+    assert.ok(validSignatures.includes(did), 'DID is included in list of valid signatures')
 }

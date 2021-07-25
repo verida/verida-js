@@ -1,3 +1,7 @@
+import Encryption from '@verida/encryption-utils'
+const bs58 = require('bs58')
+const _ = require('lodash')
+
 import { AccountInterface } from '@verida/account'
 import CeramicClient from '@ceramicnetwork/http-client'
 
@@ -56,6 +60,47 @@ export default class Network {
 
         // @todo cache the storage contexts
         return new Context(contextName, this.didContextManager, this.account)
+    }
+
+    /**
+     * Verify data has been signed by a particular DID
+     * 
+     * @param did 
+     * @param signatures 
+     */
+     public async getValidDataSignatures(data: any, did?: string): Promise<string[]> {
+        if (!data.signatures) {
+            // no signatures
+            return []
+        }
+
+        let _data = _.merge({}, data)
+        delete _data['signatures']
+        delete _data['_rev']
+
+        let validSignatures = []
+        for (let key in data.signatures) {
+            const sigKeyParts = key.split(':')
+            if (sigKeyParts.length < 4) {
+                // invalid sig, skip
+                continue
+            }
+
+            const sigDid = `did:${sigKeyParts[1]}:${sigKeyParts[2]}`
+            const contextHash = sigKeyParts[3]
+            if (!did || sigDid == did) {
+                const signature = data.signatures[key]
+                const contextConfig = await this.didContextManager.getDIDContextHashConfig(sigDid, contextHash)
+                const signKeyBase58 = contextConfig.publicKeys.signKey.base58
+                const signKey = bs58.decode(signKeyBase58)
+                const validSig = await Encryption.verifySig(_data, signature, signKey)
+                if (validSig) {
+                    validSignatures.push(sigDid)
+                }
+            }
+        }
+
+        return validSignatures
     }
 
 }

@@ -64,7 +64,7 @@ export default class Context {
             throw new Error(`Unsupported storage engine type specified: ${engineType}`)
         }
         const engine = STORAGE_ENGINES[engineType]  // @todo type cast correctly
-        const storageEngine = new engine(storageConfig.id, storageConfig.services.storageServer.endpointUri)
+        const storageEngine = new engine(this.contextName, storageConfig.services.storageServer.endpointUri)
         
         /**
          * If we're opening a database controlled by the currently authenticated

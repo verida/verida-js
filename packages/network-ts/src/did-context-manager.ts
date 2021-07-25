@@ -39,13 +39,25 @@ export default class DIDContextManager {
         return storageConfig.services.messageServer
     }
 
-    public async getDIDContextConfig(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureStorageContextConfig> {
-        if (!this.didContexts[contextName]) {
-            this.didContexts[contextName] = {}
+    public async getDIDContextHashConfig(did: string, contextHash: string) {
+        if (this.didContexts[contextHash]) {
+            return this.didContexts[contextHash]
         }
 
-        if (this.didContexts[contextName][did]) {
-            return this.didContexts[contextName][did]
+        let storageConfig = await StorageLink.getLink(this.ceramic, did, contextHash, false)
+        if (!storageConfig) {
+            throw new Error('Unable to locate requested storage context for this user')
+        }
+
+        this.didContexts[contextHash] = storageConfig
+        return storageConfig
+    }
+
+    public async getDIDContextConfig(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureStorageContextConfig> {
+        const contextHash = StorageLink.hash(`${did}/${contextName}`)
+
+        if (this.didContexts[contextHash]) {
+            return this.didContexts[contextHash]
         }
 
         let storageConfig = await StorageLink.getLink(this.ceramic, did, contextName)
@@ -74,7 +86,7 @@ export default class DIDContextManager {
             await this.account!.linkStorage(storageConfig)
         }
 
-        this.didContexts[contextName][did] = storageConfig
+        this.didContexts[contextHash] = storageConfig
         return storageConfig
     }
     

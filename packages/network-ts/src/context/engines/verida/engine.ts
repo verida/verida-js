@@ -89,10 +89,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             }
         }
 
-        let dsn = config.dsn
-        if (config.isOwner) {
-            dsn = this.dsn!
-        }
+        let dsn = config.isOwner ? this.dsn! : config.dsn!
 
         if (!dsn) {
             throw new Error("Unable to determine DSN for this user and this context")

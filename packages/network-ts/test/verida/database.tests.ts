@@ -7,7 +7,7 @@ import { AutoAccount } from '@verida/account'
 import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
-import { assertIsValidDbResponse } from '../utils'
+import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerTestDb'
 const DB_NAME_USER = 'UserTestDb'
@@ -104,7 +104,6 @@ describe('Storage initialization tests', () => {
 
             await database.save({'hello': 'world'})
             const data = await database.getMany()
-            console.log(data)
 
             assertIsValidDbResponse(assert, data)
             assert.ok(data[0].hello == 'world', 'First result has expected value')
@@ -168,6 +167,23 @@ describe('Storage initialization tests', () => {
             const data = await database.get(result.id)
             assert.ok(data, 'Fetched saved record')
             assert.ok(data.write == 'from external DID', 'Result has expected value')
+        })
+
+        it(`data saved to external storage context has valid signature`, async function() {
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, CONFIG.DID, {
+                permissions: {
+                    read: 'public',
+                    write: 'public'
+                }
+            })
+
+            const result = await database.save({'write-signed': 'signed data'})
+            assert.ok(result.id, 'Created a record with a valid ID')
+            
+            const data = await database.get(result.id)
+            assert.ok(data, 'Fetched saved record')
+            assert.ok(Object.keys(data.signatures).length, 'Data has signatures')
+            await assertIsValidSignature(assert, network2, CONFIG.DID_2, data)
         })
 
         // can write to an external storage context with public write

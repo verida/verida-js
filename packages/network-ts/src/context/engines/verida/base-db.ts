@@ -6,6 +6,7 @@ const uuidv1 = require('uuid/v1')
 import { AccountInterface } from '@verida/account'
 import { VeridaDatabaseConfig } from "./interfaces"
 import { Database, PermissionsConfig } from '../interfaces'
+import { StorageLink } from '@verida/storage-link'
 import DatastoreServerClient from "./client"
 import Utils from './utils'
 
@@ -36,7 +37,7 @@ export default class BaseDb extends EventEmitter implements Database {
         this.client = config.client
         this.databaseName = config.databaseName
         this.did = config.did.toLocaleUpperCase()
-        this.storageContext = config.storageContext // can this be removed?
+        this.storageContext = config.storageContext // used for signing
         this.dsn = config.dsn
         this.isOwner = config.isOwner
 
@@ -46,8 +47,9 @@ export default class BaseDb extends EventEmitter implements Database {
         this.account = config.account;
 
         // Signing user will be the logged in user
-        this.signAccount = config.signAccount || config.account;
-        this.signData = config.signData === false ? false : true;
+        this.signAccount = config.signAccount || config.account
+        this.signData = config.signData === false ? false : true
+        this.signContextName = config.signContextName ? config.signContextName : this.storageContext
 
         this.config = _.merge({}, config);
 
@@ -72,12 +74,16 @@ export default class BaseDb extends EventEmitter implements Database {
             this.databaseName
         ].join("/")
 
-        const jsHash = new jsSHA('SHA-256', 'TEXT')
-        jsHash.update(text)
-        const hash = jsHash.getHash('HEX')
+        const hash = this.buildHash(text)
 
         // Database name in CouchDB must start with a letter, so pre-pend a `v`
         return "v" + hash
+    }
+
+    private buildHash(text: string) {
+        const jsHash = new jsSHA('SHA-256', 'TEXT')
+        jsHash.update(text)
+        return jsHash.getHash('HEX')
     }
 
     /**
@@ -140,7 +146,7 @@ export default class BaseDb extends EventEmitter implements Database {
         }
 
         if (insert) {
-            await this._beforeInsert(data)
+            data = await this._beforeInsert(data)
 
             /**
              * Fired before a new record is inserted.
@@ -150,7 +156,7 @@ export default class BaseDb extends EventEmitter implements Database {
              */
             this.emit("beforeInsert", data)
         } else {
-            await this._beforeUpdate(data)
+            data = await this._beforeUpdate(data)
 
             /**
              * Fired before a new record is updated.
@@ -280,7 +286,13 @@ export default class BaseDb extends EventEmitter implements Database {
 
     protected async _beforeInsert(data: any) {
         if (!data._id) {
-            data._id = uuidv1()
+            // Do it in this way to ensure _id is the first JSON property
+            // When a result is returned from CouchDB it always returns _id as
+            // the first property, so this ensures consistency of order which
+            // is necessary when validating data signatures
+            data = _.merge({
+                _id: uuidv1()
+            }, data)
         }
 
         data.insertedAt = (new Date()).toISOString()
@@ -289,6 +301,8 @@ export default class BaseDb extends EventEmitter implements Database {
         if (this.signData) {
             await this._signData(data)
         }
+
+        return data
     }
 
     protected async _beforeUpdate(data: any) {
@@ -297,6 +311,8 @@ export default class BaseDb extends EventEmitter implements Database {
         if (this.signData) {
             await this._signData(data)
         }
+
+        return data
     }
 
     protected _afterInsert(data: any, response: any) {}
@@ -353,7 +369,25 @@ export default class BaseDb extends EventEmitter implements Database {
             throw new Error("Unable to sign data. No signing user specified.")
         }
 
-        this.signAccount!.sign(data)
+        const keyring = await this.signAccount.keyring(this.signContextName!)
+        if (!keyring) {
+            throw new Error("Unable to sign data. No valid signing user specified for this context.")
+        }
+
+        const signDid = await this.signAccount.did()
+
+        if (!data.signatures) {
+            data.signatures = {}
+        }
+
+        const signContextHash = StorageLink.hash(`${signDid}/${this.signContextName}`)
+        const signKey = `${signDid}:${signContextHash}`
+
+        let _data = _.merge({}, data)
+        delete _data['signatures']
+
+        data.signatures[signKey] = await keyring.sign(_data)
+        return data
     }
 
     protected async createDb() {

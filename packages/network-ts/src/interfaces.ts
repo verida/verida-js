@@ -11,12 +11,6 @@ export interface ManagerConfig {
 // key = contextName
 // value = SecureStorageContextConfig
 export interface DIDContextConfigs {
-    [key: string]: DIDConfigs
-}
-
-// key = DID string
-// value = SecureStorageContextConfig
-export interface DIDConfigs {
     [key: string]: Interfaces.SecureStorageContextConfig
 }
 
