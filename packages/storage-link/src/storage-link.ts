@@ -4,7 +4,7 @@ import { IDX } from '@ceramicstudio/idx'
 const jsSHA = require("jssha")
 
 // Latest on Clay Testnet 9 July 2021
-const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw14b8dysk9qw6eefny1u2ppdk53gxqeo6nuhrdhnoidp58hteoe5m'
+const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw1477jghfhwzru8a9kvec774jv4tylbyvqrh4z66px37b7zh3jfo3'
 
 /**
  * Class representing the link between a DID and Storage context
@@ -17,6 +17,7 @@ export default class StorageLink {
         StorageLink.schemaId = schemaId
     }
 
+    // @todo: cache
     static async getLinks(ceramic: CeramicClient, did: string): Promise<SecureStorageContextConfig[]> {
         const idx = new IDX({ ceramic })
         const secureContexts = <SecureStorageContexts> await idx.get(StorageLink.schemaId, did)
@@ -31,8 +32,12 @@ export default class StorageLink {
      * @param contextName 
      * @returns SecureStorageContextConfig | undefined (if not found)
      */
-    static async getLink(ceramic: CeramicClient, did: string, contextName: string): Promise<SecureStorageContextConfig | undefined> {
-        const contextHash = StorageLink._hash(`${did}/${contextName}`)
+    static async getLink(ceramic: CeramicClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureStorageContextConfig | undefined> {
+        let contextHash = context
+        if (contextIsName) {
+            contextHash = StorageLink.hash(`${did}/${context}`)
+        }
+
         const secureContexts =  await StorageLink.getLinks(ceramic, did)
         const secureContext = StorageLink._findHash(secureContexts, contextHash)
 
@@ -41,7 +46,7 @@ export default class StorageLink {
 
     static async setLink(ceramic: CeramicClient, did: string, storageConfig: SecureStorageContextConfig) {
         const contextName = storageConfig.id
-        const contextHash = StorageLink._hash(`${did}/${contextName}`)
+        const contextHash = StorageLink.hash(`${did}/${contextName}`)
         const secureContexts = <SecureStorageContextConfig[]> await StorageLink.getLinks(ceramic, did)
 
         // Remove if already exists
@@ -59,7 +64,7 @@ export default class StorageLink {
     }
 
     static async unlink(ceramic: CeramicClient, did: string, contextName: string) {
-        const contextHash = StorageLink._hash(`${did}/${contextName}`)
+        const contextHash = StorageLink.hash(`${did}/${contextName}`)
         const secureContexts = <SecureStorageContextConfig[]> await StorageLink.getLinks(ceramic, did)
         const contexts = secureContexts.filter((item: SecureStorageContextConfig) => {
             return item.id != contextHash
@@ -73,7 +78,7 @@ export default class StorageLink {
         return true
     }
 
-    static _hash(input: string): string {
+    public static hash(input: string): string {
         const hash = new jsSHA('SHA-256', 'TEXT')
         hash.update(input)
         const result = hash.getHash('HEX')
@@ -81,13 +86,11 @@ export default class StorageLink {
     }
 
     static _findHash(contexts: any[], hash: string): SecureStorageContextConfig | undefined {
-        const result = contexts.reduce((acc, item) => {
-            if (item && item.id == hash) {
-                return item
+        for (let i in contexts) {
+            if (contexts[i].id == hash) {
+                return contexts[i]
             }
-        }, null)
-
-        return result
+        }
     }
 
 }

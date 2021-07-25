@@ -1,5 +1,6 @@
 import { AccountInterface } from '@verida/account'
 import { SecureStorageContextConfig, SecureStorageContextServices } from './interfaces'
+import { StorageLink } from './index'
 
 export default class DIDStorageConfig {
 
@@ -13,7 +14,7 @@ export default class DIDStorageConfig {
         const keyring = await account.keyring(contextName)
         const publicKeys = await keyring.publicKeys()
         const config: SecureStorageContextConfig = {
-            id: contextName,
+            id: StorageLink.hash(contextName),
             publicKeys: {
                 asymKey: {
                     type: 'Curve25519EncryptionPublicKey',
