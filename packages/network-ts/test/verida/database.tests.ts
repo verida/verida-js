@@ -12,6 +12,7 @@ import { assertIsValidDbResponse } from '../utils'
 const DB_NAME_OWNER = 'OwnerTestDb'
 const DB_NAME_USER = 'UserTestDb'
 const DB_NAME_PUBLIC = 'PublicTestDb'
+const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb'
 
 /**
  * 
@@ -92,6 +93,22 @@ describe('Storage initialization tests', () => {
             assertIsValidDbResponse(assert, data)
             assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
+
+        it('can open a database with public write permissions', async function() {
+            const database = await context.openDatabase(DB_NAME_PUBLIC_WRITE, {
+                permissions: {
+                    read: 'public',
+                    write: 'public'
+                }
+            })
+
+            await database.save({'hello': 'world'})
+            const data = await database.getMany()
+            console.log(data)
+
+            assertIsValidDbResponse(assert, data)
+            assert.ok(data[0].hello == 'world', 'First result has expected value')
+        })
     })
 
     describe('Access public storage contexts', function() {
@@ -137,6 +154,22 @@ describe('Storage initialization tests', () => {
             assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
         })
 
+        it(`can write to an external storage context with public read and public write`, async function() {
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, CONFIG.DID, {
+                permissions: {
+                    read: 'public',
+                    write: 'public'
+                }
+            })
+
+            const result = await database.save({'write': 'from external DID'})
+            assert.ok(result.id, 'Created a record with a valid ID')
+            
+            const data = await database.get(result.id)
+            assert.ok(data, 'Fetched saved record')
+            assert.ok(data.write == 'from external DID', 'Result has expected value')
+        })
+
         // can write to an external storage context with public write
         // can't read from an external storage context with read=owner
         // can't read from an external storage context with read=users
@@ -159,4 +192,6 @@ describe('Storage initialization tests', () => {
 
         // test providing the encryption key for an external storage
     })
+
+    // test data signatures
 })

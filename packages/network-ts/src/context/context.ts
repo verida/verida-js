@@ -105,7 +105,8 @@ export default class Context {
         const storageConfig = await this.getStorageConfig(did)
         options = _.merge({
             did,
-            dsn: storageConfig.services.storageServer.endpointUri
+            dsn: storageConfig.services.storageServer.endpointUri,
+            account: this.account
         }, options)
 
         return storageEngine.openDatabase(databaseName, options)

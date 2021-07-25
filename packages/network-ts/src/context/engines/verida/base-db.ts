@@ -48,7 +48,6 @@ export default class BaseDb extends EventEmitter implements Database {
         // Signing user will be the logged in user
         this.signAccount = config.signAccount || config.account;
         this.signData = config.signData === false ? false : true;
-        this.signStorageContext = config.signStorageContext || this.storageContext;
 
         this.config = _.merge({}, config);
 
