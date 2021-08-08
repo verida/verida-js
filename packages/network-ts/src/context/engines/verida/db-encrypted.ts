@@ -26,7 +26,7 @@ export default class EncryptedDatabase extends BaseDb {
      * 
      * @param {*} dbName 
      * @param {*} dataserver 
-     * @param {string} encryptionKey sep256k1 hex string representing encryption key (0x)
+     * @param {string} encryptionKey Uint8Array(32) representing encryption key 
      * @param {*} remoteDsn 
      * @param {*} did 
      * @param {*} permissions 
@@ -160,6 +160,10 @@ export default class EncryptedDatabase extends BaseDb {
     public async getLocalEncrypted(): Promise<any> {
         await this.init()
         return this._localDbEncrypted
+    }
+
+    public getEncryptionKey(): Uint8Array {
+        return this.encryptionKey!
     }
 
 }

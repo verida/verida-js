@@ -98,11 +98,11 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         // If permissions require "owner" access, connect the current user
         if ((config.permissions!.read == "owner" || config.permissions!.write == "owner") && !config.readOnly) {
             if (!config.readOnly && !this.keyring) {
-                throw new Error(`Unable to open database. Permissions require "owner" access, but no account connected. 1`)
+                throw new Error(`Unable to open database. Permissions require "owner" access, but no account connected.`)
             }
 
             if (!config.readOnly && config.isOwner && !this.keyring) {
-                throw new Error(`Unable to open database. Permissions require "owner" access, but account is not owner. 2`)
+                throw new Error(`Unable to open database. Permissions require "owner" access, but account is not owner.`)
             }
 
             if (!config.readOnly && !config.isOwner && config.permissions!.read == "owner") {
@@ -117,7 +117,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
 
         if (config.permissions!.read == "owner" && config.permissions!.write == "owner") {
             if (!this.keyring) {
-                throw new Error(`Unable to open database. Permissions require "owner" access, but no account connected. 3`)
+                throw new Error(`Unable to open database. Permissions require "owner" access, but no account connected.`)
             }
 
             const storageContextKey = await this.keyring!.getStorageContextKey(databaseName)
@@ -168,7 +168,11 @@ export default class StorageEngineVerida extends BaseStorageEngine {
 
         } else if (config.permissions!.read == "users" || config.permissions!.write == "users") {
             if (config.isOwner && !this.keyring) {
-                throw new Error(`Unable to open database as the owner. No account connected. 4`)
+                throw new Error(`Unable to open database as the owner. No account connected.`)
+            }
+
+            if (!config.isOwner && !config.encryptionKey) {
+                throw new Error(`Unable to open external database. No encryption key in config.`)
             }
 
             /**
@@ -188,6 +192,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
 
             const storageContextKey = await this.keyring!.getStorageContextKey(databaseName)
             const encryptionKey = config.encryptionKey ? config.encryptionKey : storageContextKey.secretKey
+
             const db = new EncryptedDatabase({
                 databaseName,
                 did,
@@ -195,6 +200,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 dsn,
                 permissions: config.permissions,
                 keyring: this.keyring,
+                signDid: this.did,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
