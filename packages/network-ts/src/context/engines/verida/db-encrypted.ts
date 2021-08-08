@@ -127,6 +127,27 @@ export default class EncryptedDatabase extends BaseDb {
             })
         
         this.db = this._localDb
+
+        /**
+         * We attempt to fetch some rows from the database.
+         * 
+         * If there is data in this database, it ensures the current encryption key
+         * can decrypt the data.
+         */
+        try {
+            await this.getMany()
+        } catch (err) {
+            // This error message is thrown by the underlying decrypt library if the
+            // data can't be decrypted
+            if (err.message == `Unsupported state or unable to authenticate data`) {
+                // Clear the instantiated PouchDb instances and throw a more useful exception
+                this._localDb = this._localDbEncrypted = this._remoteDbEncrypted = null
+                throw new Error(`Invalid encryption key supplied`)
+            }
+
+            // Unknown error, rethrow
+            throw err
+        }
     }
 
     public async updateUsers(readList: string[] = [], writeList: string[] = []) {
