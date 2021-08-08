@@ -50,6 +50,29 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         this.dsn = user.dsn
     }
 
+    protected async buildExternalDsn(endpointUri: string, did: string): Promise<string> {
+        const client = new DatastoreServerClient(this.storageContext, endpointUri)
+        await client.setAccount(this.account!)
+        let response
+        try {
+            response = await client.getUser(this.did!)
+        } catch (err) {
+            if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
+                // User doesn't exist, so create on this endpointUri server
+                response = await client.createUser()
+            }
+            else if (err.response && err.response.statusText == "Unauthorized") {
+                throw new Error("Invalid signature or permission to access DID server");
+            }
+            else {
+                // Unknown error
+                throw err;
+            }
+        }
+
+        return response.data.user.dsn
+    }
+
     /**
      * Open a database owned by this user
      * 
@@ -63,51 +86,50 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 read: "owner",
                 write: "owner"
             },
-            account: this.account,
             did: this.did,
-            saveDatabase: true,
             readOnly: false
         }, options)
 
         // Default to user's did if not specified
-        let did = config.did
-        const accountDid = await config.account?.did()
-        if (config.account) {
-            did = config.did || this.did!
-            config.isOwner = (did == (config.account ? accountDid : false))
-        }
-        did = did!.toLowerCase()
+        config.isOwner = config.did == this.did
+        config.saveDatabase = config.isOwner            // always save this database to registry if user is the owner
+        let did = config.did!.toLowerCase()
 
         // If permissions require "owner" access, connect the current user
         if ((config.permissions!.read == "owner" || config.permissions!.write == "owner") && !config.readOnly) {
-            if (!config.readOnly && !config.account) {
-                throw new Error("Unable to open database. Permissions require \"owner\" access, but no account supplied in config.")
+            if (!config.readOnly && !this.keyring) {
+                throw new Error(`Unable to open database. Permissions require "owner" access, but no account connected. 1`)
             }
 
-            if (!config.readOnly && config.isOwner) {
-                await this.connectAccount(config.account!) // @todo: there was , true here to force connection. need to audit if this is still needed.
+            if (!config.readOnly && config.isOwner && !this.keyring) {
+                throw new Error(`Unable to open database. Permissions require "owner" access, but account is not owner. 2`)
+            }
+
+            if (!config.readOnly && !config.isOwner && config.permissions!.read == "owner") {
+                throw new Error(`Unable to open database. Permissions require "owner" access to read, but account is not owner.`)
             }
         }
 
         let dsn = config.isOwner ? this.dsn! : config.dsn!
-
         if (!dsn) {
             throw new Error("Unable to determine DSN for this user and this context")
         }
 
         if (config.permissions!.read == "owner" && config.permissions!.write == "owner") {
             if (!this.keyring) {
-                throw new Error("Unable to open database. Persmissions require \"owner\" access, but no account supplied in config.")
+                throw new Error(`Unable to open database. Permissions require "owner" access, but no account connected. 3`)
             }
 
-            const encryptionKey = await this.keyring!.getStorageContextKey(databaseName)
+            const storageContextKey = await this.keyring!.getStorageContextKey(databaseName)
+            const encryptionKey = storageContextKey.secretKey
             const db = new EncryptedDatabase({
                 databaseName,
                 did,
                 storageContext: this.storageContext,
                 dsn,
-                account: config.account,
                 permissions: config.permissions,
+                keyring: this.keyring,
+                signDid: this.did,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
@@ -133,8 +155,9 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 did,
                 storageContext: this.storageContext,
                 dsn,
-                account: config.account,
                 permissions: config.permissions,
+                keyring: this.keyring,
+                signDid: this.did,
                 readOnly: config.readOnly,
                 client: this.client,
                 isOwner: config.isOwner
@@ -144,26 +167,50 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             return db
 
         } else if (config.permissions!.read == "users" || config.permissions!.write == "users") {
-            if (!this.keyring) {
-                throw new Error("Unable to open database. Persmissions require \"users\" access, but no account supplied in config.")
+            if (config.isOwner && !this.keyring) {
+                throw new Error(`Unable to open database as the owner. No account connected. 4`)
             }
 
-            const encryptionKey = config.encryptionKey ? config.encryptionKey : await this.keyring!.getStorageContextKey(databaseName)
+            /**
+             * We could be connecting to:
+             * - A database we own
+             *  - Need to connect using our dsn (this.dsn)
+             * - An database owned by another user
+             *  - Need to connect to the user's database server
+             *  - Need to authenticate as ourselves
+             *  - Need to talk to the db hash for the did that owns the database
+             */
 
+            if (!config.isOwner) {
+                // need to build a complete dsn
+                dsn = await this.buildExternalDsn(config.dsn!, config.did!)
+            }
+
+            const storageContextKey = await this.keyring!.getStorageContextKey(databaseName)
+            const encryptionKey = config.encryptionKey ? config.encryptionKey : storageContextKey.secretKey
             const db = new EncryptedDatabase({
                 databaseName,
                 did,
                 storageContext: this.storageContext,
                 dsn,
-                account: config.account,
                 permissions: config.permissions,
+                keyring: this.keyring,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
                 isOwner: config.isOwner
             })
             
-            await db.init()
+            try {
+                await db.init()
+            } catch (err) {
+                if (err.status == 401 && err.code == 90) {
+                    throw new Error(`Unable to open database. Invalid credentials supplied.`)
+                }
+
+                throw err
+            }
+
             return db
         } else {
             throw new Error("Unable to open database. Invalid permissions configuration.")
@@ -182,101 +229,6 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         throw new Error('Not implemented')
     }
 
-    /**
-     * Open an external database (owned by another DID)
-     * 
-     * @param databaseName 
-     * @param did 
-     * @param options 
-     */
-    public async openExternalDatabase(databaseName: string, did: string, options: DatabaseOpenConfig) {
-        
-
-        /*did = did.toLowerCase()
-        let dataserver = await App.buildDataserver(did, {
-            appName: config.appName || App.config.appName
-        });
-
-        config.did = did
-        return .openDatabase(dbName, config)*/
-
-
-        // If the current application user is the owner of this database, request
-        // consent from the user for full access. Otherwise, use public credentials
-        // to access the database
-        /*let dsn = null
-        if (config.isOwner && this.dsn!) {
-            // Current user is authenticated and the database being requested
-            // is owned by the current user, so use their DSN
-            dsn = this.dsn!
-        } else {
-            // Locate the public credentials
-            let publicCreds = await this.getPublicCredentials()
-            dsn = publicCreds.dsn;
-        }
-        
-        if (!dsn) {
-            throw new Error("Unable to locate DSN for public database: " + databaseName)
-        }*/
-
-        did = did!.toLowerCase()
-
-        const config: DatabaseOpenConfig = _.merge({
-            permissions: {
-                read: "public",
-                write: "owner"
-            },
-            did: did,
-            saveDatabase: false,
-            readOnly: true
-        }, options)
-
-        ////
-
-        /*
-        // use this.contextName
-        config = _.merge({
-            appName: App.config.appName,
-            did: did
-        }, config);*/
-
-
-        // @todo support caching?
-        /*if (App.cache.dataservers[did + ':' + config.appName]) {
-            return App.cache.dataservers[did + ':' + config.appName];
-        }*/
-
-        // get the DID's DSN
-
-
-        /////
-
-        // Get user's VID to obtain their dataserver address
-        /*let vidDoc = await VidHelper.getByDid(did, config.appName);
-
-        if (!vidDoc) {
-            throw "Unable to locate application VID. User hasn't initialised this application? ("+did+" / "+config.appName+")";
-        }
-
-        let dataserverDoc = vidDoc.service.find(entry => entry.id.includes('dataserver'));
-        let dataserverUrl = dataserverDoc.serviceEndpoint;
-
-        // Build dataserver config, merging defaults and user defined config
-        config = _.merge({
-            isProfile: false,
-            serverUrl: dataserverUrl
-        }, config);
-
-        // Build dataserver
-        let dataserver = new DataServer(config);
-        dataserver.loadExternal({
-            vid: vidDoc.id
-        });
-
-        // Cache and return dataserver
-        App.cache.dataservers[did + ':' + config.appName] = dataserver;
-        return App.cache.dataservers[did + ':' + config.appName];*/
-    }
 
     public async openExternalDatastore(schemaName: string, did: string, options: DatastoreOpenConfig) {
         throw new Error('Not implemented')

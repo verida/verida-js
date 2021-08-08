@@ -3,7 +3,6 @@ import { AccountInterface } from '@verida/account'
 
 export interface DatabaseOpenConfig {
     permissions?: PermissionsConfig,
-    account?: AccountInterface,
     did?: string,
     dsn?: string,
     saveDatabase?: boolean,

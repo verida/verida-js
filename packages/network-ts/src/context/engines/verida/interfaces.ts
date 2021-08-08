@@ -1,4 +1,5 @@
 import { AccountInterface } from '@verida/account'
+import { Keyring } from '@verida/keyring';
 import { PermissionsConfig } from '../interfaces'
 import DatastoreServerClient from './client'
 
@@ -8,10 +9,11 @@ export interface VeridaDatabaseConfig {
     storageContext: string,
     dsn: string,
 
-    account?: AccountInterface,
+    keyring?: Keyring,
     permissions?: PermissionsConfig,
     
-    signAccount?: AccountInterface,
+    signKeyring?: Keyring,
+    signDid?: string,
     signData?: boolean,
     signContextName?: string,
 

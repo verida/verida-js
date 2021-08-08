@@ -48,6 +48,10 @@ export default class EncryptedDatabase extends BaseDb {
     }
 
     public async init() {
+        if (this._localDb) {
+            return
+        }
+
         await super.init()
         
         this._localDbEncrypted = new PouchDB(this.databaseHash)
@@ -66,8 +70,9 @@ export default class EncryptedDatabase extends BaseDb {
             skip_setup: true
         })
         
+        let info
         try {
-            let info = await this._remoteDbEncrypted.info()
+            info = await this._remoteDbEncrypted.info()
       
             if (info.error && info.error == "not_found") {
                 // Remote dabase wasn't found, so attempt to create it
@@ -77,9 +82,13 @@ export default class EncryptedDatabase extends BaseDb {
             if (err.error && err.error == "not_found") {
                 // Remote database wasn't found, so attempt to create it
                 await this.createDb()
-            } else {
-                throw new Error('Unknown error occurred attempting to get information about remote encrypted database')
             }
+
+            throw err
+        }
+
+        if (info && info.error == "forbidden") {
+            throw new Error(`Permission denied to access remote database.`)
         }
 
         const databaseName = this.databaseName
@@ -131,18 +140,26 @@ export default class EncryptedDatabase extends BaseDb {
         }
 
         try {
-            this.client.updateDatabase(this.did, this.dbName, options);
+            this.client.updateDatabase(this.did, this.databaseHash, options);
         } catch (err) {
             throw new Error("User doesn't exist or unable to create user database")
         }
     }
 
     public async getDb(): Promise<any> {
-        if (!this._localDb) {
-            await this._init()
-        }
+        await this._init()
 
         return this._localDb
+    }
+
+    public async getRemoteEncrypted(): Promise<any> {
+        await this.init()
+        return this._remoteDbEncrypted
+    }
+
+    public async getLocalEncrypted(): Promise<any> {
+        await this.init()
+        return this._localDbEncrypted
     }
 
 }

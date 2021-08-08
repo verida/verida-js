@@ -28,9 +28,7 @@ export default class Context {
         this.contextName = contextName
         this.didContextManager = didContextManager
 
-        if (account) {
-            this.account = account
-        }
+        this.account = account
     }
 
     public async getStorageConfig(did?: string): Promise<Interfaces.SecureStorageContextConfig> {
@@ -67,12 +65,10 @@ export default class Context {
         const storageEngine = new engine(this.contextName, storageConfig.services.storageServer.endpointUri)
         
         /**
-         * If we're opening a database controlled by the currently authenticated
-         * DID, then connect them
+         * Connect the current user if we have one
          */
-        const accountDid = await this.account!.did()
-        if (this.account && accountDid == did) {
-            storageEngine.connectAccount(this.account)
+        if (this.account) {
+            await storageEngine.connectAccount(this.account)
         }
 
         // cache storage engine for this did and context
@@ -105,8 +101,7 @@ export default class Context {
         const storageConfig = await this.getStorageConfig(did)
         options = _.merge({
             did,
-            dsn: storageConfig.services.storageServer.endpointUri,
-            account: this.account
+            dsn: storageConfig.services.storageServer.endpointUri
         }, options)
 
         return storageEngine.openDatabase(databaseName, options)

@@ -9,6 +9,7 @@ import { Database, PermissionsConfig } from '../interfaces'
 import { StorageLink } from '@verida/storage-link'
 import DatastoreServerClient from "./client"
 import Utils from './utils'
+import { Keyring } from '@verida/keyring'
 
 export default class BaseDb extends EventEmitter implements Database {
 
@@ -17,11 +18,12 @@ export default class BaseDb extends EventEmitter implements Database {
     protected storageContext: string
     protected dsn: string
 
-    protected account?: AccountInterface
+    protected keyring?: Keyring
     protected permissions?: PermissionsConfig
     protected isOwner?: boolean
 
-    protected signAccount?: AccountInterface
+    protected signKeyring?: Keyring
+    protected signDid?: string
     protected signContextName?: string
     protected signData?: boolean
 
@@ -41,13 +43,14 @@ export default class BaseDb extends EventEmitter implements Database {
         this.dsn = config.dsn
         this.isOwner = config.isOwner
 
-        // User will be the user who owns this database
-        // Will be null if the user isn't the current user
+        // Keyring for the user will be the user who owns this database
+        // Will be null if the current user isn't the owner
         // (ie: for a public / external database)
-        this.account = config.account;
+        this.keyring = config.keyring
 
         // Signing user will be the logged in user
-        this.signAccount = config.signAccount || config.account
+        this.signDid = config.signDid
+
         this.signData = config.signData === false ? false : true
         this.signContextName = config.signContextName ? config.signContextName : this.storageContext
 
@@ -365,28 +368,21 @@ export default class BaseDb extends EventEmitter implements Database {
      * @todo Think about signing data and versions / insertedAt etc.
      */
     protected async _signData(data: any) {
-        if (!this.signAccount) {
+        if (!this.keyring) {
             throw new Error("Unable to sign data. No signing user specified.")
         }
-
-        const keyring = await this.signAccount.keyring(this.signContextName!)
-        if (!keyring) {
-            throw new Error("Unable to sign data. No valid signing user specified for this context.")
-        }
-
-        const signDid = await this.signAccount.did()
 
         if (!data.signatures) {
             data.signatures = {}
         }
 
-        const signContextHash = StorageLink.hash(`${signDid}/${this.signContextName}`)
-        const signKey = `${signDid}:${signContextHash}`
+        const signContextHash = StorageLink.hash(`${this.signDid}/${this.signContextName}`)
+        const signKey = `${this.signDid}:${signContextHash}`
 
         let _data = _.merge({}, data)
         delete _data['signatures']
 
-        data.signatures[signKey] = await keyring.sign(_data)
+        data.signatures[signKey] = await this.keyring.sign(_data)
         return data
     }
 
