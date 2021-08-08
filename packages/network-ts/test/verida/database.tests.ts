@@ -9,10 +9,11 @@ import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
-const DB_NAME_OWNER = 'OwnerTestDb'
-const DB_NAME_USER = 'UserTestDb'
-const DB_NAME_PUBLIC = 'PublicTestDb'
-const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb'
+const DB_NAME_OWNER = 'OwnerTestDb_'
+const DB_NAME_USER = 'UserTestDb_'
+const DB_NAME_PUBLIC = 'PublicTestDb_'
+const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_'
+const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_'
 
 /**
  * 
@@ -22,6 +23,7 @@ describe('Storage initialization tests', () => {
     const utils = new Utils(CONFIG.CERAMIC_URL)
     let ceramic, context
     let ceramic2, context2
+    let ceramic3, context3
 
     const network = new VeridaNetwork({
         defaultStorageServer: {
@@ -36,6 +38,18 @@ describe('Storage initialization tests', () => {
     })
 
     const network2 = new VeridaNetwork({
+        defaultStorageServer: {
+            type: 'VeridaStorage',
+            endpointUri: 'http://localhost:5000/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaStorage',
+            endpointUri: 'http://localhost:5000/'
+        },
+        ceramicUrl: CONFIG.CERAMIC_URL
+    })
+
+    const network3 = new VeridaNetwork({
         defaultStorageServer: {
             type: 'VeridaStorage',
             endpointUri: 'http://localhost:5000/'
@@ -72,11 +86,24 @@ describe('Storage initialization tests', () => {
                 }
             })
 
+            // Grant read / write access to DID_3 for future tests relating to read / write of user databases
+            const updateResponse = await database.updateUsers([CONFIG.DID_3], [CONFIG.DID_3])
+
             await database.save({'hello': 'world'})
             const data = await database.getMany()
 
             assertIsValidDbResponse(assert, data)
             assert.ok(data[0].hello == 'world', 'First result has expected value')
+
+            // setup an extra database with a row for testing read=public, write=users
+            const database2 = await context.openDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, {
+                permissions: {
+                    read: 'public',
+                    write: 'users'
+                }
+            })
+
+            await database2.save({'hello': 'world'})
         })
 
         it('can open a database with public read permissions', async function() {
@@ -186,16 +213,16 @@ describe('Storage initialization tests', () => {
             await assertIsValidSignature(assert, network2, CONFIG.DID_2, data)
         })
 
-        it(`can't access an external storage context with owner read`, async function() {
+        it(`can't open an external database with owner read and not the owner`, async function() {
             const promise = new Promise((resolve, rejects) => {
                 context2.openExternalDatabase(DB_NAME_OWNER, CONFIG.DID).then(rejects, resolve)
             })
             const result = await promise
 
-            assert.deepEqual(result, new Error('Unable to open database. Persmissions require \"owner\" access, but no account supplied in config.'))
+            assert.deepEqual(result, new Error('Unable to open database. Permissions require "owner" access to read, but account is not owner.'))
         })
 
-        it(`can't access an external storage context with access users and user no access`, async function() {
+        it(`can't write an external storage context with write=users and user no access`, async function() {
             const promise = new Promise((resolve, rejects) => {
                 context2.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
                     permissions: {
@@ -204,21 +231,54 @@ describe('Storage initialization tests', () => {
                     }
                 }).then(rejects, resolve)
             })
+
             const result = await promise
 
-            assert.deepEqual(result, new Error('Unable to open database. Persmissions require \"users\" access, but no account supplied in config.'))
+            assert.deepEqual(result, new Error('Permission denied to access remote database.'))
         })
 
-        // can't write to an external storage context with write=users read=public
-        // can't read from an external storage context with read=users
-        // can't write to an external storage context with write=owner
-        // can't write to an external storage context with write=users
+        it(`can't write to an external storage context with write=users and read=public, where user has no access`, async function() {
+            const database = await context2.openExternalDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, CONFIG.DID, {
+                permissions: {
+                    read: 'public',
+                    write: 'users'
+                }
+            })
+
+            const promise = new Promise((resolve, rejects) => {
+                database.save({'write-user': 'doesnt work'}).then(rejects, resolve)
+            })
+            const result = await promise
+
+            assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
+        })
     })
 
-    describe('Access user storage contexts', function() {
+    /*describe('Access user storage contexts', function() {
         this.timeout(100000)
 
-        // open an external context
+        it(`can read from an external storage context with read=users where current user CAN read`, async function() {
+            // Initialize a third DID
+            ceramic3 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_3)
+            const account = new AutoAccount(ceramic3)
+            await network3.connect(account)
+            context3 = await network3.openContext(CONFIG.CONTEXT_NAME, true)
+
+            const database = await context3.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                permissions: {
+                    read: 'users',
+                    write: 'users'
+                }
+            })
+
+            const result = await database.save({'write': 'from valid external user DID'})
+            assert.ok(result.id, 'Created a record with a valid ID')
+            
+            const data = await database.get(result.id)
+            assert.ok(data, 'Fetched saved record')
+            assert.ok(data.write == 'from valid external user DID', 'Result has expected value')
+        })
+
         // read from an external storage context with read=user where current user CAN read
         // can't read from an external storage context with read=user where current user CANT read
 
@@ -229,7 +289,7 @@ describe('Storage initialization tests', () => {
         // can't write to an external storage context with write=owner
 
         // test providing the encryption key for an external storage
-    })
+    })*/
 
     // test data signatures
 })
