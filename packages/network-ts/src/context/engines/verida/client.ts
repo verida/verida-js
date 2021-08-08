@@ -1,5 +1,4 @@
 import Axios from 'axios'
-import { DatabaseConfig, DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
 import { AccountInterface } from '@verida/account'
 
 interface RemoteClientAuthentication {

@@ -1,6 +1,9 @@
 import { AccountInterface } from '@verida/account'
 import { Keyring } from '@verida/keyring'
-import { Database, DatabaseOpenConfig, DatastoreOpenConfig } from './interfaces'
+import { DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
+import Database from '../database'
+import Datastore from '../datastore'
+
 
 export default class BaseStorageEngine {
 
@@ -24,9 +27,9 @@ export default class BaseStorageEngine {
         throw new Error('Not implemented')
     }
 
-    /*public async openDatastore(schemaName: string, config: DatastoreOpenConfig) {
+    public async openDatastore(schemaName: string, config: DatastoreOpenConfig): Promise<Datastore> {
         throw new Error('Not implemented')
-    }*/
+    }
 
     public logout() {
         this.account = undefined

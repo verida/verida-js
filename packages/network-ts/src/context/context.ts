@@ -6,7 +6,9 @@ import { StorageEngineTypes } from './interfaces'
 import StorageEngineVerida from './engines/verida/engine'
 import DIDContextManager from '../did-context-manager'
 import { StorageEngines } from '../interfaces'
-import { Database, DatabaseOpenConfig } from './engines/interfaces'
+import { DatabaseOpenConfig, DatastoreOpenConfig } from './interfaces'
+import Database from './database'
+import Datastore from './datastore'
 
 const _ = require('lodash')
 
@@ -41,7 +43,11 @@ export default class Context {
         }
 
         return this.didContextManager.getDIDContextConfig(did, this.contextName, false)
-    }    
+    }
+
+    public getContextName(): string {
+        return this.contextName
+    }
 
     /**
      * Get a storage engine for a given DID and this contextName
@@ -106,5 +112,55 @@ export default class Context {
 
         return storageEngine.openDatabase(databaseName, options)
     }
+
+    // @todo
+    /*async openDatastore(schemaName: string, config: DatastoreOpenConfig): Promise<Datastore> {
+        config = _.merge({
+            permissions: {
+                read: "owner",
+                write: "owner"
+            },
+            user: this._user,
+            did: this.config.did
+        }, config);
+
+        // Default to user's did if not specified
+        let did = config.did;
+        if (config.user) {
+            did = config.did || config.user.did;
+            config.isOwner = (did == (config.user ? config.user.did : false));
+        }
+
+        if (!did) {
+            throw new Error("No DID specified in config and no user connected");
+        }
+
+        did = did.toLowerCase();
+
+        let datastoreName = config.dbName ? config.dbName : schemaName;
+
+        let dsHash = Utils.md5FromArray([
+            datastoreName,
+            did,
+            config.readOnly ? true : false
+        ]);
+
+        if (this._datastores[dsHash]) {
+            return this._datastores[dsHash];
+        }
+
+        // If permissions require "owner" access, connect the current user
+        if ((config.permissions.read == "owner" || config.permissions.write == "owner") && !(config.readOnly === true)) {
+            if (!config.user) {
+                throw new Error("Unable to open database. Permissions require \"owner\" access, but no user supplied in config.");
+            }
+
+            await this.connect(config.user, true);
+        }
+
+        this._datastores[dsHash] = new Datastore(this, schemaName, did, this.appName, config);
+
+        return this._datastores[dsHash];
+    }*/
 
 }

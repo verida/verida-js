@@ -21,8 +21,11 @@
     "@verida/encryption-utils": "^0.2.1",
     "@verida/keyring": "*",
     "@verida/storage-link": "*",
+    "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git",
+    "json-schema-ref-parser": "^9.0.9",
+    "json-schema-resolve-allof": "^1.5.0",
     "lodash": "^4.17.21",
     "pouchdb": "^7.2.2",
     "pouchdb-find": "^7.2.2"

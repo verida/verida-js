@@ -2,10 +2,11 @@ import { Interfaces } from '@verida/storage-link'
 import BaseStorageEngine from './context/engines/base'
 
 export interface ManagerConfig {
-    defaultStorageServer: Interfaces.SecureStorageServer,
-    defaultMessageServer: Interfaces.SecureStorageServer,
-
+    environment?: string
     ceramicUrl?: string
+    defaultStorageServerUrl?: Interfaces.SecureStorageServer,
+    defaultMessageServerUrl?: Interfaces.SecureStorageServer,
+    schemaPaths?: object
 }
 
 // key = contextName

@@ -8,8 +8,8 @@ import CeramicClient from '@ceramicnetwork/http-client'
 import { ManagerConfig } from './interfaces'
 import Context from './context/context'
 import DIDContextManager from './did-context-manager'
-
-const DEFAULT_CERAMIC_URL = 'http://localhost:7001/'
+import Schema from './context/schema'
+import DEFAULT_CONFIG from './config'
 
 export default class Network {
 
@@ -21,10 +21,18 @@ export default class Network {
     private account?: AccountInterface
     private did?: string
 
-    constructor(config: ManagerConfig) {
-        this.ceramicUrl = config.ceramicUrl ? config.ceramicUrl : DEFAULT_CERAMIC_URL
+    private environment: string
+
+    constructor(userConfig: ManagerConfig) {
+        this.environment = userConfig.environment ? userConfig.environment : DEFAULT_CONFIG.environment
+
+        const defaultConfig = DEFAULT_CONFIG[this.environment] ? DEFAULT_CONFIG[this.environment] : {}
+        const config = _.merge(defaultConfig, userConfig)
+
+        this.ceramicUrl = config.ceramicUrl
         this.ceramic = new CeramicClient(this.ceramicUrl)
-        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultStorageServer, config.defaultMessageServer)
+        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultStorageServerUrl, config.defaultMessageServerUrl)
+        Schema.setSchemaPaths(config.schemaPaths)
     }
 
     /**

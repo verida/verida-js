@@ -1,6 +1,8 @@
 import BaseStorageEngine from "../base"
 import EncryptedDatabase from "./db-encrypted"
-import { Database, DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
+import Database from '../../database'
+import Datastore from '../../datastore'
+import { DatabaseOpenConfig, DatastoreOpenConfig } from '../../interfaces'
 import DatastoreServerClient from "./client"
 import { AccountInterface } from '@verida/account'
 import PublicDatabase from "./db-public"
@@ -231,12 +233,12 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         }*/
     }
 
-    public async openDatastore(schemaName: string, config: DatastoreOpenConfig) {
+    public async openDatastore(schemaName: string, config: DatastoreOpenConfig): Promise<Datastore> {
         throw new Error('Not implemented')
     }
 
 
-    public async openExternalDatastore(schemaName: string, did: string, options: DatastoreOpenConfig) {
+    public async openExternalDatastore(schemaName: string, did: string, options: DatastoreOpenConfig): Promise<Datastore> {
         throw new Error('Not implemented')
     }
 
