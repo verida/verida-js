@@ -61,7 +61,7 @@ describe('Storage initialization tests', () => {
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
-    describe('Manage storage contexts for the authenticated user', function() {
+    describe('Manage databases for the authenticated user', function() {
         this.timeout(100000)
         
         it('can open a database with owner/owner permissions', async function() {
@@ -137,14 +137,13 @@ describe('Storage initialization tests', () => {
         })
     })
 
-    describe('Access public storage contexts', function() {
+    describe('Access public databases', function() {
         this.timeout(100000)
 
-        /**
-         * We initialize a second account and have it attempt to access the
-         * databases created earlier in this set of tests (see above)
-         */
-        it('can read from an external storage context with public read', async function() {
+        
+        // We initialize a second account and have it attempt to access the
+        // databases created earlier in this set of tests (see above)
+        it('can read from an external database with public read', async function() {
             ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
             const account = new AutoAccount(ceramic2)
             await network2.connect(account)
@@ -164,7 +163,7 @@ describe('Storage initialization tests', () => {
             assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
 
-        it(`can't write to an external storage context with public read, but owner write`, async function() {
+        it(`can't write to an external database with public read, but owner write`, async function() {
             const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, CONFIG.DID, {
                 permissions: {
                     read: 'public',
@@ -180,7 +179,7 @@ describe('Storage initialization tests', () => {
             assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
         })
 
-        it(`can write to an external storage context with public read and public write`, async function() {
+        it(`can write to an external database with public read and public write`, async function() {
             const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, CONFIG.DID, {
                 permissions: {
                     read: 'public',
@@ -196,7 +195,7 @@ describe('Storage initialization tests', () => {
             assert.ok(data.write == 'from external DID', 'Result has expected value')
         })
 
-        it(`data saved to external storage context has valid signature`, async function() {
+        it(`data saved to external database has valid signature`, async function() {
             const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, CONFIG.DID, {
                 permissions: {
                     read: 'public',
@@ -222,22 +221,7 @@ describe('Storage initialization tests', () => {
             assert.deepEqual(result, new Error('Unable to open database. Permissions require "owner" access to read, but account is not owner.'))
         })
 
-        it(`can't write an external storage context with write=users and user no access`, async function() {
-            const promise = new Promise((resolve, rejects) => {
-                context2.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
-                    permissions: {
-                        read: 'users',
-                        write: 'users'
-                    }
-                }).then(rejects, resolve)
-            })
-
-            const result = await promise
-
-            assert.deepEqual(result, new Error('Permission denied to access remote database.'))
-        })
-
-        it(`can't write to an external storage context with write=users and read=public, where user has no access`, async function() {
+        it(`can't write to an external database with write=users and read=public, where user has no access`, async function() {
             const database = await context2.openExternalDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, CONFIG.DID, {
                 permissions: {
                     read: 'public',
@@ -252,23 +236,37 @@ describe('Storage initialization tests', () => {
 
             assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
         })
+
     })
 
-    /*describe('Access user storage contexts', function() {
+    describe('Access user databases', function() {
         this.timeout(100000)
+        const ENCRYPTION_KEY = new Uint8Array([
+            131,  71,  15,  38, 114, 251,  22, 144,
+            177,  41, 104, 145,  58, 187,  22, 244,
+            161,  78,  65,  16,  51, 185,  11,  18,
+              6, 246, 237,  80,  12, 100, 211, 149
+          ])
+          const ENCRYPTION_KEY_WRONG = new Uint8Array([
+            132,  71,  15,  38, 114, 251,  22, 144,
+            177,  41, 104, 145,  58, 187,  22, 244,
+            161,  78,  65,  16,  51, 185,  11,  18,
+              6, 246, 237,  80,  12, 100, 211, 149
+          ])
 
-        it(`can read from an external storage context with read=users where current user CAN read`, async function() {
+        it(`can read and read from an external database with read=users where current user CAN read`, async function() {
             // Initialize a third DID
             ceramic3 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_3)
-            const account = new AutoAccount(ceramic3)
-            await network3.connect(account)
+            const account3 = new AutoAccount(ceramic3)
+            await network3.connect(account3)
             context3 = await network3.openContext(CONFIG.CONTEXT_NAME, true)
 
             const database = await context3.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
                 permissions: {
                     read: 'users',
                     write: 'users'
-                }
+                },
+                encryptionKey: ENCRYPTION_KEY
             })
 
             const result = await database.save({'write': 'from valid external user DID'})
@@ -279,17 +277,64 @@ describe('Storage initialization tests', () => {
             assert.ok(data.write == 'from valid external user DID', 'Result has expected value')
         })
 
-        // read from an external storage context with read=user where current user CAN read
-        // can't read from an external storage context with read=user where current user CANT read
+        it(`can't read from an external database with read=user where current user CANT read`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context2.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                    permissions: {
+                        read: 'users',
+                        write: 'users'
+                    },
+                    encryptionKey: ENCRYPTION_KEY
+                }).then(rejects, resolve)
+            })
 
-        // write to an external storage context with write=user where current user CAN write
-        // can't write to an external storage context with write=user where current user CANT write
+            const result = await promise
 
-        // can't read from an external storage context with read=owner
-        // can't write to an external storage context with write=owner
+            assert.deepEqual(result, new Error('Permission denied to access remote database.'))
+        })
 
-        // test providing the encryption key for an external storage
-    })*/
+        it(`can't write an external database with write=users and user no access`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context2.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                    permissions: {
+                        read: 'users',
+                        write: 'users'
+                    },
+                    encryptionKey: ENCRYPTION_KEY
+                }).then(rejects, resolve)
+            })
 
-    // test data signatures
+            const result = await promise
+            assert.deepEqual(result, new Error('Permission denied to access remote database.'))
+        })
+
+        it(`can't open an external users database without an encryption key`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context3.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                    permissions: {
+                        read: 'users',
+                        write: 'users'
+                    }
+                }).then(rejects, resolve)
+            })
+
+            const result = await promise
+            assert.deepEqual(result, new Error('Unable to open external database. No encryption key in config.'))
+        })
+
+        it(`can't open an external users database with the wrong encryption key`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context3.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                    permissions: {
+                        read: 'users',
+                        write: 'users'
+                    },
+                    encryptionKey: ENCRYPTION_KEY_WRONG
+                }).then(rejects, resolve)
+            })
+
+            const result = await promise
+            assert.deepEqual(result, new Error('Invalid encryption key supplied'))
+        })
+    })
 })
