@@ -26,12 +26,12 @@ export default class Network {
     constructor(userConfig: ManagerConfig) {
         this.environment = userConfig.environment ? userConfig.environment : DEFAULT_CONFIG.environment
 
-        const defaultConfig = DEFAULT_CONFIG[this.environment] ? DEFAULT_CONFIG[this.environment] : {}
+        const defaultConfig = DEFAULT_CONFIG.environments[this.environment] ? DEFAULT_CONFIG.environments[this.environment] : {}
         const config = _.merge(defaultConfig, userConfig)
 
         this.ceramicUrl = config.ceramicUrl
         this.ceramic = new CeramicClient(this.ceramicUrl)
-        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultStorageServerUrl, config.defaultMessageServerUrl)
+        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultStorageServer, config.defaultMessageServer)
         Schema.setSchemaPaths(config.schemaPaths)
     }
 
