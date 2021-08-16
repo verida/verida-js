@@ -20,8 +20,9 @@ const jsonCache: any = {}
 
 export default class Schema {
 
+    public errors: any[]
+
     protected path: string
-    protected errors: any[]
     protected ajv: Ajv
 
     protected schemaJson?: object
@@ -51,7 +52,8 @@ export default class Schema {
             ],
             ajv: {
                 loadSchema: Schema.loadJson,
-                logger: false
+                logger: false,
+                strict: false
             }
         }, options)
 
@@ -62,13 +64,9 @@ export default class Schema {
         }
     }
 
-    public static async getSchema(schemaName: string, returnSpec: boolean = false): Promise<object> {
+    public static async getSchema(schemaName: string): Promise<Schema> {
         if (!Schema.schemas[schemaName]) {
             Schema.schemas[schemaName] = new Schema(schemaName)
-        }
-
-        if (returnSpec) {
-            return Schema.schemas[schemaName].getSpecification()
         }
 
         return Schema.schemas[schemaName]
@@ -76,6 +74,10 @@ export default class Schema {
 
     public static setSchemaPaths(schemaPaths: string[]): void {
         Schema.schemaPaths = schemaPaths
+    }
+
+    public static getSchemaPaths(): string[] {
+        return Schema.schemaPaths!
     }
 
     /**
@@ -97,7 +99,7 @@ export default class Schema {
         const path = await this.getPath()
         this.specification = await RefParser.dereference(path, {
             resolve: { http: resolver }
-        });
+        })
 
         await resolveAllOf(this.specification)
         return this.specification
@@ -112,6 +114,7 @@ export default class Schema {
     public async validate(data: any): Promise<boolean> {
         if (!this.validateFunction) {
             const schemaJson = await this.getSchemaJson()
+            // @todo: Fix schemas to have valid definitions and then enable strict compile
             this.validateFunction = await this.ajv.compileAsync(schemaJson)
         }
 
@@ -140,7 +143,7 @@ export default class Schema {
         return this.schemaJson!
     }
 
-    public async getAppearance(): Promise<object> {
+    public async getAppearance(): Promise<any> {
         const schemaJson = await this.getSpecification()
         const appearance = schemaJson.appearance
 
@@ -228,17 +231,23 @@ export default class Schema {
      */
     static async loadJson(uri: string): Promise<object> {
         if (jsonCache[uri]) {
-          return jsonCache[uri];
+            return jsonCache[uri]
         }
     
         jsonCache[uri] = new Promise(async (resolve, reject) => {
-          uri = await Schema.resolvePath(uri);
-          let request = await axios.get(uri, {
-            responseType: 'json'
-          }) // @todo: check valid uri
-    
-          let json = await request.data;
-          resolve(json)
+            uri = await Schema.resolvePath(uri)
+
+            try {
+                const request = await axios.get(uri, {
+                    responseType: 'json'
+                }) // @todo: check valid uri
+
+                const json = await request.data
+                resolve(json)
+            } catch (err) {
+                reject(err)
+            }
+            
         })
     
         return jsonCache[uri]
