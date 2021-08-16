@@ -9,7 +9,8 @@ const config: any = {
             defaultMessageServerUrl: "http://localhost:5000/",
             schemaPaths: {
                 '/': 'https://schemas.verida.io/',
-                'https://schemas.verida.io/': 'http://localhost:5010/'
+                'https://schemas.verida.io/': 'https://schemas.testnet.verida.io/'
+                //'https://schemas.verida.io/': 'http://localhost:5010/'
             }
         },
         testnet: {
