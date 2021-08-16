@@ -11,11 +11,11 @@ export interface DatabaseOpenConfig {
 }
 
 export interface DatastoreOpenConfig {
-    permissions: PermissionsConfig,
-    account: AccountInterface,
-    did: string,
-    saveDatabase: boolean,
-
+    permissions?: PermissionsConfig,
+    did?: string,
+    saveDatabase?: boolean,
+    readOnly?: boolean,
+    encryptionKey?: string,
     databaseName?: string
 }
 

@@ -15,13 +15,12 @@ export default class Datastore {
     protected schemaPath?: string
     protected schema?: any
 
-    protected did: string
     protected context: Context
     protected storageContext: string
     protected config: DatastoreOpenConfig
 
     protected errors: object = {}
-    private _db: any
+    private db: any
 
     /**
      * Create a new Datastore.
@@ -50,14 +49,13 @@ export default class Datastore {
      *  console.log("Saved data", data);
      * }
      */
-    constructor(schemaName: string, did: string, context: Context, config: DatastoreOpenConfig) {
+    constructor(schemaName: string, context: Context, config: DatastoreOpenConfig = {}) {
         this.schemaName = schemaName
-        this.did = did
         this.context = context
         this.storageContext = context.getContextName()
         this.config = config
         
-        this._db = null
+        this.db = null
     }
 
     /**
@@ -93,7 +91,7 @@ export default class Datastore {
             return false
         }
 
-        return this._db.save(data, options)
+        return this.db.save(data, options)
     }
 
     /**
@@ -117,7 +115,7 @@ export default class Datastore {
             schema: this.schemaPath
         }, customFilter)
 
-        return this._db.getMany(filter, options)
+        return this.db.getMany(filter, options)
     }
 
     public async getOne(customFilter: any = {}, options: any = {}) {
@@ -135,7 +133,7 @@ export default class Datastore {
      */
     public async get(key: string, options: any = {}) {
         await this.init()
-        return this._db.get(key, options)
+        return this.db.get(key, options)
     }
 
     /**
@@ -145,7 +143,7 @@ export default class Datastore {
      */
     public async delete(docId: string) {
         await this.init()
-        return this._db.delete(docId)
+        return this.db.delete(docId)
     }
 
     /**
@@ -155,7 +153,7 @@ export default class Datastore {
      */
     public async getDb() {
         await this.init()
-        return this._db
+        return this.db
     }
 
     /**
@@ -176,7 +174,7 @@ export default class Datastore {
 
     // @todo: move this into context.openDatastore???
     private async init() {
-        if (this._db) {
+        if (this.db) {
             return
         }
 
@@ -186,11 +184,10 @@ export default class Datastore {
         this.schemaPath = this.schema.path
 
         let config = _.merge({
-            storageContext: this.storageContext,
-            did: this.did
+            storageContext: this.storageContext
         }, this.config)
 
-        this._db = await this.context.openDatabase(dbName, config)
+        this.db = await this.context.openDatabase(dbName, config)
         let indexes = schemaJson.database.indexes
 
         if (indexes) {
@@ -203,7 +200,7 @@ export default class Datastore {
     public async ensureIndexes(indexes: any) {
         for (var indexName in indexes) {
             let indexFields = indexes[indexName]
-            let db = await this._db.getInstance()
+            let db = await this.db.getDb()
             await db.createIndex({
                 fields: indexFields,
                 name: indexName

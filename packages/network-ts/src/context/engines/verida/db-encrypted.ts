@@ -168,7 +168,7 @@ export default class EncryptedDatabase extends BaseDb {
     }
 
     public async getDb(): Promise<any> {
-        await this._init()
+        await this.init()
 
         return this._localDb
     }
@@ -185,6 +185,23 @@ export default class EncryptedDatabase extends BaseDb {
 
     public getEncryptionKey(): Uint8Array {
         return this.encryptionKey!
+    }
+
+    public async info(): Promise<any> {
+        await this.init()
+
+        const info = {
+            type: 'VeridaStorage',
+            privacy: 'encrypted',
+            did: this.did,
+            dsn: this.dsn,
+            storageContext: this.storageContext,
+            databaseName: this.databaseName,
+            databasehash: this.databaseHash
+            // @todo: add databases
+        }
+
+        return info
     }
 
 }

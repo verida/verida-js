@@ -233,15 +233,6 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         }*/
     }
 
-    public async openDatastore(schemaName: string, config: DatastoreOpenConfig): Promise<Datastore> {
-        throw new Error('Not implemented')
-    }
-
-
-    public async openExternalDatastore(schemaName: string, did: string, options: DatastoreOpenConfig): Promise<Datastore> {
-        throw new Error('Not implemented')
-    }
-
     public logout() {
         super.logout()
         this.client = new DatastoreServerClient(this.storageContext, this.endpointUri)

@@ -4,8 +4,8 @@ import BaseStorageEngine from './context/engines/base'
 export interface ManagerConfig {
     environment?: string
     ceramicUrl?: string
-    defaultStorageServerUrl?: Interfaces.SecureStorageServer,
-    defaultMessageServerUrl?: Interfaces.SecureStorageServer,
+    defaultStorageServer?: Interfaces.SecureStorageServer,
+    defaultMessageServer?: Interfaces.SecureStorageServer,
     schemaPaths?: object
 }
 

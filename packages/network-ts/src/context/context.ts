@@ -105,6 +105,7 @@ export default class Context {
     public async openExternalDatabase(databaseName: string, did: string, options: DatabaseOpenConfig): Promise<Database> {
         const storageEngine = await this.getStorageEngine(did)
         const storageConfig = await this.getStorageConfig(did)
+
         options = _.merge({
             did,
             dsn: storageConfig.services.storageServer.endpointUri
@@ -113,54 +114,13 @@ export default class Context {
         return storageEngine.openDatabase(databaseName, options)
     }
 
-    // @todo
-    /*async openDatastore(schemaName: string, config: DatastoreOpenConfig): Promise<Datastore> {
-        config = _.merge({
-            permissions: {
-                read: "owner",
-                write: "owner"
-            },
-            user: this._user,
-            did: this.config.did
-        }, config);
-
-        // Default to user's did if not specified
-        let did = config.did;
-        if (config.user) {
-            did = config.did || config.user.did;
-            config.isOwner = (did == (config.user ? config.user.did : false));
+    public async openDatastore(schemaName: string, config: DatastoreOpenConfig = {}): Promise<Datastore> {
+        if (!this.account) {
+            throw new Error(`Unable to open datastore. No authenticated user.`)
         }
 
-        if (!did) {
-            throw new Error("No DID specified in config and no user connected");
-        }
-
-        did = did.toLowerCase();
-
-        let datastoreName = config.dbName ? config.dbName : schemaName;
-
-        let dsHash = Utils.md5FromArray([
-            datastoreName,
-            did,
-            config.readOnly ? true : false
-        ]);
-
-        if (this._datastores[dsHash]) {
-            return this._datastores[dsHash];
-        }
-
-        // If permissions require "owner" access, connect the current user
-        if ((config.permissions.read == "owner" || config.permissions.write == "owner") && !(config.readOnly === true)) {
-            if (!config.user) {
-                throw new Error("Unable to open database. Permissions require \"owner\" access, but no user supplied in config.");
-            }
-
-            await this.connect(config.user, true);
-        }
-
-        this._datastores[dsHash] = new Datastore(this, schemaName, did, this.appName, config);
-
-        return this._datastores[dsHash];
-    }*/
+        // @todo: Should this also call _init to confirm everything is good?
+        return new Datastore(schemaName, this, config)
+    }
 
 }

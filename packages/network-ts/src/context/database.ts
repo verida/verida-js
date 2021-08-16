@@ -12,5 +12,6 @@
     updateUsers(readList: string[], writeList: string[]): Promise<void>
     getDb(): Promise<any>
     init(): Promise<void>
+    info(): Promise<any>
 
 }

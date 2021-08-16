@@ -48,12 +48,29 @@ export default class PublicDatabase extends BaseDb {
         this.db = this._remoteDb
     }
 
-    async getDb() {
+    public async getDb() {
         if (!this._remoteDb) {
             await this._init()
         }
 
         return this._remoteDb
+    }
+
+    public async info(): Promise<any> {
+        await this.init()
+
+        const info = {
+            type: 'VeridaStorage',
+            privacy: 'public',
+            did: this.did,
+            dsn: this.dsn,
+            storageContext: this.storageContext,
+            databaseName: this.databaseName,
+            databasehash: this.databaseHash,
+            remoteDb: this.db._remoteDb
+        }
+
+        return info
     }
 
 }
