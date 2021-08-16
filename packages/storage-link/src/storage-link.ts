@@ -44,9 +44,19 @@ export default class StorageLink {
         return secureContext
     }
 
-    static async setLink(ceramic: CeramicClient, did: string, storageConfig: SecureStorageContextConfig) {
-        const contextName = storageConfig.id
-        const contextHash = StorageLink.hash(`${did}/${contextName}`)
+    /**
+     * 
+     * @param ceramic 
+     * @param did 
+     * @param storageConfig 
+     * @param hashContextConfigId If `storageConfig.id` has been specified as the context name it needs to be hashed. Set to true to automatically hash.
+     */
+    static async setLink(ceramic: CeramicClient, did: string, storageConfig: SecureStorageContextConfig, hashContextConfigId: true) {
+        let contextHash = storageConfig.id
+        if (hashContextConfigId) {
+            contextHash = StorageLink.hash(`${did}/${contextHash}`)
+        }
+
         const secureContexts = <SecureStorageContextConfig[]> await StorageLink.getLinks(ceramic, did)
 
         // Remove if already exists

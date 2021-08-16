@@ -13,8 +13,10 @@ export default class DIDStorageConfig {
     static async generate(account: AccountInterface, contextName: string, servicesConfig: SecureStorageContextServices): Promise<SecureStorageContextConfig> {
         const keyring = await account.keyring(contextName)
         const publicKeys = await keyring.publicKeys()
+        const did = await account.did()
+        const contextHash = StorageLink.hash(`${did}/${contextName}`)
         const config: SecureStorageContextConfig = {
-            id: StorageLink.hash(contextName),
+            id: contextHash,
             publicKeys: {
                 asymKey: {
                     type: 'Curve25519EncryptionPublicKey',
