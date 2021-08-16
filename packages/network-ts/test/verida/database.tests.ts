@@ -113,12 +113,12 @@ describe('Storage initialization tests', () => {
                     write: 'owner'
                 }
             })
+            const info = await database.info()
 
-            await database.save({'hello': 'world'})
-            const data = await database.getMany()
-
-            assertIsValidDbResponse(assert, data)
-            assert.ok(data[0].hello == 'world', 'First result has expected value')
+            const saveResult = await database.save({'hello': 'world'})
+            assert.ok(saveResult, 'Have a valid save result')
+            const data = await database.get(saveResult.id)
+            assert.ok(data && data.hello == 'world', 'First result has expected value')
         })
 
         it('can open a database with public write permissions', async function() {
@@ -129,11 +129,10 @@ describe('Storage initialization tests', () => {
                 }
             })
 
-            await database.save({'hello': 'world'})
-            const data = await database.getMany()
-
-            assertIsValidDbResponse(assert, data)
-            assert.ok(data[0].hello == 'world', 'First result has expected value')
+            const saveResult = await database.save({'hellopublic': 'world'})
+            assert.ok(saveResult, 'Have a valid save result')
+            const data = await database.get(saveResult.id)
+            assert.ok(data && data.hellopublic == 'world', 'First result has expected value')
         })
     })
 
@@ -148,7 +147,6 @@ describe('Storage initialization tests', () => {
             const account = new AutoAccount(ceramic2)
             await network2.connect(account)
             context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
-
             const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, CONFIG.DID, {
                 permissions: {
                     read: 'public',
