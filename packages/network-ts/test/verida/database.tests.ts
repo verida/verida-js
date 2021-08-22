@@ -26,36 +26,36 @@ describe('Storage initialization tests', () => {
     let ceramic3, context3
 
     const network = new VeridaNetwork({
-        defaultStorageServer: {
-            type: 'VeridaStorage',
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
         },
         defaultMessageServer: {
-            type: 'VeridaStorage',
+            type: 'VeridaMessage',
             endpointUri: 'http://localhost:5000/'
         },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
     const network2 = new VeridaNetwork({
-        defaultStorageServer: {
-            type: 'VeridaStorage',
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
         },
         defaultMessageServer: {
-            type: 'VeridaStorage',
+            type: 'VeridaMessage',
             endpointUri: 'http://localhost:5000/'
         },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
     const network3 = new VeridaNetwork({
-        defaultStorageServer: {
-            type: 'VeridaStorage',
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
         },
         defaultMessageServer: {
-            type: 'VeridaStorage',
+            type: 'VeridaMessage',
             endpointUri: 'http://localhost:5000/'
         },
         ceramicUrl: CONFIG.CERAMIC_URL
