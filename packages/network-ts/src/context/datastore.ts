@@ -208,4 +208,9 @@ export default class Datastore {
         }
     }
 
+    public async updateUsers(readList: string[] = [], writeList: string[] = []): Promise<void> {
+        await this.init()
+        await this.db.updateUsers(readList, writeList)
+    }
+
 }

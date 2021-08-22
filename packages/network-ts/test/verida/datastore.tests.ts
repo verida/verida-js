@@ -57,6 +57,48 @@ describe('Datastore tests', () => {
             assert.ok(row, 'Able to fetch the inserted row')
             assert.ok(row.firstName == contact.firstName, 'Data matches')
         })
+
+        it('can open a datastore with user permissions', async function() {
+            const datastore = await context.openDatastore(DS_CONTACTS, {
+                permissions: {
+                    read: 'users',
+                    write: 'users'
+                }
+            })
+
+            // Grant read / write access to DID_3 for future tests relating to read / write of user databases
+            const updateResponse = await datastore.updateUsers([CONFIG.DID_3], [CONFIG.DID_3])
+
+            const db = await datastore.getDb()
+            const info = await db.info()
+
+            const contact = {
+                firstName: 'Jane',
+                lastName: 'Doe',
+                email: 'jane__doe.com'
+            }
+
+            const result = await datastore.save(contact)
+            const data = await datastore.get(result.id)
+
+            assert.ok(data.firstName == 'Jane', 'Row has expected value')
+
+            /* setup an extra database with a row for testing read=public, write=users
+            const database2 = await context.openDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, {
+                permissions: {
+                    read: 'public',
+                    write: 'users'
+                }
+            })
+
+            await database2.save({'hello': 'world'})*/
+        })
     })
+
+    // open an external public datastore
+    // open an external users datastore
+
+
+    // @todo need a way to know the users that have access to a particular database
 
 })

@@ -150,7 +150,7 @@ export default class EncryptedDatabase extends BaseDb {
         }
     }
 
-    public async updateUsers(readList: string[] = [], writeList: string[] = []) {
+    public async updateUsers(readList: string[] = [], writeList: string[] = []): Promise<void> {
         await this.init()
 
         this.permissions!.readList = readList
