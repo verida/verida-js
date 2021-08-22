@@ -11,7 +11,7 @@ import DIDContextManager from './did-context-manager'
 import Schema from './context/schema'
 import DEFAULT_CONFIG from './config'
 
-export default class Network {
+export default class Client {
 
     public ceramicUrl: string
 
