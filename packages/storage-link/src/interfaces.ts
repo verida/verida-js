@@ -9,23 +9,24 @@ export interface SecureStorageContextPublicKeys {
     signKey: SecureContextPublicKey,
 }
 
-export interface SecureStorageServer {
+export interface SecureContextEndpoint {
     type: string,
     endpointUri: string,
     config?: object
 }
 
-export interface SecureStorageContextServices {
-    storageServer: SecureStorageServer,
-    messageServer: SecureStorageServer
+export interface SecureContextServices {
+    storageServer?: SecureContextEndpoint,
+    databaseServer: SecureContextEndpoint,
+    messageServer: SecureContextEndpoint
 }
 
-export interface SecureStorageContextConfig {
+export interface SecureContextConfig {
     id: string,
     publicKeys: SecureStorageContextPublicKeys,
-    services: SecureStorageContextServices
+    services: SecureContextServices
 }
 
-export interface SecureStorageContexts {
-    contexts: SecureStorageContextConfig[]
+export interface SecureContexts {
+    contexts: SecureContextConfig[]
 }

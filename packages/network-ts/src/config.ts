@@ -5,7 +5,7 @@ const config: any = {
         local: {
             // For core development
             ceramicUrl: 'http://localhost:7001/',
-            defaultStorageServerUrl: "http://localhost:5000/",
+            defaultDatabaseServerUrl: "http://localhost:5000/",
             defaultMessageServerUrl: "http://localhost:5000/",
             schemaPaths: {
                 '/': 'https://schemas.verida.io/',
@@ -15,7 +15,7 @@ const config: any = {
         },
         testnet: {
             ceramicUrl: 'https://gateway-clay.ceramic.network/',
-            defaultStorageServerUrl: "https://dataserver.testnet.verida.io:5000/",
+            defaultDatabaseServerUrl: "https://dataserver.testnet.verida.io:5000/",
             defaultMessageServerUrl: "https://dataserver.testnet.verida.io:5000/",
             schemaPaths: {
                 '/': 'https://schemas.verida.io/',

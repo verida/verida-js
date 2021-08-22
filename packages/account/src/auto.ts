@@ -52,8 +52,8 @@ export default class AutoAccount implements AccountInterface {
      * 
      * @param storageConfig 
      */
-     public async linkStorage(storageConfig: Interfaces.SecureStorageContextConfig): Promise<void> {
-         await StorageLink.setLink(this.ceramic, this.ceramic.did!.id, storageConfig, false)
+     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
+         await StorageLink.setLink(this.ceramic, this.ceramic.did!.id, storageConfig)
      }
 
      /**

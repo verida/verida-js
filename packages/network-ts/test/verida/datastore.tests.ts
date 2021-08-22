@@ -20,12 +20,12 @@ describe('Datastore tests', () => {
     let ceramic, context
 
     const network = new VeridaNetwork({
-        defaultStorageServer: {
-            type: 'VeridaStorage',
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
         },
         defaultMessageServer: {
-            type: 'VeridaStorage',
+            type: 'VeridaMessage',
             endpointUri: 'http://localhost:5000/'
         },
         ceramicUrl: CONFIG.CERAMIC_URL
@@ -58,7 +58,7 @@ describe('Datastore tests', () => {
             assert.ok(row.firstName == contact.firstName, 'Data matches')
         })
 
-        it('can open a datastore with user permissions', async function() {
+        it('can open a datastore with user permissions, as the owner', async function() {
             const datastore = await context.openDatastore(DS_CONTACTS, {
                 permissions: {
                     read: 'users',
@@ -82,16 +82,32 @@ describe('Datastore tests', () => {
             const data = await datastore.get(result.id)
 
             assert.ok(data.firstName == 'Jane', 'Row has expected value')
+        })
 
-            /* setup an extra database with a row for testing read=public, write=users
-            const database2 = await context.openDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, {
+        it('can open a datastore with user permissions, as an external user', async function() {
+            const datastore = await context.openDatastore(DS_CONTACTS, {
                 permissions: {
-                    read: 'public',
+                    read: 'users',
                     write: 'users'
                 }
             })
 
-            await database2.save({'hello': 'world'})*/
+            // Grant read / write access to DID_3 for future tests relating to read / write of user databases
+            const updateResponse = await datastore.updateUsers([CONFIG.DID_3], [CONFIG.DID_3])
+
+            const db = await datastore.getDb()
+            const info = await db.info()
+
+            const contact = {
+                firstName: 'Jane',
+                lastName: 'Doe',
+                email: 'jane__doe.com'
+            }
+
+            const result = await datastore.save(contact)
+            const data = await datastore.get(result.id)
+
+            assert.ok(data.firstName == 'Jane', 'Row has expected value')
         })
     })
 

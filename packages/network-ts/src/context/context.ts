@@ -5,7 +5,7 @@ import BaseStorageEngine from './engines/base'
 import { StorageEngineTypes } from './interfaces'
 import StorageEngineVerida from './engines/verida/engine'
 import DIDContextManager from '../did-context-manager'
-import { StorageEngines } from '../interfaces'
+import { DatabaseEngines } from '../interfaces'
 import { DatabaseOpenConfig, DatastoreOpenConfig } from './interfaces'
 import Database from './database'
 import Datastore from './datastore'
@@ -13,7 +13,8 @@ import Datastore from './datastore'
 const _ = require('lodash')
 
 const STORAGE_ENGINES: StorageEngineTypes = {
-    'VeridaStorage': StorageEngineVerida
+    'VeridaDatabase': StorageEngineVerida,
+    'VeridaMessage': StorageEngineVerida
 }
 
 /**
@@ -24,7 +25,7 @@ export default class Context {
     private account?: AccountInterface
     private contextName: string
     private didContextManager: DIDContextManager
-    private storageEngines: StorageEngines = {}
+    private databaseEngines: DatabaseEngines = {}
 
     constructor(contextName: string, didContextManager: DIDContextManager, account?: AccountInterface) {
         this.contextName = contextName
@@ -33,7 +34,7 @@ export default class Context {
         this.account = account
     }
 
-    public async getStorageConfig(did?: string): Promise<Interfaces.SecureStorageContextConfig> {
+    public async getContextConfig(did?: string): Promise<Interfaces.SecureContextConfig> {
         if (!did) {
             if (!this.account) {
                 throw new Error('No DID specified and no authenticated user')
@@ -55,31 +56,30 @@ export default class Context {
      * @param did 
      * @returns 
      */
-    private async getStorageEngine(did: string): Promise<BaseStorageEngine> {
-        if (this.storageEngines[did]) {
-            return this.storageEngines[did]
+    private async getDatabaseEngine(did: string): Promise<BaseStorageEngine> {
+        if (this.databaseEngines[did]) {
+            return this.databaseEngines[did]
         }
 
-        const storageConfig = await this.getStorageConfig(did)
-
-        const engineType = storageConfig.services.storageServer.type
+        const contextConfig = await this.getContextConfig(did)
+        const engineType = contextConfig.services.databaseServer.type
 
         if (!STORAGE_ENGINES[engineType]) {
-            throw new Error(`Unsupported storage engine type specified: ${engineType}`)
+            throw new Error(`Unsupported database engine type specified: ${engineType}`)
         }
         const engine = STORAGE_ENGINES[engineType]  // @todo type cast correctly
-        const storageEngine = new engine(this.contextName, storageConfig.services.storageServer.endpointUri)
+        const databaseEngine = new engine(this.contextName, contextConfig.services.databaseServer.endpointUri)
         
         /**
          * Connect the current user if we have one
          */
         if (this.account) {
-            await storageEngine.connectAccount(this.account)
+            await databaseEngine.connectAccount(this.account)
         }
 
         // cache storage engine for this did and context
-        this.storageEngines[did] = storageEngine
-        return storageEngine
+        this.databaseEngines[did] = databaseEngine
+        return databaseEngine
     }
 
     /**
@@ -95,23 +95,23 @@ export default class Context {
         }
 
         const accountDid = await this.account!.did()
-        const storageEngine = await this.getStorageEngine(accountDid)
-        return storageEngine.openDatabase(databaseName, options)
+        const databaseEngine = await this.getDatabaseEngine(accountDid)
+        return databaseEngine.openDatabase(databaseName, options)
     }
 
     /**
      * Open a database owned by any user
      */
     public async openExternalDatabase(databaseName: string, did: string, options: DatabaseOpenConfig): Promise<Database> {
-        const storageEngine = await this.getStorageEngine(did)
-        const storageConfig = await this.getStorageConfig(did)
+        const databaseEngine = await this.getDatabaseEngine(did)
+        const contextConfig = await this.getContextConfig(did)
 
         options = _.merge({
             did,
-            dsn: storageConfig.services.storageServer.endpointUri
+            dsn: contextConfig.services.databaseServer.endpointUri
         }, options)
 
-        return storageEngine.openDatabase(databaseName, options)
+        return databaseEngine.openDatabase(databaseName, options)
     }
 
     public async openDatastore(schemaName: string, config: DatastoreOpenConfig = {}): Promise<Datastore> {

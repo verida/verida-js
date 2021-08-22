@@ -31,7 +31,7 @@ export default class Network {
 
         this.ceramicUrl = config.ceramicUrl
         this.ceramic = new CeramicClient(this.ceramicUrl)
-        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultStorageServer, config.defaultMessageServer)
+        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultDatabaseServer, config.defaultMessageServer, config.defaultStorageServer)
         Schema.setSchemaPaths(config.schemaPaths)
     }
 

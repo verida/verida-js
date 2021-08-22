@@ -35,7 +35,7 @@ export default interface AccountInterface {
      * 
      * @param storageConfig 
      */
-    linkStorage(storageConfig: Interfaces.SecureStorageContextConfig): Promise<void>
+    linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void>
 
     /**
      * Unlink storage for this user

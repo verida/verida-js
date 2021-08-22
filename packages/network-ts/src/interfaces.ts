@@ -4,19 +4,19 @@ import BaseStorageEngine from './context/engines/base'
 export interface ManagerConfig {
     environment?: string
     ceramicUrl?: string
-    defaultStorageServer?: Interfaces.SecureStorageServer,
-    defaultMessageServer?: Interfaces.SecureStorageServer,
+    defaultDatabaseServer?: Interfaces.SecureContextEndpoint,
+    defaultMessageServer?: Interfaces.SecureContextEndpoint,
     schemaPaths?: object
 }
 
 // key = contextName
 // value = SecureStorageContextConfig
 export interface DIDContextConfigs {
-    [key: string]: Interfaces.SecureStorageContextConfig
+    [key: string]: Interfaces.SecureContextConfig
 }
 
 // key = DID string
 // value = BaseStorageEngine
-export interface StorageEngines {
+export interface DatabaseEngines {
     [key: string]: BaseStorageEngine
 }

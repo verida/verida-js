@@ -21,12 +21,12 @@ describe('Storage initialization tests', () => {
     const utils = new Utils(CONFIG.CERAMIC_URL)
     let ceramic
     const network = new VeridaNetwork({
-        defaultStorageServer: {
-            type: 'VeridaStorage',
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
             endpointUri: 'https://localhost:7001/'
         },
         defaultMessageServer: {
-            type: 'VeridaStorage',
+            type: 'VeridaMessage',
             endpointUri: 'https://localhost:7001/'
         },
         ceramicUrl: CONFIG.CERAMIC_URL
@@ -73,10 +73,10 @@ describe('Storage initialization tests', () => {
             const accountContext = await network.openContext(CONFIG.CONTEXT_NAME, true)
             assert.ok(accountContext, 'Account storage opened')
 
-            const accountStoageConfig = await accountContext.getStorageConfig()
-
+            const accountStorageConfig = await accountContext.getContextConfig()
             const fetchedStorageConfig = await StorageLink.getLink(ceramic, ceramic.did.id, CONFIG.CONTEXT_NAME)
-            assert.deepEqual(fetchedStorageConfig, accountStoageConfig, 'Storage context config matches')
+
+            assert.deepEqual(fetchedStorageConfig, accountStorageConfig, 'Storage context config matches')
         })
     })
 })

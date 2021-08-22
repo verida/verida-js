@@ -400,4 +400,8 @@ export default class BaseDb extends EventEmitter implements Database {
         }
     }
 
+    public async info(): Promise<any> {
+        throw new Error('Not implemented')
+    }
+
 }

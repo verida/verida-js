@@ -14,13 +14,16 @@ export default class DIDContextManager {
 
     private didContexts: DIDContextConfigs = {}
 
-    private defaultStorageServer: Interfaces.SecureStorageServer
-    private defaultMessageServer: Interfaces.SecureStorageServer
+    private defaultDatabaseServer: Interfaces.SecureContextEndpoint
+    private defaultMessageServer: Interfaces.SecureContextEndpoint
+    private defaultStorageServer?: Interfaces.SecureContextEndpoint
+
     private ceramic: CeramicClient
     private account?: AccountInterface
 
-    public constructor(ceramic: CeramicClient, defaultStorageServer: Interfaces.SecureStorageServer, defaultMessageServer: Interfaces.SecureStorageServer) {
+    public constructor(ceramic: CeramicClient, defaultDatabaseServer: Interfaces.SecureContextEndpoint, defaultMessageServer: Interfaces.SecureContextEndpoint, defaultStorageServer?: Interfaces.SecureContextEndpoint) {
         this.ceramic = ceramic
+        this.defaultDatabaseServer = defaultDatabaseServer
         this.defaultStorageServer = defaultStorageServer
         this.defaultMessageServer = defaultMessageServer
     }
@@ -29,14 +32,23 @@ export default class DIDContextManager {
         this.account = account
     }
 
-    public async getContextStorageServer(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureStorageServer> {
-        const storageConfig = await this.getDIDContextConfig(did, contextName, forceCreate)
-        return storageConfig.services.storageServer
+    public async getContextDatabaseServer(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureContextEndpoint> {
+        const contextConfig = await this.getDIDContextConfig(did, contextName, forceCreate)
+        return contextConfig.services.databaseServer
     }
 
-    public async getContextMessageServer(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureStorageServer> {
-        const storageConfig = await this.getDIDContextConfig(did, contextName, forceCreate)
-        return storageConfig.services.messageServer
+    public async getContextStorageServer(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureContextEndpoint> {
+        const contextConfig = await this.getDIDContextConfig(did, contextName, forceCreate)
+        if (!contextConfig.services.storageServer) {
+            throw new Error('Storage server not specified')
+        }
+
+        return contextConfig.services.storageServer
+    }
+
+    public async getContextMessageServer(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureContextEndpoint> {
+        const contextConfig = await this.getDIDContextConfig(did, contextName, forceCreate)
+        return contextConfig.services.messageServer
     }
 
     public async getDIDContextHashConfig(did: string, contextHash: string) {
@@ -53,14 +65,14 @@ export default class DIDContextManager {
         return storageConfig
     }
 
-    public async getDIDContextConfig(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureStorageContextConfig> {
+    public async getDIDContextConfig(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureContextConfig> {
         const contextHash = StorageLink.hash(`${did}/${contextName}`)
 
         if (this.didContexts[contextHash]) {
             return this.didContexts[contextHash]
         }
 
-        let storageConfig = await StorageLink.getLink(this.ceramic, did, contextName)
+        let storageConfig = await StorageLink.getLink(this.ceramic, did, contextName, true)
 
         if (!storageConfig) {
             if (!forceCreate) {
@@ -77,11 +89,17 @@ export default class DIDContextManager {
                 throw new Error('Unable to create storage context for a different DID than the one authenticated')
             }
 
-            // Force creation of storage context using default server configurations
-            storageConfig = await DIDStorageConfig.generate(this.account, contextName, {
-                storageServer: this.defaultStorageServer,
+            const endpoints: Interfaces.SecureContextServices = {
+                databaseServer: this.defaultDatabaseServer,
                 messageServer: this.defaultMessageServer
-            })
+            }
+
+            if (this.defaultStorageServer) {
+                endpoints.storageServer = this.defaultStorageServer
+            }
+
+            // Force creation of storage context using default server configurations
+            storageConfig = await DIDStorageConfig.generate(this.account, contextName, endpoints)
 
             await this.account!.linkStorage(storageConfig)
         }

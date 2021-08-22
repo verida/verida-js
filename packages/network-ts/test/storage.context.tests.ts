@@ -19,12 +19,12 @@ describe('Storage initialization tests', () => {
     let ceramic, context
 
     const network = new VeridaNetwork({
-        defaultStorageServer: {
-            type: 'VeridaStorage',
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
         },
         defaultMessageServer: {
-            type: 'VeridaStorage',
+            type: 'VeridaMessage',
             endpointUri: 'http://localhost:5000/'
         },
         ceramicUrl: CONFIG.CERAMIC_URL
@@ -44,8 +44,8 @@ describe('Storage initialization tests', () => {
             assert.ok(context, 'Account context opened')
 
             const fetchedStorageConfig = await StorageLink.getLink(ceramic, ceramic.did.id, CONFIG.CONTEXT_NAME)
-            const storageConfig = await context.getStorageConfig()
-            assert.deepEqual(fetchedStorageConfig, storageConfig, 'Storage context config matches')
+            const contextConfig = await context.getContextConfig()
+            assert.deepEqual(fetchedStorageConfig, contextConfig, 'Storage context config matches')
         })
 
         it('can open a database with owner/owner permissions', async function() {
