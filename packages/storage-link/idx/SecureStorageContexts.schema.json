@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "title": "SecureStorageContexts",
+  "title": "SecureContexts",
   "type": "object",
   "properties": {
     "contexts": {
@@ -8,7 +8,7 @@
       "title": "context",
       "items": {
         "type": "object",
-        "title": "Secure Storage Context",
+        "title": "Secure Context",
         "properties": {
           "id": {
             "type": "string",
@@ -33,16 +33,20 @@
             "type": "object",
             "title": "Services",
             "properties": {
+              "databaseServer": {
+                "$ref": "#/definitions/SecureContextEndpoint",
+                "title": "Database server"
+              },
               "storageServer": {
-                "$ref": "#/definitions/SecureStorageServer",
+                "$ref": "#/definitions/SecureContextEndpoint",
                 "title": "Storage server"
               },
               "messageServer": {
-                "$ref": "#/definitions/SecureStorageServer",
+                "$ref": "#/definitions/SecureContextEndpoint",
                 "title": "Message server"
               }
             },
-            "required": ["storageServer", "messageServer"]
+            "required": ["databaseServer", "messageServer"]
           }
         },
         "required": ["id", "publicKeys", "services"]
@@ -68,7 +72,7 @@
         } 
       }
     },
-    "SecureStorageServer": {
+    "SecureContextEndpoint": {
       "properties": {
         "type": {
           "type": "string",

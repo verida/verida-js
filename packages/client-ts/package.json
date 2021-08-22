@@ -1,0 +1,39 @@
+{
+  "name": "@verida/client-ts",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "scripts": {
+    "tests": "ts-mocha './test/**/*.ts'",
+    "test": "ts-mocha",
+    "build": "tsc"
+  },
+  "engines": {
+    "node": "^12.0.0"
+  },
+  "dependencies": {
+    "@ceramicnetwork/http-client": "^1.0.7",
+    "@verida/account": "*",
+    "@verida/encryption-utils": "^0.2.1",
+    "@verida/keyring": "*",
+    "@verida/storage-link": "*",
+    "ajv": "^8.6.2",
+    "axios": "^0.21.1",
+    "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git",
+    "json-schema-ref-parser": "^9.0.9",
+    "json-schema-resolve-allof": "^1.5.0",
+    "lodash": "^4.17.21",
+    "pouchdb": "^7.2.2",
+    "pouchdb-find": "^7.2.2"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}

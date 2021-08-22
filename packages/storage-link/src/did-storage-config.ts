@@ -1,5 +1,5 @@
 import { AccountInterface } from '@verida/account'
-import { SecureStorageContextConfig, SecureStorageContextServices } from './interfaces'
+import { SecureContextConfig, SecureContextServices } from './interfaces'
 import { StorageLink } from './index'
 
 export default class DIDStorageConfig {
@@ -10,11 +10,13 @@ export default class DIDStorageConfig {
      * @param did 
      * @param contextName 
      */
-    static async generate(account: AccountInterface, contextName: string, servicesConfig: SecureStorageContextServices): Promise<SecureStorageContextConfig> {
+    static async generate(account: AccountInterface, contextName: string, servicesConfig: SecureContextServices): Promise<SecureContextConfig> {
         const keyring = await account.keyring(contextName)
         const publicKeys = await keyring.publicKeys()
-        const config: SecureStorageContextConfig = {
-            id: StorageLink.hash(contextName),
+        const did = await account.did()
+
+        const config: SecureContextConfig = {
+            id: contextName,
             publicKeys: {
                 asymKey: {
                     type: 'Curve25519EncryptionPublicKey',
