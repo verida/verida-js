@@ -24,6 +24,7 @@
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git",
+    "did-jwt": "^5.6.3",
     "json-schema-ref-parser": "^9.0.9",
     "json-schema-resolve-allof": "^1.5.0",
     "lodash": "^4.17.21",

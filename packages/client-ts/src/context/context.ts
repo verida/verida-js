@@ -3,18 +3,23 @@ import { Interfaces } from '@verida/storage-link'
 
 import BaseStorageEngine from './engines/base'
 import { StorageEngineTypes } from './interfaces'
-import StorageEngineVerida from './engines/verida/engine'
 import DIDContextManager from '../did-context-manager'
 import { DatabaseEngines } from '../interfaces'
 import { DatabaseOpenConfig, DatastoreOpenConfig } from './interfaces'
 import Database from './database'
 import Datastore from './datastore'
+import Messaging from './messaging'
 
 const _ = require('lodash')
 
-const STORAGE_ENGINES: StorageEngineTypes = {
-    'VeridaDatabase': StorageEngineVerida,
-    'VeridaMessage': StorageEngineVerida
+import StorageEngineVerida from './engines/verida/database/engine'
+const DATABASE_ENGINES: StorageEngineTypes = {
+    'VeridaDatabase': StorageEngineVerida
+}
+
+import MessagingEngineVerida from './engines/verida/messaging/engine'
+const MESSAGING_ENGINES: StorageEngineTypes = {
+    'VeridaMessage': MessagingEngineVerida
 }
 
 /**
@@ -23,6 +28,8 @@ const STORAGE_ENGINES: StorageEngineTypes = {
 export default class Context {
 
     private account?: AccountInterface
+    private messagingEngine?: Messaging
+
     private contextName: string
     private didContextManager: DIDContextManager
     private databaseEngines: DatabaseEngines = {}
@@ -64,10 +71,10 @@ export default class Context {
         const contextConfig = await this.getContextConfig(did)
         const engineType = contextConfig.services.databaseServer.type
 
-        if (!STORAGE_ENGINES[engineType]) {
+        if (!DATABASE_ENGINES[engineType]) {
             throw new Error(`Unsupported database engine type specified: ${engineType}`)
         }
-        const engine = STORAGE_ENGINES[engineType]  // @todo type cast correctly
+        const engine = DATABASE_ENGINES[engineType]  // @todo type cast correctly
         const databaseEngine = new engine(this.contextName, contextConfig.services.databaseServer.endpointUri)
         
         /**
@@ -80,6 +87,32 @@ export default class Context {
         // cache storage engine for this did and context
         this.databaseEngines[did] = databaseEngine
         return databaseEngine
+    }
+
+    private async getMessagingEngine(): Promise<Messaging> {
+        if (this.messagingEngine) {
+            return this.messagingEngine
+        }
+
+        if (!this.account) {
+            throw new Error(`Unable to open messaging. No authenticated user.`)
+        }
+
+        const did = await this.account!.did()
+        const contextConfig = await this.getContextConfig(did)
+        const engineType = contextConfig.services.messageServer.type
+
+        if (!MESSAGING_ENGINES[engineType]) {
+            throw new Error(`Unsupported messaging engine type specified: ${engineType}`)
+        }
+        const engine = MESSAGING_ENGINES[engineType]  // @todo type cast correctly
+        const keyring = await this.account!.keyring(this.contextName)
+        const accountDid = await this.account!.did()
+        const messagingEngine = new engine(accountDid, this, keyring, contextConfig.services.messageServer.endpointUri)
+
+        // cache messaging engine for this did and context
+        this.messagingEngine = messagingEngine
+        return messagingEngine
     }
 
     /**
@@ -122,5 +155,11 @@ export default class Context {
         // @todo: Should this also call _init to confirm everything is good?
         return new Datastore(schemaName, this, config)
     }
+
+    public async openExternalDatastore(schemaName: string, did: string, config: DatastoreOpenConfig = {}): Promise<Datastore> {
+        throw new Error('Not implemented')
+    }
+
+    
 
 }
