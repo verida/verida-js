@@ -1,24 +1,17 @@
 
+# Verida Javascript Library
 
-Getting started
-------------------
+This monorepo contains [Verida Client Library](packages/verida-ts) and a variety of utility packages that support that library.
 
-In the root folder, run:
+There is a `#react-native` branch that maintains a slightly modified version of the `Verida Client Library` that is used to build the `@verida/client-rn` package.
 
-```
-yarn install
-npx lerna link
-cd storage
-yarn install
-yarn run build
-cd ../storage-connection-ethr
-yarn install
-yarn run build
-yarn run test
-```
+## Developer Notes
 
-Adding a linked dependency:
+### Linking dependencies
 
-Running `yarn add @verida/3id-utils-node` won't work if that package hasn't been published to `npm`.
+It's not possible to add dependencies between monorepo packages using yarn (ie: `yarn add @verida/3id-utils-node`) if that package hasn't been published to `npm`.
 
-The solution is to manually add that dependency to `package.json` and then run `npx lerna bootstrap` in the root directory of this project.
+Unpublished dependencies betwen monorepo packages can be linked by:
+
+- Manually adding the expected dependency to `package.json` (ie: `@verida/3id-utils-node`)
+- Run `npx lerna bootstrap` in the root directory of this project
