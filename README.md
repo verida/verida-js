@@ -15,3 +15,9 @@ Unpublished dependencies betwen monorepo packages can be linked by:
 
 - Manually adding the expected dependency to `package.json` (ie: `@verida/3id-utils-node`)
 - Run `npx lerna bootstrap` in the root directory of this project
+
+### Creating a release
+
+```
+$ npx lerna publish
+```
