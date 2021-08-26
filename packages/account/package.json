@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@verida"
+    "registry": "https://npm.pkg.github.com/"
   },
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
@@ -29,5 +29,5 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   },
-  "gitHead": "b95e314c44523cef24028406e75bafe3dc1b4525"
+  "gitHead": "7cb0e817d103cd6aa0feb7013a11709cb5e0e275"
 }
