@@ -7,6 +7,10 @@
     "src": "src",
     "test": "tests"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@verida"
+  },
+  "repository": "https://github.com/verida/verida-ts",
   "scripts": {
     "test": "ts-mocha './test/**/*.ts'",
     "build": "tsc"
