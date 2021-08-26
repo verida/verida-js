@@ -1,6 +1,6 @@
 {
   "name": "@verida/storage-link",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -22,9 +22,9 @@
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.0.7",
     "@ceramicstudio/idx": "^0.12.1",
-    "@verida/3id-utils-node": "*",
-    "@verida/keyring": "*",
-    "@verida/account": "*",
+    "@verida/3id-utils-node": "^0.2.0",
+    "@verida/account": "^0.2.0",
+    "@verida/keyring": "^0.2.0",
     "jssha": "^3.2.0"
   },
   "devDependencies": {
