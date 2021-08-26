@@ -1,26 +1,31 @@
-import Context from '../../../context'
 import BaseMessage from '../../../messaging'
 import { MessagesConfig } from '../../../interfaces'
 import Inbox from './inbox'
 import Outbox from './outbox'
 import { Keyring } from '@verida/keyring'
-import { AutoAccount } from '../../../../../../account/dist'
+import { AutoAccount } from '@verida/account'
+import StorageEngineVerida from '../database/engine'
+
 
 export default class MessagingEngineVerida implements BaseMessage {
 
-    private context: Context
+    private did: string
+    private contextName: string
     private maxItems: Number
     private keyring: Keyring
     private endpointUri: string
+    private dbEngine: StorageEngineVerida
 
     private inbox?: Inbox
     private outbox?: Outbox
 
-    constructor(context: Context, keyring: Keyring, endpointUri: string, config: MessagesConfig) {
-        this.context = context
+    constructor(did: string, contextName: string, keyring: Keyring, endpointUri: string, config: MessagesConfig) {
+        this.did = did
+        this.contextName = contextName
         this.keyring = keyring
         this.endpointUri = endpointUri
         this.maxItems = config.maxItems ? config.maxItems : 50
+        this.dbEngine = new StorageEngineVerida(this.contextName, endpointUri)
     }
 
     /**
@@ -65,7 +70,7 @@ export default class MessagingEngineVerida implements BaseMessage {
             return this.inbox
         }
 
-        this.inbox = new Inbox(this.keyring, this.maxItems)
+        this.inbox = new Inbox(this.dbEngine, this.keyring, this.maxItems)
         return this.inbox
     }
 
@@ -74,7 +79,7 @@ export default class MessagingEngineVerida implements BaseMessage {
             return this.outbox
         }
 
-        this.outbox = new Outbox(this.context.getContextName(), this.keyring)
+        this.outbox = new Outbox(this.dbEngine, this.did, this.contextName, this.keyring)
         return this.outbox
     }
 

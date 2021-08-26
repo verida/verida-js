@@ -108,7 +108,7 @@ export default class Context {
         const engine = MESSAGING_ENGINES[engineType]  // @todo type cast correctly
         const keyring = await this.account!.keyring(this.contextName)
         const accountDid = await this.account!.did()
-        const messagingEngine = new engine(accountDid, this, keyring, contextConfig.services.messageServer.endpointUri)
+        const messagingEngine = new engine(accountDid, keyring, contextConfig.services.messageServer.endpointUri)
 
         // cache messaging engine for this did and context
         this.messagingEngine = messagingEngine

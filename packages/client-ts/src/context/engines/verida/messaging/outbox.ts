@@ -3,7 +3,7 @@ import didJWT from 'did-jwt'
 import { box, randomBytes } from "tweetnacl"
 import { Keyring } from '@verida/keyring'
 import Datastore from "../../../datastore"
-import Context from "../../../context"
+import StorageEngineVerida from '../database/engine'
 import { MessageSendConfig, PermissionOptionsEnum } from "../../../interfaces"
 import { base58ToBytes, bytesToBase58 } from "did-jwt/lib/util"
 
@@ -12,16 +12,16 @@ const VAULT_CONTEXT_NAME = 'Verida: Vault'
 export default class VeridaOutbox {
 
     private accountDid: string
-    private context: Context
+    private dbEngine: StorageEngineVerida
     private contextName: string
     private keyring: Keyring
     private inboxes: any            // @todo, proper typing
     private outboxDatastore?: Datastore
 
-    constructor(accountDid: string, context: Context, keyring: Keyring) {
+    constructor(dbEngine: StorageEngineVerida, accountDid: string, contextName: string, keyring: Keyring) {
+        this.dbEngine = dbEngine
         this.accountDid = accountDid
-        this.context = context
-        this.contextName = context.getContextName()
+        this.contextName = contextName
         this.keyring = keyring
         this.inboxes = {}
     }

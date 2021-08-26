@@ -4,9 +4,11 @@ const EventEmitter = require("events")
 
 import { Keyring } from '@verida/keyring'
 import { PermissionOptionsEnum } from '../../../interfaces'
+import StorageEngineVerida from '../database/engine'
 
 export default class VeridaInbox extends EventEmitter {
 
+    private dbEngine: StorageEngineVerida
     private keyring: Keyring
     private initComplete: boolean
 
@@ -15,8 +17,9 @@ export default class VeridaInbox extends EventEmitter {
 
     protected maxItems: Number
 
-    constructor(keyring: Keyring, maxItems: Number = 50) {
+    constructor(dbEngine: StorageEngineVerida, keyring: Keyring, maxItems: Number = 50) {
         super()
+        this.dbEngine = dbEngine
         this.keyring = keyring
         this.initComplete = false
 
@@ -162,14 +165,14 @@ export default class VeridaInbox extends EventEmitter {
         }
 
         this.initComplete = true
-        this.publicInbox = await this.context.openDatastore("https://schemas.verida.io/inbox/item/schema.json", {
+        this.publicInbox = await this.dbEngine.openDatastore("https://schemas.verida.io/inbox/item/schema.json", {
             permissions: {
                 read: PermissionOptionsEnum.PUBLIC,
                 write: PermissionOptionsEnum.PUBLIC
             }
         })
         
-        this.privateInbox = await this.context.openDatastore("https://schemas.verida.io/inbox/entry/schema.json", {
+        this.privateInbox = await this.dbEngine.openDatastore("https://schemas.verida.io/inbox/entry/schema.json", {
             permissions: {
                 read: PermissionOptionsEnum.OWNER,
                 write: PermissionOptionsEnum.OWNER
