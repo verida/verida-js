@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -21,7 +21,7 @@
     "@verida/account": "^0.1.6",
     "@verida/encryption-utils": "^0.2.3",
     "@verida/keyring": "^0.1.6",
-    "@verida/storage-link": "^0.1.6",
+    "@verida/storage-link": "^0.1.7",
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git",
