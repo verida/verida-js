@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.0.7",
-    "@verida/account": "^0.1.4",
+    "@verida/account": "^0.1.5",
     "@verida/encryption-utils": "^0.1.4",
-    "@verida/keyring": "^0.1.4",
-    "@verida/storage-link": "^0.1.4",
+    "@verida/keyring": "^0.1.5",
+    "@verida/storage-link": "^0.1.5",
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git",
