@@ -1,6 +1,6 @@
 {
   "name": "@verida/account",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.0.7",
-    "@verida/keyring": "^0.1.1"
+    "@verida/keyring": "^0.1.2"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
