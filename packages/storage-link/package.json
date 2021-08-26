@@ -1,6 +1,6 @@
 {
   "name": "@verida/storage-link",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -33,5 +33,5 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   },
-  "gitHead": "7cb0e817d103cd6aa0feb7013a11709cb5e0e275"
+  "gitHead": "242b95cbb8a85b9d4680019b5a5250f1aa32bb59"
 }
