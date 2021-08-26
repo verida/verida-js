@@ -1,6 +1,6 @@
 {
   "name": "3id-utils-node",
-  "version": "0.2.0",
+  "version": "0.0.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
