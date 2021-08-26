@@ -1,5 +1,5 @@
 {
-  "name": "client-ts",
+  "name": "@verida/client-ts",
   "version": "0.1.0",
   "main": "dist/index.js",
   "license": "ISC",
@@ -10,7 +10,7 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/@verida"
   },
-  "repository": "https://github.com/verida/verida-ts",
+  "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha",
@@ -21,10 +21,10 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.0.7",
-    "@verida/account": "^0.2.0",
+    "@verida/account": "^0.1.0",
     "@verida/encryption-utils": "^0.2.1",
-    "@verida/keyring": "^0.2.0",
-    "@verida/storage-link": "^0.2.0",
+    "@verida/keyring": "^0.1.0",
+    "@verida/storage-link": "^0.1.0",
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git",
@@ -40,5 +40,5 @@
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   },
-  "gitHead": "afc54694d110f427f47b1055da46a18ba345eebe"
+  "gitHead": "b95e314c44523cef24028406e75bafe3dc1b4525"
 }
