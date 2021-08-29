@@ -4,7 +4,7 @@ const assert = require('assert')
 import { Utils } from '@verida/3id-utils-node'
 
 const ETH_PRIVATE_KEY = '0xc0da48347b4bcb2cfb08d6b8c26b52b47fd36ca6114974a0104d15fab076f553'
-const CERAMIC_URL = 'http://localhost:7007' // Note: Requires running ceramic locally
+const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
 
 
 describe('Auto account tests', () => {

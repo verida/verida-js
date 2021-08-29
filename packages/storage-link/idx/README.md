@@ -11,8 +11,18 @@ Quick hack instructions to create the necessary schema
 
 ## Example
 
+Specify the Ceramic URL to use. Use localhost if running a local ceramic instance. The Ceramic testnet is `https://ceramic-clay.3boxlabs.com` which already has the Verida schema deployed.
+
 ```
 $ export CERAMIC_URL=http://localhost:7007/
+$ idx config:set ceramic-url $CERAMIC_URL
+$ idx config:get ceramic-url
+```
+
+Create a DID for IDX:
+
+```
+$ idx did:create --label=me
 ```
 
 Publish a schema:
@@ -24,8 +34,9 @@ $ idx schema:publish did:key:z6MkfPM7WbUpnQZyaxLevGCMkcGz3MYMaraqsRZKAGstVANa '{
 Create a definition linked to the schema:
 
 ```
-idx definition:create did:key:z6MkfPM7WbUpnQZyaxLevGCMkcGz3MYMaraqsRZKAGstVANa --name="SecureContexts" --description="Verida Secure Contexts" --schema=ceramic://k3y52l7qbv1fryflff53qyjhgm97r67gtypv459hlrt51jn0kec7o3h4y945rqpkw
+idx definition:create did:key:z6MkfPM7WbUpnQZyaxLevGCMkcGz3MYMaraqsRZKAGstVANa --name="SecureContexts" --description="Verida Secure Contexts" --schema=ceramic://k3y52l7qbv1frxyrywm26hkzy9ykuk0ade0fedontx9xdf50bloazc3hkikh61h4w
 ```
 
 This will return a definition ID that can be used directly or added to Ceramic configuration in the SDK with an alias.
 
+Latest definition ID created on ceramic clay testnet 2021-08-29 `kjzl6cwe1jw145l8jya7g6cuyluj17xlyc6t7p6iif12isbi1ppu5cuze4u3njc`

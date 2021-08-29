@@ -5,7 +5,7 @@ import VeridaNetwork from '../src/index'
 import { Utils } from '@verida/3id-utils-node'
 
 // Test Ethereum Private key used to create / unlock a 3ID
-const CERAMIC_URL = 'http://localhost:7007' // Note: Requires running ceramic locally
+const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com' // Note: Requires running ceramic locally
 
 /**
  * 
