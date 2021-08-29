@@ -105,7 +105,7 @@ export default class Context {
         return databaseEngine
     }
 
-    private async getMessagingEngine(): Promise<Messaging> {
+    public async getMessaging(): Promise<Messaging> {
         if (this.messagingEngine) {
             return this.messagingEngine
         }
@@ -175,7 +175,5 @@ export default class Context {
     public async openExternalDatastore(schemaName: string, did: string, config: DatastoreOpenConfig = {}): Promise<Datastore> {
         throw new Error('Not implemented')
     }
-
-    
 
 }

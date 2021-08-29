@@ -1,4 +1,5 @@
 import { AccountInterface } from "@verida/account";
+import { MessageSendConfig } from "./interfaces"
 
 export default interface Messaging {
 
@@ -11,12 +12,20 @@ export default interface Messaging {
      * @param message 
      * @param config 
      */
-    send(did: string, type: string, data: object, message: string, config?: object): Promise<object | null>
+    send(did: string, type: string, data: object, message: string, config?: MessageSendConfig): Promise<object | null>
 
     /**
      * Register a callback to fire when a new message is received
      */
     onMessage(callback: any): void
+
+    /**
+     * Get messages from this inbox
+     * 
+     * @param filter 
+     * @param options 
+     */
+    getMessages(filter: object, options: any): Promise<any>
 
     /**
      * Get the underlying database instance for the inbox

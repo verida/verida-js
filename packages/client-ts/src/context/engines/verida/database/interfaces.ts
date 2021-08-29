@@ -1,5 +1,5 @@
 import { Keyring } from '@verida/keyring';
-import { PermissionsConfig } from '../../interfaces'
+import { PermissionsConfig } from '../../../interfaces'
 import DatastoreServerClient from './client'
 
 export interface VeridaDatabaseConfig {

@@ -7,7 +7,7 @@ import { AccountInterface } from '@verida/account'
 import StorageEngineVerida from '../database/engine'
 import DIDContextManager from '../../../../did-context-manager'
 import Context from '../../../context'
-
+import { MessageSendConfig } from "../../../interfaces"
 
 export default class MessagingEngineVerida implements BaseMessage {
 
@@ -47,7 +47,7 @@ export default class MessagingEngineVerida implements BaseMessage {
      * @param message 
      * @param config 
      */
-    public async send(did: string, type: string, data: object, message: string, config?: object): Promise<object | null> {
+    public async send(did: string, type: string, data: object, message: string, config?: MessageSendConfig): Promise<object | null> {
         const outbox = await this.getOutbox()
         return outbox.send(did, type, data, message, config)
     }
@@ -58,6 +58,11 @@ export default class MessagingEngineVerida implements BaseMessage {
     public async onMessage(callback: any): Promise<void> {
         const inbox = await this.getInbox()
         inbox.on('newMessage', callback)
+    }
+
+    public async getMessages(filter: object, options: any): Promise<any> {
+        const inboxDb = await this.getInboxDb()
+        return inboxDb.getMany(filter, options)
     }
 
     /**
