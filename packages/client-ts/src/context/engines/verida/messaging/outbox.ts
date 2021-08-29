@@ -1,28 +1,35 @@
-import _ from "lodash"
-import didJWT from 'did-jwt'
+const _ = require('lodash')
+const didJWT = require('did-jwt')
 import { box, randomBytes } from "tweetnacl"
 import { Keyring } from '@verida/keyring'
 import Datastore from "../../../datastore"
 import StorageEngineVerida from '../database/engine'
 import { MessageSendConfig, PermissionOptionsEnum } from "../../../interfaces"
 import { base58ToBytes, bytesToBase58 } from "did-jwt/lib/util"
+import DIDContextManager from '../../../../did-context-manager'
+import Client from '../../../../client'
 
 const VAULT_CONTEXT_NAME = 'Verida: Vault'
 
 export default class VeridaOutbox {
 
     private accountDid: string
-    private dbEngine: StorageEngineVerida
     private contextName: string
     private keyring: Keyring
-    private inboxes: any            // @todo, proper typing
-    private outboxDatastore?: Datastore
+    private outboxDatastore: Datastore
+    private client: Client
+    private didContextManager: DIDContextManager
 
-    constructor(dbEngine: StorageEngineVerida, accountDid: string, contextName: string, keyring: Keyring) {
-        this.dbEngine = dbEngine
-        this.accountDid = accountDid
+    private inboxes: any            // @todo, proper typing
+
+    constructor(contextName: string, accountDid: string, keyring: Keyring, outboxDatastore: Datastore, client: Client, didContextManager: DIDContextManager) {
         this.contextName = contextName
+        this.accountDid = accountDid
         this.keyring = keyring
+        this.outboxDatastore = outboxDatastore
+        this.client = client
+        this.didContextManager = didContextManager
+
         this.inboxes = {}
     }
 
@@ -52,12 +59,13 @@ export default class VeridaOutbox {
         }
         config = _.merge(defaults, config)
 
-        const sendingAppName = this.contextName
-        const receivingAppName = config.recipientContextName
+        const sendingContextName = this.contextName
+        const receivingContextName = config.recipientContextName!
 
         this.validateData(type, data)
 
-        const recipientContextConfig = await this.context.getContextConfig(did)
+        // Need to locate the context config for a given DID
+        const recipientContextConfig = await this.didContextManager.getDIDContextConfig(did, receivingContextName, false)
         if(!recipientContextConfig) {
             throw new Error(`Unable to locate DID: ${did}`)
         }
@@ -70,8 +78,8 @@ export default class VeridaOutbox {
             sent: false
         }
 
-        const outbox = await this.getOutboxDatastore()
-        const response = await outbox.save(outboxEntry)
+        const outbox = this.outboxDatastore
+        const response: any = await outbox.save(outboxEntry)
 
         if (!response) {
             console.error(outbox.errors)
@@ -100,7 +108,7 @@ export default class VeridaOutbox {
             aud: this.accountDid,
             exp: config.expiry,
             data: outboxEntry,
-            veridaApp: sendingAppName,
+            veridaApp: sendingContextName,
             insertedAt: (new Date()).toISOString()
         }, {
             alg: 'Ed25519',
@@ -116,7 +124,7 @@ export default class VeridaOutbox {
 
         // Save the encrypted JWT to the user's inbox
         const inbox = await this.getInboxDatastore(did, {
-            contextName: receivingAppName
+            recipientContextName: receivingContextName
         })
 
         // Undo saving of inserted / modified metadata as this DB is public
@@ -152,38 +160,24 @@ export default class VeridaOutbox {
             return this.inboxes[cacheKey]
         }
 
-        // Build dataserver connecting to the recipient user's inbox
-        const inbox = await this.context.openExternalDatastore("https://schemas.verida.io/inbox/item/schema.json", did, {
+        /**
+         * Open a database owned by any user
+         */
+        const context = await this.client.openContext(config.recipientContextName!)
+        const inbox = await context?.openExternalDatastore("https://schemas.verida.io/inbox/item/schema.json", did, {
             permissions: {
                 read: PermissionOptionsEnum.PUBLIC,
                 write: PermissionOptionsEnum.PUBLIC
             }
+            //signuser
+            //signappname
         })
-        
-        /*let inbox = new Datastore(dataserver, "https://schemas.verida.io/inbox/item/schema.json", did, config.appName, {
-            permissions: {
-                read: "public",
-                write: "public"
-            },
-            isOwner: false,
-            // Sign data as this user and application
-            signUser: this._app.user,
-            signAppName: this._app.appName
-        });*/
 
         this.inboxes[cacheKey] = inbox
         return inbox
     }
 
-    private async getOutboxDatastore(): Promise<Datastore> {
-        if (!this.outboxDatastore) {
-            this.outboxDatastore = await this.context.openDatastore("https://schemas.verida.io/outbox/entry/schema.json")
-        }
-
-        return this.outboxDatastore
-    }
-
-    validateData(data: any): boolean {
+    validateData(type: string, data: any): boolean {
         // TODO: Validate the data is a valid schema (or an array of valid schemas)
         return true
     }

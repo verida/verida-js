@@ -19,7 +19,7 @@ export default class Datastore {
     protected storageContext: string
     protected config: DatastoreOpenConfig
 
-    protected errors: object = {}
+    public errors: object = {}
     private db: any
 
     /**

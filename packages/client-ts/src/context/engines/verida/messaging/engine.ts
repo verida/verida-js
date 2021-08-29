@@ -3,29 +3,39 @@ import { MessagesConfig } from '../../../interfaces'
 import Inbox from './inbox'
 import Outbox from './outbox'
 import { Keyring } from '@verida/keyring'
-import { AutoAccount } from '@verida/account'
+import { AccountInterface } from '@verida/account'
 import StorageEngineVerida from '../database/engine'
+import DIDContextManager from '../../../../did-context-manager'
+import Context from '../../../context'
 
 
 export default class MessagingEngineVerida implements BaseMessage {
 
-    private did: string
+    private context: Context
     private contextName: string
     private maxItems: Number
-    private keyring: Keyring
     private endpointUri: string
     private dbEngine: StorageEngineVerida
+    private didContextManager: DIDContextManager
+
+    private did?: string
+    private keyring?: Keyring
 
     private inbox?: Inbox
     private outbox?: Outbox
 
-    constructor(did: string, contextName: string, keyring: Keyring, endpointUri: string, config: MessagesConfig) {
-        this.did = did
-        this.contextName = contextName
-        this.keyring = keyring
+    constructor(context: Context, endpointUri: string, config: MessagesConfig) {
+        this.context = context
+        this.contextName = this.context.getContextName()
         this.endpointUri = endpointUri
         this.maxItems = config.maxItems ? config.maxItems : 50
         this.dbEngine = new StorageEngineVerida(this.contextName, endpointUri)
+        this.didContextManager = context.getDidContextManager()
+    }
+
+    public async connectAccount(account: AccountInterface) {
+        this.did = await account.did()
+        this.keyring = await account.keyring(this.contextName)
     }
 
     /**
@@ -58,19 +68,12 @@ export default class MessagingEngineVerida implements BaseMessage {
         return inbox.getInbox()
     }
 
-    /**
-     * Get the underlying database instance for the outbox
-     */
-    public async getOutboxDb(): Promise<any> {
-
-    }
-
     private async getInbox(): Promise<Inbox> {
         if (this.inbox) {
             return this.inbox
         }
 
-        this.inbox = new Inbox(this.dbEngine, this.keyring, this.maxItems)
+        this.inbox = new Inbox(this.dbEngine, this.keyring!, this.maxItems)
         return this.inbox
     }
 
@@ -79,7 +82,8 @@ export default class MessagingEngineVerida implements BaseMessage {
             return this.outbox
         }
 
-        this.outbox = new Outbox(this.dbEngine, this.did, this.contextName, this.keyring)
+        const outboxDatastore = await this.context.openDatastore("https://schemas.verida.io/outbox/entry/schema.json")
+        this.outbox = new Outbox(this.contextName, this.did!, this.keyring!, outboxDatastore, this.context.getClient(), this.didContextManager)
         return this.outbox
     }
 

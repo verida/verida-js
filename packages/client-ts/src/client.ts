@@ -67,7 +67,7 @@ export default class Client {
         }
 
         // @todo cache the storage contexts
-        return new Context(contextName, this.didContextManager, this.account)
+        return new Context(this, contextName, this.didContextManager, this.account)
     }
 
     /**

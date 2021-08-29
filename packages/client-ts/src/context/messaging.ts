@@ -1,4 +1,4 @@
-
+import { AccountInterface } from "@verida/account";
 
 export default interface Messaging {
 
@@ -23,9 +23,6 @@ export default interface Messaging {
      */
     getInboxDb(): Promise<any>
 
-    /**
-     * Get the underlying database instance for the outbox
-     */
-     getOutboxDb(): Promise<any>
+    connectAccount(account: AccountInterface): Promise<void>
 
 }

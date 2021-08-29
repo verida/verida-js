@@ -1,8 +1,8 @@
-import BaseStorageEngine from "../base"
+import BaseStorageEngine from "../../base"
 import EncryptedDatabase from "./db-encrypted"
-import Database from '../../database'
-import Datastore from '../../datastore'
-import { DatabaseOpenConfig, DatastoreOpenConfig } from '../../interfaces'
+import Database from '../../../database'
+import Datastore from '../../../datastore'
+import { DatabaseOpenConfig } from '../../../interfaces'
 import DatastoreServerClient from "./client"
 import { AccountInterface } from '@verida/account'
 import PublicDatabase from "./db-public"

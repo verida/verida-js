@@ -9,6 +9,7 @@ import { DatabaseOpenConfig, DatastoreOpenConfig } from './interfaces'
 import Database from './database'
 import Datastore from './datastore'
 import Messaging from './messaging'
+import Client from '../client'
 
 const _ = require('lodash')
 
@@ -18,6 +19,7 @@ const DATABASE_ENGINES: StorageEngineTypes = {
 }
 
 import MessagingEngineVerida from './engines/verida/messaging/engine'
+
 const MESSAGING_ENGINES: StorageEngineTypes = {
     'VeridaMessage': MessagingEngineVerida
 }
@@ -27,6 +29,7 @@ const MESSAGING_ENGINES: StorageEngineTypes = {
  */
 export default class Context {
 
+    private client: Client
     private account?: AccountInterface
     private messagingEngine?: Messaging
 
@@ -34,7 +37,8 @@ export default class Context {
     private didContextManager: DIDContextManager
     private databaseEngines: DatabaseEngines = {}
 
-    constructor(contextName: string, didContextManager: DIDContextManager, account?: AccountInterface) {
+    constructor(client: Client, contextName: string, didContextManager: DIDContextManager, account?: AccountInterface) {
+        this.client = client
         this.contextName = contextName
         this.didContextManager = didContextManager
 
@@ -55,6 +59,18 @@ export default class Context {
 
     public getContextName(): string {
         return this.contextName
+    }
+
+    public getAccount(): AccountInterface {
+        return this.account!
+    }
+
+    public getDidContextManager(): DIDContextManager {
+        return this.didContextManager
+    }
+
+    public getClient(): Client {
+        return this.client
     }
 
     /**
@@ -108,11 +124,11 @@ export default class Context {
         const engine = MESSAGING_ENGINES[engineType]  // @todo type cast correctly
         const keyring = await this.account!.keyring(this.contextName)
         const accountDid = await this.account!.did()
-        const messagingEngine = new engine(accountDid, keyring, contextConfig.services.messageServer.endpointUri)
 
-        // cache messaging engine for this did and context
-        this.messagingEngine = messagingEngine
-        return messagingEngine
+        this.messagingEngine = new engine(this, contextConfig.services.messageServer.endpointUri)
+        this.messagingEngine!.connectAccount(this.account!)
+
+        return this.messagingEngine!
     }
 
     /**
