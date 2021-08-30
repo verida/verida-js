@@ -123,4 +123,20 @@ export default class Context {
         return new Datastore(schemaName, this, config)
     }
 
+    public async openExternalDatastore(schemaName: string, did: string, options: DatastoreOpenConfig = {}): Promise<Datastore> {
+        if (!this.account) {
+            throw new Error(`Unable to open datastore. No authenticated user.`)
+        }
+
+        const contextConfig = await this.getContextConfig(did)
+
+        options = _.merge({
+            did,
+            dsn: contextConfig.services.databaseServer.endpointUri
+        }, options)
+
+        // @todo: Should this also call _init to confirm everything is good?
+        return new Datastore(schemaName, this, options)
+    }
+
 }

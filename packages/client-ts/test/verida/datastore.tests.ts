@@ -18,8 +18,21 @@ describe('Datastore tests', () => {
     // Instantiate utils
     const utils = new Utils(CONFIG.CERAMIC_URL)
     let ceramic, context
+    let ceramic2, context2
 
     const network = new VeridaNetwork({
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: 'http://localhost:5000/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaMessage',
+            endpointUri: 'http://localhost:5000/'
+        },
+        ceramicUrl: CONFIG.CERAMIC_URL
+    })
+
+    const network2 = new VeridaNetwork({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -85,29 +98,21 @@ describe('Datastore tests', () => {
         })
 
         it('can open a datastore with user permissions, as an external user', async function() {
-            const datastore = await context.openDatastore(DS_CONTACTS, {
+            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_3)
+            const account2 = new AutoAccount(ceramic2)
+            await network2.connect(account2)
+            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
+
+            const datastore = await context2.openExternalDatastore(DS_CONTACTS, CONFIG.DID, {
                 permissions: {
                     read: 'users',
                     write: 'users'
                 }
             })
 
-            // Grant read / write access to DID_3 for future tests relating to read / write of user databases
-            const updateResponse = await datastore.updateUsers([CONFIG.DID_3], [CONFIG.DID_3])
+            const data = await datastore.getMany()
 
-            const db = await datastore.getDb()
-            const info = await db.info()
-
-            const contact = {
-                firstName: 'Jane',
-                lastName: 'Doe',
-                email: 'jane__doe.com'
-            }
-
-            const result = await datastore.save(contact)
-            const data = await datastore.get(result.id)
-
-            assert.ok(data.firstName == 'Jane', 'Row has expected value')
+            assert.ok(data.length, 'Results returned')
         })
     })
 
