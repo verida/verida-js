@@ -35,12 +35,6 @@ export default class EncryptedDatabase extends BaseDb {
     constructor(config: VeridaDatabaseConfig) {
         super(config)
 
-        // Automatically convert encryption key to a Buffer if it's a hex string
-        /*if (typeof(encryptionKey) == 'string') {
-            this.encryptionKey = Buffer.from(encryptionKey.slice(2), 'hex');
-        } else {
-            this.encryptionKey = encryptionKey
-        }*/
         this.encryptionKey = config.encryptionKey!
 
         // PouchDB sync object
@@ -57,8 +51,17 @@ export default class EncryptedDatabase extends BaseDb {
         this._localDbEncrypted = new PouchDB(this.databaseHash)
         this._localDb = new PouchDBCrypt(this.databaseHash)
 
-        const keyString = Buffer.from(this.encryptionKey).toString('hex')
-        await this._localDb.crypto(keyString)
+        // Generate an encryption password from the encryption key
+        const password = Buffer.from(this.encryptionKey).toString('hex')
+
+        // Generate a deterministic salt from the password and database hash
+        const saltString = this.buildHash(`${password}/${this.databaseHash}`).substring(0,32)
+        const salt = Buffer.from(saltString, 'hex')
+
+        await this._localDb.crypto({
+            password,
+            salt
+        })
 
         this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
             skip_setup: true
