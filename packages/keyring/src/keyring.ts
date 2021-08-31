@@ -31,6 +31,23 @@ export default class Keyring {
         this.seed = seed
     }
 
+    public async getKeys(): Promise<object> {
+        await this._init()
+
+        return {
+            asymPublicKey: this.asymKeyPair?.publicKey,
+            asymPrivateKey: this.asymKeyPair?.secretKey,
+            asymPublicKeyBase58: bs58.encode(this.asymKeyPair?.publicKey),
+            asymPrivateKeyBase58: bs58.encode(this.asymKeyPair?.secretKey),
+            signPublicKey: this.signKeyPair?.publicKey,
+            signPrivateKey: this.signKeyPair?.secretKey,
+            signPublicKeyBase58: bs58.encode(this.signKeyPair?.publicKey),
+            signPrivateKeyBase58: bs58.encode(this.signKeyPair?.secretKey),
+            symKey: this.symKey!,
+            symKeyBase58: bs58.encode(this.symKey!)
+        }
+    }
+
     public async _init() {
         if (this.asymKeyPair) {
             return
