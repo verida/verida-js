@@ -122,10 +122,6 @@ describe('Datastore tests', () => {
         })
     })
 
-    // open an external public datastore
-    // open an external users datastore
-
-
-    // @todo need a way to know the users that have access to a particular database
+    // @todo need a way to know which users that have access to a particular database
 
 })
