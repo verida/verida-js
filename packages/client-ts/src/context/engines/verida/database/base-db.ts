@@ -250,6 +250,20 @@ export default class BaseDb extends EventEmitter implements Database {
         return this.save(doc, options)
     }
 
+    public async deleteAll(): Promise<void> {
+        let rows: any = await this.getMany()
+        if (rows.length == 0) {
+            return
+        }
+
+        let rowId: any
+        for (rowId in rows) {
+            await this.delete(rows![rowId]['_id'])
+        }
+
+        await this.deleteAll()
+    }
+
     public async get(docId: string, options: any = {}) {
         await this.init()
 
