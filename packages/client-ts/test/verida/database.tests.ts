@@ -21,9 +21,10 @@ const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_'
 describe('Storage initialization tests', () => {
     // Instantiate utils
     const utils = new Utils(CONFIG.CERAMIC_URL)
-    let ceramic, context
-    let ceramic2, context2
-    let ceramic3, context3
+    let ceramic1, context, did1
+    let ceramic2, context2, did2
+    let ceramic3, context3, did3
+    let DB_USER_ENCRYPTION_KEY
 
     const network = new VeridaNetwork({
         defaultDatabaseServer: {
@@ -65,10 +66,27 @@ describe('Storage initialization tests', () => {
         this.timeout(100000)
         
         it('can open a database with owner/owner permissions', async function() {
-            ceramic = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account = new AutoAccount(ceramic)
-            await network.connect(account)
+            // Initialize account 1
+            ceramic1 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
+            const account1 = new AutoAccount(ceramic1)
+            did1 = await account1.did()
+            await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
+
+            // Initialize account 2
+            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
+            const account2 = new AutoAccount(ceramic2)
+            did2 = await account2.did()
+            await network2.connect(account2)
+            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
+
+            // Initialize account 3
+            ceramic3 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_3)
+            const account3 = new AutoAccount(ceramic3)
+            did3 = await account3.did()
+            await network3.connect(account3)
+            context3 = await network3.openContext(CONFIG.CONTEXT_NAME, true)
+
             const database = await context.openDatabase(DB_NAME_OWNER)
 
             await database.save({'hello': 'world'})
@@ -85,9 +103,11 @@ describe('Storage initialization tests', () => {
                     write: 'users'
                 }
             })
+            const info = await database.info()
+            DB_USER_ENCRYPTION_KEY = info.encryptionKey
 
             // Grant read / write access to DID_3 for future tests relating to read / write of user databases
-            const updateResponse = await database.updateUsers([CONFIG.DID_3], [CONFIG.DID_3])
+            const updateResponse = await database.updateUsers([did3], [did3])
 
             await database.save({'hello': 'world'})
             const data = await database.getMany()
@@ -138,16 +158,11 @@ describe('Storage initialization tests', () => {
 
     describe('Access public databases', function() {
         this.timeout(100000)
-
         
         // We initialize a second account and have it attempt to access the
         // databases created earlier in this set of tests (see above)
         it('can read from an external database with public read', async function() {
-            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
-            const account = new AutoAccount(ceramic2)
-            await network2.connect(account)
-            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
-            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, CONFIG.DID, {
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, did1, {
                 permissions: {
                     read: 'public',
                     write: 'owner'
@@ -162,7 +177,7 @@ describe('Storage initialization tests', () => {
         })
 
         it(`can't write to an external database with public read, but owner write`, async function() {
-            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, CONFIG.DID, {
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC, did1, {
                 permissions: {
                     read: 'public',
                     write: 'owner'
@@ -178,7 +193,7 @@ describe('Storage initialization tests', () => {
         })
 
         it(`can write to an external database with public read and public write`, async function() {
-            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, CONFIG.DID, {
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, did1, {
                 permissions: {
                     read: 'public',
                     write: 'public'
@@ -194,7 +209,7 @@ describe('Storage initialization tests', () => {
         })
 
         it(`data saved to external database has valid signature`, async function() {
-            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, CONFIG.DID, {
+            const database = await context2.openExternalDatabase(DB_NAME_PUBLIC_WRITE, did1, {
                 permissions: {
                     read: 'public',
                     write: 'public'
@@ -207,12 +222,12 @@ describe('Storage initialization tests', () => {
             const data = await database.get(result.id)
             assert.ok(data, 'Fetched saved record')
             assert.ok(Object.keys(data.signatures).length, 'Data has signatures')
-            await assertIsValidSignature(assert, network2, CONFIG.DID_2, data)
+            await assertIsValidSignature(assert, network2, did2, data)
         })
 
         it(`can't open an external database with owner read and not the owner`, async function() {
             const promise = new Promise((resolve, rejects) => {
-                context2.openExternalDatabase(DB_NAME_OWNER, CONFIG.DID).then(rejects, resolve)
+                context2.openExternalDatabase(DB_NAME_OWNER, did1).then(rejects, resolve)
             })
             const result = await promise
 
@@ -220,7 +235,7 @@ describe('Storage initialization tests', () => {
         })
 
         it(`can't write to an external database with write=users and read=public, where user has no access`, async function() {
-            const database = await context2.openExternalDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, CONFIG.DID, {
+            const database = await context2.openExternalDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, did1, {
                 permissions: {
                     read: 'public',
                     write: 'users'
@@ -239,12 +254,6 @@ describe('Storage initialization tests', () => {
 
     describe('Access user databases', function() {
         this.timeout(100000)
-        const ENCRYPTION_KEY = new Uint8Array([
-            131,  71,  15,  38, 114, 251,  22, 144,
-            177,  41, 104, 145,  58, 187,  22, 244,
-            161,  78,  65,  16,  51, 185,  11,  18,
-              6, 246, 237,  80,  12, 100, 211, 149
-          ])
           const ENCRYPTION_KEY_WRONG = new Uint8Array([
             132,  71,  15,  38, 114, 251,  22, 144,
             177,  41, 104, 145,  58, 187,  22, 244,
@@ -252,19 +261,13 @@ describe('Storage initialization tests', () => {
               6, 246, 237,  80,  12, 100, 211, 149
           ])
 
-        it(`can read and read from an external database with read=users where current user CAN read`, async function() {
-            // Initialize a third DID
-            ceramic3 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_3)
-            const account3 = new AutoAccount(ceramic3)
-            await network3.connect(account3)
-            context3 = await network3.openContext(CONFIG.CONTEXT_NAME, true)
-
-            const database = await context3.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+        it(`can read and write from an external database with read=users where current user CAN read`, async function() {
+            const database = await context3.openExternalDatabase(DB_NAME_USER, did1, {
                 permissions: {
                     read: 'users',
                     write: 'users'
                 },
-                encryptionKey: ENCRYPTION_KEY
+                encryptionKey: DB_USER_ENCRYPTION_KEY
             })
 
             const result = await database.save({'write': 'from valid external user DID'})
@@ -277,12 +280,12 @@ describe('Storage initialization tests', () => {
 
         it(`can't read from an external database with read=user where current user CANT read`, async function() {
             const promise = new Promise((resolve, rejects) => {
-                context2.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                context2.openExternalDatabase(DB_NAME_USER, did1, {
                     permissions: {
                         read: 'users',
                         write: 'users'
                     },
-                    encryptionKey: ENCRYPTION_KEY
+                    encryptionKey: DB_USER_ENCRYPTION_KEY
                 }).then(rejects, resolve)
             })
 
@@ -293,12 +296,12 @@ describe('Storage initialization tests', () => {
 
         it(`can't write an external database with write=users and user no access`, async function() {
             const promise = new Promise((resolve, rejects) => {
-                context2.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                context2.openExternalDatabase(DB_NAME_USER, did1, {
                     permissions: {
                         read: 'users',
                         write: 'users'
                     },
-                    encryptionKey: ENCRYPTION_KEY
+                    encryptionKey: DB_USER_ENCRYPTION_KEY
                 }).then(rejects, resolve)
             })
 
@@ -308,7 +311,7 @@ describe('Storage initialization tests', () => {
 
         it(`can't open an external users database without an encryption key`, async function() {
             const promise = new Promise((resolve, rejects) => {
-                context3.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                context3.openExternalDatabase(DB_NAME_USER, did1, {
                     permissions: {
                         read: 'users',
                         write: 'users'
@@ -322,7 +325,7 @@ describe('Storage initialization tests', () => {
 
         it(`can't open an external users database with the wrong encryption key`, async function() {
             const promise = new Promise((resolve, rejects) => {
-                context3.openExternalDatabase(DB_NAME_USER, CONFIG.DID, {
+                context3.openExternalDatabase(DB_NAME_USER, did1, {
                     permissions: {
                         read: 'users',
                         write: 'users'

@@ -7,7 +7,8 @@ export interface DatabaseOpenConfig {
     saveDatabase?: boolean,
     readOnly?: boolean,
     isOwner?: boolean,
-    encryptionKey?: string
+    encryptionKey?: string,
+    createContext?: boolean
 }
 
 export interface DatastoreOpenConfig {
@@ -16,7 +17,8 @@ export interface DatastoreOpenConfig {
     saveDatabase?: boolean,
     readOnly?: boolean,
     encryptionKey?: string,
-    databaseName?: string
+    databaseName?: string,
+    createContext?: boolean
 }
 
 export interface MessagesConfig {

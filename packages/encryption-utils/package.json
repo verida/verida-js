@@ -1,6 +1,6 @@
 {
   "name": "@verida/encryption-utils",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -16,7 +16,8 @@
     "node": "^12.0.0"
   },
   "dependencies": {
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {
     "mocha": "^8.2.1",

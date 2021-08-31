@@ -15,6 +15,12 @@ In your application, include the dependency and create a new client network inst
 
 ```
 import VeridaClient from '@verida/client-ts'
+import { Utils } from '@verida/3id-utils-node'
+import { AutoAccount } from '@verida/account'
+const utils = new Utils()
+
+const CONTEXT_NAME = 'My Application Context Name'
+const CERAMIC_URL = 'http://localhost:7007'
 
 // establish a network connection
 const client = new VeridaClient({
@@ -26,12 +32,12 @@ const client = new VeridaClient({
         type: 'VeridaMessage',
         endpointUri: 'http://localhost:5000/'
     },
-    ceramicUrl: 'http://localhost:7007'
+    ceramicUrl: CERAMIC_URL
 })
 
 // establish an authorized Ceramic connection for a given Ethereum private key
 const ETH_PRIVATE_KEY = '0x...'
-ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
+const ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
 
 // create a Verida account instance that wraps the authorized Ceramic connection
 // The `AutoAccount` instance will automatically sign any consent messages (useful for testing)
@@ -41,7 +47,7 @@ const account = new AutoAccount(ceramic)
 await client.connect(account)
 
 // Open an application context
-context = await network.openContext(CONFIG.CONTEXT_NAME, true)
+const context = await client.openContext(CONTEXT_NAME, true)
 
 // Open a database
 const database = await context.openDatabase('my_database')

@@ -197,7 +197,8 @@ export default class EncryptedDatabase extends BaseDb {
             dsn: this.dsn,
             storageContext: this.storageContext,
             databaseName: this.databaseName,
-            databasehash: this.databaseHash
+            databasehash: this.databaseHash,
+            encryptionKey: this.encryptionKey!
             // @todo: add databases
         }
 
