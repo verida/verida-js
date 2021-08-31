@@ -17,8 +17,9 @@ const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 describe('Datastore tests', () => {
     // Instantiate utils
     const utils = new Utils(CONFIG.CERAMIC_URL)
-    let ceramic, context
-    let ceramic2, context2
+    let ceramic1, context, did1
+    let ceramic2, context2, did2
+    let DB_USER_ENCRYPTION_KEY
 
     const network = new VeridaNetwork({
         defaultDatabaseServer: {
@@ -48,12 +49,21 @@ describe('Datastore tests', () => {
         this.timeout(100000)
         
         it('can open a datastore with owner/owner permissions', async function() {
-            ceramic = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account = new AutoAccount(ceramic)
-            await network.connect(account)
+            // Initialize account 1
+            ceramic1 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
+            const account1 = new AutoAccount(ceramic1)
+            did1 = await account1.did()
+            await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
-            const datastore = await context.openDatastore(DS_CONTACTS)
 
+            // Initialize account 3
+            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
+            const account2 = new AutoAccount(ceramic2)
+            did2 = await account2.did()
+            await network2.connect(account2)
+            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
+
+            const datastore = await context.openDatastore(DS_CONTACTS)
             const result1 = await datastore.save({'hello': 'world'})
             assert.ok(result1 === false, 'Unable to save due to validation error')
 
@@ -78,12 +88,12 @@ describe('Datastore tests', () => {
                     write: 'users'
                 }
             })
+            const database = await datastore.getDb()
+            const info = await database.info()
+            DB_USER_ENCRYPTION_KEY = info.encryptionKey
 
             // Grant read / write access to DID_3 for future tests relating to read / write of user databases
-            const updateResponse = await datastore.updateUsers([CONFIG.DID_3], [CONFIG.DID_3])
-
-            const db = await datastore.getDb()
-            const info = await db.info()
+            const updateResponse = await datastore.updateUsers([did2], [did2])
 
             const contact = {
                 firstName: 'Jane',
@@ -98,16 +108,12 @@ describe('Datastore tests', () => {
         })
 
         it('can open a datastore with user permissions, as an external user', async function() {
-            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_3)
-            const account2 = new AutoAccount(ceramic2)
-            await network2.connect(account2)
-            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
-
-            const datastore = await context2.openExternalDatastore(DS_CONTACTS, CONFIG.DID, {
+            const datastore = await context2.openExternalDatastore(DS_CONTACTS, did1, {
                 permissions: {
                     read: 'users',
                     write: 'users'
-                }
+                },
+                encryptionKey: DB_USER_ENCRYPTION_KEY
             })
 
             const data = await datastore.getMany()
