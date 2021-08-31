@@ -56,15 +56,9 @@ export default class EncryptedDatabase extends BaseDb {
         
         this._localDbEncrypted = new PouchDB(this.databaseHash)
         this._localDb = new PouchDBCrypt(this.databaseHash)
-        
-        this._localDb.crypto("", {
-            "key": this.encryptionKey,
-            cb: function(err: any) {
-                if (err) {
-                    throw new Error('Unable to connect to local database')
-                }
-            }
-        })
+
+        const keyString = Buffer.from(this.encryptionKey).toString('hex')
+        await this._localDb.crypto(keyString)
 
         this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
             skip_setup: true
@@ -99,7 +93,12 @@ export default class EncryptedDatabase extends BaseDb {
 
         // Do a once off sync to ensure the local database pulls all data from remote server
         // before commencing live syncronisation between the two databases
-        await this._localDbEncrypted.replicate.from(this._remoteDbEncrypted)
+        await this._localDbEncrypted.replicate.from(this._remoteDbEncrypted, {
+            // Dont sync design docs
+            filter: function(doc: any) {
+                return doc._id.indexOf('_design') !== 0;
+            }
+        })
             .on("error", function(err: any) {
                 console.error(`Unknown error occurred with replication snapshot from remote database: ${databaseName} (${dsn})`)
                 console.error(err)
