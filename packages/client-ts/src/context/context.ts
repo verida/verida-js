@@ -3,18 +3,25 @@ import { Interfaces } from '@verida/storage-link'
 
 import BaseStorageEngine from './engines/base'
 import { StorageEngineTypes } from './interfaces'
-import StorageEngineVerida from './engines/verida/engine'
 import DIDContextManager from '../did-context-manager'
 import { DatabaseEngines } from '../interfaces'
 import { DatabaseOpenConfig, DatastoreOpenConfig } from './interfaces'
 import Database from './database'
 import Datastore from './datastore'
+import Messaging from './messaging'
+import Client from '../client'
 
 const _ = require('lodash')
 
-const STORAGE_ENGINES: StorageEngineTypes = {
-    'VeridaDatabase': StorageEngineVerida,
-    'VeridaMessage': StorageEngineVerida
+import StorageEngineVerida from './engines/verida/database/engine'
+const DATABASE_ENGINES: StorageEngineTypes = {
+    'VeridaDatabase': StorageEngineVerida
+}
+
+import MessagingEngineVerida from './engines/verida/messaging/engine'
+
+const MESSAGING_ENGINES: StorageEngineTypes = {
+    'VeridaMessage': MessagingEngineVerida
 }
 
 /**
@@ -22,12 +29,16 @@ const STORAGE_ENGINES: StorageEngineTypes = {
  */
 export default class Context {
 
+    private client: Client
     private account?: AccountInterface
+    private messagingEngine?: Messaging
+
     private contextName: string
     private didContextManager: DIDContextManager
     private databaseEngines: DatabaseEngines = {}
 
-    constructor(contextName: string, didContextManager: DIDContextManager, account?: AccountInterface) {
+    constructor(client: Client, contextName: string, didContextManager: DIDContextManager, account?: AccountInterface) {
+        this.client = client
         this.contextName = contextName
         this.didContextManager = didContextManager
 
@@ -50,6 +61,18 @@ export default class Context {
         return this.contextName
     }
 
+    public getAccount(): AccountInterface {
+        return this.account!
+    }
+
+    public getDidContextManager(): DIDContextManager {
+        return this.didContextManager
+    }
+
+    public getClient(): Client {
+        return this.client
+    }
+
     /**
      * Get a storage engine for a given DID and this contextName
      * 
@@ -64,10 +87,10 @@ export default class Context {
         const contextConfig = await this.getContextConfig(did, createContext)
         const engineType = contextConfig.services.databaseServer.type
 
-        if (!STORAGE_ENGINES[engineType]) {
+        if (!DATABASE_ENGINES[engineType]) {
             throw new Error(`Unsupported database engine type specified: ${engineType}`)
         }
-        const engine = STORAGE_ENGINES[engineType]  // @todo type cast correctly
+        const engine = DATABASE_ENGINES[engineType]  // @todo type cast correctly
         const databaseEngine = new engine(this.contextName, contextConfig.services.databaseServer.endpointUri)
         
         /**
@@ -80,6 +103,32 @@ export default class Context {
         // cache storage engine for this did and context
         this.databaseEngines[did] = databaseEngine
         return databaseEngine
+    }
+
+    public async getMessaging(): Promise<Messaging> {
+        if (this.messagingEngine) {
+            return this.messagingEngine
+        }
+
+        if (!this.account) {
+            throw new Error(`Unable to open messaging. No authenticated user.`)
+        }
+
+        const did = await this.account!.did()
+
+        // Force create as we require the current user to have an account to send / receive messages
+        const contextConfig = await this.getContextConfig(did, true)
+        const engineType = contextConfig.services.messageServer.type
+
+        if (!MESSAGING_ENGINES[engineType]) {
+            throw new Error(`Unsupported messaging engine type specified: ${engineType}`)
+        }
+        const engine = MESSAGING_ENGINES[engineType]  // @todo type cast correctly
+
+        this.messagingEngine = new engine(this, contextConfig.services.messageServer.endpointUri)
+        await this.messagingEngine!.connectAccount(this.account!)
+
+        return this.messagingEngine!
     }
 
     /**

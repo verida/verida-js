@@ -19,7 +19,7 @@ export default class Datastore {
     protected storageContext: string
     protected config: DatastoreOpenConfig
 
-    protected errors: object = {}
+    public errors: object = {}
     private db: any
 
     /**
@@ -146,6 +146,11 @@ export default class Datastore {
         return this.db.delete(docId)
     }
 
+    public async deleteAll(): Promise<void> {
+        await this.init()
+        return this.db.deleteAll()
+    }
+
     /**
      * Get the underlying database instance associated with this datastore.
      * 
@@ -159,12 +164,12 @@ export default class Datastore {
     /**
      * Bind to changes to this datastore
      * 
-     * @param {functino} cb Callback function that fires when new data is received
+     * @param {function} cb Callback function that fires when new data is received
      */
     public async changes(cb: any) {
         const db = await this.getDb()
-        const dbInstance = await db.getInstance()
-        dbInstance.changes({
+        const pouchDb = await db.getDb()
+        pouchDb.changes({
             since: 'now',
             live: true
         }).on('change', async function(info: any) {

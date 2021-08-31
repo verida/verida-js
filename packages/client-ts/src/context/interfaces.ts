@@ -21,6 +21,10 @@ export interface DatastoreOpenConfig {
     createContext?: boolean
 }
 
+export interface MessagesConfig {
+    maxItems?: Number
+}
+
 export interface StorageEngineTypes {
     [key: string]: any
 }
@@ -28,12 +32,17 @@ export interface StorageEngineTypes {
 export interface PermissionsConfig {
     read: PermissionOptionsEnum,
     write: PermissionOptionsEnum,
-    readList: string[],
-    writeList: string[]
+    readList?: string[],
+    writeList?: string[]
 }
 
 export enum PermissionOptionsEnum {
     OWNER = 'owner',
     PUBLIC = 'public',
     USERS = 'users'
+}
+
+export interface MessageSendConfig {
+    recipientContextName?: string,
+    expiry?: Number
 }
