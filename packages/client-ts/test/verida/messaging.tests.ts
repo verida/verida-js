@@ -30,8 +30,8 @@ const CONTEXT_2 = "Verida Testing: Test App 2"
 describe('Messaging tests', () => {
     // Instantiate utils
     const utils = new Utils(CONFIG.CERAMIC_URL)
-    let ceramic1, context1
-    let ceramic2, context2
+    let ceramic1, context1, did1
+    let ceramic2, context2, did2
 
     const client1 = new VeridaClient({
         defaultDatabaseServer: {
@@ -60,53 +60,51 @@ describe('Messaging tests', () => {
     describe('Sending messages', function() {
         this.timeout(100000)
         
-        it('can send a message', async function() {
+        it('can send a message between users of the same application', async function() {
+            // Initialize account 1
             ceramic1 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account = new AutoAccount(ceramic1)
-            await client1.connect(account)
-            context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
-            const messaging = await context1.getMessaging()
-            
-            const result = await messaging.send(CONFIG.DID_2, 'inbox/type/dataSend', MESSAGE_DATA, 'Test message', {
+            const account1 = new AutoAccount(ceramic1)
+            did1 = await account1.did()
+            await client1.connect(account1)
+            context1 = await client1.openContext(CONTEXT_1, true)
+
+            // Initialize account 2
+            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
+            const account2 = new AutoAccount(ceramic2)
+            did2 = await account2.did()
+            await client2.connect(account2)
+            context2 = await client2.openContext(CONTEXT_1, true)
+
+            // Initialize messaging for both accounts
+            const messaging1 = await context1.getMessaging()
+            await messaging1.init()
+            const messaging2 = await context2.getMessaging()
+            await messaging2.init()
+
+            // Delete any existing inbox messages for the recipient
+            const inbox = await messaging2.getInbox()
+            const inboxDs = await inbox.getInboxDatastore()
+            await inboxDs.deleteAll()
+
+            // Send a message from DID1 to DID2
+            const result = await messaging1.send(did2, 'inbox/type/dataSend', MESSAGE_DATA, 'Test message', {
                 recipientContextName: CONTEXT_1
             })
 
-            console.log(result)
             assert.ok(result && result.id, "Message send returned a valid result object")
-            
-            /*const datastore = await context.openDatastore(DS_CONTACTS)
-
-            const result1 = await datastore.save({'hello': 'world'})
-            assert.ok(result1 === false, 'Unable to save due to validation error')
-
-            const contact = {
-                firstName: 'John',
-                lastName: 'Smith',
-                email: 'john__smith.com'
-            }
-
-            const result2 = await datastore.save(contact)
-            assert.ok(result2, 'Able to save valid data')
-
-            const row = await datastore.get(result2.id)
-            assert.ok(row, 'Able to fetch the inserted row')
-            assert.ok(row.firstName == contact.firstName, 'Data matches')*/
         })
 
         it('can receive a message', async function() {
-            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
-            const account = new AutoAccount(ceramic2)
-            await client2.connect(account)
-            context2 = await client2.openContext(CONFIG.CONTEXT_NAME, true)
             const messaging = await context2.getMessaging()
-
             const messages = await messaging.getMessages()
-            console.log(messages)
-            assert.oko(messages.length, "At least one message exists")
+
+            assert.ok(messages.length, "At least one message exists")
         })
     })
 
 })
 
-// send messages between two different users
+// attempt to send a message to a non-existent DID or non-existent application context for a DID produces an error
+// verify changes event works for new inbox messages
+// send messages between two different users of different applications
 // send messages between the same user and different applications
