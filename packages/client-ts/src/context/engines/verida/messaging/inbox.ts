@@ -143,8 +143,6 @@ export default class VeridaInbox extends EventEmitter {
             }, 10000)
             
         }); // Setup watching for any changes to the local private inbox (ie: marking an item as read)
-
-        await this.watchPrivateChanges()
     }
 
     public async watchPrivateChanges() {
@@ -192,6 +190,7 @@ export default class VeridaInbox extends EventEmitter {
             }
         })
 
+        await this.watchPrivateChanges()
         await this.watch()
         await this.processAll()
     }
