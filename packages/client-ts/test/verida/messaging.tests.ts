@@ -100,11 +100,41 @@ describe('Messaging tests', () => {
 
             assert.ok(messages.length, "At least one message exists")
         })
+
+        it('can trigger an event on a new message', function(done) {
+            let messaging2
+            let isDone = false
+
+            // Configure an event listener that will call done() to complete this test
+            const init = async () => {
+                messaging2 = await context2.getMessaging()
+                messaging2.onMessage(function(info) {
+                    if (isDone) return
+                    done()
+                    isDone = true
+                })
+            }
+
+            // Send a new inbox message to trigger the event
+            const finish = async () => {
+                const messaging1 = await context1.getMessaging()
+                const result = await messaging1.send(did2, 'inbox/type/dataSend', MESSAGE_DATA, 'Test message 2', {
+                    recipientContextName: CONTEXT_1
+                })
+
+                const messages = await messaging2.getMessages()
+            }
+
+            const promise = new Promise((resolve, rejects) => {
+                init().then(() => {
+                    finish().then(rejects, resolve)
+                })
+            })
+        })
     })
 
 })
 
-// attempt to send a message to a non-existent DID or non-existent application context for a DID produces an error
-// verify changes event works for new inbox messages
+// attempt to send a message to a non-existent DID or non-existent application context for a DID produces an error (manually tested for now)
 // send messages between two different users of different applications
 // send messages between the same user and different applications

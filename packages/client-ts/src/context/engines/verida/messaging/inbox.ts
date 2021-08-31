@@ -62,7 +62,7 @@ export default class VeridaInbox extends EventEmitter {
         } catch (err) {
             console.error("Unable to decrypt inbox item:")
             console.error(err)
-            return;
+            return
         }
 
         let decoded = didJWT.decodeJWT(jwt)
@@ -102,11 +102,16 @@ export default class VeridaInbox extends EventEmitter {
             throw err
         }
 
-        await this._gc();
         this.emit("newMessage", inboxEntry)
+        this._gc()
     }
 
-    async watch() {
+    public async getItem(itemId: string, options: any) {
+        await this.init()
+        return this.publicInbox.get(itemId, options)
+    }
+
+    public async watch() {
         await this.init()
         let inbox = this // Setup watching for new inbox items in the public inbox
 
@@ -121,22 +126,28 @@ export default class VeridaInbox extends EventEmitter {
                 return
             }
 
-            const inboxItem = await inbox.publicDb.get(info.id, {
+            const inboxItem = await inbox.getItem(info.id, {
                 rev: info.changes[0].rev
-            });
+            })
             await inbox.processItem(inboxItem)
         }).on('denied', function(err: any) {
             console.error('Inbox sync denied')
             console.error(err)
         }).on('error', function (err: any) {
-            //console.error("Error watching for public inbox changes");
+            //console.log("Error watching for private inbox changes")
+            //console.log(err)
             // This often happens when changing networks, so don't log
+            setTimeout(() => {
+                console.log('Retrying to establish public inbox connection')
+                inbox.watch()
+            }, 10000)
+            
         }); // Setup watching for any changes to the local private inbox (ie: marking an item as read)
 
         await this.watchPrivateChanges()
     }
 
-    async watchPrivateChanges() {
+    public async watchPrivateChanges() {
         let inbox = this
         const privateDb = await this.privateInbox.getDb()
         const dbInstance = await privateDb.getDb()
@@ -152,7 +163,7 @@ export default class VeridaInbox extends EventEmitter {
             console.log("Error watching for private inbox changes")
             console.log(err)
             setTimeout(() => {
-                console.log('retrying to establish inbox connection')
+                console.log('Retrying to establish private inbox connection')
                 inbox.watchPrivateChanges()
             }, 10000)
         });
