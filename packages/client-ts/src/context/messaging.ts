@@ -4,6 +4,13 @@ import { MessageSendConfig } from "./interfaces"
 export default interface Messaging {
 
     /**
+     * Initialize messaging for the connected user
+     * 
+     * (ie; create an empty database or anything else required to start receiving messages)
+     */
+    init(): Promise<void>
+
+    /**
      * Send a message to another DID on the network
      * 
      * @param did 
@@ -28,9 +35,9 @@ export default interface Messaging {
     getMessages(filter: object, options: any): Promise<any>
 
     /**
-     * Get the underlying database instance for the inbox
+     * Get the underlying inbox instance specific for the message storage type
      */
-    getInboxDb(): Promise<any>
+    getInbox(): Promise<any>
 
     connectAccount(account: AccountInterface): Promise<void>
 

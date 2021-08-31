@@ -115,18 +115,18 @@ export default class Context {
         }
 
         const did = await this.account!.did()
-        const contextConfig = await this.getContextConfig(did)
+
+        // Force create as we require the current user to have an account to send / receive messages
+        const contextConfig = await this.getContextConfig(did, true)
         const engineType = contextConfig.services.messageServer.type
 
         if (!MESSAGING_ENGINES[engineType]) {
             throw new Error(`Unsupported messaging engine type specified: ${engineType}`)
         }
         const engine = MESSAGING_ENGINES[engineType]  // @todo type cast correctly
-        const keyring = await this.account!.keyring(this.contextName)
-        const accountDid = await this.account!.did()
 
         this.messagingEngine = new engine(this, contextConfig.services.messageServer.endpointUri)
-        this.messagingEngine!.connectAccount(this.account!)
+        await this.messagingEngine!.connectAccount(this.account!)
 
         return this.messagingEngine!
     }

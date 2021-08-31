@@ -4,6 +4,7 @@ const _ = require('lodash')
 
 import { AccountInterface } from '@verida/account'
 import CeramicClient from '@ceramicnetwork/http-client'
+import { Interfaces } from '@verida/storage-link'
 
 import { ManagerConfig } from './interfaces'
 import Context from './context/context'
@@ -68,6 +69,10 @@ export default class Client {
 
         // @todo cache the storage contexts
         return new Context(this, contextName, this.didContextManager, this.account)
+    }
+
+    public async getContextConfig(did: string, contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
+        return this.didContextManager.getDIDContextConfig(did, contextName, false)
     }
 
     /**

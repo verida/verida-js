@@ -1,14 +1,15 @@
 import { box } from "tweetnacl"
 const didJWT = require("did-jwt")
 const EventEmitter = require("events")
+const bs58 = require('bs58')
 
 import { Keyring } from '@verida/keyring'
 import { PermissionOptionsEnum } from '../../../interfaces'
-import StorageEngineVerida from '../database/engine'
+import Context from "../../../context"
 
 export default class VeridaInbox extends EventEmitter {
 
-    private dbEngine: StorageEngineVerida
+    private context: Context
     private keyring: Keyring
     private initComplete: boolean
 
@@ -17,9 +18,9 @@ export default class VeridaInbox extends EventEmitter {
 
     protected maxItems: Number
 
-    constructor(dbEngine: StorageEngineVerida, keyring: Keyring, maxItems: Number = 50) {
+    constructor(context: Context, keyring: Keyring, maxItems: Number = 50) {
         super()
-        this.dbEngine = dbEngine
+        this.context = context
         this.keyring = keyring
         this.initComplete = false
 
@@ -29,16 +30,16 @@ export default class VeridaInbox extends EventEmitter {
 
     async processAll() {
         await this.init()
-        
-        let items = await this.publicInbox.getMany()
+
+        const items = await this.publicInbox.getMany()
         if (!items || items.length == 0) {
             return 0
         }
 
-        let manager = this;
+        const inbox = this
         let count = 0
         items.forEach((item: object) => {
-            manager.processItem(item)
+            inbox.processItem(item)
             count++
         });
 
@@ -50,13 +51,14 @@ export default class VeridaInbox extends EventEmitter {
         
         // Build the shared key using this user's private asymmetric key
         // and the user supplied public key
-        let publicKeyBytes = Buffer.from(inboxItem.key.slice(2), 'hex')
-        let sharedKeyEnd = box.before(publicKeyBytes, this.keyring.asymKeyPair!.secretKey)
+        const keys = await this.keyring.getKeys()
+        let publicKeyBytes = bs58.decode(inboxItem.key)
+        let sharedKeyEnd = box.before(publicKeyBytes, keys.asymPrivateKey)
 
         // Decrypt the inbox/tem to obtain the JWT
         let jwt;
         try {
-            jwt = this.keyring.asymDecrypt(inboxItem.content, sharedKeyEnd)
+            jwt = await this.keyring.asymDecrypt(inboxItem.content, sharedKeyEnd)
         } catch (err) {
             console.error("Unable to decrypt inbox item:")
             console.error(err)
@@ -85,7 +87,7 @@ export default class VeridaInbox extends EventEmitter {
 
         // Save a new inbox entry into the user's private inbox
         try {
-            await this._privateInbox.save(inboxEntry)
+            await this.privateInbox.save(inboxEntry)
         } catch (err) { 
             console.error("Unable to save to private inbox")
             console.error(err)
@@ -93,7 +95,7 @@ export default class VeridaInbox extends EventEmitter {
 
         try {
             // delete the inbox/item
-            await this._publicInbox.delete(inboxItem);
+            await this.publicInbox.delete(inboxItem);
         } catch (err) { 
             console.error("Unable to delete from public inbox")
             console.error(err)
@@ -109,7 +111,7 @@ export default class VeridaInbox extends EventEmitter {
         let inbox = this // Setup watching for new inbox items in the public inbox
 
         const publicDb = await this.publicInbox.getDb()
-        const dbInstance = await publicDb.getInstance()
+        const dbInstance = await publicDb.getDb()
         dbInstance.changes({
             since: 'now',
             live: true
@@ -119,7 +121,7 @@ export default class VeridaInbox extends EventEmitter {
                 return
             }
 
-            const inboxItem = await publicDb.get(info.id, {
+            const inboxItem = await inbox.publicDb.get(info.id, {
                 rev: info.changes[0].rev
             });
             await inbox.processItem(inboxItem)
@@ -137,7 +139,7 @@ export default class VeridaInbox extends EventEmitter {
     async watchPrivateChanges() {
         let inbox = this
         const privateDb = await this.privateInbox.getDb()
-        const dbInstance = await privateDb.getInstance()
+        const dbInstance = await privateDb.getDb()
         dbInstance.changes({
             since: 'now',
             live: true
@@ -159,20 +161,20 @@ export default class VeridaInbox extends EventEmitter {
     /**
      * Initialise the inbox manager
      */
-    async init() {
+    public async init() {
         if (this.initComplete) {
             return
         }
 
         this.initComplete = true
-        this.publicInbox = await this.dbEngine.openDatastore("https://schemas.verida.io/inbox/item/schema.json", {
+        this.publicInbox = await this.context.openDatastore("https://schemas.verida.io/inbox/item/schema.json", {
             permissions: {
                 read: PermissionOptionsEnum.PUBLIC,
                 write: PermissionOptionsEnum.PUBLIC
             }
         })
         
-        this.privateInbox = await this.dbEngine.openDatastore("https://schemas.verida.io/inbox/entry/schema.json", {
+        this.privateInbox = await this.context.openDatastore("https://schemas.verida.io/inbox/entry/schema.json", {
             permissions: {
                 read: PermissionOptionsEnum.OWNER,
                 write: PermissionOptionsEnum.OWNER
@@ -183,7 +185,7 @@ export default class VeridaInbox extends EventEmitter {
         await this.processAll()
     }
 
-    async getInbox() {
+    async getInboxDatastore() {
         await this.init()
         return this.privateInbox
     }

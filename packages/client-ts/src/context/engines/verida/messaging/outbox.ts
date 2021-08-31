@@ -1,11 +1,10 @@
 const _ = require('lodash')
 const didJWT = require('did-jwt')
-import { box, randomBytes } from "tweetnacl"
+import { box } from "tweetnacl"
 import { Keyring } from '@verida/keyring'
 import Datastore from "../../../datastore"
-import StorageEngineVerida from '../database/engine'
 import { MessageSendConfig, PermissionOptionsEnum } from "../../../interfaces"
-import { base58ToBytes, bytesToBase58 } from "did-jwt/lib/util"
+const bs58 = require('bs58')
 import DIDContextManager from '../../../../did-context-manager'
 import Client from '../../../../client'
 
@@ -64,10 +63,13 @@ export default class VeridaOutbox {
 
         this.validateData(type, data)
 
-        // Need to locate the context config for a given DID
-        const recipientContextConfig = await this.didContextManager.getDIDContextConfig(did, receivingContextName, false)
-        if(!recipientContextConfig) {
-            throw new Error(`Unable to locate DID: ${did}`)
+        // Need to locate the context config for a given DID so we can locate their inbox
+        let recipientContextConfig
+        try {
+            recipientContextConfig = await this.didContextManager.getDIDContextConfig(did, receivingContextName, false)
+        }
+        catch (err) {
+            throw new Error('Unable to send message. Recipient does not have an inbox for that context')
         }
 
         const outboxEntry: any = {
@@ -102,7 +104,8 @@ export default class VeridaOutbox {
          */
         // Use the current application's keyring as we can't request access to
         // the user's private vault
-        const signer = await didJWT.EdDSASigner(this.keyring.signKeyPair!.secretKey)
+        const keys = await this.keyring.getKeys()
+        const signer = await didJWT.EdDSASigner(keys.signPrivateKey)
 
         const jwt = await didJWT.createJWT({
             aud: this.accountDid,
@@ -118,9 +121,9 @@ export default class VeridaOutbox {
 
         // Encrypt this message using the receipients public key and this apps private key
         const publicAsymKeyBase58 = recipientContextConfig.publicKeys.asymKey.base58
-        const publicAsymKeyBytes = base58ToBytes(publicAsymKeyBase58)
-        const sharedKey = box.before(publicAsymKeyBytes, this.keyring.asymKeyPair!.secretKey)
-        const encrypted = this.keyring.asymEncrypt(jwt, sharedKey)
+        const publicAsymKeyBytes = bs58.decode(publicAsymKeyBase58)
+        const sharedKey = box.before(publicAsymKeyBytes, keys.asymPrivateKey)
+        const encrypted = await this.keyring.asymEncrypt(jwt, sharedKey)
 
         // Save the encrypted JWT to the user's inbox
         const inbox = await this.getInboxDatastore(did, {
@@ -135,14 +138,19 @@ export default class VeridaOutbox {
             delete data['modifiedAt']
         })
 
-        const inboxResponse = await inbox.save({
+        const inboxBody = {
             content: encrypted,
-            key: bytesToBase58(this.keyring.asymKeyPair!.publicKey)
-        });
+            key: bs58.encode(keys.asymPublicKey)
+        }
+
+        const inboxResponse = await inbox.save(inboxBody)
+        if (!inboxResponse) {
+            throw new Error(`Unable to write to user's inbox`)
+        }
 
         // Update outbox entry as saved
         outboxEntry.sent = true
-        await outbox.save(outboxEntry)
+        const outboxResponse = await outbox.save(outboxEntry)
 
         return inboxResponse
     }
