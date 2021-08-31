@@ -15,7 +15,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
 
     private publicCredentials: any  // @todo
 
-    private did?: string
+    private accountDid?: string
     private dsn?: string
 
     // @todo: dbmanager
@@ -27,13 +27,13 @@ export default class StorageEngineVerida extends BaseStorageEngine {
     public async connectAccount(account: AccountInterface) {
         super.connectAccount(account)
 
-        this.did = await this.account!.did()
+        this.accountDid = await this.account!.did()
         await this.client.setAccount(account)
 
         // Fetch user details from server
         let response
         try {
-            response = await this.client.getUser(this.did!)
+            response = await this.client.getUser(this.accountDid!)
         } catch (err) {
             if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
                 // User doesn't exist, so create them
@@ -52,12 +52,27 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         this.dsn = user.dsn
     }
 
-    protected async buildExternalDsn(endpointUri: string, did: string): Promise<string> {
+    /**
+     * When connecting to a CouchDB server for an external user, the current user may not
+     * have access to read/write.
+     * 
+     * Take the external user's `endpointUri` that points to their CouchDB server. Establish
+     * a connection to the Verida Middleware (DatastoreServerClient) as the current user
+     * (accountDid) and create a new account if required.
+     * 
+     * Return the current user's DSN which provides authenticated access to the external
+     * user's CouchDB server for the current user.
+     * 
+     * @param endpointUri 
+     * @param did 
+     * @returns 
+     */
+    protected async buildExternalDsn(endpointUri: string): Promise<string> {
         const client = new DatastoreServerClient(this.storageContext, endpointUri)
         await client.setAccount(this.account!)
         let response
         try {
-            response = await client.getUser(this.did!)
+            response = await client.getUser(this.accountDid!)
         } catch (err) {
             if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
                 // User doesn't exist, so create on this endpointUri server
@@ -76,7 +91,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
     }
 
     /**
-     * Open a database owned by this user
+     * Open a database either that may or may not be owned by this usesr
      * 
      * @param databaseName 
      * @param options 
@@ -88,12 +103,12 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 read: "owner",
                 write: "owner"
             },
-            did: this.did,
+            did: this.accountDid,
             readOnly: false
         }, options)
 
-        // Default to user's did if not specified
-        config.isOwner = config.did == this.did
+        // Default to user's account did if not specified
+        config.isOwner = config.did == this.accountDid
         config.saveDatabase = config.isOwner            // always save this database to registry if user is the owner
         let did = config.did!.toLowerCase()
 
@@ -131,7 +146,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 dsn,
                 permissions: config.permissions,
                 keyring: this.keyring,
-                signDid: this.did,
+                signDid: this.accountDid,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
@@ -159,7 +174,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 dsn,
                 permissions: config.permissions,
                 keyring: this.keyring,
-                signDid: this.did,
+                signDid: this.accountDid,
                 readOnly: config.readOnly,
                 client: this.client,
                 isOwner: config.isOwner
@@ -189,7 +204,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
 
             if (!config.isOwner) {
                 // need to build a complete dsn
-                dsn = await this.buildExternalDsn(config.dsn!, config.did!)
+                dsn = await this.buildExternalDsn(config.dsn!)
             }
 
             const storageContextKey = await this.keyring!.getStorageContextKey(databaseName)
@@ -202,7 +217,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 dsn,
                 permissions: config.permissions,
                 keyring: this.keyring,
-                signDid: this.did,
+                signDid: this.accountDid,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
