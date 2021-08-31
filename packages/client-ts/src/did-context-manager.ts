@@ -65,7 +65,7 @@ export default class DIDContextManager {
         return storageConfig
     }
 
-    public async getDIDContextConfig(did: string, contextName: string, forceCreate: boolean = true): Promise<Interfaces.SecureContextConfig> {
+    public async getDIDContextConfig(did: string, contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig> {
         const contextHash = StorageLink.hash(`${did}/${contextName}`)
 
         if (this.didContexts[contextHash]) {
