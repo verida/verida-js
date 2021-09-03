@@ -7,7 +7,6 @@ import { AutoAccount } from '@verida/account'
 import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
-import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
 const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 
