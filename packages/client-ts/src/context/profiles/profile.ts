@@ -1,7 +1,7 @@
 const EventEmitter = require('events')
-import Context from "./context"
-import Datastore from "./datastore"
-import { PermissionOptionsEnum } from "./interfaces"
+import Context from "../context"
+import Datastore from "../datastore"
+import { PermissionOptionsEnum } from "../interfaces"
 
 interface ProfileDocument {
     _id: string,
@@ -16,10 +16,13 @@ interface ProfileDocument {
 export class Profile extends EventEmitter {
     
     private context: Context
+    private did: string
     
-    private name: string
-    private owner: boolean
+    private profileName: string
     private store?: Datastore
+
+    private isOwner: boolean
+    private isPrivate: boolean
     
     public errors: object
     /**
@@ -31,11 +34,13 @@ export class Profile extends EventEmitter {
        *
        * @constructor
        */
-    constructor (context: Context, name: string, owner: boolean) {
+    constructor (context: Context, did: string, profileName: string, isOwner: boolean, isPrivate: boolean = false) {
       super()
       this.context = context
-      this.name = name
-      this.owner = owner
+      this.profileName = profileName
+      this.did = did
+      this.isOwner = isOwner
+      this.isPrivate = isPrivate
       this.errors = []
     }
 
@@ -158,13 +163,22 @@ export class Profile extends EventEmitter {
 
     private async init() {
         if (!this.store) {
-          this.store = await this.context.openDatastore('https://schemas.verida.io/profile/' + this.name + '/schema.json', {
-            permissions: {
-              read: this.owner ? PermissionOptionsEnum.OWNER : PermissionOptionsEnum.PUBLIC,
-              write: PermissionOptionsEnum.OWNER
-            }
-          })
+          const permissions = {
+            read: this.isPrivate ? PermissionOptionsEnum.OWNER : PermissionOptionsEnum.PUBLIC,
+            write: PermissionOptionsEnum.OWNER
+          }
 
+          if (this.isOwner) {
+            this.store = await this.context.openDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', {
+              permissions,
+            })
+          } else {
+            this.store = await this.context.openExternalDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', this.did, {
+              permissions
+            })
+          }
+
+          // Attempt to fetch a record to ensure the database is created if it didn't already exist
           try {
             await this.get('')
           } catch (err) {}

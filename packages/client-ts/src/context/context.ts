@@ -10,6 +10,7 @@ import Database from './database'
 import Datastore from './datastore'
 import Messaging from './messaging'
 import Client from '../client'
+import { Profile } from './profiles/profile'
 
 const _ = require('lodash')
 
@@ -129,6 +130,26 @@ export default class Context {
         await this.messagingEngine!.connectAccount(this.account!)
 
         return this.messagingEngine!
+    }
+
+    /**
+     * Get a user's profile
+     * 
+     * @param profileName string Name of the Verida profile schema to load
+     * @param did string DID of the profile to get. Leave blank to fetch a read/write profile for the currently authenticated user
+     */
+    public async openProfile(profileName: string = "public", did?: string): Promise<Profile | undefined> {
+        let ownAccount = false
+        if (!did) {
+            if (!this.account) {
+                throw new Error("Unable to get profile. No DID specified and no account connected.")
+            }
+
+            did = await this.account.did()
+            ownAccount = true
+        }
+
+        return new Profile(this, did, profileName, ownAccount)
     }
 
     /**
