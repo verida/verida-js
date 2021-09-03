@@ -6,7 +6,7 @@ import { AccountInterface } from '@verida/account'
 import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
 
-import { ManagerConfig } from './interfaces'
+import { ClientConfig } from './interfaces'
 import Context from './context/context'
 import DIDContextManager from './did-context-manager'
 import Schema from './context/schema'
@@ -24,7 +24,7 @@ export default class Client {
 
     private environment: string
 
-    constructor(userConfig: ManagerConfig) {
+    constructor(userConfig: ClientConfig) {
         this.environment = userConfig.environment ? userConfig.environment : DEFAULT_CONFIG.environment
 
         const defaultConfig = DEFAULT_CONFIG.environments[this.environment] ? DEFAULT_CONFIG.environments[this.environment] : {}
