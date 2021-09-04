@@ -1,7 +1,7 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
-const jsSHA = require("jssha")
 const uuidv1 = require('uuid/v1')
+import * as jsSHA from "jssha"
 
 import { VeridaDatabaseConfig } from "./interfaces"
 import Database from '../../../database'
@@ -84,7 +84,7 @@ export default class BaseDb extends EventEmitter implements Database {
     }
 
     private buildHash(text: string) {
-        const jsHash = new jsSHA('SHA-256', 'TEXT')
+        const jsHash = new jsSHA.default('SHA-256', 'TEXT')
         jsHash.update(text)
         return jsHash.getHash('HEX')
     }

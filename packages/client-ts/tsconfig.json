@@ -9,7 +9,9 @@
       "lib": [
         "es5",
         "es2015"
-      ]
+      ],
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true
     },
     "include": ["src"],
     "exclude": ["node_modules", "test", "dist"]
