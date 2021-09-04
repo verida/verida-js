@@ -25,7 +25,7 @@
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "bs58": "^4.0.1",
-    "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git",
+    "crypto-pouch": "https://github.com/tahpot/crypto-pouch.git#910feb51dd006d9a05639d984501eeda77e213bf",
     "did-jwt": "^5.6.3",
     "json-schema-ref-parser": "^9.0.9",
     "json-schema-resolve-allof": "^1.5.0",
@@ -34,6 +34,7 @@
     "pouchdb-find": "^7.2.2"
   },
   "devDependencies": {
+    "@types/pouchdb": "^6.4.0",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
