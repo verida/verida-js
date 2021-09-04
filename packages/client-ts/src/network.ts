@@ -6,7 +6,7 @@ export default class Network {
 
     public static async connect(config: NetworkConnectionConfig): Promise<Context | undefined> {
         const client = new Client(config.client)
-        client.connect(config.account)
+        await client.connect(config.account)
         return client.openContext(config.context.name, config.context.forceCreate)
     }
 
