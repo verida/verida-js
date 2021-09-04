@@ -1,7 +1,7 @@
 import CeramicClient from '@ceramicnetwork/http-client'
 import { SecureContextConfig, SecureContexts } from './interfaces'
 import { IDX } from '@ceramicstudio/idx'
-const jsSHA = require("jssha")
+import * as jsSHA from "jssha"
 
 // Latest on Clay Testnet 9 July 2021
 const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145l8jya7g6cuyluj17xlyc6t7p6iif12isbi1ppu5cuze4u3njc'
@@ -85,7 +85,7 @@ export default class StorageLink {
     }
 
     public static hash(input: string): string {
-        const hash = new jsSHA('SHA-256', 'TEXT')
+        const hash = new jsSHA.default('SHA-256', 'TEXT')
         hash.update(input)
         const result = hash.getHash('HEX')
         return result

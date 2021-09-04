@@ -11,6 +11,45 @@ Install the client library:
 yarn install @verida/client-ts
 ```
 
+### Context Initializing (Web - SSO)
+
+TBA
+
+### Context Initializing (Web - Ceramic)
+
+TBA
+
+### Context Initializing (Server / Mobile)
+
+Initialize a connection to the Verida network with an existing private key.
+
+In this example we are providing default Verida servers pointing to `http://localhost:5000/`. These will need to point to any default server infrastructure you provide to your users by spinning up instances of `@verida/storage-node`.
+
+```
+import { Network } from '@verida/client-ts'
+import { AutoAccount } from '@verida/account'
+  
+const context = Network.connect({
+    context: {
+        name: 'My Application Context Name'
+    },
+    client: {
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: 'http://localhost:5000/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaMessage',
+            endpointUri: 'http://localhost:5000/'
+        }
+    },
+    account: new AutoAccount("ethr", '0x...')
+})
+
+```
+
+### Advanced Initializing
+
 In your application, include the dependency and create a new client network instance:
 
 ```
@@ -94,4 +133,22 @@ You can now run tests from within the `client-ts` directory:
 ```
 $ yarn run tests        // run all tests
 $ yarn run test test/storage.context.tests.ts       // run a specific test
+```
+
+## Development within a Web Environment
+
+These instructions build this `client-ts` package in the mono repo and allow it type be linked to another typescript web application (such as `@verida/web-sandbox`).
+
+```
+$ cd packages/client-ts
+$ yarn install
+$ yarn build
+$ npm link
+```
+
+Within an existing typescript web project:
+
+```
+$ npm link @verida/client-ts
+$ npm run serve
 ```

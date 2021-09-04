@@ -1,8 +1,7 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaClient from '../../src/index'
-import { Utils } from '@verida/3id-utils-node'
+import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account'
 import CONFIG from '../config'
 import { StorageLink } from '@verida/storage-link'
@@ -28,12 +27,10 @@ const CONTEXT_2 = "Verida Testing: Test App 2"
  * 
  */
 describe('Messaging tests', () => {
-    // Instantiate utils
-    const utils = new Utils(CONFIG.CERAMIC_URL)
-    let ceramic1, context1, did1
-    let ceramic2, context2, did2
+    let context1, did1
+    let context2, did2
 
-    const client1 = new VeridaClient({
+    const client1 = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -45,7 +42,7 @@ describe('Messaging tests', () => {
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
-    const client2 = new VeridaClient({
+    const client2 = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -62,15 +59,13 @@ describe('Messaging tests', () => {
         
         it('can send a message between users of the same application', async function() {
             // Initialize account 1
-            ceramic1 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account1 = new AutoAccount(ceramic1)
+            const account1 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
             did1 = await account1.did()
             await client1.connect(account1)
             context1 = await client1.openContext(CONTEXT_1, true)
 
             // Initialize account 2
-            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
-            const account2 = new AutoAccount(ceramic2)
+            const account2 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2, CONFIG.CERAMIC_URL)
             did2 = await account2.did()
             await client2.connect(account2)
             context2 = await client2.openContext(CONTEXT_1, true)

@@ -1,15 +1,22 @@
-const PouchDB = require('pouchdb')
-const PouchDBFind = require('pouchdb-find')
-const PouchDBCrypt = require('pouchdb')
+import { VeridaDatabaseConfig } from "./interfaces"
+import BaseDb from "./base-db"
+
+import * as PouchDBCryptLib from "pouchdb"
+import * as PouchDBLib from "pouchdb"
+
+// See https://github.com/pouchdb/pouchdb/issues/6862
+const {default:PouchDBCrypt} = PouchDBCryptLib as any
+const {default:PouchDB} = PouchDBLib as any
+
+import * as PouchDBFindLib from "pouchdb-find"
+const {default:PouchDBFind} = PouchDBFindLib as any
+
+import * as CryptoPouch from "crypto-pouch"
 
 PouchDBCrypt.plugin(PouchDBFind)
 PouchDB.plugin(PouchDBFind)
-
-const CryptoPouch = require('crypto-pouch')
 PouchDBCrypt.plugin(CryptoPouch)
 
-import { VeridaDatabaseConfig } from "./interfaces"
-import BaseDb from './base-db'
 
 //db = new EncryptedDatabase(databaseName, did, this.dsn!, encryptionKey, config.permissions)
 
@@ -58,12 +65,7 @@ export default class EncryptedDatabase extends BaseDb {
         this._localDb = new PouchDBCrypt(this.databaseHash)
         
         this._localDb.crypto("", {
-            "key": this.encryptionKey,
-            cb: function(err: any) {
-                if (err) {
-                    throw new Error('Unable to connect to local database')
-                }
-            }
+            "key": this.encryptionKey
         })
 
         this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {

@@ -1,8 +1,7 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaNetwork from '../src/index'
-import { Utils } from '@verida/3id-utils-node'
+import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account'
 import { StorageLink } from '@verida/storage-link'
 
@@ -17,10 +16,8 @@ const ETH_PRIVATE_KEY = wallet.privateKey
  * WARNING: These tests create a new 3ID and storage context everytime they run!
  */
 describe('Storage initialization tests', () => {
-    // Instantiate utils
-    const utils = new Utils(CONFIG.CERAMIC_URL)
     let ceramic
-    const network = new VeridaNetwork({
+    const network = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'https://localhost:7001/'
@@ -45,8 +42,8 @@ describe('Storage initialization tests', () => {
         })
 
         it('can authenticate a user', async function() {
-            ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
-            const account = new AutoAccount(ceramic)
+            const account = new AutoAccount('ethr', ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
+            ceramic = await account.getCeramic()
 
             const did = account.did()
             const seed = account.keyring(CONFIG.CONTEXT_NAME)
