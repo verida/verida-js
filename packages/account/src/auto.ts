@@ -79,9 +79,14 @@ export default class AutoAccount implements AccountInterface {
       * 
       * @param contextName 
       */
-      public async unlinkStorage(contextName: string): Promise<boolean> {
+    public async unlinkStorage(contextName: string): Promise<boolean> {
         await this.init()
-         return await StorageLink.unlink(this.ceramic!, this.ceramic!.did!.id, contextName)
-     }
+        return await StorageLink.unlink(this.ceramic!, this.ceramic!.did!.id, contextName)
+    }
+
+    public async getCeramic(): Promise<CeramicClient> {
+        await this.init()
+        return this.ceramic!
+    }
 
 }
