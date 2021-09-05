@@ -1844,6 +1844,14 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
+"@verida/account@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@verida/account/-/account-0.1.7.tgz#5516a7fe04063c722d841af2f64f07d43161d09f"
+  integrity sha512-2ovtt/eAdtLXrZrxBx95T1big61yTekwFKaYHzbMYIlJSCDoL3rTE0jRuHaYYRW+Sa+QGRT76mOQ3vukRLS8Sw==
+  dependencies:
+    "@ceramicnetwork/http-client" "^1.0.7"
+    "@verida/keyring" "^0.1.7"
+
 "@zkochan/cmd-shim@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@zkochan/cmd-shim/-/cmd-shim-3.1.0.tgz#2ab8ed81f5bb5452a85f25758eb9b8681982fd2e"

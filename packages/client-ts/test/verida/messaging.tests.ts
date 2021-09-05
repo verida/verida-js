@@ -2,7 +2,7 @@
 const assert = require('assert')
 
 import { Client } from '../../src/index'
-import { AutoAccount } from '@verida/account'
+import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
 import { StorageLink } from '@verida/storage-link'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)

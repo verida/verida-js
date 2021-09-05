@@ -1,5 +1,5 @@
 {
-  "name": "@verida/account",
+  "name": "@verida/account-web",
   "version": "0.1.7",
   "main": "dist/index.js",
   "license": "ISC",
