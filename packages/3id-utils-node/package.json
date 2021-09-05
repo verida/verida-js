@@ -19,7 +19,6 @@
     "@3id/connect": "^0.1.6",
     "@3id/manager": "^0.1.6",
     "@ceramicnetwork/http-client": "^1.0.7",
-    "dids": "^2.2.1",
     "ethers": "^5.4.1"
   },
   "devDependencies": {

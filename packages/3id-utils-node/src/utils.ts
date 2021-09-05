@@ -1,4 +1,3 @@
-import { DID } from 'dids'
 import CeramicClient from '@ceramicnetwork/http-client'
 
 const ethereumUtils = require('./chains/ethereum').default
