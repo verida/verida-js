@@ -8,7 +8,7 @@
       "strict": true,
       "lib": [
         "es5",
-        "es2015"
+        "dom"
       ]
     },
     "include": ["src"],
