@@ -1,7 +1,7 @@
 
 # 3ID Connect Account
 
-**WARNING: DO NOT USE THIS LIBRARY! SEE "WARNINGS" BELOW**
+**WARNING: DO NOT USE THIS LIBRARY! SEE "WARNING" BELOW**
 
 This package enables a user to authenticate with 3ID in their browser and then unlock / create Verida storage contexts.
 
