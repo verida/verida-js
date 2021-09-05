@@ -42,6 +42,10 @@ export default class EncryptionUtils {
     }
 
     static symEncrypt(data: any, keyUint8Array: Uint8Array) {
+        if (typeof(data) === "undefined") {
+            throw new Error("Data to encrypt is undefined")
+        }
+
         data = decodeUTF8(JSON.stringify(data));
         return EncryptionUtils.symEncryptBuffer(data, keyUint8Array);
     }
