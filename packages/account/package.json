@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.0.7",
-    "@verida/keyring": "^0.1.7"
+    "@verida/client-ts": "*",
+    "@verida/keyring": "*"
   },
   "devDependencies": {
     "mocha": "^8.2.1",

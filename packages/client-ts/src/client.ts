@@ -2,7 +2,7 @@ import Encryption from '@verida/encryption-utils'
 const bs58 = require('bs58')
 const _ = require('lodash')
 
-import { AccountInterface } from '@verida/account'
+import AccountInterface from './account-interface'
 import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
 

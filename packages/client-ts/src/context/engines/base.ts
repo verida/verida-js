@@ -1,4 +1,4 @@
-import { AccountInterface } from '@verida/account'
+import AccountInterface from '../../account-interface'
 import { Keyring } from '@verida/keyring'
 import { DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
 import Database from '../database'

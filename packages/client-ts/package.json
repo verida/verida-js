@@ -11,14 +11,13 @@
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha",
-    "build": "tsc"
+    "build": "rm -rf dist; tsc"
   },
   "engines": {
     "node": "^12.0.0"
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.0.7",
-    "@verida/account": "^0.1.7",
     "@verida/encryption-utils": "^0.2.4",
     "@verida/keyring": "^0.1.7",
     "@verida/storage-link": "^0.1.8",

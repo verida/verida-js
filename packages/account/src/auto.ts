@@ -2,7 +2,7 @@ import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces, StorageLink } from '@verida/storage-link'
 import { Utils } from '@verida/3id-utils-node'
 import { Keyring } from '@verida/keyring'
-import AccountInterface from "./account-interface"
+import { AccountInterface } from "@verida/client-ts"
 
 import { DagJWS } from 'dids'
 

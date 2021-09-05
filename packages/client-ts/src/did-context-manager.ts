@@ -1,5 +1,5 @@
 import { DIDContextConfigs } from './interfaces'
-import { AccountInterface } from '@verida/account'
+import AccountInterface from './account-interface'
 import { StorageLink, DIDStorageConfig } from '@verida/storage-link'
 
 import CeramicClient from '@ceramicnetwork/http-client'

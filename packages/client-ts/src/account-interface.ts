@@ -1,6 +1,5 @@
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { DagJWS } from 'dids'
 
 /**
  * Interface representing an authenticated account on the Verida network.

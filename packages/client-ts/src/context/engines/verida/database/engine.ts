@@ -1,10 +1,9 @@
 import BaseStorageEngine from "../../base"
 import EncryptedDatabase from "./db-encrypted"
 import Database from '../../../database'
-import Datastore from '../../../datastore'
 import { DatabaseOpenConfig } from '../../../interfaces'
 import DatastoreServerClient from "./client"
-import { AccountInterface } from '@verida/account'
+import AccountInterface from '../../../../account-interface'
 import PublicDatabase from "./db-public"
 
 const _ = require('lodash')

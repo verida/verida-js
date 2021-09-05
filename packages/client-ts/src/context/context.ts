@@ -1,4 +1,4 @@
-import { AccountInterface } from '@verida/account'
+import AccountInterface from '../account-interface'
 import { Interfaces } from '@verida/storage-link'
 
 import BaseStorageEngine from './engines/base'

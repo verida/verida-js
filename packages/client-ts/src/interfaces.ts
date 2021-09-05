@@ -1,5 +1,5 @@
 import { Interfaces } from '@verida/storage-link'
-import { AccountInterface } from '@verida/account'
+import AccountInterface from './account-interface'
 import BaseStorageEngine from './context/engines/base'
 
 export interface ClientConfig {
