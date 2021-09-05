@@ -19,6 +19,10 @@ export default class StorageLink {
 
     // @todo: cache
     static async getLinks(ceramic: CeramicClient, did: string): Promise<SecureContextConfig[]> {
+        if (!did) {
+            return []
+        }
+
         // @ts-ignore
         const idx = new IDX({ ceramic })
         const secureContexts = <SecureContexts> await idx.get(StorageLink.schemaId, did)
