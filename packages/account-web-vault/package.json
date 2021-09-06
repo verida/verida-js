@@ -1,5 +1,5 @@
 {
-  "name": "@verida/account",
+  "name": "@verida/account-web-vault",
   "version": "0.1.7",
   "main": "dist/index.js",
   "license": "ISC",
@@ -9,9 +9,7 @@
   },
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
-    "tests": "ts-mocha './test/**/*.ts'",
-    "test": "ts-mocha",
-    "build": "rm -rf dist; tsc"
+    "build": "rm -rf dist/ && tsc && mkdir -p ./dist/assets && cp -r ./src/assets/* ./dist/assets/"
   },
   "engines": {
     "node": "^12.0.0"
@@ -19,7 +17,9 @@
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.0.7",
     "@verida/client-ts": "*",
-    "@verida/keyring": "*"
+    "@verida/keyring": "*",
+    "@verida/encryption-utils": "*",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "mocha": "^8.2.1",

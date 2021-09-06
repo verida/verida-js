@@ -57,7 +57,7 @@ export default class Client {
      */
     public async openContext(contextName: string, forceCreate: boolean = true): Promise<Context | undefined> {
         if (forceCreate) {
-            if (!this.did || !this.account) {
+            if (!this.account) {
                 throw new Error('Unable to force create a storage context when not connected')
             }
         }

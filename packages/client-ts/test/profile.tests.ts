@@ -2,9 +2,9 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaClient from '../src/index'
+import { Client } from '../src/index'
 import { Utils } from '@verida/3id-utils-node'
-import { AutoAccount } from '@verida/account'
+import { AutoAccount } from '@verida/account-node'
 import { StorageLink } from '@verida/storage-link'
 import CONFIG from './config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
@@ -16,7 +16,7 @@ const DATA = {
 }
 
 describe('Profile tests', () => {
-    const client1 = new VeridaClient({
+    const client1 = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -29,7 +29,7 @@ describe('Profile tests', () => {
     })
     let ceramic1, did1, context1, profile1
 
-    const client2 = new VeridaClient({
+    const client2 = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -46,8 +46,7 @@ describe('Profile tests', () => {
         this.timeout(20 * 1000)
 
         it('can initialise own profile', async () => {
-            ceramic1 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account1 = new AutoAccount(ceramic1)
+            const account1 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
             did1 = await account1.did()
             await client1.connect(account1)
             context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
@@ -59,8 +58,7 @@ describe('Profile tests', () => {
         })
 
         it('can access an external profile', async () => {
-            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account2 = new AutoAccount(ceramic1)
+            const account2 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2, CONFIG.CERAMIC_URL)
             did2 = await account2.did()
             await client2.connect(account2)
             context2 = await client2.openContext(CONFIG.CONTEXT_NAME, true)

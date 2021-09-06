@@ -42,6 +42,7 @@ export default class AutoAccount implements AccountInterface {
     }
 
     public async keyring(contextName: string) {
+        await this.init()
         const did = await this.did()
         const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?\n\n${did}`
         const signature = await this.sign(consentMessage)

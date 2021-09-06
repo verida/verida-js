@@ -27,7 +27,7 @@ In this example we are providing default Verida servers pointing to `http://loca
 
 ```
 import { Network } from '@verida/client-ts'
-import { AutoAccount } from '@verida/account'
+import { AutoAccount } from '@verida/account-node'
   
 const context = Network.connect({
     context: {
@@ -53,16 +53,14 @@ const context = Network.connect({
 In your application, include the dependency and create a new client network instance:
 
 ```
-import VeridaClient from '@verida/client-ts'
-import { Utils } from '@verida/3id-utils-node'
-import { AutoAccount } from '@verida/account'
-const utils = new Utils()
+import Client from '@verida/client-ts'
+import { AutoAccount } from '@verida/account-node'
 
 const CONTEXT_NAME = 'My Application Context Name'
-const CERAMIC_URL = 'http://localhost:7007'
+const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
 
 // establish a network connection
-const client = new VeridaClient({
+const client = new Client({
     defaultDatabaseServer: {
         type: 'VeridaDatabase',
         endpointUri: 'http://localhost:5000/'
@@ -79,13 +77,13 @@ const ETH_PRIVATE_KEY = '0x...'
 const ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
 
 // create a Verida account instance that wraps the authorized Ceramic connection
-// The `AutoAccount` instance will automatically sign any consent messages (useful for testing)
-const account = new AutoAccount(ceramic)
+// The `AutoAccount` instance will automatically sign any consent messages
+const account = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CERAMIC_URL)
 
 // Connect the Verida account to the Verida client
 await client.connect(account)
 
-// Open an application context
+// Open an application context (forcing creation of a new context if it doesn't already exist)
 const context = await client.openContext(CONTEXT_NAME, true)
 
 // Open a database
