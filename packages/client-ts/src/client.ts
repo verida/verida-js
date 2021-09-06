@@ -75,6 +75,15 @@ export default class Client {
         return this.didContextManager.getDIDContextConfig(did, contextName, false)
     }
 
+    public async openPublicProfile(did: string, contextName: string) {
+        const context = await this.openContext(contextName, false)
+        if (!context) {
+            throw new Error(`Account does not have a public profile for ${contextName}`)
+        }
+
+        return context!.openProfile("public", did)
+    }
+
     /**
      * Verify data has been signed by a particular DID
      * 
