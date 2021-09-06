@@ -111,7 +111,7 @@ export default class VeridaOutbox {
             aud: this.accountDid,
             exp: config.expiry,
             data: outboxEntry,
-            veridaApp: sendingContextName,
+            context: sendingContextName,
             insertedAt: (new Date()).toISOString()
         }, {
             alg: 'Ed25519',
