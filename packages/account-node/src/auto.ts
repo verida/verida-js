@@ -34,6 +34,7 @@ export default class AutoAccount implements AccountInterface {
             return
         }
 
+        // @ts-ignore
         this.ceramic = await this.utils.createAccount(this.chain, this.privateKey)
 
         if (!this.ceramic!.did) {
