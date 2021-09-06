@@ -15,10 +15,10 @@
     "node": "^12.0.0"
   },
   "dependencies": {
-    "@ceramicnetwork/http-client": "^1.0.7",
+    "@ceramicnetwork/http-client": "^1.2.0",
     "@verida/client-ts": "*",
-    "@verida/keyring": "*",
     "@verida/encryption-utils": "*",
+    "@verida/keyring": "*",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

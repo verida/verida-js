@@ -80,7 +80,7 @@ export default class EncryptedDatabase extends BaseDb {
                 // Remote dabase wasn't found, so attempt to create it
                 await this.createDb()
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.error && err.error == "not_found") {
                 // Remote database wasn't found, so attempt to create it
                 await this.createDb()
@@ -138,7 +138,7 @@ export default class EncryptedDatabase extends BaseDb {
          */
         try {
             await this.getMany()
-        } catch (err) {
+        } catch (err: any) {
             // This error message is thrown by the underlying decrypt library if the
             // data can't be decrypted
             if (err.message == `Unsupported state or unable to authenticate data`) {
@@ -164,7 +164,7 @@ export default class EncryptedDatabase extends BaseDb {
 
         try {
             this.client.updateDatabase(this.did, this.databaseHash, options);
-        } catch (err) {
+        } catch (err: any) {
             throw new Error("User doesn't exist or unable to create user database")
         }
     }

@@ -67,7 +67,7 @@ export class Profile extends EventEmitter {
         }
 
         return response
-      } catch (err) {
+      } catch (err: any) {
         if (err.error === 'not_found') {
           return null
         }
@@ -181,7 +181,7 @@ export class Profile extends EventEmitter {
           // Attempt to fetch a record to ensure the database is created if it didn't already exist
           try {
             await this.get('')
-          } catch (err) {}
+          } catch (err: any) {}
         }
     }
   }

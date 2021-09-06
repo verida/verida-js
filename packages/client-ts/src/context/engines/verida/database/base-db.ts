@@ -140,7 +140,7 @@ export default class BaseDb extends EventEmitter implements Database {
                     data._rev = existingDoc._rev
                     insert = false
                 }
-            } catch (err) {
+            } catch (err: any) {
                 // Record may not exist, which is fine
                 if (err.name != "not_found") {
                     throw err

@@ -61,12 +61,10 @@ export default class ThreeIdConnectAccount implements AccountInterface {
         const ceramic = new CeramicClient(this.ceramicUrl)
         const did = new DID({
             provider: threeIdConnect.getDidProvider(),
-            // @ts-ignore See https://github.com/ceramicnetwork/js-ceramic/issues/1152
             resolver: ThreeIdResolver.getResolver(ceramic)
         })
 
         await did.authenticate()
-        // @ts-ignore
         ceramic.setDID(did)
 
         this.accountDid = did
