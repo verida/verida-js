@@ -58,7 +58,7 @@ export class Profile extends EventEmitter {
      * console.log(emailDoc.key, emailDoc.value);
      * @return {object} Database record for this profile key. Object has keys [`key`, `value`, `_id`, `_rev`].
      */
-    async get(key: string, options?: any, extended: boolean = false) {
+    public async get(key: string, options?: any, extended: boolean = false): Promise<any | undefined> {
       await this.init()
       try {
         const response = await this.store!.get(key, options)
@@ -69,7 +69,7 @@ export class Profile extends EventEmitter {
         return response
       } catch (err: any) {
         if (err.error === 'not_found') {
-          return null
+          return
         }
 
         throw err
@@ -81,7 +81,7 @@ export class Profile extends EventEmitter {
      * @param {string} key Profile key to delete (ie: `email`)
      * @returns {boolean} Boolean indicating if the delete was successful
      */
-    async delete(key: string) {
+    public async delete(key: string): Promise<void> {
       await this.init()
       return this.store!.delete(key)
     }
@@ -92,7 +92,7 @@ export class Profile extends EventEmitter {
      * @param filter
      * @param {object} [options] Database options that will be passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
      */
-    async getMany(filter: any, options: any) {
+    public async getMany(filter: any, options: any): Promise<any> {
       await this.init();
       return this.store!.getMany(filter, options)
     }
@@ -114,7 +114,7 @@ export class Profile extends EventEmitter {
        * app.wallet.profile.set('email', 'john@doe.com');
        * @returns {boolean} Boolean indicating if the save was successful
        */
-    async set(doc: ProfileDocument | string, value: any) {
+    public async set(doc: ProfileDocument | string, value: any): Promise<any> {
         await this.init()
 
         let profileData: ProfileDocument = typeof doc === 'string' ? {
@@ -147,7 +147,7 @@ export class Profile extends EventEmitter {
     /**
      * Listen for changes to the public profile
      */
-    public async listen(callback: any) {
+    public async listen(callback: any): Promise<any> {
         await this.init()
 
         const profile = this
