@@ -58,10 +58,6 @@ export default class VaultAccount implements AccountInterface {
     }
 
     public async did(): Promise<string> {
-        if (this.accountDid) {
-            throw new Error("No DID available. Account not authenticated")
-        }
-
         return this.accountDid!
     }
 
