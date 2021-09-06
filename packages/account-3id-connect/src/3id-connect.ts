@@ -66,6 +66,7 @@ export default class ThreeIdConnectAccount implements AccountInterface {
         })
 
         await did.authenticate()
+        // @ts-ignore
         ceramic.setDID(did)
 
         this.accountDid = did
