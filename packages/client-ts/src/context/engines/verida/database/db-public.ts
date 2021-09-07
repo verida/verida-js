@@ -59,7 +59,7 @@ export default class PublicDatabase extends BaseDb {
         await this.init()
 
         const info = {
-            type: 'VeridaStorage',
+            type: 'VeridaDatabase',
             privacy: 'public',
             did: this.did,
             dsn: this.dsn,

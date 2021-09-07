@@ -27,12 +27,12 @@ const testConfig: SecureStorageContextConfig = {
         }
     },
     services: {
-        storageServer: {
-            type: 'VeridaStorage',
+        databaseServer: {
+            type: 'VeridaDatabase',
             endpointUri: 'https://storage.endpoint'
         },
         messageServer: {
-            type: 'VeridaStorage',
+            type: 'VeridaMessage',
             endpointUri: 'https://message.endpoint'
         }
     }

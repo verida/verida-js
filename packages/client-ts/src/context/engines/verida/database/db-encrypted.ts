@@ -197,7 +197,7 @@ export default class EncryptedDatabase extends BaseDb {
         await this.init()
 
         const info = {
-            type: 'VeridaStorage',
+            type: 'VeridaDatabase',
             privacy: 'encrypted',
             did: this.did,
             dsn: this.dsn,

@@ -21,11 +21,11 @@ describe('Network initialization tests', () => {
         it('can create a network instance', async function() {
             network = new Client({
                 defaultDatabaseServer: {
-                    type: 'VeridaStorage',
+                    type: 'VeridaDatabase',
                     endpointUri: 'https://localhost:7001/'
                 },
                 defaultMessageServer: {
-                    type: 'VeridaStorage',
+                    type: 'VeridaMessage',
                     endpointUri: 'https://localhost:7001/'
                 },
                 ceramicUrl: CERAMIC_URL

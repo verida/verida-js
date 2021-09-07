@@ -20,12 +20,12 @@ describe('DID Storage Config', () => {
             const ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
             const authenticator = new AutoAccount(ceramic)
             const config = await DIDStorageConfig.generate(authenticator, 'Test Context', {
-                storageServer: {
-                    type: 'VeridaStorage',
+                databaseServer: {
+                    type: 'VeridaDatabase',
                     endpointUri: 'https://'
                 },
                 messageServer: {
-                    type: 'VeridaStorage',
+                    type: 'VeridaMessage',
                     endpointUri: 'https://'
                 }
             })

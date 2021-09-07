@@ -12,11 +12,11 @@ const SCHEMA_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 // from the default newtork config
 const network = new Client({
     defaultDatabaseServer: {
-        type: 'VeridaStorage',
+        type: 'VeridaDatabase',
         endpointUri: 'http://localhost:5000/'
     },
     defaultMessageServer: {
-        type: 'VeridaStorage',
+        type: 'VeridaMessage',
         endpointUri: 'http://localhost:5000/'
     },
     ceramicUrl: CONFIG.CERAMIC_URL
