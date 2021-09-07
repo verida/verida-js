@@ -48,11 +48,13 @@ describe('Storage initialization tests', () => {
         it('can open a database with owner/owner permissions', async function() {
             const database = await context.openDatabase(TEST_DB_NAME)
 
-            await database.save({'hello': 'world'})
-            const data = await database.getMany()
+            const result = await database.save({'hello': 'world'})
+            const data = await database.getMany({
+                _id: result.id
+            })
 
             assert.ok(data, 'Data returned')
-            assert.ok(data.length && data.length > 1, 'Array returned with at least one row')
+            assert.ok(data.length && data.length > 0, 'Array returned with at least one row')
             assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
         
