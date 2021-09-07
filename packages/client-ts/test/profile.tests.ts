@@ -43,7 +43,7 @@ describe('Profile tests', () => {
     let ceramic2, did2, context2, profile2
 
     describe("Public profiles", function() {
-        this.timeout(20 * 1000)
+        this.timeout(100 * 1000)
 
         it('can initialise own profile', async () => {
             const account1 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
