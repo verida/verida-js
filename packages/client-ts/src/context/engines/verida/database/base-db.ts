@@ -227,7 +227,7 @@ export default class BaseDb extends EventEmitter implements Database {
             return raw ? docs : docs.docs
         }
 
-        return;
+        return
     }
 
     public async delete(doc: any, options: any = {}) {

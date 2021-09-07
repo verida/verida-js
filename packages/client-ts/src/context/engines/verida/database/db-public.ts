@@ -16,6 +16,7 @@ export default class PublicDatabase extends BaseDb {
         if (this._remoteDb) {
             return
         }
+        
         await super.init()
 
         const databaseName = this.databaseName
