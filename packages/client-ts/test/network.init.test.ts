@@ -22,11 +22,11 @@ describe('Network initialization tests', () => {
             network = new Client({
                 defaultDatabaseServer: {
                     type: 'VeridaDatabase',
-                    endpointUri: 'https://localhost:7001/'
+                    endpointUri: 'http://localhost:5000/'
                 },
                 defaultMessageServer: {
                     type: 'VeridaMessage',
-                    endpointUri: 'https://localhost:7001/'
+                    endpointUri: 'http://localhost:5000/'
                 },
                 ceramicUrl: CERAMIC_URL
             })
