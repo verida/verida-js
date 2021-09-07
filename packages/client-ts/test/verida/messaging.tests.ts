@@ -55,7 +55,7 @@ describe('Messaging tests', () => {
     })
 
     describe('Sending messages', function() {
-        this.timeout(100000)
+        this.timeout(200000)
         
         it('can send a message between users of the same application', async function() {
             // Initialize account 1
