@@ -125,4 +125,8 @@ export default class Client {
         return validSignatures
     }
 
+    public async getSchema(schemaName: string): Promise<Schema> {
+        return Schema.getSchema(schemaName)
+    }
+
 }
