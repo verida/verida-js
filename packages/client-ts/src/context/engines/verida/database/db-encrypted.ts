@@ -29,6 +29,8 @@ export default class EncryptedDatabase extends BaseDb {
     private _localDb: any
     private _remoteDbEncrypted: any
 
+    private _syncError = null
+
     /**
      * 
      * @param {*} dbName 
@@ -98,6 +100,7 @@ export default class EncryptedDatabase extends BaseDb {
         const _localDbEncrypted = this._localDbEncrypted
         const _remoteDbEncrypted = this._remoteDbEncrypted
         let _sync = this._sync
+        let _syncError = this._syncError
 
         // Do a once off sync to ensure the local database pulls all data from remote server
         // before commencing live syncronisation between the two databases
@@ -120,6 +123,7 @@ export default class EncryptedDatabase extends BaseDb {
                         return doc._id.indexOf('_design') !== 0;
                     } 
                 }).on("error", function(err: any) {
+                    _syncError = err
                     console.error(`Unknown error occurred syncing with remote database: ${databaseName} (${dsn})`)
                     console.error(err)
                 }).on("denied", function(err: any) {
