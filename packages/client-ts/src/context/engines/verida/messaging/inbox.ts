@@ -78,8 +78,7 @@ export default class VeridaInbox extends EventEmitter {
             data: item.data.data,
             sentBy: {
                 did: item.aud,
-                vid: item.vid,
-                app: item.veridaApp
+                context: item.context
             },
             insertedAt: (new Date()).toISOString(),
             read: false
