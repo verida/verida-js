@@ -26,11 +26,11 @@ describe('Storage initialization tests', () => {
     const network = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: CONFIG.DATABASE_SERVER
         },
         defaultMessageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: CONFIG.MESSAGE_SERVER
         },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
@@ -38,11 +38,11 @@ describe('Storage initialization tests', () => {
     const network2 = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: CONFIG.DATABASE_SERVER
         },
         defaultMessageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: CONFIG.MESSAGE_SERVER
         },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
@@ -50,17 +50,17 @@ describe('Storage initialization tests', () => {
     const network3 = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: CONFIG.DATABASE_SERVER
         },
         defaultMessageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: CONFIG.MESSAGE_SERVER
         },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
     describe('Manage databases for the authenticated user', function() {
-        this.timeout(100000)
+        this.timeout(200000)
         
         it('can open a database with owner/owner permissions', async function() {
             // Initialize account 1

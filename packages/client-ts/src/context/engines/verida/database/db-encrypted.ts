@@ -152,7 +152,7 @@ export default class EncryptedDatabase extends BaseDb {
         } catch (err: any) {
             // This error message is thrown by the underlying decrypt library if the
             // data can't be decrypted
-            if (err.message == `Unsupported state or unable to authenticate data`) {
+            if (err.message == `Unsupported state or unable to authenticate data` || err.message == "Could not decrypt!") {
                 // Clear the instantiated PouchDb instances and throw a more useful exception
                 this._localDb = this._localDbEncrypted = this._remoteDbEncrypted = null
                 throw new Error(`Invalid encryption key supplied`)
