@@ -21,7 +21,6 @@
     "@ceramicnetwork/3id-did-resolver": "^1.4.0",
     "@ceramicnetwork/http-client": "^1.2.0",
     "@ceramicstudio/idx": "^0.12.1",
-    "@verida/client-ts": "*",
     "@verida/keyring": "*",
     "dids": "^2.4.0",
     "lodash": "^4.17.21",

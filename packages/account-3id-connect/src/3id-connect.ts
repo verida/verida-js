@@ -1,6 +1,5 @@
 import { Interfaces, StorageLink } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { AccountInterface } from "@verida/client-ts"
 const _ = require('lodash')
 
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
@@ -29,7 +28,7 @@ function fromDagJWS(jws: DagJWS): string {
  * 
  * Use `@verida/acccount-web-vault` for secure unlocking of per application data.
  */
-export default class ThreeIdConnectAccount implements AccountInterface {
+export default class ThreeIdConnectAccount {
 
     private web3ModalConfig?: object
     private ceramicUrl?: string

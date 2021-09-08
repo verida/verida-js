@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.2.0",
-    "@verida/client-ts": "*",
     "@verida/encryption-utils": "*",
     "@verida/keyring": "*",
     "lodash": "^4.17.21"

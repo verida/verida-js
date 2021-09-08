@@ -1,7 +1,6 @@
 import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { AccountInterface } from "@verida/client-ts"
 import VaultModalLogin from './vault-modal-login'
 import { DagJWS } from 'dids'
 const _ = require('lodash')
@@ -22,7 +21,7 @@ const CONFIG_DEFAULTS = {
 /**
  * An Authenticator that requests for authorization from the Vault
  */
-export default class VaultAccount implements AccountInterface {
+export default class VaultAccount {
     private config: VaultAccountConfig
 
     private accountDid?: string
