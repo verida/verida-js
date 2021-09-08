@@ -4,7 +4,7 @@ const config: any = {
     environments: {
         local: {
             // For core development
-            ceramicUrl: 'http://localhost:7001/',
+            ceramicUrl: 'https://gateway-clay.ceramic.network/',
             defaultDatabaseServerUrl: "http://localhost:5000/",
             defaultMessageServerUrl: "http://localhost:5000/",
             schemaPaths: {
@@ -30,7 +30,6 @@ const config: any = {
             }
         },*/
     },
-    //datastores: {},
     vaultAppName: "Verida: Vault"
 }
 

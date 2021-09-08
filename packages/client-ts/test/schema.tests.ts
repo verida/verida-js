@@ -1,7 +1,7 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaNetwork from '../src/index'
+import { Client } from '../src/index'
 import Schema from "../src/context/schema"
 import CONFIG from './config'
 
@@ -10,13 +10,13 @@ const SCHEMA_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 // Initialize the Verida Network even though it's not used
 // This is becuase doing so will configure the schema paths
 // from the default newtork config
-const network = new VeridaNetwork({
-    defaultStorageServer: {
-        type: 'VeridaStorage',
+const network = new Client({
+    defaultDatabaseServer: {
+        type: 'VeridaDatabase',
         endpointUri: 'http://localhost:5000/'
     },
     defaultMessageServer: {
-        type: 'VeridaStorage',
+        type: 'VeridaMessage',
         endpointUri: 'http://localhost:5000/'
     },
     ceramicUrl: CONFIG.CERAMIC_URL

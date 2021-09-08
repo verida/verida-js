@@ -1,15 +1,22 @@
-const PouchDB = require('pouchdb')
-const PouchDBFind = require('pouchdb-find')
-const PouchDBCrypt = require('pouchdb')
+import { VeridaDatabaseConfig } from "./interfaces"
+import BaseDb from "./base-db"
+
+import * as PouchDBCryptLib from "pouchdb"
+import * as PouchDBLib from "pouchdb"
+
+// See https://github.com/pouchdb/pouchdb/issues/6862
+const {default:PouchDBCrypt} = PouchDBCryptLib as any
+const {default:PouchDB} = PouchDBLib as any
+
+import * as PouchDBFindLib from "pouchdb-find"
+const {default:PouchDBFind} = PouchDBFindLib as any
+
+import * as CryptoPouch from "crypto-pouch"
 
 PouchDBCrypt.plugin(PouchDBFind)
 PouchDB.plugin(PouchDBFind)
-
-const CryptoPouch = require('crypto-pouch')
 PouchDBCrypt.plugin(CryptoPouch)
 
-import { VeridaDatabaseConfig } from "./interfaces"
-import BaseDb from './base-db'
 
 //db = new EncryptedDatabase(databaseName, did, this.dsn!, encryptionKey, config.permissions)
 
@@ -21,6 +28,8 @@ export default class EncryptedDatabase extends BaseDb {
     private _localDbEncrypted: any
     private _localDb: any
     private _remoteDbEncrypted: any
+
+    private _syncError = null
 
     /**
      * 
@@ -75,7 +84,7 @@ export default class EncryptedDatabase extends BaseDb {
                 // Remote dabase wasn't found, so attempt to create it
                 await this.createDb()
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.error && err.error == "not_found") {
                 // Remote database wasn't found, so attempt to create it
                 await this.createDb()
@@ -93,6 +102,7 @@ export default class EncryptedDatabase extends BaseDb {
         const _localDbEncrypted = this._localDbEncrypted
         const _remoteDbEncrypted = this._remoteDbEncrypted
         let _sync = this._sync
+        let _syncError = this._syncError
 
         // Do a once off sync to ensure the local database pulls all data from remote server
         // before commencing live syncronisation between the two databases
@@ -120,6 +130,7 @@ export default class EncryptedDatabase extends BaseDb {
                         return doc._id.indexOf('_design') !== 0;
                     } 
                 }).on("error", function(err: any) {
+                    _syncError = err
                     console.error(`Unknown error occurred syncing with remote database: ${databaseName} (${dsn})`)
                     console.error(err)
                 }).on("denied", function(err: any) {
@@ -138,7 +149,7 @@ export default class EncryptedDatabase extends BaseDb {
          */
         try {
             await this.getMany()
-        } catch (err) {
+        } catch (err: any) {
             // This error message is thrown by the underlying decrypt library if the
             // data can't be decrypted
             if (err.message == `Unsupported state or unable to authenticate data`) {
@@ -164,7 +175,7 @@ export default class EncryptedDatabase extends BaseDb {
 
         try {
             this.client.updateDatabase(this.did, this.databaseHash, options);
-        } catch (err) {
+        } catch (err: any) {
             throw new Error("User doesn't exist or unable to create user database")
         }
     }
@@ -193,7 +204,7 @@ export default class EncryptedDatabase extends BaseDb {
         await this.init()
 
         const info = {
-            type: 'VeridaStorage',
+            type: 'VeridaDatabase',
             privacy: 'encrypted',
             did: this.did,
             dsn: this.dsn,

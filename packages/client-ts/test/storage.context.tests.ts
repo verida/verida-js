@@ -1,9 +1,8 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaNetwork from '../src/index'
-import { Utils } from '@verida/3id-utils-node'
-import { AutoAccount } from '@verida/account'
+import { Client } from '../src/index'
+import { AutoAccount } from '@verida/account-node'
 import { StorageLink } from '@verida/storage-link'
 import CONFIG from './config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
@@ -14,11 +13,9 @@ const TEST_DB_NAME = 'TestDb'
  * 
  */
 describe('Storage initialization tests', () => {
-    // Instantiate utils
-    const utils = new Utils(CONFIG.CERAMIC_URL)
     let ceramic, context
 
-    const network = new VeridaNetwork({
+    const client = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -34,13 +31,13 @@ describe('Storage initialization tests', () => {
         this.timeout(100000)
 
         it(`can open a user storage context when authenticated`, async function() {
-            ceramic = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account = new AutoAccount(ceramic)
-            await network.connect(account)
+            const account = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
+            await client.connect(account)
+            const ceramic = await account.getCeramic()
 
             await StorageLink.unlink(ceramic, ceramic.did.id, CONFIG.CONTEXT_NAME)
 
-            context = await network.openContext(CONFIG.CONTEXT_NAME, true)
+            context = await client.openContext(CONFIG.CONTEXT_NAME, true)
             assert.ok(context, 'Account context opened')
 
             const fetchedStorageConfig = await StorageLink.getLink(ceramic, ceramic.did.id, CONFIG.CONTEXT_NAME)
@@ -51,11 +48,13 @@ describe('Storage initialization tests', () => {
         it('can open a database with owner/owner permissions', async function() {
             const database = await context.openDatabase(TEST_DB_NAME)
 
-            await database.save({'hello': 'world'})
-            const data = await database.getMany()
+            const result = await database.save({'hello': 'world'})
+            const data = await database.getMany({
+                _id: result.id
+            })
 
             assert.ok(data, 'Data returned')
-            assert.ok(data.length && data.length > 1, 'Array returned with at least one row')
+            assert.ok(data.length && data.length > 0, 'Array returned with at least one row')
             assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
         

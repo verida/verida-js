@@ -2,11 +2,11 @@ import Encryption from '@verida/encryption-utils'
 const bs58 = require('bs58')
 const _ = require('lodash')
 
-import { AccountInterface } from '@verida/account'
+import AccountInterface from './account-interface'
 import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
 
-import { ManagerConfig } from './interfaces'
+import { ClientConfig } from './interfaces'
 import Context from './context/context'
 import DIDContextManager from './did-context-manager'
 import Schema from './context/schema'
@@ -24,7 +24,7 @@ export default class Client {
 
     private environment: string
 
-    constructor(userConfig: ManagerConfig) {
+    constructor(userConfig: ClientConfig) {
         this.environment = userConfig.environment ? userConfig.environment : DEFAULT_CONFIG.environment
 
         const defaultConfig = DEFAULT_CONFIG.environments[this.environment] ? DEFAULT_CONFIG.environments[this.environment] : {}
@@ -43,13 +43,17 @@ export default class Client {
      * @param ceramic 
      */
     public async connect(account: AccountInterface) {
+        if (this.isConnected()) {
+            throw new Error("Account is already connected.")
+        }
+
         this.account = account
         this.did = await this.account!.did()
         this.didContextManager.setAccount(this.account)   
     }
 
     public isConnected() {
-        return this.did ? true : false
+        return typeof(this.account) != "undefined"
     }
 
     /**
@@ -57,7 +61,7 @@ export default class Client {
      */
     public async openContext(contextName: string, forceCreate: boolean = true): Promise<Context | undefined> {
         if (forceCreate) {
-            if (!this.did || !this.account) {
+            if (!this.account) {
                 throw new Error('Unable to force create a storage context when not connected')
             }
         }
@@ -73,6 +77,15 @@ export default class Client {
 
     public async getContextConfig(did: string, contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
         return this.didContextManager.getDIDContextConfig(did, contextName, false)
+    }
+
+    public async openPublicProfile(did: string, contextName: string) {
+        const context = await this.openContext(contextName, false)
+        if (!context) {
+            throw new Error(`Account does not have a public profile for ${contextName}`)
+        }
+
+        return context!.openProfile("public", did)
     }
 
     /**
@@ -114,6 +127,10 @@ export default class Client {
         }
 
         return validSignatures
+    }
+
+    public async getSchema(schemaName: string): Promise<Schema> {
+        return Schema.getSchema(schemaName)
     }
 
 }

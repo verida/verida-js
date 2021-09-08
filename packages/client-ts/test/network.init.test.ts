@@ -1,7 +1,7 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaNetwork from '../src/index'
+import { Client } from '../src/index'
 import { Utils } from '@verida/3id-utils-node'
 
 // Test Ethereum Private key used to create / unlock a 3ID
@@ -19,14 +19,14 @@ describe('Network initialization tests', () => {
     describe('Initialize network connection', function() {
 
         it('can create a network instance', async function() {
-            network = new VeridaNetwork({
-                defaultStorageServer: {
-                    type: 'VeridaStorage',
-                    endpointUri: 'https://localhost:7001/'
+            network = new Client({
+                defaultDatabaseServer: {
+                    type: 'VeridaDatabase',
+                    endpointUri: 'http://localhost:5000/'
                 },
                 defaultMessageServer: {
-                    type: 'VeridaStorage',
-                    endpointUri: 'https://localhost:7001/'
+                    type: 'VeridaMessage',
+                    endpointUri: 'http://localhost:5000/'
                 },
                 ceramicUrl: CERAMIC_URL
             })

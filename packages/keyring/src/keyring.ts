@@ -1,7 +1,7 @@
 import Encryption from '@verida/encryption-utils'
 import { box, sign } from 'tweetnacl'
 const bs58 = require('bs58')
-const jsSHA = require("jssha")
+import * as jsSHA from "jssha"
 
 import { KeyringKeyType } from './interfaces'
 
@@ -31,7 +31,7 @@ export default class Keyring {
         this.seed = seed
     }
 
-    public async getKeys(): Promise<object> {
+    public async getKeys(): Promise<any> {
         await this._init()
 
         return {
@@ -69,7 +69,7 @@ export default class Keyring {
     private async buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair | nacl.SignKeyPair> {
         const inputMessage = `${seed}-${keyType}`
 
-        const hash = new jsSHA('SHA-256', 'TEXT')
+        const hash = new jsSHA.default('SHA-256', 'TEXT')
         hash.update(inputMessage)
         const hashBytes = hash.getHash('UINT8ARRAY')
 

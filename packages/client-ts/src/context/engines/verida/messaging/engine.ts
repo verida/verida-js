@@ -3,7 +3,7 @@ import { MessagesConfig } from '../../../interfaces'
 import Inbox from './inbox'
 import Outbox from './outbox'
 import { Keyring } from '@verida/keyring'
-import { AccountInterface } from '@verida/account'
+import AccountInterface from '../../../../account-interface'
 import DIDContextManager from '../../../../did-context-manager'
 import Context from '../../../context'
 import { MessageSendConfig } from "../../../interfaces"

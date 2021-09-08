@@ -1,8 +1,11 @@
-const PouchDB = require('pouchdb')
-const PouchDBFind = require('pouchdb-find')
-PouchDB.plugin(PouchDBFind)
-
 import BaseDb from './base-db'
+import * as PouchDBFind from "pouchdb-find"
+import * as PouchDBLib from "pouchdb"
+
+// See https://github.com/pouchdb/pouchdb/issues/6862
+const {default:PouchDB} = PouchDBLib as any
+
+PouchDB.plugin(PouchDBFind)
 
 export default class PublicDatabase extends BaseDb {
 
@@ -13,16 +16,12 @@ export default class PublicDatabase extends BaseDb {
         if (this._remoteDb) {
             return
         }
+        
         await super.init()
 
         const databaseName = this.databaseName
         
         this._remoteDb = new PouchDB(this.dsn + this.databaseHash, {
-            cb: function(err: any) {
-                if (err) {
-                    throw new Error(`Unable to connect to remote database: ${databaseName}`)
-                }
-            },
             skip_setup: true
         })
 
@@ -60,7 +59,7 @@ export default class PublicDatabase extends BaseDb {
         await this.init()
 
         const info = {
-            type: 'VeridaStorage',
+            type: 'VeridaDatabase',
             privacy: 'public',
             did: this.did,
             dsn: this.dsn,

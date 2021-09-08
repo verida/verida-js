@@ -1,13 +1,11 @@
 'use strict'
 const assert = require('assert')
 
-import VeridaNetwork from '../../src/index'
-import { Utils } from '@verida/3id-utils-node'
-import { AutoAccount } from '@verida/account'
+import { Client } from '../../src/index'
+import { AutoAccount } from '@verida/account-node'
 import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
-import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
 const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 
@@ -15,13 +13,11 @@ const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
  * 
  */
 describe('Datastore tests', () => {
-    // Instantiate utils
-    const utils = new Utils(CONFIG.CERAMIC_URL)
-    let ceramic1, context, did1
-    let ceramic2, context2, did2
+    let context, did1
+    let context2, did2
     let DB_USER_ENCRYPTION_KEY
 
-    const network = new VeridaNetwork({
+    const network = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -33,7 +29,7 @@ describe('Datastore tests', () => {
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
-    const network2 = new VeridaNetwork({
+    const network2 = new Client({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: 'http://localhost:5000/'
@@ -50,15 +46,13 @@ describe('Datastore tests', () => {
         
         it('can open a datastore with owner/owner permissions', async function() {
             // Initialize account 1
-            ceramic1 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY)
-            const account1 = new AutoAccount(ceramic1)
+            const account1 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
 
             // Initialize account 3
-            ceramic2 = await utils.createAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2)
-            const account2 = new AutoAccount(ceramic2)
+            const account2 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2, CONFIG.CERAMIC_URL)
             did2 = await account2.did()
             await network2.connect(account2)
             context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)

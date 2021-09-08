@@ -1,16 +1,16 @@
-import { AccountInterface } from '@verida/account'
 import { SecureContextConfig, SecureContextServices } from './interfaces'
-import { StorageLink } from './index'
 
 export default class DIDStorageConfig {
 
     /**
      * Generate a storage link for an existing DID
      * 
+     * @todo: Update `account` to specify `AccountInterface` (once moved into its own package)
+     * 
      * @param did 
      * @param contextName 
      */
-    static async generate(account: AccountInterface, contextName: string, servicesConfig: SecureContextServices): Promise<SecureContextConfig> {
+    static async generate(account: any, contextName: string, servicesConfig: SecureContextServices): Promise<SecureContextConfig> {
         const keyring = await account.keyring(contextName)
         const publicKeys = await keyring.publicKeys()
         const did = await account.did()

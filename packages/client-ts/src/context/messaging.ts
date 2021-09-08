@@ -1,4 +1,4 @@
-import { AccountInterface } from "@verida/account";
+import AccountInterface from '../account-interface'
 import { MessageSendConfig } from "./interfaces"
 
 export default interface Messaging {

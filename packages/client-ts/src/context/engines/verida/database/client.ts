@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { AccountInterface } from '@verida/account'
+import AccountInterface from '../../../../account-interface'
 
 interface RemoteClientAuthentication {
     username: string,

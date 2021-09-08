@@ -1,10 +1,9 @@
 import BaseStorageEngine from "../../base"
 import EncryptedDatabase from "./db-encrypted"
 import Database from '../../../database'
-import Datastore from '../../../datastore'
 import { DatabaseOpenConfig } from '../../../interfaces'
 import DatastoreServerClient from "./client"
-import { AccountInterface } from '@verida/account'
+import AccountInterface from '../../../../account-interface'
 import PublicDatabase from "./db-public"
 
 const _ = require('lodash')
@@ -34,7 +33,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         let response
         try {
             response = await this.client.getUser(this.accountDid!)
-        } catch (err) {
+        } catch (err: any) {
             if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
                 // User doesn't exist, so create them
                 response = await this.client.createUser()
@@ -73,7 +72,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         let response
         try {
             response = await client.getUser(this.accountDid!)
-        } catch (err) {
+        } catch (err: any) {
             if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
                 // User doesn't exist, so create on this endpointUri server
                 response = await client.createUser()
@@ -226,7 +225,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             
             try {
                 await db.init()
-            } catch (err) {
+            } catch (err: any) {
                 if (err.status == 401 && err.code == 90) {
                     throw new Error(`Unable to open database. Invalid credentials supplied.`)
                 }

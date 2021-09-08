@@ -1,4 +1,4 @@
-import { AccountInterface } from '@verida/account'
+import AccountInterface from '../account-interface'
 
 export interface DatabaseOpenConfig {
     permissions?: PermissionsConfig,

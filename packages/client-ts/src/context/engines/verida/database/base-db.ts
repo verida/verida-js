@@ -1,7 +1,7 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
-const jsSHA = require("jssha")
 const uuidv1 = require('uuid/v1')
+import * as jsSHA from "jssha"
 
 import { VeridaDatabaseConfig } from "./interfaces"
 import Database from '../../../database'
@@ -83,8 +83,8 @@ export default class BaseDb extends EventEmitter implements Database {
         return "v" + hash
     }
 
-    protected buildHash(text: string) {
-        const jsHash = new jsSHA('SHA-256', 'TEXT')
+    private buildHash(text: string) {
+        const jsHash = new jsSHA.default('SHA-256', 'TEXT')
         jsHash.update(text)
         return jsHash.getHash('HEX')
     }
@@ -140,7 +140,7 @@ export default class BaseDb extends EventEmitter implements Database {
                     data._rev = existingDoc._rev
                     insert = false
                 }
-            } catch (err) {
+            } catch (err: any) {
                 // Record may not exist, which is fine
                 if (err.name != "not_found") {
                     throw err
@@ -227,7 +227,7 @@ export default class BaseDb extends EventEmitter implements Database {
             return raw ? docs : docs.docs
         }
 
-        return;
+        return
     }
 
     public async delete(doc: any, options: any = {}) {
