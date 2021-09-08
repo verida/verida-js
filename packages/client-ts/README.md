@@ -13,11 +13,45 @@ yarn install @verida/client-ts
 
 ### Context Initializing (Web - SSO)
 
-TBA
+Initialize a connection to the Verida netork using a private key stored on the user's mobile device using the Verida Vault.
 
-### Context Initializing (Web - Ceramic)
+This easy to use integration method allows a user to scan a QR code to sign into your application. If the user doesn't have the Verida Vault installed, they will be prompted to install it. Existing users will be prompted to authorize your application to access encrypted storage for that application.
 
-TBA
+```
+import { Network } from '@verida/client-ts'
+import { VaultAccount } from '@verida/account-web-vault'
+
+const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+
+const account = new VaultAccount({
+    defaultDatabaseServer: {
+        type: 'VeridaDatabase',
+        endpointUri: 'http://localhost:5000/'
+    },
+    defaultMessageServer: {
+        type: 'VeridaMessage',
+        endpointUri: 'http://localhost:5000/'
+    },
+})
+
+    return Network.connect({
+    client: {
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: 'http://localhost:5000/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaMessage',
+            endpointUri: 'http://localhost:5000/'
+        },
+        ceramicUrl: CERAMIC_URL
+    },
+    account: account,
+    context: {
+        name: CONTEXT_NAME
+    }
+})
+```
 
 ### Context Initializing (Server / Mobile)
 
@@ -25,13 +59,16 @@ Initialize a connection to the Verida network with an existing private key.
 
 In this example we are providing default Verida servers pointing to `http://localhost:5000/`. These will need to point to any default server infrastructure you provide to your users by spinning up instances of `@verida/storage-node`.
 
+const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+const CONTEXT_NAME = 'My Application Context Name'
+
 ```
 import { Network } from '@verida/client-ts'
 import { AutoAccount } from '@verida/account-node'
   
 const context = Network.connect({
     context: {
-        name: 'My Application Context Name'
+        name: CONTEXT_NAME
     },
     client: {
         defaultDatabaseServer: {
@@ -47,6 +84,10 @@ const context = Network.connect({
 })
 
 ```
+
+### Context Initializing (Web - Ceramic)
+
+See `@verida/account-3id-connect`. Do not use, for testing / demonstration purposes only. See README.md in the package.
 
 ### Advanced Initializing
 
@@ -71,10 +112,6 @@ const client = new Client({
     },
     ceramicUrl: CERAMIC_URL
 })
-
-// establish an authorized Ceramic connection for a given Ethereum private key
-const ETH_PRIVATE_KEY = '0x...'
-const ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
 
 // create a Verida account instance that wraps the authorized Ceramic connection
 // The `AutoAccount` instance will automatically sign any consent messages
