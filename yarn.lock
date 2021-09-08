@@ -2953,10 +2953,9 @@ cross-spawn@^6.0.0:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-crypto-pouch@^4.0.1:
+"crypto-pouch@https://github.com/tahpot/crypto-pouch":
   version "4.0.1"
-  resolved "https://registry.yarnpkg.com/crypto-pouch/-/crypto-pouch-4.0.1.tgz#fd915894c245caf2e8e76734ab5a1c5d787886e3"
-  integrity sha512-PZx0NYhbNjVIIULd7ZofkQ95o0CaPLhrlchUlLdX8X05ceJa8PycOE4fcw9UWGhcTxUnKiIPlmEeMNetifxkLQ==
+  resolved "https://github.com/tahpot/crypto-pouch#5af665b0b9509c553d9b3499024a1a6c4388dc0f"
   dependencies:
     garbados-crypt "^3.0.0-beta"
     transform-pouch "^2.0.0"
