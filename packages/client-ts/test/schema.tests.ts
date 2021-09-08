@@ -13,11 +13,11 @@ const SCHEMA_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 const network = new Client({
     defaultDatabaseServer: {
         type: 'VeridaDatabase',
-        endpointUri: 'http://localhost:5000/'
+        endpointUri: CONFIG.DATABASE_SERVER
     },
     defaultMessageServer: {
         type: 'VeridaMessage',
-        endpointUri: 'http://localhost:5000/'
+        endpointUri: CONFIG.MESSAGE_SERVER
     },
     ceramicUrl: CONFIG.CERAMIC_URL
 })

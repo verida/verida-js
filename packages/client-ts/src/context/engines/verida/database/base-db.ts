@@ -83,7 +83,7 @@ export default class BaseDb extends EventEmitter implements Database {
         return "v" + hash
     }
 
-    private buildHash(text: string) {
+    protected buildHash(text: string) {
         const jsHash = new jsSHA.default('SHA-256', 'TEXT')
         jsHash.update(text)
         return jsHash.getHash('HEX')
