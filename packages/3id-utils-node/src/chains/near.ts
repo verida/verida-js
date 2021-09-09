@@ -26,7 +26,7 @@ class NearProvider {
         const messageBuffer = Buffer.from(message)
         const hash = crypto.createHash('sha256').update(messageBuffer).digest()
         const signature = keyPair.sign(hash)
-        return '0x' + Buffer.from(signature.signature).toString('hex')
+        return signature
     }
 
     private implicitAccountId(publicKey: string) {
@@ -35,9 +35,9 @@ class NearProvider {
 
 }
 
-const CHAIN_REF = '1' // ????
-
 export default class NearUtils {
+
+    static chainRef: string = "testnet"
     
     /**
      * Create a new 3ID account from a near ??.
@@ -73,7 +73,7 @@ export default class NearUtils {
 
     static async _getManager(seed: string, ceramic: CeramicClient): Promise<Manager> {
         const provider = new NearProvider(seed)
-        const authProvider = new NearAuthProvider(provider, provider.wallet.address, CHAIN_REF)
+        const authProvider = new NearAuthProvider(provider, provider.wallet.address, NearUtils.chainRef)
         
         const manager = new Manager(authProvider, { ceramic })
         return manager
