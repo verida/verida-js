@@ -70,7 +70,7 @@ export default class VaultAccount {
      * @param storageConfig 
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
-        throw new Error("Not implemented")
+        throw new Error("Link storage is not supported. Vault needs to have already created the storage.")
      }
 
      /**
@@ -79,11 +79,11 @@ export default class VaultAccount {
       * @param contextName 
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
-        throw new Error("Not implemented")
+        throw new Error("Unlink storage is not supported. Request via the Vault.")
     }
 
     public async getCeramic(): Promise<CeramicClient> {
-        throw new Error("Not implemented")
+        throw new Error("Getting ceramic instance is not supported by Account Web Vault.")
     }
 
 }
