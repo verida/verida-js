@@ -1,14 +1,18 @@
 import { NearAuthProvider } from '@ceramicnetwork/blockchain-utils-linking'
 import { Manager } from '@3id/manager'
 import CeramicClient from '@ceramicnetwork/http-client'
-const nearAPI = require('near-api-js')
 const nearSeedPhrase = require('near-seed-phrase')
 const bs58 = require('bs58')
 const crypto = require('crypto')
+import { KeyPair } from 'near-api-js'
+import * as uint8arrays from 'uint8arrays'
+
+const nearAPI = require('near-api-js')
 
 class NearProvider {
 
     public wallet: any
+    private provider: KeyPair
 
     constructor(mnemonic: string) {
         const { secretKey, publicKey } = nearSeedPhrase.parseSeedPhrase(mnemonic)
@@ -16,28 +20,27 @@ class NearProvider {
             mnemonic,
             privateKey: secretKey,
             publicKey: publicKey,
-            address: this.implicitAccountId(publicKey)
+            address: publicKey
         }
+
+        this.provider = KeyPair.fromString(secretKey)
     }
 
-    public async sign(message: string) {
-        const { KeyPair } = nearAPI
-        const keyPair = KeyPair.fromString(this.wallet.privateKey)
-        const messageBuffer = Buffer.from(message)
-        const hash = crypto.createHash('sha256').update(messageBuffer).digest()
-        const signature = keyPair.sign(hash)
-        return signature
-    }
-
-    private implicitAccountId(publicKey: string) {
-        return bs58.decode(publicKey.replace('ed25519:', '')).toString('hex');
+    public async sign(message: string): Promise<{ signature: String, account: String }> {
+        const { signature, publicKey } = await this.provider.sign(
+            uint8arrays.fromString(message)
+        );
+        return {
+            signature: uint8arrays.toString(signature, 'base64pad'),
+            account: uint8arrays.toString(publicKey.data, 'base64pad'),
+        };
     }
 
 }
 
 export default class NearUtils {
 
-    static chainRef: string = "testnet"
+    static chainRef: string = "near-testnet"
     
     /**
      * Create a new 3ID account from a near ??.
@@ -73,7 +76,7 @@ export default class NearUtils {
 
     static async _getManager(seed: string, ceramic: CeramicClient): Promise<Manager> {
         const provider = new NearProvider(seed)
-        const authProvider = new NearAuthProvider(provider, provider.wallet.publicKey, NearUtils.chainRef)
+        const authProvider = new NearAuthProvider(provider, provider.wallet.address, NearUtils.chainRef)
         const manager = new Manager(authProvider, { ceramic })
         return manager
     }
