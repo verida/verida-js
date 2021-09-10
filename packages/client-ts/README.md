@@ -3,12 +3,14 @@
 
 This is the Verida Client (Typescript) library compatible with NodeJs and modern web browsers.
 
+See [@verida/client-rn](https://github.com/verida/client-rn) for a React Native version of this library.
+
 ## Usage
 
-Install the client library:
+Install the library:
 
 ```
-yarn install @verida/client-ts
+yarn add @verida/client-ts
 ```
 
 ### Context Initializing (Web - SSO)
@@ -16,6 +18,14 @@ yarn install @verida/client-ts
 Initialize a connection to the Verida netork using a private key stored on the user's mobile device using the Verida Vault.
 
 This easy to use integration method allows a user to scan a QR code to sign into your application. If the user doesn't have the Verida Vault installed, they will be prompted to install it. Existing users will be prompted to authorize your application to access encrypted storage for that application.
+
+I also requires installing the [@verida/account-web-vault](packages/account-web-vault) dependency:
+
+```
+yarn add @verida/account-web-vault
+```
+
+Here's how you initialize an application:
 
 ```
 import { Network } from '@verida/client-ts'
@@ -34,7 +44,7 @@ const account = new VaultAccount({
     },
 })
 
-    return Network.connect({
+const context = Network.connect({
     client: {
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
