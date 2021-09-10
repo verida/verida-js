@@ -35,8 +35,14 @@ export default class VaultAccount {
     public async keyring(contextName: string): Promise<Keyring> {
         const vaultAccount = this
         const promise = new Promise<Keyring>((resolve, reject) => {
+            const vaultConfig = this.config.vaultConfig
             const cb = async (response: any) => {
                 vaultAccount.setDid(response.did)
+
+                if (typeof(vaultConfig!.callback) === "function") {
+                    vaultConfig!.callback(response)
+                }
+
                 resolve(new Keyring(response.signature))
             }
 
