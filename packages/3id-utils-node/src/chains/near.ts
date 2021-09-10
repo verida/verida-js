@@ -73,8 +73,7 @@ export default class NearUtils {
 
     static async _getManager(seed: string, ceramic: CeramicClient): Promise<Manager> {
         const provider = new NearProvider(seed)
-        const authProvider = new NearAuthProvider(provider, provider.wallet.address, NearUtils.chainRef)
-        
+        const authProvider = new NearAuthProvider(provider, provider.wallet.publicKey, NearUtils.chainRef)
         const manager = new Manager(authProvider, { ceramic })
         return manager
     }
