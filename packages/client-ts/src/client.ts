@@ -5,6 +5,7 @@ const _ = require('lodash')
 import AccountInterface from './account-interface'
 import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
+import { Profile } from './context/profiles/profile'
 
 import { ClientConfig } from './interfaces'
 import Context from './context/context'
@@ -12,8 +13,16 @@ import DIDContextManager from './did-context-manager'
 import Schema from './context/schema'
 import DEFAULT_CONFIG from './config'
 
+/**
+ * A client connection to the Verida network
+ */
 export default class Client {
 
+    /**
+     * Connection URL to the ceramic network.
+     * 
+     * Defaults to Ceramic testnet. Specify custom URL via `ClientConfig` in the constructor.
+     */
     public ceramicUrl: string
 
     private ceramic: CeramicClient
@@ -24,6 +33,11 @@ export default class Client {
 
     private environment: string
 
+    /**
+     * Create a client connection to the Verida network
+     * 
+     * @param userConfig ClientConfig Configuration for establishing a connection to the Verida network
+     */
     constructor(userConfig: ClientConfig) {
         this.environment = userConfig.environment ? userConfig.environment : DEFAULT_CONFIG.environment
 
@@ -37,10 +51,12 @@ export default class Client {
     }
 
     /**
-     * Connect a DID to this instance. Effectively sets the owner who can
-     * then create storage contexts, authenticate with databases etc.
+     * Connect an Account to this client.
      * 
-     * @param ceramic 
+     * Sets the account owner who can then create storage contexts,
+     * authenticate with databases, send messages etc.
+     * 
+     * @param account AccountInterface
      */
     public async connect(account: AccountInterface) {
         if (this.isConnected()) {
@@ -52,12 +68,21 @@ export default class Client {
         this.didContextManager.setAccount(this.account)   
     }
 
+    /**
+     * Check if an account is connected to this client.
+     * 
+     * @returns boolean True of an account is connected
+     */
     public isConnected() {
         return typeof(this.account) != "undefined"
     }
 
     /**
-     * Get a storage context for the current user
+     * Open a storage context for the current account.
+     * 
+     * @param contextName string Name of the `context` to open.
+     * @param forceCreate boolean If the `context` doesn't already exist for the connected account, create it. Depending on the type of `Account` connected, this may open a prompt for the user to confirm (and sign).
+     * @returns Context | undefined
      */
     public async openContext(contextName: string, forceCreate: boolean = true): Promise<Context | undefined> {
         if (forceCreate) {
@@ -86,11 +111,31 @@ export default class Client {
         return new Context(this, contextName, this.didContextManager, this.account)
     }
 
+    /**
+     * Get the storage configuration of an application context for a given DID.
+     * 
+     * This provides the public details about the database, storage and messaging endpoints stored on Ceramic / IDX for the requested `did`.
+     * 
+     * @param did 
+     * @param contextName 
+     * @returns SecureContextConfig | undefined
+     */
     public async getContextConfig(did: string, contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
         return this.didContextManager.getDIDContextConfig(did, contextName, false)
     }
 
-    public async openPublicProfile(did: string, contextName: string) {
+    /**
+     * Open the public profile of any user in read only mode.
+     * 
+     * Every application context has the ability to have it's own public profiles.
+     * 
+     * You most likely want to request the `Verida: Vault` context.
+     * 
+     * @param did 
+     * @param contextName 
+     * @returns <Profile | undefined>
+     */
+    public async openPublicProfile(did: string, contextName: string): Promise<Profile | undefined> {
         const context = await this.openContext(contextName, false)
         if (!context) {
             throw new Error(`Account does not have a public profile for ${contextName}`)
@@ -100,10 +145,15 @@ export default class Client {
     }
 
     /**
-     * Verify data has been signed by a particular DID
+     * Get the valid data signatures for a given database record.
      * 
-     * @param did 
-     * @param signatures 
+     * Iterates through all the signatures attached to a database record and validates each signature.
+     * 
+     * Only returns the signatures that are valid.
+     * 
+     * @param data A single database record
+     * @param did An optional did to filter the results by
+     * @returns string[] Array of DIDs that have validly signed the data
      */
      public async getValidDataSignatures(data: any, did?: string): Promise<string[]> {
         if (!data.signatures) {
@@ -140,8 +190,14 @@ export default class Client {
         return validSignatures
     }
 
-    public async getSchema(schemaName: string): Promise<Schema> {
-        return Schema.getSchema(schemaName)
+    /**
+     * Get a Schama instance by URL.
+     * 
+     * @param schemaUri URL of the schema
+     * @returns Schema A schema object
+     */
+    public async getSchema(schemaUri: string): Promise<Schema> {
+        return Schema.getSchema(schemaUri)
     }
 
 }

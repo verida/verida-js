@@ -18,7 +18,9 @@ export default interface AccountInterface {
     keyring(contextName: string): Promise<Keyring>
 
     /**
-     * Sign a string as the current user
+     * Sign a string as the current user.
+     * 
+     * Signs using 3ID.
      * 
      * @param input 
      */
