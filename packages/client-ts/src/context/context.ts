@@ -138,7 +138,7 @@ export default class Context {
      * @param profileName string Name of the Verida profile schema to load
      * @param did string DID of the profile to get. Leave blank to fetch a read/write profile for the currently authenticated user
      */
-    public async openProfile(profileName: string = "public", did?: string): Promise<Profile | undefined> {
+    public async openProfile(profileName: string = "public", did?: string, writeAccess?: boolean): Promise<Profile | undefined> {
         let ownAccount = false
         if (!did) {
             if (!this.account) {
@@ -149,7 +149,7 @@ export default class Context {
             ownAccount = true
         }
 
-        return new Profile(this, did, profileName, ownAccount)
+        return new Profile(this, did, profileName, writeAccess!)
     }
 
     /**

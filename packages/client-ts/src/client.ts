@@ -96,7 +96,7 @@ export default class Client {
             throw new Error(`Account does not have a public profile for ${contextName}`)
         }
 
-        return context!.openProfile("public", did)
+        return context!.openProfile("public", did, false)
     }
 
     /**
