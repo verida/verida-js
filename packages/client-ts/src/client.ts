@@ -66,6 +66,17 @@ export default class Client {
             }
         }
 
+        if (!this.did) {
+            // Attempt to fetch keyring for the contextName which may initialize it
+            // (ie: in the instance of an `account-web-vault` instance)
+            await this.account!.keyring(contextName)
+            this.did = await this.account!.did()
+        }
+
+        if (!this.did) {
+            throw new Error('No DID specified and no authenticated user')
+        }
+
         const contextConfig = await this.didContextManager.getDIDContextConfig(this.did!, contextName, forceCreate)
         if (!contextConfig) {
             throw new Error ('Unable to locate requested storage context for this user. Force create?')

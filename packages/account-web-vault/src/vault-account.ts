@@ -36,8 +36,6 @@ export default class VaultAccount {
         const vaultAccount = this
         const promise = new Promise<Keyring>((resolve, reject) => {
             const cb = async (response: any) => {
-                console.log(`${response.did} succesfully logged in`)
-                
                 vaultAccount.setDid(response.did)
                 resolve(new Keyring(response.signature))
             }
