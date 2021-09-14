@@ -1,4 +1,5 @@
 import CeramicClient from '@ceramicnetwork/http-client'
+import { Account } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
@@ -21,12 +22,13 @@ const CONFIG_DEFAULTS = {
 /**
  * An Authenticator that requests for authorization from the Vault
  */
-export default class VaultAccount {
+export default class VaultAccount extends Account {
     private config: VaultAccountConfig
 
     private accountDid?: string
 
     constructor(config: VaultAccountConfig) {
+        super()
         this.config = _.merge({
             vaultConfig: {}
         }, config)
