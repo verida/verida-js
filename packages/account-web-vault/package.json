@@ -15,6 +15,7 @@
     "node": "^12.0.0"
   },
   "dependencies": {
+    "@verida/account": "*",
     "@ceramicnetwork/http-client": "^1.2.0",
     "@verida/encryption-utils": "^0.2.5",
     "@verida/keyring": "^0.1.8",

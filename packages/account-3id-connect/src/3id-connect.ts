@@ -1,4 +1,5 @@
 import { Interfaces, StorageLink } from '@verida/storage-link'
+import { Account } from '@verida/account'
 import { Keyring } from '@verida/keyring'
 const _ = require('lodash')
 
@@ -28,7 +29,7 @@ function fromDagJWS(jws: DagJWS): string {
  * 
  * Use `@verida/acccount-web-vault` for secure unlocking of per application data.
  */
-export default class ThreeIdConnectAccount {
+export default class ThreeIdConnectAccount extends Account {
 
     private web3ModalConfig?: object
     private ceramicUrl?: string
@@ -36,6 +37,7 @@ export default class ThreeIdConnectAccount {
     private accountDid?: DID
 
     constructor(web3ModalConfig?: object, ceramicUrl?: string) {
+        super()
         this.web3ModalConfig = web3ModalConfig
         this.ceramicUrl = ceramicUrl
     }
