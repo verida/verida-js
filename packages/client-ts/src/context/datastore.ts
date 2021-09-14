@@ -2,7 +2,6 @@ const _ = require('lodash')
 import { DatastoreOpenConfig } from "./interfaces"
 import Context from "./context"
 import Schema from "./schema"
-const _ = require('lodash')
 
 /**
  * A datastore wrapper around a given database and schema.
