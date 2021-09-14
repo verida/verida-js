@@ -54,7 +54,7 @@ export default class BaseDb extends EventEmitter implements Database {
         this.signData = config.signData === false ? false : true
         this.signContextName = config.signContextName ? config.signContextName : this.storageContext
 
-        this.config = _.merge({}, config);
+        this.config = _.merge({}, config)
 
         this.permissions = _.merge({
             read: "owner",

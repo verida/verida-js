@@ -2,6 +2,7 @@ const _ = require('lodash')
 import { DatastoreOpenConfig } from "./interfaces"
 import Context from "./context"
 import Schema from "./schema"
+const _ = require('lodash')
 
 /**
  * A datastore wrapper around a given database and schema.
@@ -165,14 +166,18 @@ export default class Datastore {
      * Bind to changes to this datastore
      * 
      * @param {function} cb Callback function that fires when new data is received
+     * @param {object} options Options to be passed to the listener. See https://pouchdb.com/api.html#changes
+     * @returns {object} Returns an object with a `.cancel()` method to cancel the listener
      */
-    public async changes(cb: any) {
+    public async changes(cb: any, options={}): Promise<any> {
         const db = await this.getDb()
         const pouchDb = await db.getDb()
-        pouchDb.changes({
+        options = _.merge({
             since: 'now',
             live: true
-        }).on('change', async function(info: any) {
+        }, options)
+
+        return pouchDb.changes(options).on('change', async function(info: any) {
             cb(info)
         })
     }
