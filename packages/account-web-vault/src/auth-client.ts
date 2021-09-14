@@ -16,7 +16,7 @@ export default class AuthClientOld {
     constructor(config: any, modal: any) {
         this.config = _.merge({
             schemeUri: 'veridavault://login-request',
-            loginUri: 'https://vault.verida.io/request',
+            loginUri: 'https://vault.verida.io/request/',
             deeplinkId: 'verida-auth-client-deeplink',
             request: {}
         }, config)
@@ -42,7 +42,7 @@ export default class AuthClientOld {
                 request: encryptedRequest
             }
 
-            client.ws.send(JSON.stringify({ type: 'generateJwt', appName: config.appName, payload }))
+            client.ws.send(JSON.stringify({ type: 'generateJwt', context: config.context, payload }))
         }
 
         this.ws.onerror = this.error

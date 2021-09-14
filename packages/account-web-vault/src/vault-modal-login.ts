@@ -11,9 +11,9 @@ const VERIDA_USER_SIGNATURE = '_verida_auth_user_signature';
 
 export default async function (contextName: string, config: VaultModalLoginConfig) {
   const authConfig: AuthClientConfig = _.merge({
-    loginUri: 'https://vault.verida.io/start',
+    loginUri: 'https://vault.verida.io/request/',
     canvasId: 'verida-auth-client-canvas',
-    appName: contextName
+    context: contextName
   }, config)
 
   const modalHTML = `
