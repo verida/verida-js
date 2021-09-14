@@ -14,7 +14,7 @@ function fromDagJWS(jws: DagJWS): string {
 }
 
 const CONFIG_DEFAULTS = {
-    loginUri: 'https://vault.testnet.verida.io/mobile/auth-request.html',
+    loginUri: 'https://vault.verida.io/request',
     serverUri: 'wss://auth-server.testnet.verida.io:7001',
 }
 
