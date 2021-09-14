@@ -2,6 +2,7 @@ import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces, StorageLink } from '@verida/storage-link'
 import { Utils } from '@verida/3id-utils-node'
 import { Keyring } from '@verida/keyring'
+import { Account } from '@verida/account'
 
 import { DagJWS } from 'dids'
 
@@ -14,7 +15,7 @@ function fromDagJWS(jws: DagJWS): string {
 /**
  * An Authenticator that automatically signs everything
  */
-export default class AutoAccount {
+export default class AutoAccount extends Account {
 
     private chain: string
     private privateKey: string
@@ -23,6 +24,7 @@ export default class AutoAccount {
     private ceramic?: CeramicClient
 
     constructor(chain: string, privateKey: string, ceramicUrl?: string) {
+        super()
         this.utils = new Utils(ceramicUrl)
         this.chain = chain
         this.privateKey = privateKey
