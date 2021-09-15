@@ -10,7 +10,7 @@ export default class AuthClientOld {
 
     ws: any
     config: any
-    symKeyBytes: Uint8Array
+    symKeyBytes?: Uint8Array
     modal: any
 
     constructor(config: any, modal: any) {
@@ -22,9 +22,10 @@ export default class AuthClientOld {
         }, config)
         this.modal = modal
 
-        const decryptedSignature = store.get(VERIDA_USER_SIGNATURE);
+        const decryptedSignature = store.get(VERIDA_USER_SIGNATURE)
         if (decryptedSignature) {
             this.config.callback(decryptedSignature)
+            return
         }
         const symKeyBytes = this.symKeyBytes = EncryptionUtils.randomKey(32)
 
@@ -108,7 +109,7 @@ export default class AuthClientOld {
     }
 
     generateQueryParams(didJwt: string) {
-        const symKeyHex = "0x" + Buffer.from(this.symKeyBytes).toString("hex")
+        const symKeyHex = "0x" + Buffer.from(this.symKeyBytes!).toString("hex")
 
         // note: can't use `key` as a parameter as its a reserved word in react native
         // instead use `_k` (key) and `_r` (request)
