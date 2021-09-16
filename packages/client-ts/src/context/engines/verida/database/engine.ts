@@ -3,7 +3,7 @@ import EncryptedDatabase from "./db-encrypted"
 import Database from '../../../database'
 import { DatabaseOpenConfig } from '../../../interfaces'
 import DatastoreServerClient from "./client"
-import AccountInterface from '../../../../account-interface'
+import { Account } from '@verida/account'
 import PublicDatabase from "./db-public"
 
 const _ = require('lodash')
@@ -23,7 +23,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
         this.client = new DatastoreServerClient(this.storageContext, this.endpointUri)
     }
 
-    public async connectAccount(account: AccountInterface) {
+    public async connectAccount(account: Account) {
         super.connectAccount(account)
 
         this.accountDid = await this.account!.did()

@@ -1,4 +1,4 @@
-import AccountInterface from '../account-interface'
+import { Account } from '@verida/account'
 import { MessageSendConfig } from "./interfaces"
 
 export default interface Messaging {
@@ -39,6 +39,6 @@ export default interface Messaging {
      */
     getInbox(): Promise<any>
 
-    connectAccount(account: AccountInterface): Promise<void>
+    connectAccount(account: Account): Promise<void>
 
 }

@@ -2,7 +2,7 @@ import Encryption from '@verida/encryption-utils'
 const bs58 = require('bs58')
 const _ = require('lodash')
 
-import AccountInterface from './account-interface'
+import { Account } from '@verida/account'
 import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
 
@@ -19,7 +19,7 @@ export default class Client {
     private ceramic: CeramicClient
     private didContextManager: DIDContextManager
 
-    private account?: AccountInterface
+    private account?: Account
     private did?: string
 
     private environment: string
@@ -32,7 +32,7 @@ export default class Client {
 
         this.ceramicUrl = config.ceramicUrl
         this.ceramic = new CeramicClient(this.ceramicUrl)
-        this.didContextManager = new DIDContextManager(this.ceramic, config.defaultDatabaseServer, config.defaultMessageServer, config.defaultStorageServer)
+        this.didContextManager = new DIDContextManager(this.ceramic)
         Schema.setSchemaPaths(config.schemaPaths)
     }
 
@@ -42,14 +42,14 @@ export default class Client {
      * 
      * @param ceramic 
      */
-    public async connect(account: AccountInterface) {
+    public async connect(account: Account) {
         if (this.isConnected()) {
             throw new Error("Account is already connected.")
         }
 
         this.account = account
         this.did = await this.account!.did()
-        this.didContextManager.setAccount(this.account)   
+        this.didContextManager.setAccount(this.account)
     }
 
     public isConnected() {
@@ -66,10 +66,11 @@ export default class Client {
             }
         }
 
+        let contextConfig
         if (!this.did) {
-            // Attempt to fetch keyring for the contextName which may initialize it
-            // (ie: in the instance of an `account-web-vault` instance)
-            await this.account!.keyring(contextName)
+            // Attempt to fetch storage config from this account object if no DID specified
+            // This is helpful in the account-web-vault that doesn't load the DID until it receives a request from the vault mobile app
+            contextConfig = await this.account!.storageConfig(contextName, forceCreate)
             this.did = await this.account!.did()
         }
 
@@ -77,7 +78,10 @@ export default class Client {
             throw new Error('No DID specified and no authenticated user')
         }
 
-        const contextConfig = await this.didContextManager.getDIDContextConfig(this.did!, contextName, forceCreate)
+        if (!contextConfig) {
+            contextConfig = await this.didContextManager.getDIDContextConfig(this.did!, contextName, forceCreate)
+        }
+
         if (!contextConfig) {
             throw new Error ('Unable to locate requested storage context for requeseted DID. Force create?')
         }

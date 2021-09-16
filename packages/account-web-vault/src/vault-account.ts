@@ -1,18 +1,14 @@
 import CeramicClient from '@ceramicnetwork/http-client'
 import { Account } from '@verida/account'
-import { Interfaces } from '@verida/storage-link'
+import { Interfaces, StorageLink } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
-import { DagJWS } from 'dids'
 const _ = require('lodash')
+const store = require('store')
+
+const VERIDA_USER_SIGNATURE = '_verida_auth_user_signature'
 
 import { VaultAccountConfig, VaultModalLoginConfig } from "./interfaces"
-
-// Pulled from https://github.com/ceramicnetwork/js-did/blob/bc5271f7e659d073e150389828c021156a80e6d0/src/utils.ts#L29
-function fromDagJWS(jws: DagJWS): string {
-    if (jws.signatures.length > 1) throw new Error('Cant convert to compact jws')
-    return `${jws.signatures[0].protected}.${jws.payload}.${jws.signatures[0].signature}`
-}
 
 const CONFIG_DEFAULTS = {
     loginUri: 'https://vault.verida.io/request',
@@ -26,6 +22,7 @@ export default class VaultAccount extends Account {
     private config: VaultAccountConfig
 
     private accountDid?: string
+    private contextCache: any = {}
 
     constructor(config: VaultAccountConfig) {
         super()
@@ -34,18 +31,19 @@ export default class VaultAccount extends Account {
         }, config)
     }
 
-    public async keyring(contextName: string): Promise<Keyring> {
+    public async connectContext(contextName: string) {
         const vaultAccount = this
-        const promise = new Promise<Keyring>((resolve, reject) => {
+        const promise = new Promise<void>((resolve, reject) => {
             const vaultConfig = this.config.vaultConfig
             const cb = async (response: any) => {
                 vaultAccount.setDid(response.did)
+                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
 
                 if (typeof(vaultConfig!.callback) === "function") {
                     vaultConfig!.callback(response)
                 }
 
-                resolve(new Keyring(response.signature))
+                resolve()
             }
 
             const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, this.config.vaultConfig, {
@@ -56,6 +54,32 @@ export default class VaultAccount extends Account {
         })
 
         return promise
+    }
+
+    public async keyring(contextName: string): Promise<Keyring> {
+        if (typeof(this.contextCache[contextName]) == 'undefined') {
+            throw new Error(`Unable to connect to requested context: ${contextName}`)
+        }
+
+        return this.contextCache[contextName].keyring
+    }
+
+    public async addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring) {
+        this.contextCache[contextName] = {
+            keyring,
+            contextConfig
+        }
+    }
+
+    public async storageConfig(contextName: string, forceCreate: boolean = false): Promise<Interfaces.SecureContextConfig | undefined> {
+        if (typeof(this.contextCache[contextName]) !== 'undefined') {
+            return this.contextCache[contextName].contextConfig
+        }
+
+        if (forceCreate) {
+            await this.connectContext(contextName)
+            return this.storageConfig(contextName)
+        }
     }
 
     public async sign(message: string): Promise<string> {
@@ -90,6 +114,10 @@ export default class VaultAccount extends Account {
 
     public async getCeramic(): Promise<CeramicClient> {
         throw new Error("Getting ceramic instance is not supported by Account Web Vault.")
+    }
+
+    public async disconnect(): Promise<void> {
+        store.remove(VERIDA_USER_SIGNATURE)
     }
 
 }

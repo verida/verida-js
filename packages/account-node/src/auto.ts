@@ -1,8 +1,9 @@
 import CeramicClient from '@ceramicnetwork/http-client'
-import { Interfaces, StorageLink } from '@verida/storage-link'
+import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Utils } from '@verida/3id-utils-node'
 import { Keyring } from '@verida/keyring'
-import { Account } from '@verida/account'
+import { Account, AccountConfig } from '@verida/account'
+import { NodeAccountConfig } from './interfaces'
 
 import { DagJWS } from 'dids'
 
@@ -23,11 +24,11 @@ export default class AutoAccount extends Account {
 
     private ceramic?: CeramicClient
 
-    constructor(chain: string, privateKey: string, ceramicUrl?: string) {
-        super()
-        this.utils = new Utils(ceramicUrl)
-        this.chain = chain
-        this.privateKey = privateKey
+    constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
+        super(accountConfig)
+        this.utils = new Utils(autoConfig.ceramicUrl)
+        this.chain = autoConfig.chain
+        this.privateKey = autoConfig.privateKey
     }
 
     private async init() {
@@ -66,6 +67,26 @@ export default class AutoAccount extends Account {
         return this.ceramic!.did!.id
     }
 
+    public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
+        let storageConfig = await StorageLink.getLink(this.ceramic!, this.ceramic!.did!.id, contextName, true)
+        
+        if (!storageConfig && forceCreate) {
+            const endpoints: Interfaces.SecureContextServices = {
+                databaseServer: this.accountConfig.defaultDatabaseServer,
+                messageServer: this.accountConfig.defaultMessageServer
+            }
+
+            if (this.accountConfig.defaultStorageServer) {
+                endpoints.storageServer = this.accountConfig.defaultStorageServer
+            }
+
+            storageConfig = await DIDStorageConfig.generate(this, contextName, endpoints)
+            await this.linkStorage(storageConfig)
+        }
+
+        return storageConfig
+    }
+
     /**
      * Link storage to this user
      * 
@@ -73,7 +94,7 @@ export default class AutoAccount extends Account {
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
         await this.init()
-         await StorageLink.setLink(this.ceramic!, this.ceramic!.did!.id, storageConfig)
+        await StorageLink.setLink(this.ceramic!, this.ceramic!.did!.id, storageConfig)
      }
 
      /**

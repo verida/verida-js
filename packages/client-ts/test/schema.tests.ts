@@ -11,14 +11,6 @@ const SCHEMA_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 // This is becuase doing so will configure the schema paths
 // from the default newtork config
 const network = new Client({
-    defaultDatabaseServer: {
-        type: 'VeridaDatabase',
-        endpointUri: CONFIG.DATABASE_SERVER
-    },
-    defaultMessageServer: {
-        type: 'VeridaMessage',
-        endpointUri: CONFIG.MESSAGE_SERVER
-    },
     ceramicUrl: CONFIG.CERAMIC_URL
 })
 

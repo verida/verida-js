@@ -1,4 +1,3 @@
-import AccountInterface from '../account-interface'
 
 export interface DatabaseOpenConfig {
     permissions?: PermissionsConfig,

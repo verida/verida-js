@@ -3,7 +3,7 @@ import { MessagesConfig } from '../../../interfaces'
 import Inbox from './inbox'
 import Outbox from './outbox'
 import { Keyring } from '@verida/keyring'
-import AccountInterface from '../../../../account-interface'
+import { Account } from '@verida/account'
 import DIDContextManager from '../../../../did-context-manager'
 import Context from '../../../context'
 import { MessageSendConfig } from "../../../interfaces"
@@ -37,7 +37,7 @@ export default class MessagingEngineVerida implements BaseMessage {
         await inbox.init()
     }
 
-    public async connectAccount(account: AccountInterface) {
+    public async connectAccount(account: Account) {
         this.did = await account.did()
         this.keyring = await account.keyring(this.contextName)
     }

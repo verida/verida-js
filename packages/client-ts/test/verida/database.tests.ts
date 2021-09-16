@@ -17,45 +17,21 @@ const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_'
 /**
  * 
  */
-describe('Storage initialization tests', () => {
+describe('Verida database tests', () => {
     let context, did1
     let context2, did2
     let context3, did3
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
     const network2 = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
     const network3 = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
@@ -64,19 +40,31 @@ describe('Storage initialization tests', () => {
         
         it('can open a database with owner/owner permissions', async function() {
             // Initialize account 1
-            const account1 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
+            const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
 
             // Initialize account 2
-            const account2 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2, CONFIG.CERAMIC_URL)
+            const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             did2 = await account2.did()
             await network2.connect(account2)
             context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
 
             // Initialize account 3
-            const account3 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY_3, CONFIG.CERAMIC_URL)
+            const account3 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY_3,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             did3 = await account3.did()
             await network3.connect(account3)
             context3 = await network3.openContext(CONFIG.CONTEXT_NAME, true)
@@ -103,11 +91,10 @@ describe('Storage initialization tests', () => {
             // Grant read / write access to DID_3 for future tests relating to read / write of user databases
             const updateResponse = await database.updateUsers([did3], [did3])
 
-            await database.save({'hello': 'world'})
-            const data = await database.getMany()
+            const result = await database.save({'hello': 'world'})
+            const data = await database.get(result.id)
 
-            assertIsValidDbResponse(assert, data)
-            assert.ok(data[0].hello == 'world', 'First result has expected value')
+            assert.ok(data.hello == 'world', 'First result has expected value')
 
             // setup an extra database with a row for testing read=public, write=users
             const database2 = await context.openDatabase(DB_NAME_USER_WRITE_PUBLIC_READ, {

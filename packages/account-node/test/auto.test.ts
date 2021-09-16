@@ -6,6 +6,16 @@ import { decodeJWT } from 'did-jwt'
 const ETH_PRIVATE_KEY = '0xc0da48347b4bcb2cfb08d6b8c26b52b47fd36ca6114974a0104d15fab076f553'
 const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
 const APPLICATION_NAME = 'Verida Test: DIDJWT'
+const DEFAULT_ENDPOINTS = {
+    defaultDatabaseServer: {
+        type: 'VeridaDatabase',
+        endpointUri: 'https://db.testnet.verida.io:5002/'
+    },
+    defaultMessageServer: {
+        type: 'VeridaMessage',
+        endpointUri: 'https://db.testnet.verida.io:5002/'
+    },
+}
 
 
 describe('Auto account tests', () => {
@@ -14,7 +24,11 @@ describe('Auto account tests', () => {
         this.timeout(100000)
 
         it('verify did-jwt', async function() {
-            const account = new AutoAccount('ethr', ETH_PRIVATE_KEY, CERAMIC_URL)
+            const account = new AutoAccount(DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: ETH_PRIVATE_KEY,
+                ceramicUrl: CERAMIC_URL
+            })
             const didJwt = await account.createDidJwt(APPLICATION_NAME, {
                 hello: 'world'
             })

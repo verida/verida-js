@@ -2,6 +2,7 @@ import { Keyring } from '@verida/keyring'
 import { Interfaces } from '@verida/storage-link'
 import { createJWT, EdDSASigner } from 'did-jwt'
 import { encodeBase64 } from "tweetnacl-util"
+import { AccountConfig } from "./interfaces"
 
 const _ = require('lodash')
 
@@ -10,8 +11,10 @@ const _ = require('lodash')
  */
 export default class Account {
 
+    protected accountConfig: AccountConfig
 
-    constructor() {
+    constructor(config: AccountConfig) {
+        this.accountConfig = config
     }
 
     /**
@@ -57,6 +60,10 @@ export default class Account {
         throw new Error("Not implemented")
     }
 
+    storageConfig(contextName: string, forceCreate: boolean = false): Promise<Interfaces.SecureContextConfig | undefined> {
+        throw new Error("Not implemented")
+    }
+
     /**
      * Create a DID-JWT from a data object
      * @param {*} data 
@@ -86,5 +93,14 @@ export default class Account {
         })
 
         return jwt
+    }
+
+    /**
+     * An optional method that can be used to disconnect the current user.
+     * 
+     * For example, in a web browser context, it would remove any stored signatures from local storage.
+     */
+    public async disconnect(contextName?: string): Promise<void> {
+        throw new Error("Not implemented.")
     }
 }

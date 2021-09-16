@@ -4,9 +4,9 @@ import QrCode from 'qrcode-with-logos'
 const _ = require("lodash")
 const store = require('store')
 
-const VERIDA_USER_SIGNATURE = '_verida_auth_user_signature'
+const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 
-export default class AuthClientOld {
+export default class AuthClient {
 
     ws: any
     config: any
@@ -22,9 +22,9 @@ export default class AuthClientOld {
         }, config)
         this.modal = modal
 
-        const decryptedSignature = store.get(VERIDA_USER_SIGNATURE)
-        if (decryptedSignature) {
-            this.config.callback(decryptedSignature)
+        const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${config.context}`)
+        if (authContext) {
+            this.config.callback(authContext)
             return
         }
         const symKeyBytes = this.symKeyBytes = EncryptionUtils.randomKey(32)
@@ -92,8 +92,9 @@ export default class AuthClientOld {
 
 
                 const decrypted = EncryptionUtils.symDecrypt(response.message, key)
+
                 if (checkedValue.checked) {
-                    store.set(VERIDA_USER_SIGNATURE, decrypted)
+                    store.set(`${VERIDA_AUTH_CONTEXT}/${this.config.context}`, decrypted)
                 }
 
                 this.modal.style.display = 'none'

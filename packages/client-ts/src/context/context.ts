@@ -1,4 +1,4 @@
-import AccountInterface from '../account-interface'
+import { Account } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 
 import BaseStorageEngine from './engines/base'
@@ -31,14 +31,14 @@ const MESSAGING_ENGINES: StorageEngineTypes = {
 export default class Context {
 
     private client: Client
-    private account?: AccountInterface
+    private account?: Account
     private messagingEngine?: Messaging
 
     private contextName: string
     private didContextManager: DIDContextManager
     private databaseEngines: DatabaseEngines = {}
 
-    constructor(client: Client, contextName: string, didContextManager: DIDContextManager, account?: AccountInterface) {
+    constructor(client: Client, contextName: string, didContextManager: DIDContextManager, account?: Account) {
         this.client = client
         this.contextName = contextName
         this.didContextManager = didContextManager
@@ -55,14 +55,14 @@ export default class Context {
             did = await this.account.did()
         }
 
-        return this.didContextManager.getDIDContextConfig(did, this.contextName, forceCreate)
+        return this.didContextManager.getDIDContextConfig(did!, this.contextName, forceCreate)
     }
 
     public getContextName(): string {
         return this.contextName
     }
 
-    public getAccount(): AccountInterface {
+    public getAccount(): Account {
         return this.account!
     }
 
@@ -149,7 +149,7 @@ export default class Context {
             ownAccount = true
         }
 
-        return new Profile(this, did, profileName, ownAccount)
+        return new Profile(this, did!, profileName, ownAccount)
     }
 
     /**

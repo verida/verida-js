@@ -1,12 +1,10 @@
 import { Interfaces } from '@verida/storage-link'
-import AccountInterface from './account-interface'
+import { Account } from '@verida/account'
 import BaseStorageEngine from './context/engines/base'
 
 export interface ClientConfig {
     environment?: string
     ceramicUrl?: string
-    defaultDatabaseServer?: Interfaces.SecureContextEndpoint,
-    defaultMessageServer?: Interfaces.SecureContextEndpoint,
     schemaPaths?: object
 }
 
@@ -18,7 +16,7 @@ export interface ContextConfig {
 export interface NetworkConnectionConfig {
     client: ClientConfig,
     context: ContextConfig
-    account: AccountInterface
+    account: Account
 }
 
 // key = contextName

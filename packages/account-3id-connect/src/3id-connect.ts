@@ -96,6 +96,10 @@ export default class ThreeIdConnectAccount extends Account {
         return this.accountDid!.id
     }
 
+    public async storageConfig(contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
+        return StorageLink.getLink(this.ceramic!, this.ceramic!.did!.id, contextName, true)
+    }
+
     /**
      * Link storage to this user
      * 

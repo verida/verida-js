@@ -7,7 +7,7 @@ import { AuthClientConfig, VaultModalLoginConfig } from './interfaces';
 const _ = require('lodash');
 const store = require('store');
 
-const VERIDA_USER_SIGNATURE = '_verida_auth_user_signature';
+const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 
 export default async function (contextName: string, config: VaultModalLoginConfig) {
   const authConfig: AuthClientConfig = _.merge({
@@ -264,7 +264,7 @@ export default async function (contextName: string, config: VaultModalLoginConfi
   const modal: HTMLElement | null = document.getElementById('verida-modal');
   const closeModal: HTMLElement | null = document.getElementById('verida-modal-close');
 
-  const decryptedSignature = store.get(VERIDA_USER_SIGNATURE);
+  const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${contextName}`)
 
 
   if (modal && closeModal) {
@@ -279,7 +279,7 @@ export default async function (contextName: string, config: VaultModalLoginConfi
 
   new AuthClient(authConfig, modal)
 
-  if (decryptedSignature && modal) {
+  if (authContext && modal) {
     modal.style.display = 'none'
   } else {
     modal && (modal.style.display = "block");
