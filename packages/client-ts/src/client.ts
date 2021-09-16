@@ -79,11 +79,21 @@ export default class Client {
 
         const contextConfig = await this.didContextManager.getDIDContextConfig(this.did!, contextName, forceCreate)
         if (!contextConfig) {
-            throw new Error ('Unable to locate requested storage context for this user. Force create?')
+            throw new Error ('Unable to locate requested storage context for requeseted DID. Force create?')
         }
 
         // @todo cache the storage contexts
         return new Context(this, contextName, this.didContextManager, this.account)
+    }
+
+    public async openExternalContext(contextName: string, did: string) {
+        const contextConfig = await this.didContextManager.getDIDContextConfig(did, contextName, false)
+        if (!contextConfig) {
+            throw new Error ('Unable to locate requested storage context for requested DID.')
+        }
+
+        // @todo cache the storage contexts
+        return new Context(this, contextName, this.didContextManager)
     }
 
     public async getContextConfig(did: string, contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
@@ -91,7 +101,7 @@ export default class Client {
     }
 
     public async openPublicProfile(did: string, contextName: string) {
-        const context = await this.openContext(contextName, false)
+        const context = await this.openExternalContext(contextName, did)
         if (!context) {
             throw new Error(`Account does not have a public profile for ${contextName}`)
         }

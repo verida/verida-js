@@ -18,7 +18,8 @@ export interface DatastoreOpenConfig {
     readOnly?: boolean,
     encryptionKey?: string,
     databaseName?: string,
-    createContext?: boolean
+    createContext?: boolean,
+    external?: boolean
 }
 
 export interface MessagesConfig {

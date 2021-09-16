@@ -196,7 +196,11 @@ export default class Datastore {
             storageContext: this.storageContext
         }, this.config)
 
-        this.db = await this.context.openDatabase(dbName, config)
+        if (this.config.external) {
+            this.db = await this.context.openExternalDatabase(dbName, this.config.did!, config)
+        } else {
+            this.db = await this.context.openDatabase(dbName, config)   
+        }
         let indexes = schemaJson.database.indexes
 
         if (indexes) {

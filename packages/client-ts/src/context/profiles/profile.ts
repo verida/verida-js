@@ -168,13 +168,14 @@ export class Profile extends EventEmitter {
             write: PermissionOptionsEnum.OWNER
           }
 
-          if (this.writeAccess) {
+          if (this.isOwner) {
             this.store = await this.context.openDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', {
               permissions,
             })
           } else {
             this.store = await this.context.openExternalDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', this.did, {
-              permissions
+              permissions,
+              readOnly: true
             })
           }
 
