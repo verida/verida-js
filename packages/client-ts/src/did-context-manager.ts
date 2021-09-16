@@ -73,7 +73,8 @@ export default class DIDContextManager {
                 storageConfig = await this.account.storageConfig(contextName, forceCreate)
             }
         }
-        else {
+        
+        if (!storageConfig) {
             storageConfig = await StorageLink.getLink(this.ceramic, did, contextName, true)
         }
 

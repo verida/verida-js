@@ -32,7 +32,7 @@ export default interface Messaging {
      * @param filter 
      * @param options 
      */
-    getMessages(filter: object, options: any): Promise<any>
+    getMessages(filter?: object, options?: any): Promise<any>
 
     /**
      * Get the underlying inbox instance specific for the message storage type

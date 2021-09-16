@@ -64,7 +64,7 @@ export default class MessagingEngineVerida implements BaseMessage {
         inbox.on('newMessage', callback)
     }
 
-    public async getMessages(filter: object, options: any): Promise<any> {
+    public async getMessages(filter?: object, options?: any): Promise<any> {
         const inbox = await this.getInbox()
         const inboxDs = await inbox.getInboxDatastore()
         return inboxDs.getMany(filter, options)

@@ -28,7 +28,7 @@ export default class VeridaInbox extends EventEmitter {
         this.maxItems = maxItems
     }
 
-    async processAll() {
+    private async processAll() {
         await this.init()
 
         const items = await this.publicInbox.getMany()
@@ -46,7 +46,7 @@ export default class VeridaInbox extends EventEmitter {
         return count
     }
 
-    async processItem(inboxItem: any) {
+    private async processItem(inboxItem: any) {
         await this.init()
         
         // Build the shared key using this user's private asymmetric key
@@ -87,7 +87,14 @@ export default class VeridaInbox extends EventEmitter {
         // Save a new inbox entry into the user's private inbox
         try {
             await this.privateInbox.save(inboxEntry)
-        } catch (err) { 
+        } catch (err: any) { 
+            if (err.status == 409) {
+                // We have a conflict. This can happen if `processItem()` is called twice
+                // for the same inbox item. This can occur if called via the PouchDB changes
+                // listener and also by the `processAll()` method call inside `init()`.
+                return
+            }
+
             console.error("Unable to save to private inbox")
             console.error(err)
         }
