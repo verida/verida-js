@@ -7,6 +7,16 @@ There is a `#react-native` branch that maintains a slightly modified version of 
 
 ## Developer Notes
 
+### Node Version
+
+This requires **node v12.20.0** to build. We use [nvm](https://github.com/nvm-sh/nvm) to manage this:
+
+```
+nvm install v12.20.0
+nvm use v12.20.0
+```
+
+
 ### Linking dependencies
 
 It's not possible to add dependencies between monorepo packages using yarn (ie: `yarn add @verida/3id-utils-node`) if that package hasn't been published to `npm`.
@@ -37,9 +47,7 @@ Need to build the packages in this order:
 9. client-ts
 
 
-
-
-### Creating a release
+## Creating a release
 
 ```
 $ npx lerna publish
