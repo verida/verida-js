@@ -1,5 +1,5 @@
 import { DIDContextConfigs } from './interfaces'
-import AccountInterface from './account-interface'
+import { Account } from '@verida/account'
 import { StorageLink, DIDStorageConfig } from '@verida/storage-link'
 
 import CeramicClient from '@ceramicnetwork/http-client'
@@ -14,21 +14,14 @@ export default class DIDContextManager {
 
     private didContexts: DIDContextConfigs = {}
 
-    private defaultDatabaseServer: Interfaces.SecureContextEndpoint
-    private defaultMessageServer: Interfaces.SecureContextEndpoint
-    private defaultStorageServer?: Interfaces.SecureContextEndpoint
-
     private ceramic: CeramicClient
-    private account?: AccountInterface
+    private account?: Account
 
-    public constructor(ceramic: CeramicClient, defaultDatabaseServer: Interfaces.SecureContextEndpoint, defaultMessageServer: Interfaces.SecureContextEndpoint, defaultStorageServer?: Interfaces.SecureContextEndpoint) {
+    public constructor(ceramic: CeramicClient) {
         this.ceramic = ceramic
-        this.defaultDatabaseServer = defaultDatabaseServer
-        this.defaultStorageServer = defaultStorageServer
-        this.defaultMessageServer = defaultMessageServer
     }
 
-    public setAccount(account: AccountInterface) {
+    public setAccount(account: Account) {
         this.account = account
     }
 
@@ -72,36 +65,26 @@ export default class DIDContextManager {
             return this.didContexts[contextHash]
         }
 
-        let storageConfig = await StorageLink.getLink(this.ceramic, did, contextName, true)
+        let storageConfig
+        // Fetch the storage config from our account object if it matches the requested DID
+        if (this.account) {
+            const accountDid = await this.account.did()
+            if (accountDid == did) {
+                storageConfig = await this.account.storageConfig(contextName, forceCreate)
+            }
+        }
+        
+        if (!storageConfig) {
+            storageConfig = await StorageLink.getLink(this.ceramic, did, contextName, true)
+        }
 
         if (!storageConfig) {
-            if (!forceCreate) {
-                throw new Error('Unable to locate requested storage context for this user -- Storage context doesn\'t exist (try force create?)')
+            if (forceCreate) {
+                throw new Error('Unable to force creation of storage context for this DID')
             }
-
-            if (!this.account) {
-                throw new Error('Unable to locate requested storage context for this user -- Not authenticated')
+            else {
+                throw new Error('Unable to locate requested storage context for this DID -- Storage context doesn\'t exist (try force create?)')
             }
-
-            const accountDid = await this.account!.did()
-
-            if (accountDid != did) {
-                throw new Error('Unable to create storage context for a different DID than the one authenticated')
-            }
-
-            const endpoints: Interfaces.SecureContextServices = {
-                databaseServer: this.defaultDatabaseServer,
-                messageServer: this.defaultMessageServer
-            }
-
-            if (this.defaultStorageServer) {
-                endpoints.storageServer = this.defaultStorageServer
-            }
-
-            // Force creation of storage context using default server configurations
-            storageConfig = await DIDStorageConfig.generate(this.account, contextName, endpoints)
-
-            await this.account!.linkStorage(storageConfig)
         }
 
         this.didContexts[contextHash] = storageConfig

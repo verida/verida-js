@@ -1,4 +1,4 @@
-import AccountInterface from '../account-interface'
+import { Account } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 
 import BaseStorageEngine from './engines/base'
@@ -37,7 +37,7 @@ const MESSAGING_ENGINES: StorageEngineTypes = {
 export default class Context {
 
     private client: Client
-    private account?: AccountInterface
+    private account?: Account
     private messagingEngine?: Messaging
 
     private contextName: string
@@ -54,7 +54,7 @@ export default class Context {
      * @param didContextManager {DIDContextManager}
      * @param account {AccountInterface}
      */
-    constructor(client: Client, contextName: string, didContextManager: DIDContextManager, account?: AccountInterface) {
+    constructor(client: Client, contextName: string, didContextManager: DIDContextManager, account?: Account) {
         this.client = client
         this.contextName = contextName
         this.didContextManager = didContextManager
@@ -71,14 +71,14 @@ export default class Context {
             did = await this.account.did()
         }
 
-        return this.didContextManager.getDIDContextConfig(did, this.contextName, forceCreate)
+        return this.didContextManager.getDIDContextConfig(did!, this.contextName, forceCreate)
     }
 
     public getContextName(): string {
         return this.contextName
     }
 
-    public getAccount(): AccountInterface {
+    public getAccount(): Account {
         return this.account!
     }
 
@@ -161,7 +161,7 @@ export default class Context {
      * @param profileName string Name of the Verida profile schema to load
      * @param did string DID of the profile to get. Leave blank to fetch a read/write profile for the currently authenticated user
      */
-    public async openProfile(profileName: string = "public", did?: string): Promise<Profile | undefined> {
+    public async openProfile(profileName: string = "public", did?: string, writeAccess?: boolean): Promise<Profile | undefined> {
         let ownAccount = false
         if (!did) {
             if (!this.account) {
@@ -172,7 +172,7 @@ export default class Context {
             ownAccount = true
         }
 
-        return new Profile(this, did, profileName, ownAccount)
+        return new Profile(this, did!, profileName, ownAccount)
     }
 
     /**
@@ -238,15 +238,12 @@ export default class Context {
      * @returns 
      */
     public async openExternalDatastore(schemaUri: string, did: string, options: DatastoreOpenConfig = {}): Promise<Datastore> {
-        if (!this.account) {
-            throw new Error(`Unable to open datastore. No authenticated user.`)
-        }
-
         const contextConfig = await this.getContextConfig(did)
 
         options = _.merge({
             did,
-            dsn: contextConfig.services.databaseServer.endpointUri
+            dsn: contextConfig.services.databaseServer.endpointUri,
+            external: true
         }, options)
 
         // @todo: Should this also call _init to confirm everything is good?

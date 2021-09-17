@@ -173,14 +173,18 @@ export default class Datastore {
      * Bind to changes to this datastore
      * 
      * @param {function} cb Callback function that fires when new data is received
+     * @param {object} options Options to be passed to the listener. See https://pouchdb.com/api.html#changes
+     * @returns {object} Returns an object with a `.cancel()` method to cancel the listener
      */
-    public async changes(cb: any) {
+    public async changes(cb: any, options={}): Promise<any> {
         const db = await this.getDb()
         const pouchDb = await db.getDb()
-        pouchDb.changes({
+        options = _.merge({
             since: 'now',
             live: true
-        }).on('change', async function(info: any) {
+        }, options)
+
+        return pouchDb.changes(options).on('change', async function(info: any) {
             cb(info)
         })
     }
@@ -204,7 +208,11 @@ export default class Datastore {
             storageContext: this.storageContext
         }, this.config)
 
-        this.db = await this.context.openDatabase(dbName, config)
+        if (this.config.external) {
+            this.db = await this.context.openExternalDatabase(dbName, this.config.did!, config)
+        } else {
+            this.db = await this.context.openDatabase(dbName, config)   
+        }
         let indexes = schemaJson.database.indexes
 
         if (indexes) {

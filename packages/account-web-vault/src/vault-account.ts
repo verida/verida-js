@@ -1,52 +1,60 @@
 import CeramicClient from '@ceramicnetwork/http-client'
-import { Interfaces } from '@verida/storage-link'
+import { Account, AccountConfig } from '@verida/account'
+import { Interfaces, StorageLink } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
-import { DagJWS } from 'dids'
 const _ = require('lodash')
+const store = require('store')
+const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 
-import { VaultAccountConfig, VaultModalLoginConfig } from "./interfaces"
-
-// Pulled from https://github.com/ceramicnetwork/js-did/blob/bc5271f7e659d073e150389828c021156a80e6d0/src/utils.ts#L29
-function fromDagJWS(jws: DagJWS): string {
-    if (jws.signatures.length > 1) throw new Error('Cant convert to compact jws')
-    return `${jws.signatures[0].protected}.${jws.payload}.${jws.signatures[0].signature}`
-}
+import { VaultModalLoginConfig } from "./interfaces"
 
 const CONFIG_DEFAULTS = {
-    loginUri: 'https://vault.testnet.verida.io/mobile/auth-request.html',
-    serverUri: 'wss://auth-server.testnet.verida.io:7001',
+    loginUri: 'https://vault.verida.io/request',
+    serverUri: 'wss://auth-server.testnet.verida.io:7002',
 }
 
 /**
  * An Authenticator that requests for authorization from the Vault
  */
-export default class VaultAccount {
-    private config: VaultAccountConfig
+export default class VaultAccount extends Account {
+    private config: VaultModalLoginConfig
 
     private accountDid?: string
+    private contextCache: any = {}
 
-    constructor(config: VaultAccountConfig) {
-        this.config = _.merge({
-            vaultConfig: {}
-        }, config)
+    constructor(loginConfig: VaultModalLoginConfig) {
+        super()
+        this.config = loginConfig
     }
 
-    public async keyring(contextName: string): Promise<Keyring> {
+    public async connectContext(contextName: string) {
         const vaultAccount = this
-        const promise = new Promise<Keyring>((resolve, reject) => {
-            const vaultConfig = this.config.vaultConfig
-            const cb = async (response: any) => {
-                vaultAccount.setDid(response.did)
+        const loginConfig = this.config
 
-                if (typeof(vaultConfig!.callback) === "function") {
-                    vaultConfig!.callback(response)
+        const contextConfig = await this.loadFromSession(contextName)
+        if (contextConfig) {
+            return contextConfig
+        }
+
+        const promise = new Promise<void>((resolve, reject) => {
+            const cb = async (response: any, saveSession: boolean) => {
+                if (saveSession) {
+                    let storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+                    if (!storedSessions) {
+                        storedSessions = {}
+                    }
+
+                    storedSessions[contextName] = response
+                    store.set(VERIDA_AUTH_CONTEXT, storedSessions)
                 }
 
-                resolve(new Keyring(response.signature))
+                this.setDid(response.did)
+                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
+                resolve()
             }
 
-            const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, this.config.vaultConfig, {
+            const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, loginConfig, {
                 callback: cb
             })
 
@@ -54,6 +62,54 @@ export default class VaultAccount {
         })
 
         return promise
+    }
+
+    public async loadFromSession(contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
+        const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+
+        if (!storedSessions || !storedSessions[contextName]) {
+            return
+        }
+
+        const response = storedSessions[contextName]
+
+        this.setDid(response.did)
+        this.addContext(response.context, response.contextConfig, new Keyring(response.signature))
+
+        if (typeof(this.config!.callback) === "function") {
+            this.config!.callback(response)
+        }
+
+        return response.contextConfig
+    }
+
+    public async keyring(contextName: string): Promise<Keyring> {
+        if (typeof(this.contextCache[contextName]) == 'undefined') {
+            throw new Error(`Unable to connect to requested context: ${contextName}`)
+        }
+
+        return this.contextCache[contextName].keyring
+    }
+
+    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring) {
+        this.contextCache[contextName] = {
+            keyring,
+            contextConfig
+        }
+    }
+
+    public async storageConfig(contextName: string, forceCreate: boolean = false): Promise<Interfaces.SecureContextConfig | undefined> {
+        if (this.contextCache[contextName]) {
+            return this.contextCache[contextName].contextConfig
+        }
+
+        if (forceCreate) {
+            await this.connectContext(contextName)
+
+            if (this.contextCache[contextName]) {
+                return this.contextCache[contextName].contextConfig
+            }
+        }
     }
 
     public async sign(message: string): Promise<string> {
@@ -88,6 +144,11 @@ export default class VaultAccount {
 
     public async getCeramic(): Promise<CeramicClient> {
         throw new Error("Getting ceramic instance is not supported by Account Web Vault.")
+    }
+
+    public async disconnect(contextName?: string): Promise<void> {
+        // @todo, support logging out just one
+        store.remove(VERIDA_AUTH_CONTEXT)
     }
 
 }

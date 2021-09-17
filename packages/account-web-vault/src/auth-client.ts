@@ -2,30 +2,23 @@ import { AuthClientConfig, AuthResponse } from "./interfaces"
 import EncryptionUtils from "@verida/encryption-utils"
 import QrCode from 'qrcode-with-logos'
 const _ = require("lodash")
-const store = require('store')
 
-const VERIDA_USER_SIGNATURE = '_verida_auth_user_signature'
-
-export default class AuthClientOld {
+export default class AuthClient {
 
     ws: any
     config: any
-    symKeyBytes: Uint8Array
+    symKeyBytes?: Uint8Array
     modal: any
 
     constructor(config: any, modal: any) {
         this.config = _.merge({
             schemeUri: 'veridavault://login-request',
-            loginUri: 'https://vault.testnet.verida.io/mobile/auth-request.html',
+            loginUri: 'https://vault.verida.io/request/',
             deeplinkId: 'verida-auth-client-deeplink',
             request: {}
         }, config)
         this.modal = modal
 
-        const decryptedSignature = store.get(VERIDA_USER_SIGNATURE);
-        if (decryptedSignature) {
-            this.config.callback(decryptedSignature)
-        }
         const symKeyBytes = this.symKeyBytes = EncryptionUtils.randomKey(32)
 
         this.ws = new WebSocket(config.serverUri)
@@ -42,7 +35,7 @@ export default class AuthClientOld {
                 request: encryptedRequest
             }
 
-            client.ws.send(JSON.stringify({ type: 'generateJwt', appName: config.appName, payload }))
+            client.ws.send(JSON.stringify({ type: 'generateJwt', context: config.context, payload }))
         }
 
         this.ws.onerror = this.error
@@ -88,15 +81,10 @@ export default class AuthClientOld {
             case 'auth-client-response':
                 const key = this.symKeyBytes!
                 const checkedValue: HTMLElement | any = document.getElementById('verida-checked');
-
-
                 const decrypted = EncryptionUtils.symDecrypt(response.message, key)
-                if (checkedValue.checked) {
-                    store.set(VERIDA_USER_SIGNATURE, decrypted)
-                }
 
                 this.modal.style.display = 'none'
-                this.config.callback(decrypted)
+                this.config.callback(decrypted, checkedValue.checked)
                 return
         }
 
@@ -108,7 +96,7 @@ export default class AuthClientOld {
     }
 
     generateQueryParams(didJwt: string) {
-        const symKeyHex = "0x" + Buffer.from(this.symKeyBytes).toString("hex")
+        const symKeyHex = "0x" + Buffer.from(this.symKeyBytes!).toString("hex")
 
         // note: can't use `key` as a parameter as its a reserved word in react native
         // instead use `_k` (key) and `_r` (request)

@@ -8,4 +8,14 @@ export default {
     CONTEXT_NAME: 'My Test Application',
     DATABASE_SERVER: 'https://db.testnet.verida.io:5002/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
     MESSAGE_SERVER: 'https://db.testnet.verida.io:5002/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
+    DEFAULT_ENDPOINTS: {
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: 'https://db.testnet.verida.io:5002/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaMessage',
+            endpointUri: 'https://db.testnet.verida.io:5002/'
+        },
+    }
 }

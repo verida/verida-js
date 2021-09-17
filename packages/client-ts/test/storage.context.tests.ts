@@ -12,18 +12,10 @@ const TEST_DB_NAME = 'TestDb'
 /**
  * 
  */
-describe('Storage initialization tests', () => {
+describe('Storage context tests', () => {
     let ceramic, context
 
     const client = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
@@ -31,7 +23,11 @@ describe('Storage initialization tests', () => {
         this.timeout(100000)
 
         it(`can open a user storage context when authenticated`, async function() {
-            const account = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
+            const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             await client.connect(account)
             const ceramic = await account.getCeramic()
 

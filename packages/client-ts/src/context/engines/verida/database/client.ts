@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import AccountInterface from '../../../../account-interface'
+import { Account } from '@verida/account'
 
 interface RemoteClientAuthentication {
     username: string,
@@ -12,14 +12,14 @@ export default class DatastoreServerClient {
 
     private storageContext: string
     private authentication?: RemoteClientAuthentication
-    private account?: AccountInterface
+    private account?: Account
 
     constructor(storageContext: string, serverUrl: string) {
         this.storageContext = storageContext
         this.serverUrl = serverUrl
     }
 
-    public async setAccount(account: AccountInterface) {
+    public async setAccount(account: Account) {
         this.account = account
         const did = await account.did()
         const keyring = await account.keyring(this.storageContext)

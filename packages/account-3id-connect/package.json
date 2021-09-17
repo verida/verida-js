@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@3id/connect": "^0.2.0",
+    "@verida/account": "*",
     "@ceramicnetwork/3id-did-resolver": "^1.4.0",
     "@ceramicnetwork/http-client": "^1.2.0",
     "@ceramicstudio/idx": "^0.12.1",

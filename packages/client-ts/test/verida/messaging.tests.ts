@@ -20,37 +20,21 @@ const MESSAGE_DATA = {
     }]
 }
 
-const CONTEXT_1 = "Verida Testing: Test App 1"
-const CONTEXT_2 = "Verida Testing: Test App 2"
+const CONTEXT_1 = "Verida Testing: App 1"
+const CONTEXT_2 = "Verida Testing: App 2"
 
 /**
  * 
  */
-describe('Messaging tests', () => {
+describe('Verida messaging tests', () => {
     let context1, did1
     let context2, did2
 
     const client1 = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
     const client2 = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
@@ -59,13 +43,21 @@ describe('Messaging tests', () => {
         
         it('can send a message between users of the same application', async function() {
             // Initialize account 1
-            const account1 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
+            const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             did1 = await account1.did()
             await client1.connect(account1)
             context1 = await client1.openContext(CONTEXT_1, true)
 
             // Initialize account 2
-            const account2 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2, CONFIG.CERAMIC_URL)
+            const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             did2 = await account2.did()
             await client2.connect(account2)
             context2 = await client2.openContext(CONTEXT_1, true)
@@ -86,11 +78,17 @@ describe('Messaging tests', () => {
                 recipientContextName: CONTEXT_1
             })
 
+            const messages1 = await messaging1.getMessages()
+            const messages2 = await messaging2.getMessages()
+
             assert.ok(result && result.id, "Message send returned a valid result object")
         })
 
         it('can receive a message', async function() {
-            const messaging = await context2.getMessaging()
+            // Create a new context so we don't reuse the same `inbox` instance
+            const newContext = await client2.openContext(CONTEXT_1, true)
+            const messaging = await newContext.getMessaging()
+            await messaging.init()
             const messages = await messaging.getMessages()
 
             assert.ok(messages.length, "At least one message exists")

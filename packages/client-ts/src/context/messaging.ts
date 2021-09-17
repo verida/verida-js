@@ -1,4 +1,4 @@
-import AccountInterface from '../account-interface'
+import { Account } from '@verida/account'
 import { MessageSendConfig } from "./interfaces"
 
 export default interface Messaging {
@@ -34,7 +34,7 @@ export default interface Messaging {
      * @param filter object An optional datastore filter
      * @param options object An optional list of datastore options
      */
-    getMessages(filter: object, options: any): Promise<any>
+    getMessages(filter?: object, options?: any): Promise<any>
 
     /**
      * Get the underlying inbox instance specific for the message storage type.
@@ -48,8 +48,8 @@ export default interface Messaging {
      * 
      * Used internally.
      * 
-     * @param account AccountInterface
+     * @param account Account
      */
-    connectAccount(account: AccountInterface): Promise<void>
+    connectAccount(account: Account): Promise<void>
 
 }

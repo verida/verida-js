@@ -1,4 +1,4 @@
-import AccountInterface from '../../account-interface'
+import { Account } from '@verida/account'
 import { Keyring } from '@verida/keyring'
 import { DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
 import Database from '../database'
@@ -10,7 +10,7 @@ export default class BaseStorageEngine {
     protected storageContext: string
     protected endpointUri: string
 
-    protected account?: AccountInterface
+    protected account?: Account
     protected keyring?: Keyring
 
     constructor(storageContext: string, endpointUri: string) {
@@ -18,7 +18,7 @@ export default class BaseStorageEngine {
         this.endpointUri = endpointUri
     }
 
-    public async connectAccount(account: AccountInterface) {
+    public async connectAccount(account: Account) {
         this.account = account
         this.keyring = await account.keyring(this.storageContext)
     }

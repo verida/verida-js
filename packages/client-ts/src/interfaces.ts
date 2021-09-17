@@ -1,5 +1,5 @@
 import { Interfaces } from '@verida/storage-link'
-import AccountInterface from './account-interface'
+import { Account } from '@verida/account'
 import BaseStorageEngine from './context/engines/base'
 
 export enum ClientEnvironment {
@@ -24,10 +24,6 @@ export interface ClientConfig {
      */
     ceramicUrl?: string
 
-    // @todo: deprecate
-    defaultDatabaseServer?: Interfaces.SecureContextEndpoint,
-    defaultMessageServer?: Interfaces.SecureContextEndpoint,
-
     /**
      * Specify custom schema paths (typicaly for local development).
      */
@@ -42,7 +38,7 @@ export interface ContextConfig {
 export interface NetworkConnectionConfig {
     client: ClientConfig,
     context: ContextConfig
-    account: AccountInterface
+    account: Account
 }
 
 /**

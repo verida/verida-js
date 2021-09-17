@@ -1,5 +1,5 @@
 {
-  "name": "@verida/account-node",
+  "name": "@verida/account",
   "version": "0.1.8",
   "main": "dist/index.js",
   "license": "ISC",
@@ -17,12 +17,13 @@
     "node": "^12.0.0"
   },
   "dependencies": {
-    "@ceramicnetwork/http-client": "^1.2.0",
-    "@verida/account": "*",
-    "@verida/keyring": "^0.1.8"
+    "@verida/storage-link": "*",
+    "@verida/keyring": "*",
+    "did-jwt": "^5.7.0",
+    "lodash": "^4.17.21",
+    "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {
-    "did-jwt": "^5.7.0",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
