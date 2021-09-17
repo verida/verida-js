@@ -1,6 +1,6 @@
 {
   "name": "@verida/account-3id-connect",
-  "version": "0.1.8",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "@3id/connect": "^0.2.0",
-    "@verida/account": "*",
     "@ceramicnetwork/3id-did-resolver": "^1.4.0",
     "@ceramicnetwork/http-client": "^1.2.0",
     "@ceramicstudio/idx": "^0.12.1",
-    "@verida/keyring": "^0.1.8",
+    "@verida/account": "^1.0.0",
+    "@verida/keyring": "^1.0.0",
     "dids": "^2.4.0",
     "lodash": "^4.17.21",
     "web3modal": "^1.9.4"

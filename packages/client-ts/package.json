@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "0.1.9",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.2.0",
-    "@verida/encryption-utils": "^0.2.5",
-    "@verida/keyring": "^0.1.8",
-    "@verida/storage-link": "^0.1.9",
+    "@verida/encryption-utils": "^1.0.0",
+    "@verida/keyring": "^1.0.0",
+    "@verida/storage-link": "^1.0.0",
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "bs58": "^4.0.1",
