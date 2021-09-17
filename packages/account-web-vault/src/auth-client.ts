@@ -2,9 +2,6 @@ import { AuthClientConfig, AuthResponse } from "./interfaces"
 import EncryptionUtils from "@verida/encryption-utils"
 import QrCode from 'qrcode-with-logos'
 const _ = require("lodash")
-const store = require('store')
-
-const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 
 export default class AuthClient {
 
@@ -22,11 +19,6 @@ export default class AuthClient {
         }, config)
         this.modal = modal
 
-        const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${config.context}`)
-        if (authContext) {
-            this.config.callback(authContext)
-            return
-        }
         const symKeyBytes = this.symKeyBytes = EncryptionUtils.randomKey(32)
 
         this.ws = new WebSocket(config.serverUri)
@@ -89,16 +81,10 @@ export default class AuthClient {
             case 'auth-client-response':
                 const key = this.symKeyBytes!
                 const checkedValue: HTMLElement | any = document.getElementById('verida-checked');
-
-
                 const decrypted = EncryptionUtils.symDecrypt(response.message, key)
 
-                if (checkedValue.checked) {
-                    store.set(`${VERIDA_AUTH_CONTEXT}/${this.config.context}`, decrypted)
-                }
-
                 this.modal.style.display = 'none'
-                this.config.callback(decrypted)
+                this.config.callback(decrypted, checkedValue.checked)
                 return
         }
 

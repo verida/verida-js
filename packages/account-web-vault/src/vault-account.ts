@@ -5,8 +5,7 @@ import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
 const _ = require('lodash')
 const store = require('store')
-
-const VERIDA_USER_SIGNATURE = '_verida_auth_user_signature'
+const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 
 import { VaultModalLoginConfig } from "./interfaces"
 
@@ -32,15 +31,26 @@ export default class VaultAccount extends Account {
     public async connectContext(contextName: string) {
         const vaultAccount = this
         const loginConfig = this.config
-        const promise = new Promise<void>((resolve, reject) => {
-            const cb = async (response: any) => {
-                vaultAccount.setDid(response.did)
-                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
 
-                if (typeof(config!.callback) === "function") {
-                    config!.callback(response)
+        const contextConfig = await this.loadFromSession(contextName)
+        if (contextConfig) {
+            return contextConfig
+        }
+
+        const promise = new Promise<void>((resolve, reject) => {
+            const cb = async (response: any, saveSession: boolean) => {
+                if (saveSession) {
+                    let storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+                    if (!storedSessions) {
+                        storedSessions = {}
+                    }
+
+                    storedSessions[contextName] = response
+                    store.set(VERIDA_AUTH_CONTEXT, storedSessions)
                 }
 
+                this.setDid(response.did)
+                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
                 resolve()
             }
 
@@ -54,6 +64,25 @@ export default class VaultAccount extends Account {
         return promise
     }
 
+    public async loadFromSession(contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
+        const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+
+        if (!storedSessions || !storedSessions[contextName]) {
+            return
+        }
+
+        const response = storedSessions[contextName]
+
+        this.setDid(response.did)
+        this.addContext(response.context, response.contextConfig, new Keyring(response.signature))
+
+        if (typeof(this.config!.callback) === "function") {
+            this.config!.callback(response)
+        }
+
+        return response.contextConfig
+    }
+
     public async keyring(contextName: string): Promise<Keyring> {
         if (typeof(this.contextCache[contextName]) == 'undefined') {
             throw new Error(`Unable to connect to requested context: ${contextName}`)
@@ -62,7 +91,7 @@ export default class VaultAccount extends Account {
         return this.contextCache[contextName].keyring
     }
 
-    public async addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring) {
+    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring) {
         this.contextCache[contextName] = {
             keyring,
             contextConfig
@@ -70,13 +99,16 @@ export default class VaultAccount extends Account {
     }
 
     public async storageConfig(contextName: string, forceCreate: boolean = false): Promise<Interfaces.SecureContextConfig | undefined> {
-        if (typeof(this.contextCache[contextName]) !== 'undefined') {
+        if (this.contextCache[contextName]) {
             return this.contextCache[contextName].contextConfig
         }
 
         if (forceCreate) {
             await this.connectContext(contextName)
-            return this.storageConfig(contextName)
+
+            if (this.contextCache[contextName]) {
+                return this.contextCache[contextName].contextConfig
+            }
         }
     }
 
@@ -114,8 +146,9 @@ export default class VaultAccount extends Account {
         throw new Error("Getting ceramic instance is not supported by Account Web Vault.")
     }
 
-    public async disconnect(): Promise<void> {
-        store.remove(VERIDA_USER_SIGNATURE)
+    public async disconnect(contextName?: string): Promise<void> {
+        // @todo, support logging out just one
+        store.remove(VERIDA_AUTH_CONTEXT)
     }
 
 }
