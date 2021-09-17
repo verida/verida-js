@@ -1,5 +1,5 @@
 import CeramicClient from '@ceramicnetwork/http-client'
-import { Account } from '@verida/account'
+import { Account, AccountConfig } from '@verida/account'
 import { Interfaces, StorageLink } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
@@ -8,7 +8,7 @@ const store = require('store')
 
 const VERIDA_USER_SIGNATURE = '_verida_auth_user_signature'
 
-import { VaultAccountConfig, VaultModalLoginConfig } from "./interfaces"
+import { VaultModalLoginConfig } from "./interfaces"
 
 const CONFIG_DEFAULTS = {
     loginUri: 'https://vault.verida.io/request',
@@ -19,34 +19,32 @@ const CONFIG_DEFAULTS = {
  * An Authenticator that requests for authorization from the Vault
  */
 export default class VaultAccount extends Account {
-    private config: VaultAccountConfig
+    private config: VaultModalLoginConfig
 
     private accountDid?: string
     private contextCache: any = {}
 
-    constructor(config: VaultAccountConfig) {
+    constructor(loginConfig: VaultModalLoginConfig) {
         super()
-        this.config = _.merge({
-            vaultConfig: {}
-        }, config)
+        this.config = loginConfig
     }
 
     public async connectContext(contextName: string) {
         const vaultAccount = this
+        const loginConfig = this.config
         const promise = new Promise<void>((resolve, reject) => {
-            const vaultConfig = this.config.vaultConfig
             const cb = async (response: any) => {
                 vaultAccount.setDid(response.did)
                 vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
 
-                if (typeof(vaultConfig!.callback) === "function") {
-                    vaultConfig!.callback(response)
+                if (typeof(config!.callback) === "function") {
+                    config!.callback(response)
                 }
 
                 resolve()
             }
 
-            const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, this.config.vaultConfig, {
+            const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, loginConfig, {
                 callback: cb
             })
 

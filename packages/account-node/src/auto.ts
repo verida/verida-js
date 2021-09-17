@@ -24,8 +24,11 @@ export default class AutoAccount extends Account {
 
     private ceramic?: CeramicClient
 
+    protected accountConfig: AccountConfig
+
     constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
-        super(accountConfig)
+        super()
+        this.accountConfig = accountConfig
         this.utils = new Utils(autoConfig.ceramicUrl)
         this.chain = autoConfig.chain
         this.privateKey = autoConfig.privateKey

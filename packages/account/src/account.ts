@@ -11,12 +11,6 @@ const _ = require('lodash')
  */
 export default class Account {
 
-    protected accountConfig: AccountConfig
-
-    constructor(config: AccountConfig) {
-        this.accountConfig = config
-    }
-
     /**
      * Generate a keyring for this user for a given storage context.
      * 
