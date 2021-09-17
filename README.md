@@ -24,6 +24,16 @@ These are helper packages that typically aren't used directly:
 
 ## Developer Notes
 
+### Node Version
+
+This requires **node v12.20.0** to build. We use [nvm](https://github.com/nvm-sh/nvm) to manage this:
+
+```
+nvm install v12.20.0
+nvm use v12.20.0
+```
+
+
 ### Linking dependencies
 
 It's not possible to add dependencies between monorepo packages using yarn (ie: `yarn add @verida/3id-utils-node`) if that package hasn't been published to `npm`.
@@ -33,7 +43,28 @@ Unpublished dependencies betwen monorepo packages can be linked by:
 - Manually adding the expected dependency to `package.json` (ie: `@verida/3id-utils-node`)
 - Run `npx lerna bootstrap` in the root directory of this project
 
-### Creating a release
+### Building
+
+General process:
+* `cd package/package-name` (ie, the package names listed below)
+* `yarn`
+* `yarn build`
+* `yarn link`
+
+Need to build the packages in this order:
+
+1. encryption-utils 
+2. keyring
+3. 3id-utils-node
+4. storage-link
+5. account
+6. account-node
+7. account-3id-connect
+8. account-web-vault
+9. client-ts
+
+
+## Creating a release
 
 ```
 $ npx lerna publish
