@@ -29,6 +29,7 @@ const CONTEXT_2 = "Verida Testing: App 2"
 describe('Verida messaging tests', () => {
     let context1, did1
     let context2, did2
+    let context3
 
     const client1 = new Client({
         ceramicUrl: CONFIG.CERAMIC_URL
@@ -84,7 +85,7 @@ describe('Verida messaging tests', () => {
             assert.ok(result && result.id, "Message send returned a valid result object")
         })
 
-        it('can receive a message', async function() {
+        it('can receive a message from a user of the same application', async function() {
             // Create a new context so we don't reuse the same `inbox` instance
             const newContext = await client2.openContext(CONTEXT_1, true)
             const messaging = await newContext.getMessaging()
@@ -123,6 +124,42 @@ describe('Verida messaging tests', () => {
                     finish().then(rejects, resolve)
                 })
             })
+        })
+
+        it('can send a message between users of different applications', async function() {
+            // Initialize account 2 with a second context
+            context3 = await client2.openContext(CONTEXT_2, true)
+
+            // Initialize messaging for both accounts
+            const messaging1 = await context1.getMessaging()
+            await messaging1.init()
+            const messaging2 = await context2.getMessaging()
+            await messaging2.init()
+
+            // Delete any existing inbox messages for the recipient
+            const inbox = await messaging2.getInbox()
+            const inboxDs = await inbox.getInboxDatastore()
+            await inboxDs.deleteAll()
+
+            // Send a message from DID1 to DID2
+            const result = await messaging1.send(did2, 'inbox/type/dataSend', MESSAGE_DATA, 'Test message', {
+                recipientContextName: CONTEXT_2
+            })
+
+            const messages1 = await messaging1.getMessages()
+            const messages2 = await messaging2.getMessages()
+
+            assert.ok(result && result.id, "Message send returned a valid result object")
+        })
+
+        it('can receive a message from a user of a different application', async function() {
+            // Create a new context so we don't reuse the same `inbox` instance
+            const newContext = await client2.openContext(CONTEXT_2, true)
+            const messaging = await newContext.getMessaging()
+            await messaging.init()
+            const messages = await messaging.getMessages()
+
+            assert.ok(messages.length, "At least one message exists")
         })
     })
 
