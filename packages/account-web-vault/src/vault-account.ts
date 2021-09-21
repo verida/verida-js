@@ -26,6 +26,9 @@ export default class VaultAccount extends Account {
     constructor(config: VaultAccountConfig) {
         super()
         this.config = config
+        if (!this.config.vaultConfig) {
+            this.config.vaultConfig = {}
+        }
     }
 
     public async connectContext(contextName: string) {
