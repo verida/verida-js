@@ -145,19 +145,19 @@ export default class Keyring {
         return this.seed
     }
 
-    public async getStorageContextKey(contextName: string) {
-        if (this.storageContextKeys[contextName]) {
-            return this.storageContextKeys[contextName]
+    public async getStorageContextKey(databaseName: string) {
+        if (this.storageContextKeys[databaseName]) {
+            return this.storageContextKeys[databaseName]
         }
 
         // Sign a consent message using the current db signing key
-        const consent = `Authorized to own database: ${contextName}`
+        const consent = `Authorized to own database: ${databaseName}`
         const signature = await this.sign(consent);
         
         // Create a deterministic symmetric key for this database
-        this.storageContextKeys[contextName] = await this.buildKey(signature, KeyringKeyType.SYM)
+        this.storageContextKeys[databaseName] = await this.buildKey(signature, KeyringKeyType.SYM)
 
-        return this.storageContextKeys[contextName];
+        return this.storageContextKeys[databaseName];
     }
 
 }

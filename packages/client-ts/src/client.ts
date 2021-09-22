@@ -32,13 +32,14 @@ export default class Client {
     private did?: string
 
     private environment: string
+    private defaultContext?: Context
 
     /**
      * Create a client connection to the Verida network
      * 
      * @param userConfig ClientConfig Configuration for establishing a connection to the Verida network
      */
-    constructor(userConfig: ClientConfig) {
+    constructor(userConfig: ClientConfig = {}) {
         this.environment = userConfig.environment ? userConfig.environment : DEFAULT_CONFIG.environment
 
         const defaultConfig = DEFAULT_CONFIG.environments[this.environment] ? DEFAULT_CONFIG.environments[this.environment] : {}
@@ -122,7 +123,7 @@ export default class Client {
         }
 
         // @todo cache the storage contexts
-        return new Context(this, contextName, this.didContextManager)
+        return new Context(this, contextName, this.didContextManager, this.account)
     }
 
     /**

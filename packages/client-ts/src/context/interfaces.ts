@@ -1,3 +1,4 @@
+import { Context } from "..";
 
 export interface DatabaseOpenConfig {
     /**
@@ -45,6 +46,16 @@ export interface DatabaseOpenConfig {
      * Create an application context if it doesn't already exist for the connected account.
      */
     createContext?: boolean
+
+    /**
+     * Optionally specify an external context to open
+     */
+    contextName?: string
+
+    /**
+     * Optionally specify the context used to sign data
+     */
+    signingContext?: Context
 }
 
 // @todo: Same as DatabaseOpenConfig
@@ -56,7 +67,8 @@ export interface DatastoreOpenConfig {
     encryptionKey?: string,
     databaseName?: string,
     createContext?: boolean,
-    external?: boolean
+    external?: boolean,
+    contextName?: string
 }
 
 export interface MessagesConfig {

@@ -62,7 +62,7 @@ export default class Context {
         this.account = account
     }
 
-    public async getContextConfig(did?: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig> {
+    public async getContextConfig(did?: string, forceCreate?: boolean, customContextName?: string): Promise<Interfaces.SecureContextConfig> {
         if (!did) {
             if (!this.account) {
                 throw new Error('No DID specified and no authenticated user')
@@ -71,7 +71,7 @@ export default class Context {
             did = await this.account.did()
         }
 
-        return this.didContextManager.getDIDContextConfig(did!, this.contextName, forceCreate)
+        return this.didContextManager.getDIDContextConfig(did!, customContextName ? customContextName : this.contextName, forceCreate)
     }
 
     public getContextName(): string {
@@ -189,7 +189,13 @@ export default class Context {
         }
 
         const accountDid = await this.account!.did()
-        const databaseEngine = await this.getDatabaseEngine(accountDid, config.createContext!)
+        // PROBLEM: Trying to get database engine for the current user, not the requesting user
+        const databaseEngine = await this.getDatabaseEngine(config.did ? config.did : accountDid, config.createContext!)
+
+        if (!config.signingContext) {
+            config.signingContext = this
+        }
+
         return databaseEngine.openDatabase(databaseName, config)
     }
 
@@ -202,13 +208,28 @@ export default class Context {
      * @returns 
      */
     public async openExternalDatabase(databaseName: string, did: string, config: DatabaseOpenConfig = {}): Promise<Database> {
-        const databaseEngine = await this.getDatabaseEngine(did)
-        const contextConfig = await this.getContextConfig(did)
+        let contextConfig
+        if (!config.dsn) {
+            contextConfig = await this.getContextConfig(did, false, config.contextName ? config.contextName : this.contextName)
+            config.dsn = contextConfig.services.databaseServer.endpointUri
+        }
 
         config = _.merge({
             did,
-            dsn: contextConfig.services.databaseServer.endpointUri
+            signingContext: this
         }, config)
+
+        if (config.contextName && config.contextName != this.contextName) {
+            // We are opening a database for a different context.
+            // Open the new context
+            const client = this.getClient()
+            const context = await client.openExternalContext(config.contextName!, did)
+            config.signingContext = this
+
+            return context!.openDatabase(databaseName, config)
+        }
+
+        const databaseEngine = await this.getDatabaseEngine(did)
 
         return databaseEngine.openDatabase(databaseName, config)
     }
@@ -238,11 +259,11 @@ export default class Context {
      * @returns 
      */
     public async openExternalDatastore(schemaUri: string, did: string, options: DatastoreOpenConfig = {}): Promise<Datastore> {
-        const contextConfig = await this.getContextConfig(did)
+        //const contextConfig = await this.getContextConfig(did, false)
 
         options = _.merge({
             did,
-            dsn: contextConfig.services.databaseServer.endpointUri,
+            //dsn: contextConfig.services.databaseServer.endpointUri,
             external: true
         }, options)
 

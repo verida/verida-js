@@ -24,31 +24,39 @@ export default class StorageEngineVerida extends BaseStorageEngine {
     }
 
     public async connectAccount(account: Account) {
-        super.connectAccount(account)
-
-        this.accountDid = await this.account!.did()
-        await this.client.setAccount(account)
-
-        // Fetch user details from server
-        let response
         try {
-            response = await this.client.getUser(this.accountDid!)
-        } catch (err: any) {
-            if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
-                // User doesn't exist, so create them
-                response = await this.client.createUser()
-            }
-            else if (err.response && err.response.statusText == "Unauthorized") {
-                throw new Error("Invalid signature or permission to access DID server");
-            }
-            else {
-                // Unknown error
-                throw err;
-            }
-        }
+            await super.connectAccount(account)
 
-        const user = response.data.user;
-        this.dsn = user.dsn
+            await this.client.setAccount(account)
+            this.accountDid = await this.account!.did()
+
+            // Fetch user details from server
+            let response
+            try {
+                response = await this.client.getUser(this.accountDid!)
+            } catch (err: any) {
+                if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
+                    // User doesn't exist, so create them
+                    console.log("user didn't exist, creating")
+                    response = await this.client.createUser()
+                    console.log("created, data = ", response.data)
+                }
+                else if (err.response && err.response.statusText == "Unauthorized") {
+                    throw new Error("Invalid signature or permission to access DID server");
+                }
+                else {
+                    // Unknown error
+                    throw err;
+                }
+            }
+
+            const user = response.data.user;
+            this.dsn = user.dsn
+        } catch (err: any) {
+            // Connecting the account may fail.
+            // For example, the user is connect via `account-web-vault` and doesn't have
+            // a keyring for the context associated with this storage engine
+        }
     }
 
     /**
@@ -142,10 +150,9 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 databaseName,
                 did,
                 storageContext: this.storageContext,
+                signContext: options.signingContext!,
                 dsn,
                 permissions: config.permissions,
-                keyring: this.keyring,
-                signDid: this.accountDid,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
@@ -169,11 +176,10 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             const db = new PublicDatabase({
                 databaseName,
                 did,
-                storageContext: this.storageContext,
                 dsn,
+                storageContext: this.storageContext,
+                signContext: options.signingContext!,
                 permissions: config.permissions,
-                keyring: this.keyring,
-                signDid: this.accountDid,
                 readOnly: config.readOnly,
                 client: this.client,
                 isOwner: config.isOwner
@@ -213,10 +219,9 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 databaseName,
                 did,
                 storageContext: this.storageContext,
+                signContext: options.signingContext!,
                 dsn,
                 permissions: config.permissions,
-                keyring: this.keyring,
-                signDid: this.accountDid,
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,

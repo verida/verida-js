@@ -16,7 +16,6 @@ export default class Datastore {
     protected schema?: any
 
     protected context: Context
-    protected storageContext: string
     protected config: DatastoreOpenConfig
 
     private db: any
@@ -38,7 +37,6 @@ export default class Datastore {
     constructor(schemaName: string, context: Context, config: DatastoreOpenConfig = {}) {
         this.schemaName = schemaName
         this.context = context
-        this.storageContext = context.getContextName()
         this.config = config
         
         this.db = null
@@ -204,14 +202,10 @@ export default class Datastore {
         const dbName = this.config.databaseName ? this.config.databaseName : schemaJson.database.name
         this.schemaPath = this.schema.path
 
-        let config = _.merge({
-            storageContext: this.storageContext
-        }, this.config)
-
         if (this.config.external) {
-            this.db = await this.context.openExternalDatabase(dbName, this.config.did!, config)
+            this.db = await this.context.openExternalDatabase(dbName, this.config.did!, this.config)
         } else {
-            this.db = await this.context.openDatabase(dbName, config)   
+            this.db = await this.context.openDatabase(dbName, this.config)   
         }
         let indexes = schemaJson.database.indexes
 

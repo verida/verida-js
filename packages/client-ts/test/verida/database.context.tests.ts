@@ -8,11 +8,7 @@ import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
-const DB_NAME_OWNER = 'OwnerTestDb_'
-const DB_NAME_USER = 'UserTestDb_'
-const DB_NAME_PUBLIC = 'PublicTestDb_'
-const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_'
-const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_'
+const DB_NAME_PUBLIC_WRITE = 'ContextPublicWriteTestDb'
 
 const CONTEXT_1 = "Verida Testing: App 1"
 const CONTEXT_2 = "Verida Testing: App 2"
@@ -82,7 +78,8 @@ describe('Verida database tests relating to contexts', () => {
                 permissions: {
                     read: 'public',
                     write: 'public'
-                }
+                },
+                contextName: CONTEXT_1
             })
 
             assert.ok(database && database.constructor.name == 'PublicDatabase', 'Valid database instance returned')
@@ -95,7 +92,8 @@ describe('Verida database tests relating to contexts', () => {
                 permissions: {
                     read: 'public',
                     write: 'public'
-                }
+                },
+                contextName: CONTEXT_1
             })
 
             const result = await database.save({'write': 'from external DID'})

@@ -16,7 +16,7 @@ const ETH_PRIVATE_KEY = wallet.privateKey
  * WARNING: These tests create a new 3ID and storage context everytime they run!
  */
 describe('Storage initialization tests', () => {
-    let ceramic
+    let ceramic, did
     const network = new Client({
         ceramicUrl: CONFIG.CERAMIC_URL
     })
@@ -41,7 +41,7 @@ describe('Storage initialization tests', () => {
             })
             ceramic = await account.getCeramic()
 
-            const did = account.did()
+            did = await account.did()
             const seed = account.keyring(CONFIG.CONTEXT_NAME)
 
             assert.ok(did)
@@ -59,7 +59,7 @@ describe('Storage initialization tests', () => {
             })
             const result = await promise
 
-            assert.deepEqual(result, new Error(`Unable to locate requested storage context for this DID -- Storage context doesn't exist (try force create?)`))
+            assert.deepEqual(result, new Error(`Unable to locate requested storage context (${CONFIG.CONTEXT_NAME}) for this DID (${did}) -- Storage context doesn't exist (try force create?)`))
         })
 
         it(`can force open a user storage context that doesn't exist when authenticated`, async function() {
