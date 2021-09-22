@@ -36,7 +36,7 @@ export interface ContextConfig {
 }
 
 export interface NetworkConnectionConfig {
-    client: ClientConfig,
+    client?: ClientConfig,
     context: ContextConfig
     account: Account
 }
