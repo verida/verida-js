@@ -60,8 +60,8 @@ export default class VeridaInbox extends EventEmitter {
         try {
             jwt = await this.keyring.asymDecrypt(inboxItem.content, sharedKeyEnd)
         } catch (err) {
-            console.error("Unable to decrypt inbox item:")
-            console.error(err)
+            //console.error("Unable to decrypt inbox item")
+            //console.log(this.context, inboxItem.key, publicKeyBytes)
             return
         }
 
@@ -188,7 +188,7 @@ export default class VeridaInbox extends EventEmitter {
                 write: PermissionOptionsEnum.PUBLIC
             }
         })
-        
+
         this.privateInbox = await this.context.openDatastore("https://schemas.verida.io/inbox/entry/schema.json", {
             permissions: {
                 read: PermissionOptionsEnum.OWNER,

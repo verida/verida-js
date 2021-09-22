@@ -6,7 +6,7 @@ import Datastore from "../../../datastore"
 import { MessageSendConfig, PermissionOptionsEnum } from "../../../interfaces"
 const bs58 = require('bs58')
 import DIDContextManager from '../../../../did-context-manager'
-import Client from '../../../../client'
+import Context from "../../../context"
 
 const VAULT_CONTEXT_NAME = 'Verida: Vault'
 
@@ -16,17 +16,17 @@ export default class VeridaOutbox {
     private contextName: string
     private keyring: Keyring
     private outboxDatastore: Datastore
-    private client: Client
+    private context: Context
     private didContextManager: DIDContextManager
 
     private inboxes: any            // @todo, proper typing
 
-    constructor(contextName: string, accountDid: string, keyring: Keyring, outboxDatastore: Datastore, client: Client, didContextManager: DIDContextManager) {
+    constructor(contextName: string, accountDid: string, keyring: Keyring, outboxDatastore: Datastore, context: Context, didContextManager: DIDContextManager) {
         this.contextName = contextName
         this.accountDid = accountDid
         this.keyring = keyring
         this.outboxDatastore = outboxDatastore
-        this.client = client
+        this.context = context
         this.didContextManager = didContextManager
 
         this.inboxes = {}
@@ -171,14 +171,12 @@ export default class VeridaOutbox {
         /**
          * Open a database owned by any user
          */
-        const context = await this.client.openContext(config.recipientContextName!)
-        const inbox = await context?.openExternalDatastore("https://schemas.verida.io/inbox/item/schema.json", did, {
+        const inbox = await this.context!.openExternalDatastore("https://schemas.verida.io/inbox/item/schema.json", did, {
             permissions: {
                 read: PermissionOptionsEnum.PUBLIC,
                 write: PermissionOptionsEnum.PUBLIC
-            }
-            //signuser
-            //signappname
+            },
+            contextName: config.recipientContextName!
         })
 
         this.inboxes[cacheKey] = inbox

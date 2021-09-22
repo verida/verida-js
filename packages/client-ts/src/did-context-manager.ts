@@ -70,7 +70,12 @@ export default class DIDContextManager {
         if (this.account) {
             const accountDid = await this.account.did()
             if (accountDid == did) {
-                storageConfig = await this.account.storageConfig(contextName, forceCreate)
+                try {
+                    storageConfig = await this.account.storageConfig(contextName, forceCreate)
+                } catch {
+                    // account may not support context
+                    // @todo: create error instance for this specific type of error
+                }
             }
         }
         
@@ -83,7 +88,7 @@ export default class DIDContextManager {
                 throw new Error('Unable to force creation of storage context for this DID')
             }
             else {
-                throw new Error('Unable to locate requested storage context for this DID -- Storage context doesn\'t exist (try force create?)')
+                throw new Error(`Unable to locate requested storage context (${contextName}) for this DID (${did}) -- Storage context doesn\'t exist (try force create?)`)
             }
         }
 

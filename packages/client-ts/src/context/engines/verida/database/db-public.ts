@@ -32,10 +32,10 @@ export default class PublicDatabase extends BaseDb {
                     await this.createDb()
                 }
                 else {
-                    throw new Error(`Public database not found: ${databaseName}`)
+                    throw new Error(`P!ublic database not found: ${databaseName}`)
                 }
             }
-        } catch(err) {
+        } catch(err: any) {
             if (this.isOwner) {
                 await this.createDb()
             }

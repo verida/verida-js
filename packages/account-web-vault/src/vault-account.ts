@@ -7,7 +7,7 @@ const _ = require('lodash')
 const store = require('store')
 const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 
-import { VaultModalLoginConfig } from "./interfaces"
+import { VaultAccountConfig, VaultModalLoginConfig } from "./interfaces"
 
 const CONFIG_DEFAULTS = {
     loginUri: 'https://vault.verida.io/request',
@@ -18,14 +18,17 @@ const CONFIG_DEFAULTS = {
  * An Authenticator that requests for authorization from the Vault
  */
 export default class VaultAccount extends Account {
-    private config: VaultModalLoginConfig
+    private config: VaultAccountConfig
 
     private accountDid?: string
     private contextCache: any = {}
 
-    constructor(loginConfig: VaultModalLoginConfig) {
+    constructor(config: VaultAccountConfig) {
         super()
-        this.config = loginConfig
+        this.config = config
+        if (!this.config.vaultConfig) {
+            this.config.vaultConfig = {}
+        }
     }
 
     public async connectContext(contextName: string) {
@@ -54,7 +57,7 @@ export default class VaultAccount extends Account {
                 resolve()
             }
 
-            const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, loginConfig, {
+            const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, this.config.vaultConfig, {
                 callback: cb
             })
 
@@ -76,8 +79,8 @@ export default class VaultAccount extends Account {
         this.setDid(response.did)
         this.addContext(response.context, response.contextConfig, new Keyring(response.signature))
 
-        if (typeof(this.config!.callback) === "function") {
-            this.config!.callback(response)
+        if (typeof(this.config.vaultConfig!.callback) === "function") {
+            this.config.vaultConfig!.callback(response)
         }
 
         return response.contextConfig

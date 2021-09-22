@@ -1,6 +1,6 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
-const uuidv1 = require('uuid/v1')
+import { v1 as uuidv1 } from 'uuid'
 import * as jsSHA from "jssha"
 
 import { VeridaDatabaseConfig } from "./interfaces"
@@ -9,23 +9,21 @@ import { PermissionsConfig } from '../../../interfaces'
 import { StorageLink } from '@verida/storage-link'
 import DatastoreServerClient from "./client"
 import Utils from './utils'
-import { Keyring } from '@verida/keyring'
+import { Context } from '../../../..'
 
 export default class BaseDb extends EventEmitter implements Database {
 
     protected databaseName: string
     protected did: string
-    protected storageContext: string
     protected dsn: string
+    protected storageContext: string
 
-    protected keyring?: Keyring
     protected permissions?: PermissionsConfig
     protected isOwner?: boolean
 
-    protected signKeyring?: Keyring
-    protected signDid?: string
-    protected signContextName?: string
+    protected signContext: Context
     protected signData?: boolean
+    protected signContextName: string
 
     protected databaseHash: string
     
@@ -39,20 +37,17 @@ export default class BaseDb extends EventEmitter implements Database {
         this.client = config.client
         this.databaseName = config.databaseName
         this.did = config.did.toLocaleUpperCase()
-        this.storageContext = config.storageContext // used for signing
         this.dsn = config.dsn
-        this.isOwner = config.isOwner
+        this.storageContext = config.storageContext
 
-        // Keyring for the user will be the user who owns this database
-        // Will be null if the current user isn't the owner
-        // (ie: for a public / external database)
-        this.keyring = config.keyring
+        this.isOwner = config.isOwner
+        this.signContext = config.signContext
 
         // Signing user will be the logged in user
-        this.signDid = config.signDid
+        const account = this.signContext.getAccount()
 
         this.signData = config.signData === false ? false : true
-        this.signContextName = config.signContextName ? config.signContextName : this.storageContext
+        this.signContextName = this.signContext.getContextName()
 
         this.config = _.merge({}, config)
 
@@ -61,15 +56,15 @@ export default class BaseDb extends EventEmitter implements Database {
             write: "owner",
             readList: [],
             writeList: []
-        }, this.config.permissions ? this.config.permissions : {});
+        }, this.config.permissions ? this.config.permissions : {})
 
         this.readOnly = this.config.readOnly ? true : false;
 
-        this.databaseHash = this.buildDatabaseHash();
+        this.databaseHash = this.buildDatabaseHash()
         this.db = null;
     }
 
-    // DID + AppName + DB Name + readPerm + writePerm
+    // DID + context name + DB Name + readPerm + writePerm
     private buildDatabaseHash() {
         let text = [
             this.did,
@@ -382,21 +377,22 @@ export default class BaseDb extends EventEmitter implements Database {
      * @todo Think about signing data and versions / insertedAt etc.
      */
     protected async _signData(data: any) {
-        if (!this.keyring) {
-            throw new Error("Unable to sign data. No signing user specified.")
-        }
+        const account = this.signContext.getAccount()
+        const signDid = await account.did()
+        const keyring = await account.keyring(this.signContextName)
 
         if (!data.signatures) {
             data.signatures = {}
         }
 
-        const signContextHash = StorageLink.hash(`${this.signDid}/${this.signContextName}`)
-        const signKey = `${this.signDid}:${signContextHash}`
+    
+        const signContextHash = StorageLink.hash(`${signDid}/${this.signContextName}`)
+        const signKey = `${signDid}:${signContextHash}`
 
         let _data = _.merge({}, data)
         delete _data['signatures']
 
-        data.signatures[signKey] = await this.keyring.sign(_data)
+        data.signatures[signKey] = await keyring.sign(_data)
         return data
     }
 
