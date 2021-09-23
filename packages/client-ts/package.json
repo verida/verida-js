@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.2.0",
+    "@verida/account": "^1.0.1",
     "@verida/encryption-utils": "^1.0.0",
     "@verida/keyring": "^1.0.1",
     "@verida/storage-link": "^1.0.1",
