@@ -2971,9 +2971,9 @@ cross-spawn@^6.0.0:
     shebang-command "^1.2.0"
     which "^1.2.9"
 
-"crypto-pouch@https://github.com/tahpot/crypto-pouch.git#feature/support-key-import":
+"crypto-pouch@git+https://github.com/tahpot/crypto-pouch.git#feature/support-key-import":
   version "4.0.1"
-  resolved "https://github.com/tahpot/crypto-pouch.git#26b27159a8ea039a2ac9382945fe48ed7bc2ccd9"
+  resolved "git+https://github.com/tahpot/crypto-pouch.git#26b27159a8ea039a2ac9382945fe48ed7bc2ccd9"
   dependencies:
     garbados-crypt "^3.0.0-beta"
     transform-pouch "^2.0.0"
