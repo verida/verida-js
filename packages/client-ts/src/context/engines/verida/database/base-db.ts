@@ -271,16 +271,16 @@ export default class BaseDb extends EventEmitter implements Database {
     /**
      * Bind to changes to this database
      * 
-     * @param {functino} cb Callback function that fires when new data is received
+     * @param {function} cb Callback function that fires when new data is received
      */
-    public async changes(cb: Function) {
+    public async changes(cb: Function, options: any = {}) {
         await this.init()
         
-        const dbInstance = await this.db.getInstance()
-        dbInstance.changes({
+        const dbInstance = await this.db.getDb()
+        return dbInstance.changes(_.merge({
             since: 'now',
             live: true
-        }).on('change', async function(info: any) {
+        }, options)).on('change', async function(info: any) {
             cb(info)
         })
     }
