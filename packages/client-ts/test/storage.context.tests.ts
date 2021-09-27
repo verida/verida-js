@@ -7,7 +7,7 @@ import { StorageLink } from '@verida/storage-link'
 import CONFIG from './config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 
-const TEST_DB_NAME = 'TestDb'
+const TEST_DB_NAME = 'TestDb_1'
 
 /**
  * 

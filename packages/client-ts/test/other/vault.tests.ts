@@ -3,7 +3,6 @@ const assert = require('assert')
 
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
-import walletUtils from '@verida/wallet-utils'
 import CONFIG from '../config'
 
 const WALLET = {
@@ -29,26 +28,16 @@ describe('Basic vault tests', () => {
             const wallet = WALLET
             const { privateKey } = wallet
 
-            console.log("a")
             const client = new Client({
-                defaultDatabaseServer: {
-                    type: 'VeridaDatabase',
-                    endpointUri: CONFIG.DATABASE_SERVER // @todo: Change these to testnet
-                },
-                defaultMessageServer: {
-                    type: 'VeridaMessage',
-                    endpointUri: CONFIG.MESSAGE_SERVER // @todo: Change these to testnet
-                },
                 ceramicUrl: CONFIG.CERAMIC_URL
             })
 
-            console.log("b")
-            const account = new AutoAccount(wallet.chain, wallet.privateKey)
-            console.log("c")
+            const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: wallet.chain,
+                privateKey: wallet.privateKey
+            })
             await client.connect(account)
-            console.log("d")
             const context = client.openContext(VERIDA_CONTEXT_NAME, true)
-            console.log("e")
         })
 
         
