@@ -8,11 +8,11 @@ import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
-const DB_NAME_OWNER = 'OwnerTestDb_'
-const DB_NAME_USER = 'UserTestDb_'
-const DB_NAME_PUBLIC = 'PublicTestDb_'
-const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_'
-const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_'
+const DB_NAME_OWNER = 'OwnerTestDb_1'
+const DB_NAME_USER = 'UserTestDb_1'
+const DB_NAME_PUBLIC = 'PublicTestDb_1'
+const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_1'
+const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_1'
 
 /**
  * 

@@ -37,9 +37,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
             } catch (err: any) {
                 if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
                     // User doesn't exist, so create them
-                    console.log("user didn't exist, creating")
                     response = await this.client.createUser()
-                    console.log("created, data = ", response.data)
                 }
                 else if (err.response && err.response.statusText == "Unauthorized") {
                     throw new Error("Invalid signature or permission to access DID server");
