@@ -40,6 +40,7 @@ export default class MessagingEngineVerida implements BaseMessage {
     public async connectAccount(account: Account) {
         this.did = await account.did()
         this.keyring = await account.keyring(this.contextName)
+        await this.init()
     }
 
     /**
