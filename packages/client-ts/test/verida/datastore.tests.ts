@@ -12,32 +12,16 @@ const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
 /**
  * 
  */
-describe('Datastore tests', () => {
+describe('Verida datastore tests', () => {
     let context, did1
     let context2, did2
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
     const network2 = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
@@ -46,13 +30,21 @@ describe('Datastore tests', () => {
         
         it('can open a datastore with owner/owner permissions', async function() {
             // Initialize account 1
-            const account1 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
+            const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
 
             // Initialize account 3
-            const account2 = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY_2, CONFIG.CERAMIC_URL)
+            const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             did2 = await account2.did()
             await network2.connect(account2)
             context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)

@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "0.1.9",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,19 +18,21 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.2.0",
-    "@verida/encryption-utils": "^0.2.5",
-    "@verida/keyring": "^0.1.8",
-    "@verida/storage-link": "^0.1.9",
+    "@verida/account": "^1.0.1",
+    "@verida/encryption-utils": "^1.0.0",
+    "@verida/keyring": "^1.0.1",
+    "@verida/storage-link": "^1.0.1",
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "bs58": "^4.0.1",
-    "crypto-pouch": "https://github.com/tahpot/crypto-pouch.git#feature/support-key-import",
+    "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git#feature/support-key-import",
     "did-jwt": "^5.6.3",
     "json-schema-ref-parser": "^9.0.9",
     "json-schema-resolve-allof": "^1.5.0",
     "lodash": "^4.17.21",
     "pouchdb": "^7.2.2",
-    "pouchdb-find": "^7.2.2"
+    "pouchdb-find": "^7.2.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/pouchdb": "^6.4.0",

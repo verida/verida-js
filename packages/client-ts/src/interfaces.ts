@@ -1,12 +1,32 @@
 import { Interfaces } from '@verida/storage-link'
-import AccountInterface from './account-interface'
+import { Account } from '@verida/account'
 import BaseStorageEngine from './context/engines/base'
 
+export enum ClientEnvironment {
+    LOCAL = "local",
+    TESTNET = "testnet",
+    MAINNET = "mainnet"
+}
+
+/**
+ * Configuration for creating a new Client instance.
+ */
 export interface ClientConfig {
-    environment?: string
+    /**
+     * Environment to load by default.
+     * 
+     * Environment configuration can still be overriden by config items.
+     */
+    environment?: ClientEnvironment
+
+    /**
+     * URL of Ceramic node to use.
+     */
     ceramicUrl?: string
-    defaultDatabaseServer?: Interfaces.SecureContextEndpoint,
-    defaultMessageServer?: Interfaces.SecureContextEndpoint,
+
+    /**
+     * Specify custom schema paths (typicaly for local development).
+     */
     schemaPaths?: object
 }
 
@@ -16,19 +36,23 @@ export interface ContextConfig {
 }
 
 export interface NetworkConnectionConfig {
-    client: ClientConfig,
+    client?: ClientConfig,
     context: ContextConfig
-    account: AccountInterface
+    account: Account
 }
 
-// key = contextName
-// value = SecureStorageContextConfig
+/**
+ * key = contextName
+ * value = SecureStorageContextConfig
+ */
 export interface DIDContextConfigs {
     [key: string]: Interfaces.SecureContextConfig
 }
 
-// key = DID string
-// value = BaseStorageEngine
+/**
+ * key = DID string
+ * value = BaseStorageEngine
+ */
 export interface DatabaseEngines {
     [key: string]: BaseStorageEngine
 }

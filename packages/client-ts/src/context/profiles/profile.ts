@@ -21,7 +21,7 @@ export class Profile extends EventEmitter {
     private profileName: string
     private store?: Datastore
 
-    private isOwner: boolean
+    private writeAccess: boolean
     private isPrivate: boolean
     
     public errors: object
@@ -34,12 +34,12 @@ export class Profile extends EventEmitter {
        *
        * @constructor
        */
-    constructor (context: Context, did: string, profileName: string, isOwner: boolean, isPrivate: boolean = false) {
+    constructor (context: Context, did: string, profileName: string, writeAccess: boolean, isPrivate: boolean = false) {
       super()
       this.context = context
       this.profileName = profileName
       this.did = did
-      this.isOwner = isOwner
+      this.writeAccess = writeAccess
       this.isPrivate = isPrivate
       this.errors = []
     }
@@ -168,13 +168,14 @@ export class Profile extends EventEmitter {
             write: PermissionOptionsEnum.OWNER
           }
 
-          if (this.isOwner) {
+          if (this.writeAccess) {
             this.store = await this.context.openDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', {
               permissions,
             })
           } else {
             this.store = await this.context.openExternalDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', this.did, {
-              permissions
+              permissions,
+              readOnly: true
             })
           }
 

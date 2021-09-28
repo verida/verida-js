@@ -7,7 +7,10 @@ import { Wallet } from 'ethers'
 const wallet1 = Wallet.createRandom()
 const wallet2 = Wallet.createRandom()
 
-describe('Ethereum 3ID creation', () => {
+// null = use default (currently testnet)
+const CERAMIC_URL = null
+
+describe('3ID Node Utils', () => {
 
     describe('Identity creation and linking', function() {
         this.timeout(200000)
@@ -15,7 +18,7 @@ describe('Ethereum 3ID creation', () => {
             // Create two test Ethereum wallet
 
             // Instantiate utils
-            const utils = new Utils()
+            const utils = new Utils(CERAMIC_URL)
 
             // Create a new 3ID for the wallet
             const ceramic1 = await utils.createAccount('ethr', wallet1.privateKey)
@@ -32,7 +35,7 @@ describe('Ethereum 3ID creation', () => {
 
         it('can link a second account', async function() {
             // Instantiate utils
-            const utils = new Utils()
+            const utils = new Utils(CERAMIC_URL)
 
             // Get the 3ID for the existing account
             const ceramic1 = await utils.createAccount('ethr', wallet1.privateKey)

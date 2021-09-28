@@ -16,16 +16,8 @@ const ETH_PRIVATE_KEY = wallet.privateKey
  * WARNING: These tests create a new 3ID and storage context everytime they run!
  */
 describe('Storage initialization tests', () => {
-    let ceramic
+    let ceramic, did
     const network = new Client({
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: CONFIG.DATABASE_SERVER
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: CONFIG.MESSAGE_SERVER
-        },
         ceramicUrl: CONFIG.CERAMIC_URL
     })
 
@@ -42,10 +34,14 @@ describe('Storage initialization tests', () => {
         })
 
         it('can authenticate a user', async function() {
-            const account = new AutoAccount('ethr', ETH_PRIVATE_KEY, CONFIG.CERAMIC_URL)
+            const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                chain: 'ethr',
+                privateKey: ETH_PRIVATE_KEY,
+                ceramicUrl: CONFIG.CERAMIC_URL
+            })
             ceramic = await account.getCeramic()
 
-            const did = account.did()
+            did = await account.did()
             const seed = account.keyring(CONFIG.CONTEXT_NAME)
 
             assert.ok(did)
@@ -63,7 +59,7 @@ describe('Storage initialization tests', () => {
             })
             const result = await promise
 
-            assert.deepEqual(result, new Error(`Unable to locate requested storage context for this user -- Storage context doesn't exist (try force create?)`))
+            assert.deepEqual(result, new Error(`Unable to locate requested storage context (${CONFIG.CONTEXT_NAME}) for this DID (${did}) -- Storage context doesn't exist (try force create?)`))
         })
 
         it(`can force open a user storage context that doesn't exist when authenticated`, async function() {

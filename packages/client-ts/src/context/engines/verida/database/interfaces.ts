@@ -1,20 +1,17 @@
-import { Keyring } from '@verida/keyring';
+import { Context } from '../../../..';
 import { PermissionsConfig } from '../../../interfaces'
 import DatastoreServerClient from './client'
 
 export interface VeridaDatabaseConfig {
     databaseName: string
     did: string,
-    storageContext: string,
     dsn: string,
+    storageContext: string,
 
-    keyring?: Keyring,
     permissions?: PermissionsConfig,
     
-    signKeyring?: Keyring,
-    signDid?: string,
     signData?: boolean,
-    signContextName?: string,
+    signContext: Context,
 
     readOnly?: boolean,
     isOwner?: boolean,

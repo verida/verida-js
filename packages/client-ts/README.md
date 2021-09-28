@@ -3,12 +3,14 @@
 
 This is the Verida Client (Typescript) library compatible with NodeJs and modern web browsers.
 
+See [@verida/client-rn](https://github.com/verida/client-rn) for a React Native version of this library.
+
 ## Usage
 
-Install the client library:
+Install the library:
 
 ```
-yarn install @verida/client-ts
+yarn add @verida/client-ts
 ```
 
 ### Context Initializing (Web - SSO)
@@ -17,33 +19,35 @@ Initialize a connection to the Verida netork using a private key stored on the u
 
 This easy to use integration method allows a user to scan a QR code to sign into your application. If the user doesn't have the Verida Vault installed, they will be prompted to install it. Existing users will be prompted to authorize your application to access encrypted storage for that application.
 
+I also requires installing the [@verida/account-web-vault](packages/account-web-vault) dependency:
+
+```
+yarn add @verida/account-web-vault
+```
+
+Here's how you initialize an application:
+
 ```
 import { Network } from '@verida/client-ts'
 import { VaultAccount } from '@verida/account-web-vault'
 
 const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+const CONTEXT_NAME = 'My Application Context Name'
+const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/'
 
 const account = new VaultAccount({
     defaultDatabaseServer: {
         type: 'VeridaDatabase',
-        endpointUri: 'http://localhost:5000/'
+        endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
     },
     defaultMessageServer: {
         type: 'VeridaMessage',
-        endpointUri: 'http://localhost:5000/'
+        endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
     },
 })
 
-    return Network.connect({
+const context = Network.connect({
     client: {
-        defaultDatabaseServer: {
-            type: 'VeridaDatabase',
-            endpointUri: 'http://localhost:5000/'
-        },
-        defaultMessageServer: {
-            type: 'VeridaMessage',
-            endpointUri: 'http://localhost:5000/'
-        },
         ceramicUrl: CERAMIC_URL
     },
     account: account,
@@ -61,6 +65,7 @@ In this example we are providing default Verida servers pointing to `http://loca
 
 const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
 const CONTEXT_NAME = 'My Application Context Name'
+const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/'
 
 ```
 import { Network } from '@verida/client-ts'
@@ -71,16 +76,21 @@ const context = Network.connect({
         name: CONTEXT_NAME
     },
     client: {
+        ceramicUrl: CERAMIC_URL
+    },
+    account: new AutoAccount({
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
         },
         defaultMessageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
         }
-    },
-    account: new AutoAccount("ethr", '0x...')
+    }, {
+        chain: "ethr",
+        privateKey: '0x...'
+    })
 })
 
 ```
@@ -97,25 +107,30 @@ In your application, include the dependency and create a new client network inst
 import Client from '@verida/client-ts'
 import { AutoAccount } from '@verida/account-node'
 
-const CONTEXT_NAME = 'My Application Context Name'
 const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+const CONTEXT_NAME = 'My Application Context Name'
+const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/'
 
 // establish a network connection
 const client = new Client({
-    defaultDatabaseServer: {
-        type: 'VeridaDatabase',
-        endpointUri: 'http://localhost:5000/'
-    },
-    defaultMessageServer: {
-        type: 'VeridaMessage',
-        endpointUri: 'http://localhost:5000/'
-    },
     ceramicUrl: CERAMIC_URL
 })
 
 // create a Verida account instance that wraps the authorized Ceramic connection
 // The `AutoAccount` instance will automatically sign any consent messages
-const account = new AutoAccount('ethr', CONFIG.ETH_PRIVATE_KEY, CERAMIC_URL)
+const account = new AutoAccount({
+    defaultDatabaseServer: {
+        type: 'VeridaDatabase',
+        endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
+    },
+    defaultMessageServer: {
+        type: 'VeridaMessage',
+        endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
+    }
+}, {
+    chain: "ethr",
+    privateKey: '0x...'
+})
 
 // Connect the Verida account to the Verida client
 await client.connect(account)
@@ -127,11 +142,14 @@ const context = await client.openContext(CONTEXT_NAME, true)
 const database = await context.openDatabase('my_database')
 ```
 
-See documentation for full details
-
 ## Tests
 
 There are unit tests available in the `tests/` folder.
+
+```
+$ yarn run tests
+$ yarn run tests test/<testname>.ts
+```
 
 ### Setting up test environment
 
@@ -178,12 +196,12 @@ These instructions build this `client-ts` package in the mono repo and allow it 
 $ cd packages/client-ts
 $ yarn install
 $ yarn build
-$ npm link
+$ yarn link
 ```
 
 Within an existing typescript web project:
 
 ```
-$ npm link @verida/client-ts
-$ npm run serve
+$ yarn link @verida/client-ts
+$ yarn run serve
 ```

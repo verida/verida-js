@@ -16,43 +16,27 @@ export default class Datastore {
     protected schema?: any
 
     protected context: Context
-    protected storageContext: string
     protected config: DatastoreOpenConfig
 
-    public errors: object = {}
     private db: any
+
+    /**
+     * A list of the latest database errors.
+     * 
+     * Any errors from saving a record will be available on this public object.
+     * 
+     * The errors remain until they are replaced by any new errors.
+     */
+    public errors: object = {}
 
     /**
      * Create a new Datastore.
      * 
      * **Do not instantiate directly.**
-     * @example <caption>Binding to database changes</caption>
-     * // open datastore and fetch database
-     * let datastore = await app.openDataStore("employment");
-     * let db = datastore.getDb();
-     * 
-     * // fetch underlying PouchDB instance (see PouchDB docs)
-     * let pouch = db.getInstance();
-     * pouch.changes({
-     *      since: 'now',
-     *      live: true,
-     *      include_docs: true
-     *  }).on('change', function() {
-     *      console.log("Data has changed in the database");
-     *  });
-     * @example <caption>Binding to database events</caption>
-     * let datastore = await app.openDataStore("employment");
-     * let db = datastore.getDb();
-     * 
-     * db.on("afterInsert", function(data, response) {
-     *  console.log("afterInsert() fired");
-     *  console.log("Saved data", data);
-     * }
      */
     constructor(schemaName: string, context: Context, config: DatastoreOpenConfig = {}) {
         this.schemaName = schemaName
         this.context = context
-        this.storageContext = context.getContextName()
         this.config = config
         
         this.db = null
@@ -99,14 +83,29 @@ export default class Datastore {
      * 
      * Only returns records that belong to this Datastore's schema.
      * 
-     * @param {object} [customFilter] Database query filter to restrict the results passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
-     * @param {object} [options] Database options that will be passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
+     * Example filters and options:
+     * 
+     * ```
+     * let filter = {
+     *      organization: 'Google'
+     * };
+     * 
+     * let options = {
+     *      limit: 20,
+     *      skip: 0,
+     *      sort: ['firstName'
+     * };
+     * ```
+     * 
+     * @param {object} [customFilter] An optional database query filter to restrict the results passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
+     * @param {object} [options] Optional database options that will be passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
      * @example
      * let results = datastore.getMany({
      *  name: 'John'
      * });
      * 
      * console.log(results);
+     * @returns {object[]} An array of database records.
      */
     public async getMany(customFilter: any = {}, options: any = {}): Promise<object[]> {
         await this.init()
@@ -118,7 +117,14 @@ export default class Datastore {
         return this.db.getMany(filter, options)
     }
 
-    public async getOne(customFilter: any = {}, options: any = {}) {
+    /**
+     * Get a single database record that matches.
+     * 
+     * @param {object} [customFilter] An optional database query filter to restrict the results passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
+     * @param {object} [options] Optional database options that will be passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
+     * @returns {object | undefined} A database record
+     */
+    public async getOne(customFilter: any = {}, options: any = {}): Promise<object | undefined> {
         let results = await this.getMany(customFilter, options);
         if (results && results.length) {
             return results[0]
@@ -165,19 +171,19 @@ export default class Datastore {
      * Bind to changes to this datastore
      * 
      * @param {function} cb Callback function that fires when new data is received
+     * @param {object} options Options to be passed to the listener. See https://pouchdb.com/api.html#changes
+     * @returns {object} Returns an object with a `.cancel()` method to cancel the listener
      */
-    public async changes(cb: any) {
+    public async changes(cb: any, options: any = {}): Promise<any> {
         const db = await this.getDb()
-        const pouchDb = await db.getDb()
-        pouchDb.changes({
-            since: 'now',
-            live: true
-        }).on('change', async function(info: any) {
-            cb(info)
-        })
+        return db.changes(cb, options)
     }
 
-    // @todo: move this into context.openDatastore???
+    /**
+     * Initialize this datastore instance before use.
+     * 
+     * @todo: move this into context.openDatastore???
+     */
     private async init() {
         if (this.db) {
             return
@@ -188,11 +194,11 @@ export default class Datastore {
         const dbName = this.config.databaseName ? this.config.databaseName : schemaJson.database.name
         this.schemaPath = this.schema.path
 
-        let config = _.merge({
-            storageContext: this.storageContext
-        }, this.config)
-
-        this.db = await this.context.openDatabase(dbName, config)
+        if (this.config.external) {
+            this.db = await this.context.openExternalDatabase(dbName, this.config.did!, this.config)
+        } else {
+            this.db = await this.context.openDatabase(dbName, this.config)   
+        }
         let indexes = schemaJson.database.indexes
 
         if (indexes) {
@@ -200,8 +206,12 @@ export default class Datastore {
         }
     }
 
-    // TODO: Support removing indexes that were deleted from the spec
-    // TODO: Validate indexes
+    /**
+     * @todo: Support removing indexes that were deleted from the spec
+     * @todo: Validate indexes
+     * 
+     * @param indexes 
+     */
     public async ensureIndexes(indexes: any) {
         for (var indexName in indexes) {
             let indexFields = indexes[indexName]
@@ -213,6 +223,12 @@ export default class Datastore {
         }
     }
 
+    /**
+     * Update the list of valid users for this datastore.
+     * 
+     * @param readList {string[]} List of DID's that can read from this datastore.
+     * @param writeList {writeList[]} List of DID's that can wrtie to this datastore.
+     */
     public async updateUsers(readList: string[] = [], writeList: string[] = []): Promise<void> {
         await this.init()
         await this.db.updateUsers(readList, writeList)

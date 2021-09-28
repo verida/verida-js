@@ -3,7 +3,7 @@ import { MessagesConfig } from '../../../interfaces'
 import Inbox from './inbox'
 import Outbox from './outbox'
 import { Keyring } from '@verida/keyring'
-import AccountInterface from '../../../../account-interface'
+import { Account } from '@verida/account'
 import DIDContextManager from '../../../../did-context-manager'
 import Context from '../../../context'
 import { MessageSendConfig } from "../../../interfaces"
@@ -37,9 +37,10 @@ export default class MessagingEngineVerida implements BaseMessage {
         await inbox.init()
     }
 
-    public async connectAccount(account: AccountInterface) {
+    public async connectAccount(account: Account) {
         this.did = await account.did()
         this.keyring = await account.keyring(this.contextName)
+        await this.init()
     }
 
     /**
@@ -58,13 +59,15 @@ export default class MessagingEngineVerida implements BaseMessage {
 
     /**
      * Register a callback to fire when a new message is received
+     * 
+     * @returns EventEmitter
      */
     public async onMessage(callback: any): Promise<void> {
         const inbox = await this.getInbox()
-        inbox.on('newMessage', callback)
+        return inbox.on('newMessage', callback)
     }
 
-    public async getMessages(filter: object, options: any): Promise<any> {
+    public async getMessages(filter?: object, options?: any): Promise<any> {
         const inbox = await this.getInbox()
         const inboxDs = await inbox.getInboxDatastore()
         return inboxDs.getMany(filter, options)
@@ -85,7 +88,7 @@ export default class MessagingEngineVerida implements BaseMessage {
         }
 
         const outboxDatastore = await this.context.openDatastore("https://schemas.verida.io/outbox/entry/schema.json")
-        this.outbox = new Outbox(this.contextName, this.did!, this.keyring!, outboxDatastore, this.context.getClient(), this.didContextManager)
+        this.outbox = new Outbox(this.contextName, this.did!, this.keyring!, outboxDatastore, this.context, this.didContextManager)
         return this.outbox
     }
 
