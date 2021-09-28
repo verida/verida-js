@@ -10,7 +10,7 @@ const wallet2 = Wallet.createRandom()
 // null = use default (currently testnet)
 const CERAMIC_URL = null
 
-describe('3ID Node Utils', () => {
+describe('Ethereum tests', () => {
 
     describe('Identity creation and linking', function() {
         this.timeout(200000)
@@ -42,6 +42,7 @@ describe('3ID Node Utils', () => {
             assert.ok(ceramic1.did.id, '3ID retreived')
 
             // Link the 3ID to the second Ethereum account
+            utils.ceramic = null
             const ceramic2 = await utils.linkAccount('ethr', wallet2.privateKey, ceramic1.did.id)
             assert.equal(ceramic1.did.id, ceramic2.did.id, 'Second ethereum account linked with the same DID')
 
