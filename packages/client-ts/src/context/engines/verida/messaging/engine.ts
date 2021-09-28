@@ -59,10 +59,12 @@ export default class MessagingEngineVerida implements BaseMessage {
 
     /**
      * Register a callback to fire when a new message is received
+     * 
+     * @returns EventEmitter
      */
     public async onMessage(callback: any): Promise<void> {
         const inbox = await this.getInbox()
-        inbox.on('newMessage', callback)
+        return inbox.on('newMessage', callback)
     }
 
     public async getMessages(filter?: object, options?: any): Promise<any> {
