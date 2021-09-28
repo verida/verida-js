@@ -308,18 +308,6 @@
     query-string "7.0.1"
     rxjs "^7.0.0"
 
-"@ceramicnetwork/http-client@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@ceramicnetwork/http-client/-/http-client-1.2.0.tgz#2f087ebc77f6a265b763ff1464f52c1cea6e4ab3"
-  integrity sha512-HLYBwNfoWZODow9jIWp0pANoWn9jJZrVU21xxzELpsauOqMVKnttwSYVMcg7o9ymGs9QXcofDX0gPLrN6cq7/g==
-  dependencies:
-    "@ceramicnetwork/common" "^1.3.0"
-    "@ceramicnetwork/stream-caip10-link" "^1.1.2"
-    "@ceramicnetwork/stream-tile" "^1.2.0"
-    "@ceramicnetwork/streamid" "^1.1.2"
-    query-string "7.0.1"
-    rxjs "^7.0.0"
-
 "@ceramicnetwork/rpc-postmessage@^0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@ceramicnetwork/rpc-postmessage/-/rpc-postmessage-0.4.0.tgz#f7cc54c100b131cd4c0509adf456aec6513b6968"
@@ -349,7 +337,7 @@
     "@ceramicnetwork/transport-postmessage" "^0.3.0"
     rpc-utils "^0.3.4"
 
-"@ceramicnetwork/stream-caip10-link@^1.0.0", "@ceramicnetwork/stream-caip10-link@^1.1.2":
+"@ceramicnetwork/stream-caip10-link@^1.0.0":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@ceramicnetwork/stream-caip10-link/-/stream-caip10-link-1.1.2.tgz#deacefd0314bd1bada51649f92d7dcab69071608"
   integrity sha512-6ETC38N47zCVWam8w0Gcw4oQ/rsu1mV9W5prEF0xAvWwbqJ03HOruKV5o11QwwePdEPN5a6e3LxIyqKJ/Blc3w==
