@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { EthereumAuthProvider } from '@3id/connect'
+import { EthereumAuthProvider } from '@ceramicnetwork/blockchain-utils-linking'
 import { Manager } from '@3id/manager'
 import CeramicClient from '@ceramicnetwork/http-client'
 
