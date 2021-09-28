@@ -23,7 +23,6 @@ export default class EthereumUtils {
         return ceramic
     }
 
-    // link an ethereum wallet to an existing 3ID
     /**
      * Link an existing Ethereum account to an existing 3ID
      * 
@@ -42,7 +41,6 @@ export default class EthereumUtils {
 
     static async _getManager(privateKey: string, ceramic: CeramicClient): Promise<Manager> {
         const wallet = new ethers.Wallet(privateKey)
-        const address = wallet.address
         const ethProvider = new EthereumProvider(wallet)
         const authProvider = new EthereumAuthProvider(ethProvider, wallet.address)
         
