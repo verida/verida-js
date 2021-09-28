@@ -62,6 +62,7 @@ export default class ThreeIdConnectAccount extends Account {
         const ceramic = new CeramicClient(this.ceramicUrl)
         const did = new DID({
             provider: threeIdConnect.getDidProvider(),
+            /* @ts-ignore */
             resolver: ThreeIdResolver.getResolver(ceramic)
         })
 

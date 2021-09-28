@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { EthereumAuthProvider } from '@3id/connect'
+import { EthereumAuthProvider } from '@ceramicnetwork/blockchain-utils-linking'
 import { Manager } from '@3id/manager'
 import CeramicClient from '@ceramicnetwork/http-client'
 
@@ -23,7 +23,6 @@ export default class EthereumUtils {
         return ceramic
     }
 
-    // link an ethereum wallet to an existing 3ID
     /**
      * Link an existing Ethereum account to an existing 3ID
      * 
@@ -42,7 +41,6 @@ export default class EthereumUtils {
 
     static async _getManager(privateKey: string, ceramic: CeramicClient): Promise<Manager> {
         const wallet = new ethers.Wallet(privateKey)
-        const address = wallet.address
         const ethProvider = new EthereumProvider(wallet)
         const authProvider = new EthereumAuthProvider(ethProvider, wallet.address)
         

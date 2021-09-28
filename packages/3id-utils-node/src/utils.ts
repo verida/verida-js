@@ -1,11 +1,15 @@
 import CeramicClient from '@ceramicnetwork/http-client'
 
-const ethereumUtils = require('./chains/ethereum').default
+import EthereumUtils from "./chains/ethereum"
+import NearUtils from "./chains/near"
+import ThreeIdUtils from "./chains/3id"
 
 type Dictionary = { [index: string]: any }
 
 const chains:Dictionary = {
-    'ethr': ethereumUtils
+    '3id': ThreeIdUtils,
+    'ethr': EthereumUtils,
+    'near': NearUtils
 }
 
 const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
@@ -22,9 +26,9 @@ export default class utils {
         this.ceramicUrl = ceramicUrl ? ceramicUrl : CERAMIC_URL
     }
 
-    async createAccount(chain: string, privateKey: string): Promise<CeramicClient | undefined>  {
+    async createAccount(chain: string, privateKey: string, opts: object = {}): Promise<CeramicClient | undefined>  {
         const ceramic = this.getCeramic()
-        return chains[chain].createAccount(privateKey, ceramic)
+        return chains[chain].createAccount(privateKey, ceramic, opts)
     }
 
     async linkAccount(chain: string, privateKey: string, did3id: string): Promise<CeramicClient> {

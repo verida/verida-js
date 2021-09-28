@@ -7,10 +7,9 @@ import { SecureContexts } from '../src/interfaces'
 import { IDX } from '@ceramicstudio/idx'
 
 // Test Ethereum Private key used to create / unlock a 3ID
-//const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
 const CERAMIC_URL = 'https://gateway-clay.ceramic.network'
-const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145rikixwqf0qf6d69982b72mtxbp96snvop9nsvlaf1avydww9f'
-const DID = "did:3:zxy"
+const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145l8jya7g6cuyluj17xlyc6t7p6iif12isbi1ppu5cuze4u3njc'
+const DID = "did:3:kjzl6cwe1jw14bkl13yx15lq1pfwth5iwpxk011u307ogtag32hujs6nmc00pke"
 
 
 describe('IDX Basic test', () => {
@@ -24,9 +23,9 @@ describe('IDX Basic test', () => {
             const ceramic = new CeramicClient(CERAMIC_URL)
             // @ts-ignore
             const idx = new IDX({ ceramic })
-            console.log(ceramic)
             const secureContexts = <SecureContexts> await idx.get(SECURE_CONTEXTS_SCHEMA_ID, DID)
 
+            console.log("secureContexts:")
             console.log(secureContexts)
 
             assert.ok(true)
