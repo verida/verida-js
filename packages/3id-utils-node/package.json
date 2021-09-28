@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "3id-did-provider": "^1.1.0",
-    "@3id/manager": "^0.2.0",
+    "@3id/manager": "^0.2.6",
     "@ceramicnetwork/blockchain-utils-linking": "^1.1.2",
-    "@ceramicnetwork/http-client": "^1.2.0",
+    "@ceramicnetwork/http-client": "^1.3.0",
     "bs58": "^4.0.1",
     "ethers": "^5.4.1",
     "near-api-js": "^0.42.0",
