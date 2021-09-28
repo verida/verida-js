@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"3id-did-provider@^1.0.2":
+"3id-did-provider@^1.0.2", "3id-did-provider@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/3id-did-provider/-/3id-did-provider-1.1.0.tgz#5660f4e16b2824d343d2710b786baaf598915df5"
   integrity sha512-hQSm2QAulKgUh5BRwDsPR9CD5L/Ae8HaaMnKWimCXPMHmuakE4z0R0gi7tVjd9tPN2rKpvWwmWkVs5cWHGU1AA==
