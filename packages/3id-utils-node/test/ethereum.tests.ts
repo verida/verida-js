@@ -12,8 +12,8 @@ const CERAMIC_URL = null
 
 describe('Ethereum tests', () => {
 
-    describe('Manage accounts', function() {
-        this.timeout(100000)
+    describe('Identity creation and linking', function() {
+        this.timeout(200000)
         it('can create new 3ID', async function() {
             // Create two test Ethereum wallet
 
@@ -33,7 +33,7 @@ describe('Ethereum tests', () => {
             assert.equal(ceramic1.did.id, ceramic2.did.id, 'Same 3ID returned')
         })
 
-        it('can link a second ethereum account', async function() {
+        it('can link a second account', async function() {
             // Instantiate utils
             const utils = new Utils(CERAMIC_URL)
 

@@ -1,13 +1,15 @@
 import CeramicClient from '@ceramicnetwork/http-client'
 
-const ethereumUtils = require('./chains/ethereum').default
-const threeIdUtils = require('./chains/3id').default
+import EthereumUtils from "./chains/ethereum"
+import NearUtils from "./chains/near"
+import ThreeIdUtils from "./chains/3id"
 
 type Dictionary = { [index: string]: any }
 
 const chains:Dictionary = {
-    'ethr': ethereumUtils,
-    '3id': threeIdUtils
+    '3id': ThreeIdUtils,
+    'ethr': EthereumUtils,
+    'near': NearUtils
 }
 
 const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
