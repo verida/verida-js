@@ -1,6 +1,6 @@
 {
   "name": "@verida/account-web-vault",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@ceramicnetwork/http-client": "^1.3.0",
-    "@verida/account": "^1.0.1",
+    "@verida/account": "^1.0.2",
     "@verida/encryption-utils": "^1.0.0",
     "@verida/keyring": "^1.0.1",
     "lodash": "^4.17.21",
