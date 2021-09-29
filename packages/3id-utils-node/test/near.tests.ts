@@ -7,8 +7,6 @@ const nearSeedPhrase = require('near-seed-phrase')
 const WALLET1 = nearSeedPhrase.generateSeedPhrase()
 const WALLET2 = nearSeedPhrase.generateSeedPhrase()
 
-console.log(WALLET1)
-
 const SEED1 = WALLET1.seedPhrase
 const SEED2 = WALLET2.seedPhrase
 
