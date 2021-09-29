@@ -8,8 +8,8 @@ import { IDX } from '@ceramicstudio/idx'
 
 // Test Ethereum Private key used to create / unlock a 3ID
 const ETH_PRIVATE_KEY = '0xc0da48347b4bcb2cfb08d6b8c26b52b47fd36ca6114974a0104d15fab076f553'
-const CERAMIC_URL = 'http://localhost:7007' // Note: Requires running ceramic locally
-const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145rikixwqf0qf6d69982b72mtxbp96snvop9nsvlaf1avydww9f'
+const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com' // Note: Requires running ceramic locally
+const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145l8jya7g6cuyluj17xlyc6t7p6iif12isbi1ppu5cuze4u3njc'
 
 StorageLink.setSchemaId(SECURE_CONTEXTS_SCHEMA_ID)
 
@@ -44,7 +44,7 @@ describe('Storage Link', () => {
     const utils = new Utils(CERAMIC_URL)
 
     describe('Manage DID Links', async function() {
-        this.timeout(20000)
+        this.timeout(100000)
 
         it('can link a DID to a secure storage context', async function() {
             const ceramic = await utils.createAccount('ethr', ETH_PRIVATE_KEY)
