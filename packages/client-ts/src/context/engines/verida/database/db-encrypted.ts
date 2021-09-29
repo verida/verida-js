@@ -99,10 +99,7 @@ export default class EncryptedDatabase extends BaseDb {
 
         const databaseName = this.databaseName
         const dsn = this.dsn
-        const _localDbEncrypted = this._localDbEncrypted
-        const _remoteDbEncrypted = this._remoteDbEncrypted
-        let _sync = this._sync
-        let _syncError = this._syncError
+        const instance = this
 
         // Do a once off sync to ensure the local database pulls all data from remote server
         // before commencing live syncronisation between the two databases
@@ -122,21 +119,7 @@ export default class EncryptedDatabase extends BaseDb {
             })
             .on("complete", function(info: any) {
                 // Commence two-way, continuous, retrivable sync
-                _sync = PouchDB.sync(_localDbEncrypted, _remoteDbEncrypted, {
-                    live: true,
-                    retry: true,
-                    // Dont sync design docs
-                    filter: function(doc: any) {
-                        return doc._id.indexOf('_design') !== 0;
-                    } 
-                }).on("error", function(err: any) {
-                    _syncError = err
-                    console.error(`Unknown error occurred syncing with remote database: ${databaseName} (${dsn})`)
-                    console.error(err)
-                }).on("denied", function(err: any) {
-                    console.error(`Permission denied to sync with remote database: ${databaseName} (${dsn})`)
-                    console.error(err)
-                })
+                instance.sync()
             })
         
         this.db = this._localDb
@@ -161,6 +144,79 @@ export default class EncryptedDatabase extends BaseDb {
             // Unknown error, rethrow
             throw err
         }
+    }
+
+    /**
+     * Restarts the remote database syncing
+     * 
+     * This will clear all sync event listeners.
+     * It will retain event listeners on the actual database (subscribed via `changes()`)
+     * 
+     * @returns PouchDB Sync object
+     */
+    public sync() {
+        if (this._sync) {
+            // Cancel any existing sync
+            this._sync.cancel()
+        }
+
+        const instance = this
+        const databaseName = this.databaseName
+        const dsn = this.dsn
+
+        this._sync = PouchDB.sync(this._localDbEncrypted, this._remoteDbEncrypted, {
+            live: true,
+            retry: true,
+            // Dont sync design docs
+            filter: function(doc: any) {
+                return doc._id.indexOf('_design') !== 0;
+            } 
+        }).on("error", function(err: any) {
+            instance._syncError = err
+            console.error(`Unknown error occurred syncing with remote database: ${databaseName} (${dsn})`)
+            console.error(err)
+        }).on("denied", function(err: any) {
+            console.error(`Permission denied to sync with remote database: ${databaseName} (${dsn})`)
+            console.error(err)
+        })
+
+        return this._sync
+    }
+
+    /**
+     * Subscribe to sync events
+     * 
+     * See https://pouchdb.com/api.html#sync
+     * 
+     * ie:
+     * 
+     * ```
+     * const listener = database.onSync('error', (err) => { console.log(err) })
+     * listener.cancel()
+     * ```
+     * 
+     * @param event 
+     * @param handler 
+     */
+    public onSync(event: string, handler: Function) {
+        if (!this._sync) {
+            throw new Error("Unable to create sync event handler. Syncronization is not enabled.")
+        }
+
+        return this._sync.on(event, handler)
+    }
+
+    /**
+     * Close a database.
+     * 
+     * This will remove all event listeners.
+     */
+    public async close() {
+        this._sync.cancel()
+        await this._localDbEncrypted.close()
+        await this._remoteDbEncrypted.close()
+        this._sync = null
+        this._syncError = null
     }
 
     public async updateUsers(readList: string[] = [], writeList: string[] = []): Promise<void> {
@@ -203,6 +259,19 @@ export default class EncryptedDatabase extends BaseDb {
     public async info(): Promise<any> {
         await this.init()
 
+        const sync: any = {}
+        if (this._sync) {
+            sync.canceled = this._sync.canceled
+            sync.pull = {
+                status: this._sync.pull.state,
+                canceled: this._sync.pull.canceled
+            }
+            sync.push = {
+                status: this._sync.push.state,
+                canceled: this._sync.push.canceled
+            }
+        }
+
         const info = {
             type: 'VeridaDatabase',
             privacy: 'encrypted',
@@ -211,8 +280,8 @@ export default class EncryptedDatabase extends BaseDb {
             storageContext: this.storageContext,
             databaseName: this.databaseName,
             databasehash: this.databaseHash,
-            encryptionKey: this.encryptionKey!
-            // @todo: add databases
+            encryptionKey: this.encryptionKey!,
+            sync
         }
 
         return info
