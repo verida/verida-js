@@ -2,6 +2,7 @@ import AuthClient from './auth-client';
 
 // @ts-ignore
 import Sora from './assets/fonts/Sora-Regular.ttf';
+import VeridaVaultImage from './assets/connect_with_verida_dark.png';
 
 import { AuthClientConfig, VaultModalLoginConfig } from './interfaces';
 const _ = require('lodash');
@@ -25,25 +26,31 @@ export default async function (contextName: string, config: VaultModalLoginConfi
       </div>
       <div class="verida-modal-body">
         <div>
-          <h3 class="verida-modal-title">
-            Scan this QR code on your mobile phone to login or signup
-          </h3>
-          <p class="verida-body-content">Already on your phone with Verida Vault installed? <a href="##">Log in with
-          Verida Vault</a></p>
-           <label class="verida-checkbox">
-            <span class="verida-checkbox-input">
-              <input type="checkbox" name="checkbox" id="verida-checked" checked>
-              <span class="verida-checkbox-control">
-                <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' aria-hidden="true" focusable="false">
-                  <path fill='none' stroke='currentColor' stroke-width='3' d='M1.73 12.91l6.37 6.37L22.79 4.59' />
-                </svg>
+          <div class="desktop-content">
+            <h3 class="verida-modal-title desktop">
+              Scan this QR code on your mobile phone to login or signup
+            </h3>
+            <label class="verida-checkbox">
+              <span class="verida-checkbox-input">
+                <input type="checkbox" name="checkbox" id="verida-checked" checked>
+                <span class="verida-checkbox-control">
+                  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' aria-hidden="true" focusable="false">
+                    <path fill='none' stroke='currentColor' stroke-width='3' d='M1.73 12.91l6.37 6.37L22.79 4.59' />
+                  </svg>
+                </span>
               </span>
-            </span>
-            <span class="verida-radio-label">Remember my login </span>
-          </label>
+              <span class="verida-radio-label">Remember my login </span>
+            </label>
+          </div>
         </div>
-        <div>
+        <div class="desktop-content">
            <canvas id="verida-auth-client-canvas" class="verida-modal-qr"></canvas><img src="" alt="" id="image" />
+        </div>
+        <div class="mobile-content">
+          <h3 class="verida-modal-title mobile">
+            Click the button to open the Verida Vault app to login or sign up
+          </h3>
+          <a href="#" id="verida-auth-client-deeplink"><img src="${VeridaVaultImage}" alt="Verida Vault App" /></>
         </div>
       </div>
     </div>
@@ -256,6 +263,14 @@ export default async function (contextName: string, config: VaultModalLoginConfi
         flex-direction: column;
       }
     }
+
+    body.mobile .desktop-content {
+      display: none;
+    }
+
+    body.desktop .mobile-content {
+      display: none;
+    }
     </style>
   `
 
@@ -266,6 +281,13 @@ export default async function (contextName: string, config: VaultModalLoginConfi
 
   const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${contextName}`)
 
+  const body = document.body;
+  if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+    // true for mobile device
+    body.classList.add("mobile");
+  } else {
+    body.classList.add("desktop");
+  }
 
   if (modal && closeModal) {
     closeModal.onclick = () => modal.style.display = 'none';
