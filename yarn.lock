@@ -3143,7 +3143,7 @@ cross-spawn@^6.0.0:
 
 "crypto-pouch@git+https://github.com/tahpot/crypto-pouch.git#feature/support-key-import":
   version "4.0.1"
-  resolved "git+https://github.com/tahpot/crypto-pouch.git#e1b2cfbc8032ebc1869a13458df1d78a7d3e1449"
+  resolved "git+https://github.com/tahpot/crypto-pouch.git#7a712691b4404cfefb34ad3f58db1d83b55ed3bf"
   dependencies:
     garbados-crypt "git+https://github.com/tahpot/crypt.git#feature/pbkdf2"
     transform-pouch "^2.0.0"

@@ -69,7 +69,9 @@ export default class EncryptedDatabase extends BaseDb {
 
         await this._localDb.crypto({
             password,
-            salt
+            salt,
+            iterations: 1000
+            // Setting to 1,000 -- Any higher and it takes too long on mobile devices
         })
 
         this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
