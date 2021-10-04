@@ -23,6 +23,7 @@ export default class AutoAccount extends Account {
     private utils: Utils
 
     private ceramic?: CeramicClient
+    private accountOptions: any
 
     protected accountConfig: AccountConfig
 
@@ -32,9 +33,7 @@ export default class AutoAccount extends Account {
         this.utils = new Utils(autoConfig.ceramicUrl)
         this.chain = autoConfig.chain
         this.privateKey = autoConfig.privateKey
-        if (!this.accountConfig.options) {
-            this.accountConfig.options = {}
-        }
+        this.accountOptions = autoConfig.options ? autoConfig.options : {}
     }
 
     private async init() {
@@ -42,7 +41,7 @@ export default class AutoAccount extends Account {
             return
         }
 
-        this.ceramic = await this.utils.createAccount(this.chain, this.privateKey, this.accountConfig.options)
+        this.ceramic = await this.utils.createAccount(this.chain, this.privateKey, this.accountOptions)
 
         if (!this.ceramic!.did) {
             throw new Error('Ceramic client is not authenticated with a valid DID')

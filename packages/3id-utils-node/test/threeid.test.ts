@@ -21,17 +21,17 @@ describe('3ID Tests', () => {
         it('can create new 3ID', async function() {
             seed = generateSeedPhrase()
 
-            const utils = new Utils(CERAMIC_URL)
-            ceramic = await utils.createAccount('3id', seed)
+            const utils1 = new Utils(CERAMIC_URL)
+            const ceramic1 = ceramic = await utils1.createAccount('3id', seed)
 
-            const did = generatedDid = ceramic.did.id
+            const did = generatedDid = ceramic1.did.id
 
-            utils.ceramic = null
-            ceramic = await utils.createAccount('3id', seed, {
+            const utils2 = new Utils(CERAMIC_URL)
+            const ceramic2 = await utils2.createAccount('3id', seed, {
                 did
             })
 
-            const did2 = ceramic.did.id
+            const did2 = ceramic2.did.id
             assert.equal(did, did2, 'Newly generated DID matches DID fetched from seed phrase')
         })
 
