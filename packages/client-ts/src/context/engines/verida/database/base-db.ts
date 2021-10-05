@@ -276,7 +276,7 @@ export default class BaseDb extends EventEmitter implements Database {
     public async changes(cb: Function, options: any = {}) {
         await this.init()
         
-        const dbInstance = await this.db.getDb()
+        const dbInstance = await this.getDb()
         return dbInstance.changes(_.merge({
             since: 'now',
             live: true
@@ -337,7 +337,7 @@ export default class BaseDb extends EventEmitter implements Database {
      * @see {@link https://pouchdb.com/api.html#overview|PouchDB documentation}
      * @returns {PouchDB}
      */
-    public async getDb() {
+    public async getDb(): Promise<any> {
         throw new Error('Not implemented')
     }
 
