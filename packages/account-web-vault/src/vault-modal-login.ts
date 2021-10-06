@@ -282,7 +282,7 @@ export default async function (contextName: string, config: VaultModalLoginConfi
 
       .verida-body-content {
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
       }
 
       .mobile-content {
