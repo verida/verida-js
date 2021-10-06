@@ -90,6 +90,16 @@ export default class Context {
         return this.client
     }
 
+    public async disconnect(): Promise<boolean> {
+        if (this.account) {
+            await this.account.disconnect(this.contextName)
+            this.account = undefined
+            return true
+        }
+
+        return false
+    }
+
     /**
      * Get a storage engine for a given DID and this contextName
      * 
