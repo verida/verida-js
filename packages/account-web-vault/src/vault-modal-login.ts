@@ -2,7 +2,7 @@ import AuthClient from './auth-client';
 
 // @ts-ignore
 import Sora from './assets/fonts/Sora-Regular.ttf';
-import VeridaVaultImage from './assets/connect_with_verida_dark.png';
+import VeridaVaultImage from './assets/open_verida_vault_dark.png';
 
 import { AuthClientConfig, VaultModalLoginConfig } from './interfaces';
 const _ = require('lodash');
@@ -48,8 +48,9 @@ export default async function (contextName: string, config: VaultModalLoginConfi
         </div>
         <div class="mobile-content">
           <h3 class="verida-modal-title mobile">
-            Click the button to open the Verida Vault app to login or sign up
+            Connect now
           </h3>
+          <p class="verida-body-content">Use the button below to connect with Verida Vault app to login or sign up</p>
           <a href="#" id="verida-auth-client-deeplink"><img src="${VeridaVaultImage}" alt="Verida Vault App" /></>
         </div>
       </div>
@@ -171,7 +172,7 @@ export default async function (contextName: string, config: VaultModalLoginConfi
       opacity: 0.5;
       backdrop-filter: blur(54.3656px);
       border-radius: 50%;
-      margin: 0.5rem 0 0 0;
+      margin: 0.5em 0 0 0;
     }
 
     .verida-modal-logo {
@@ -244,23 +245,52 @@ export default async function (contextName: string, config: VaultModalLoginConfi
       }
 
       .verida-modal-container {
-        width: 90%;
+        width: 100%;
         height: 100%;
       }
 
       .verida-modal-body {
         flex-direction: column;
-        margin: 2rem 2rem;
+        margin: 2rem 1.2rem;
+      }
+
+      .verida-modal-logo {
+        margin: 0.8rem 3.5rem 0 0.6rem;
       }
 
       .verida-modal-title {
-        font-size: 25px;
+        font-size: 28px;
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 15px;
       }
 
       .verida-modal-body-title {
         width: 50%;
         height: max-content;
         flex-direction: column;
+      }
+
+      .verida-modal-header {
+        margin: 0 0.4rem 0 0.4rem;
+      }
+
+      .verida-modal-container {
+        margin: 0;
+        border-radius: 0;
+      }
+
+      .verida-body-content {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .mobile-content {
+        text-align: center;
+      }
+
+      .verida-modal-close {
+        margin: 1rem 0 0 0;
       }
     }
 
