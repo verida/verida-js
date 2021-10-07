@@ -1,6 +1,6 @@
 
 
-2021-10-07 (v1.0.3)
+2021-10-07 (v1.0.4)
 -------------------
 
 - Improve mobile UX to open app immediately
