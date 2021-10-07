@@ -2,6 +2,7 @@ import AuthClient from './auth-client';
 
 // @ts-ignore
 import Sora from './assets/fonts/Sora-Regular.ttf';
+import VeridaVaultImage from './assets/open_verida_vault_dark.png';
 
 import { AuthClientConfig, VaultModalLoginConfig } from './interfaces';
 const _ = require('lodash');
@@ -25,25 +26,32 @@ export default async function (contextName: string, config: VaultModalLoginConfi
       </div>
       <div class="verida-modal-body">
         <div>
-          <h3 class="verida-modal-title">
-            Scan this QR code on your mobile phone to login or signup
-          </h3>
-          <p class="verida-body-content">Already on your phone with Verida Vault installed? <a href="##">Log in with
-          Verida Vault</a></p>
-           <label class="verida-checkbox">
-            <span class="verida-checkbox-input">
-              <input type="checkbox" name="checkbox" id="verida-checked" checked>
-              <span class="verida-checkbox-control">
-                <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' aria-hidden="true" focusable="false">
-                  <path fill='none' stroke='currentColor' stroke-width='3' d='M1.73 12.91l6.37 6.37L22.79 4.59' />
-                </svg>
+          <div class="desktop-content">
+            <h3 class="verida-modal-title desktop">
+              Scan this QR code on your mobile phone to login or signup
+            </h3>
+            <label class="verida-checkbox">
+              <span class="verida-checkbox-input">
+                <input type="checkbox" name="checkbox" id="verida-checked" checked>
+                <span class="verida-checkbox-control">
+                  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' aria-hidden="true" focusable="false">
+                    <path fill='none' stroke='currentColor' stroke-width='3' d='M1.73 12.91l6.37 6.37L22.79 4.59' />
+                  </svg>
+                </span>
               </span>
-            </span>
-            <span class="verida-radio-label">Remember my login </span>
-          </label>
+              <span class="verida-radio-label">Remember my login </span>
+            </label>
+          </div>
         </div>
-        <div>
+        <div class="desktop-content">
            <canvas id="verida-auth-client-canvas" class="verida-modal-qr"></canvas><img src="" alt="" id="image" />
+        </div>
+        <div class="mobile-content">
+          <h3 class="verida-modal-title mobile">
+            Connect now
+          </h3>
+          <p class="verida-body-content">Use the button below to connect with Verida Vault app to login or sign up</p>
+          <a href="#" id="verida-auth-client-deeplink"><img src="${VeridaVaultImage}" alt="Verida Vault App" /></>
         </div>
       </div>
     </div>
@@ -164,7 +172,7 @@ export default async function (contextName: string, config: VaultModalLoginConfi
       opacity: 0.5;
       backdrop-filter: blur(54.3656px);
       border-radius: 50%;
-      margin: 0.5rem 0 0 0;
+      margin: 0.5em 0 0 0;
     }
 
     .verida-modal-logo {
@@ -237,17 +245,24 @@ export default async function (contextName: string, config: VaultModalLoginConfi
       }
 
       .verida-modal-container {
-        width: 90%;
+        width: 100%;
         height: 100%;
       }
 
       .verida-modal-body {
         flex-direction: column;
-        margin: 2rem 2rem;
+        margin: 2rem 1.2rem;
+      }
+
+      .verida-modal-logo {
+        margin: 0.8rem 3.5rem 0 0.6rem;
       }
 
       .verida-modal-title {
-        font-size: 25px;
+        font-size: 28px;
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 15px;
       }
 
       .verida-modal-body-title {
@@ -255,6 +270,36 @@ export default async function (contextName: string, config: VaultModalLoginConfi
         height: max-content;
         flex-direction: column;
       }
+
+      .verida-modal-header {
+        margin: 0 0.4rem 0 0.4rem;
+      }
+
+      .verida-modal-container {
+        margin: 0;
+        border-radius: 0;
+      }
+
+      .verida-body-content {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .mobile-content {
+        text-align: center;
+      }
+
+      .verida-modal-close {
+        margin: 1rem 0 0 0;
+      }
+    }
+
+    body.mobile .desktop-content {
+      display: none;
+    }
+
+    body.desktop .mobile-content {
+      display: none;
     }
     </style>
   `
@@ -266,6 +311,13 @@ export default async function (contextName: string, config: VaultModalLoginConfi
 
   const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${contextName}`)
 
+  const body = document.body;
+  if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+    // true for mobile device
+    body.classList.add("mobile");
+  } else {
+    body.classList.add("desktop");
+  }
 
   if (modal && closeModal) {
     closeModal.onclick = () => modal.style.display = 'none';

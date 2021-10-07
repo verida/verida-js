@@ -4,7 +4,6 @@ import QrCode from 'qrcode-with-logos'
 const _ = require("lodash")
 
 export default class AuthClient {
-
     ws: any
     config: any
     symKeyBytes?: Uint8Array
@@ -48,7 +47,6 @@ export default class AuthClient {
             case 'auth-client-request':
                 const queryParams = this.generateQueryParams(response.message!)
                 const redirectUri = `${this.config.loginUri}${queryParams}`
-                const schemeUri = `${this.config.schemeUri}${queryParams}`
                 let qrcode = new QrCode({
                     canvas: document.getElementById(this.config.canvasId!) as any,
                     content: redirectUri,
@@ -59,20 +57,10 @@ export default class AuthClient {
                     }
                 });
 
-                try {
-                    const isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
-                    if (isMobile) {
-                        // On a mobile device, so attempting to auto-redirect to application
-                        window.location.href = schemeUri
-                    }
-                } catch (err) {
-                    console.log(err)
-                }
-
                 const deeplinkElm = document.getElementById(this.config.deeplinkId!)
 
                 if (deeplinkElm) {
-                    deeplinkElm.setAttribute('href', schemeUri)
+                    deeplinkElm.setAttribute('href', redirectUri)
                 }
                 qrcode.toCanvas().then(() => {}).catch((error: any) => {
                     console.error("Error: ", { error })
