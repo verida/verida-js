@@ -5,6 +5,7 @@ import { DatabaseOpenConfig } from '../../../interfaces'
 import DatastoreServerClient from "./client"
 import { Account } from '@verida/account'
 import PublicDatabase from "./db-public"
+import DbRegistry from "../../../db-registry"
 
 const _ = require('lodash')
 
@@ -18,8 +19,8 @@ export default class StorageEngineVerida extends BaseStorageEngine {
     private dsn?: string
 
     // @todo: dbmanager
-    constructor(storageContext: string, endpointUri: string) {
-        super(storageContext, endpointUri)
+    constructor(storageContext: string, dbRegistry: DbRegistry, endpointUri: string) {
+        super(storageContext, dbRegistry, endpointUri)
         this.client = new DatastoreServerClient(this.storageContext, this.endpointUri)
     }
 
@@ -154,8 +155,9 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
-                isOwner: config.isOwner
-            })
+                isOwner: config.isOwner,
+                saveDatabase: config.saveDatabase
+            }, this.dbRegistry)
 
             await db.init()
             return db
@@ -180,7 +182,8 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 permissions: config.permissions,
                 readOnly: config.readOnly,
                 client: this.client,
-                isOwner: config.isOwner
+                isOwner: config.isOwner,
+                saveDatabase: config.saveDatabase
             })
             
             await db.init()
@@ -223,8 +226,9 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 readOnly: config.readOnly,
                 encryptionKey,
                 client: this.client,
-                isOwner: config.isOwner
-            })
+                isOwner: config.isOwner,
+                saveDatabase: config.saveDatabase
+            }, this.dbRegistry)
             
             try {
                 await db.init()

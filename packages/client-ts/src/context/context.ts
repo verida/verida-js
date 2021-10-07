@@ -120,7 +120,7 @@ export default class Context {
             throw new Error(`Unsupported database engine type specified: ${engineType}`)
         }
         const engine = DATABASE_ENGINES[engineType]  // @todo type cast correctly
-        const databaseEngine = new engine(this.contextName, contextConfig.services.databaseServer.endpointUri)
+        const databaseEngine = new engine(this.contextName, this.dbRegistry, contextConfig.services.databaseServer.endpointUri)
         
         /**
          * Connect the current user if we have one
@@ -201,7 +201,6 @@ export default class Context {
         }
 
         const accountDid = await this.account!.did()
-        // PROBLEM: Trying to get database engine for the current user, not the requesting user
         const databaseEngine = await this.getDatabaseEngine(config.did ? config.did : accountDid, config.createContext!)
 
         if (!config.signingContext) {
@@ -210,8 +209,9 @@ export default class Context {
 
         const database = await databaseEngine.openDatabase(databaseName, config)
         if (config.saveDatabase !== false) {
-            await this.dbRegistry.saveDb(database)
+            await this.dbRegistry.saveDb(database, false)
         }
+
         return database
     }
 

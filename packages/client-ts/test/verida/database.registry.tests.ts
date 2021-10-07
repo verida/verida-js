@@ -7,9 +7,9 @@ import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
 StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 
-const DB_NAME_1 = 'Db_Registry_Test_1'
-const DB_NAME_2 = 'Db_Registry_Test_2'
-const DB_NAME_3 = 'Db_Registry_Test_3'
+const DB_NAME_1 = 'Db_Registry_1'
+const DB_NAME_2 = 'Db_Registry_2'
+const DB_NAME_3 = 'Db_Registry_3'
 
 /**
  * 
@@ -72,13 +72,13 @@ describe('Verida database registry tests', () => {
 
             await database.save({hello: 'world'})
             const dbRegistry = await context.getDbRegistry()
-            const dbRegistryDatabase1 = await dbRegistry.get(DB_NAME_2, did1, CONFIG.CONTEXT_NAME)
-            assert.ok(dbRegistryDatabase1, 'Database registry entry created')
+
+            const dbRegistryDatabase1 = await dbRegistry.get(DB_NAME_3, did1, CONFIG.CONTEXT_NAME)
+            assert.ok(dbRegistryDatabase1, 'Database registry entry exists')
 
             // change permissions on the database
             await database.updateUsers([testDid], [testDid])
-            const dbRegistryDatabase2 = await dbRegistry.get(DB_NAME_2, did1, CONFIG.CONTEXT_NAME)
-            console.log(dbRegistryDatabase2)
+            const dbRegistryDatabase2 = await dbRegistry.get(DB_NAME_3, did1, CONFIG.CONTEXT_NAME)
 
             const expectedPermissions = {
                 read: 'users',
@@ -86,7 +86,8 @@ describe('Verida database registry tests', () => {
                 write: 'users',
                 writeList: [testDid]
             }
-            assert.deepEqual(dbRegistryDatabase1.permissions, expectedPermissions, 'Database registry entry updated')
+
+            assert.deepEqual(dbRegistryDatabase2.permissions, expectedPermissions, 'Database registry entry updated')
         })
 
         

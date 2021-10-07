@@ -1,6 +1,6 @@
 import { VeridaDatabaseConfig } from "./interfaces"
 import BaseDb from "./base-db"
-import { DbRegistryEntry } from '../../../db-registry'
+import DbRegistry, { DbRegistryEntry } from '../../../db-registry'
 
 import * as PouchDBCryptLib from "pouchdb"
 import * as PouchDBLib from "pouchdb"
@@ -25,7 +25,8 @@ export default class EncryptedDatabase extends BaseDb {
 
     protected encryptionKey: Buffer
     protected password?: string
-    
+
+    private dbRegistry: DbRegistry
     private _sync: any
     private _localDbEncrypted: any
     private _localDb: any
@@ -43,9 +44,10 @@ export default class EncryptedDatabase extends BaseDb {
      * @param {*} permissions 
      */
     //constructor(dbHumanName: string, dbName: string, dataserver: any, encryptionKey: string | Buffer, remoteDsn: string, did: string, permissions: PermissionsConfig) {
-    constructor(config: VeridaDatabaseConfig) {
+    constructor(config: VeridaDatabaseConfig, dbRegistry: DbRegistry) {
         super(config)
 
+        this.dbRegistry = dbRegistry
         this.encryptionKey = config.encryptionKey!
 
         // PouchDB sync object
@@ -234,7 +236,11 @@ export default class EncryptedDatabase extends BaseDb {
         }
 
         try {
-            this.client.updateDatabase(this.did, this.databaseHash, options);
+            this.client.updateDatabase(this.did, this.databaseHash, options)
+
+            if (this.config.saveDatabase !== false) {
+                await this.dbRegistry.saveDb(this)
+            }
         } catch (err: any) {
             throw new Error("User doesn't exist or unable to create user database")
         }

@@ -3,18 +3,21 @@ import { Keyring } from '@verida/keyring'
 import { DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
 import Database from '../database'
 import Datastore from '../datastore'
+import DbRegistry from '../db-registry'
 
 
 export default class BaseStorageEngine {
 
     protected storageContext: string
+    protected dbRegistry: DbRegistry
     protected endpointUri: string
 
     protected account?: Account
     protected keyring?: Keyring
 
-    constructor(storageContext: string, endpointUri: string) {
+    constructor(storageContext: string, dbRegistry: DbRegistry, endpointUri: string) {
         this.storageContext = storageContext
+        this.dbRegistry = dbRegistry
         this.endpointUri = endpointUri
     }
 

@@ -42,7 +42,7 @@ export default class DbRegistry {
      * @param {*} encryptionKey Buffer representing the encryption key
      * @param {*} options 
      */
-     public async saveDb(database: Database) {
+     public async saveDb(database: Database, checkPermissions: boolean = true) {
         await this.init()
 
         const dbEntry = await database.registryEntry()
@@ -54,19 +54,33 @@ export default class DbRegistry {
         }
 
         delete dbData['id']
-
-        let doc = await this.dbStore!.getOne({
+        const doc: any = await this.dbStore!.getOne({
             _id: databaseId
         })
 
+        // Save if creating a new entry
         if (!doc) {
-            let saved = await this.dbStore!.save(dbData, {
+            const saved = await this.dbStore!.save(dbData, {
                 forceInsert: true
             })
 
             if (!saved) {
                 console.error(this.dbStore!.errors)
             }
+            
+            return
+        }
+        
+        // Save if permissions have changed
+        if(checkPermissions && !_.isEqual(dbData.permissions, doc.permissions)) {
+            doc.permissions = dbData.permissions
+            const saved = await this.dbStore!.save(doc)
+
+            if (!saved) {
+                console.error(this.dbStore!.errors)
+            }
+
+            return
         }
     }
 

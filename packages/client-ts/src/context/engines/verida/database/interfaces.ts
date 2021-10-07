@@ -17,5 +17,7 @@ export interface VeridaDatabaseConfig {
     isOwner?: boolean,
     encryptionKey?: Buffer
 
+    saveDatabase: boolean
+
     client: DatastoreServerClient
 }
