@@ -20,6 +20,7 @@ const DATABASE_ENGINES: StorageEngineTypes = {
 }
 
 import MessagingEngineVerida from './engines/verida/messaging/engine'
+import DbRegistry from './db-registry'
 
 const MESSAGING_ENGINES: StorageEngineTypes = {
     'VeridaMessage': MessagingEngineVerida
@@ -43,6 +44,7 @@ export default class Context {
     private contextName: string
     private didContextManager: DIDContextManager
     private databaseEngines: DatabaseEngines = {}
+    private dbRegistry: DbRegistry
 
     /**
      * Instantiate a new context.
@@ -58,8 +60,8 @@ export default class Context {
         this.client = client
         this.contextName = contextName
         this.didContextManager = didContextManager
-
         this.account = account
+        this.dbRegistry = new DbRegistry(this)
     }
 
     public async getContextConfig(did?: string, forceCreate?: boolean, customContextName?: string): Promise<Interfaces.SecureContextConfig> {
@@ -206,7 +208,11 @@ export default class Context {
             config.signingContext = this
         }
 
-        return databaseEngine.openDatabase(databaseName, config)
+        const database = await databaseEngine.openDatabase(databaseName, config)
+        if (config.saveDatabase !== false) {
+            await this.dbRegistry.saveDb(database)
+        }
+        return database
     }
 
     /**
@@ -279,6 +285,10 @@ export default class Context {
 
         // @todo: Should this also call _init to confirm everything is good?
         return new Datastore(schemaUri, this, options)
+    }
+
+    public getDbRegistry(): DbRegistry {
+        return this.dbRegistry
     }
 
 }
