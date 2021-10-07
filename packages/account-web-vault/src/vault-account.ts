@@ -14,6 +14,16 @@ const CONFIG_DEFAULTS = {
     serverUri: 'wss://auth-server.testnet.verida.io:7002',
 }
 
+export const hasSession = (contextName: string): boolean => {
+    const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+
+    if (!storedSessions || !storedSessions[contextName]) {
+        return false
+    } else {
+        return true
+    }
+}
+
 /**
  * An Authenticator that requests for authorization from the Vault
  */
@@ -129,8 +139,8 @@ export default class VaultAccount extends Account {
 
     /**
      * Link storage to this user
-     * 
-     * @param storageConfig 
+     *
+     * @param storageConfig
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
         throw new Error("Link storage is not supported. Vault needs to have already created the storage.")
@@ -138,8 +148,8 @@ export default class VaultAccount extends Account {
 
      /**
       * Unlink storage for this user
-      * 
-      * @param contextName 
+      *
+      * @param contextName
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         throw new Error("Unlink storage is not supported. Request via the Vault.")
