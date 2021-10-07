@@ -1,4 +1,5 @@
 import BaseDb from './base-db'
+import { DbRegistryEntry } from '../../../db-registry'
 import * as PouchDBFind from "pouchdb-find"
 import * as PouchDBLib from "pouchdb"
 
@@ -70,6 +71,19 @@ export default class PublicDatabase extends BaseDb {
         }
 
         return info
+    }
+
+    public async registryEntry(): Promise<DbRegistryEntry> {
+        await this.init()
+        
+        return {
+            dbHash: this.databaseHash,
+            dbName: this.databaseName,
+            endpointType: 'VeridaDatabase',
+            did: this.did,
+            contextName: this.storageContext,
+            permissions: this.permissions!
+        }
     }
 
 }

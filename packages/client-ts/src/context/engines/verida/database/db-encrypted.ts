@@ -1,5 +1,6 @@
 import { VeridaDatabaseConfig } from "./interfaces"
 import BaseDb from "./base-db"
+import DbRegistry, { DbRegistryEntry } from '../../../db-registry'
 
 import * as PouchDBCryptLib from "pouchdb"
 import * as PouchDBLib from "pouchdb"
@@ -23,7 +24,9 @@ PouchDBCrypt.plugin(CryptoPouch)
 export default class EncryptedDatabase extends BaseDb {
 
     protected encryptionKey: Buffer
-    
+    protected password?: string
+
+    private dbRegistry: DbRegistry
     private _sync: any
     private _localDbEncrypted: any
     private _localDb: any
@@ -41,9 +44,10 @@ export default class EncryptedDatabase extends BaseDb {
      * @param {*} permissions 
      */
     //constructor(dbHumanName: string, dbName: string, dataserver: any, encryptionKey: string | Buffer, remoteDsn: string, did: string, permissions: PermissionsConfig) {
-    constructor(config: VeridaDatabaseConfig) {
+    constructor(config: VeridaDatabaseConfig, dbRegistry: DbRegistry) {
         super(config)
 
+        this.dbRegistry = dbRegistry
         this.encryptionKey = config.encryptionKey!
 
         // PouchDB sync object
@@ -61,7 +65,7 @@ export default class EncryptedDatabase extends BaseDb {
         this._localDb = new PouchDBCrypt(this.databaseHash)
 
         // Generate an encryption password from the encryption key
-        const password = Buffer.from(this.encryptionKey).toString('hex')
+        const password = this.password = Buffer.from(this.encryptionKey).toString('hex')
 
         // Generate a deterministic salt from the password and database hash
         const saltString = this.buildHash(`${password}/${this.databaseHash}`).substring(0,32)
@@ -232,7 +236,11 @@ export default class EncryptedDatabase extends BaseDb {
         }
 
         try {
-            this.client.updateDatabase(this.did, this.databaseHash, options);
+            this.client.updateDatabase(this.did, this.databaseHash, options)
+
+            if (this.config.saveDatabase !== false) {
+                await this.dbRegistry.saveDb(this)
+            }
         } catch (err: any) {
             throw new Error("User doesn't exist or unable to create user database")
         }
@@ -281,12 +289,29 @@ export default class EncryptedDatabase extends BaseDb {
             dsn: this.dsn,
             storageContext: this.storageContext,
             databaseName: this.databaseName,
-            databasehash: this.databaseHash,
+            databaseHash: this.databaseHash,
             encryptionKey: this.encryptionKey!,
             sync
         }
 
         return info
+    }
+
+    public async registryEntry(): Promise<DbRegistryEntry> {
+        await this.init()
+
+        return {
+            dbHash: this.databaseHash,
+            dbName: this.databaseName,
+            endpointType: 'VeridaDatabase',
+            did: this.did,
+            contextName: this.storageContext,
+            permissions: this.permissions!,
+            encryptionKey: {
+                type: 'x25519-xsalsa20-poly1305',
+                key: this.password!
+            }
+        }
     }
 
 }

@@ -1,3 +1,4 @@
+import { DbRegistryEntry } from "./db-registry";
 
 /**
  * Interface for any database returned from a storage engine
@@ -14,5 +15,6 @@
     getDb(): Promise<any>
     init(): Promise<void>
     info(): Promise<any>
+    registryEntry(): Promise<DbRegistryEntry>
 
 }

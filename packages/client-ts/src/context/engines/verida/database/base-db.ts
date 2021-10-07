@@ -10,6 +10,7 @@ import { StorageLink } from '@verida/storage-link'
 import DatastoreServerClient from "./client"
 import Utils from './utils'
 import { Context } from '../../../..'
+import { DbRegistryEntry } from '../../../db-registry'
 
 export default class BaseDb extends EventEmitter implements Database {
 
@@ -36,7 +37,7 @@ export default class BaseDb extends EventEmitter implements Database {
         super()
         this.client = config.client
         this.databaseName = config.databaseName
-        this.did = config.did.toLocaleUpperCase()
+        this.did = config.did.toLowerCase()
         this.dsn = config.dsn
         this.storageContext = config.storageContext
 
@@ -74,7 +75,7 @@ export default class BaseDb extends EventEmitter implements Database {
 
         const hash = this.buildHash(text)
 
-        // Database name in CouchDB must start with a letter, so pre-pend a `v`
+        // Database name in CouchDB must start with a letter, so prepend a `v`
         return "v" + hash
     }
 
@@ -293,6 +294,10 @@ export default class BaseDb extends EventEmitter implements Database {
      * Update the users that can access the database
      */
     public async updateUsers(readList: string[] = [], writeList: string[] = []) {
+        throw new Error('Not implemented')
+    }
+
+    public async registryEntry(): Promise<DbRegistryEntry> {
         throw new Error('Not implemented')
     }
 
