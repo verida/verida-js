@@ -9,6 +9,7 @@ StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 
 const DB_NAME_1 = 'Db_Registry_Test_1'
 const DB_NAME_2 = 'Db_Registry_Test_2'
+const DB_NAME_3 = 'Db_Registry_Test_3'
 
 /**
  * 
@@ -52,13 +53,41 @@ describe('Verida database registry tests', () => {
             const database = await context.openDatabase(DB_NAME_2, {
                 saveDatabase: false
             })
+            await database.save({hello: 'world'})
 
             const dbRegistry = await context.getDbRegistry()
             const dbRegistryDatabase = await dbRegistry.get(DB_NAME_2, did1, CONFIG.CONTEXT_NAME)
             assert.ok(dbRegistryDatabase == undefined, 'Database registry entry not created')
         })
 
-        
+        it('can update permissions of existing registry entry', async () => {
+            const testDid = 'did:3:kjzl6cwe1jw146zw5cf7n9fvcbhb83hk4kv1vmdf94b57m8f67oidyaj17l3ujm'
+
+            const database = await context.openDatabase(DB_NAME_3, {
+                permissions: {
+                    read: 'users',
+                    write: 'users'
+                }
+            })
+
+            await database.save({hello: 'world'})
+            const dbRegistry = await context.getDbRegistry()
+            const dbRegistryDatabase1 = await dbRegistry.get(DB_NAME_2, did1, CONFIG.CONTEXT_NAME)
+            assert.ok(dbRegistryDatabase1, 'Database registry entry created')
+
+            // change permissions on the database
+            await database.updateUsers([testDid], [testDid])
+            const dbRegistryDatabase2 = await dbRegistry.get(DB_NAME_2, did1, CONFIG.CONTEXT_NAME)
+            console.log(dbRegistryDatabase2)
+
+            const expectedPermissions = {
+                read: 'users',
+                readList: [testDid],
+                write: 'users',
+                writeList: [testDid]
+            }
+            assert.deepEqual(dbRegistryDatabase1.permissions, expectedPermissions, 'Database registry entry updated')
+        })
 
         
     })
