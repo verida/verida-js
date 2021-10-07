@@ -10,6 +10,7 @@ StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 const DB_NAME_1 = 'Db_Registry_1'
 const DB_NAME_2 = 'Db_Registry_2'
 const DB_NAME_3 = 'Db_Registry_3'
+const DB_NAME_4 = 'Db_Registry_4'
 
 /**
  * 
@@ -90,6 +91,24 @@ describe('Verida database registry tests', () => {
             assert.deepEqual(dbRegistryDatabase2.permissions, expectedPermissions, 'Database registry entry updated')
         })
 
+        it('can open public database with valid registry entry', async function() {
+            const database = await context.openDatabase(DB_NAME_4, {
+                permissions: {
+                    read: 'public',
+                    write: 'public'
+                }
+            })
+            await database.save({hello: 'world'})
+            const dbRegistry = await context.getDbRegistry()
+
+            const dbRegistryDatabase = await dbRegistry.get(DB_NAME_4, did1, CONFIG.CONTEXT_NAME)
+            assert.ok(dbRegistryDatabase, 'Expected database entry created')
+
+            const dbInfo = await database.info()
+
+            assert.equal(dbRegistryDatabase.dbHash, dbInfo.databaseHash,'Expected database hash')
+            assert.equal(dbRegistryDatabase.dbName, dbInfo.databaseName,'Expected database name')
+        })
         
     })
 
