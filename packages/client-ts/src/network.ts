@@ -11,7 +11,7 @@ export default class Network {
      * and then opening a context.
      * 
      * @param config NetworkConnectionConfig Configuration 
-     * @returns 
+     * @returns {Context | undefined} A new Context instance loaded using the supplied config
      */
     public static async connect(config: NetworkConnectionConfig): Promise<Context | undefined> {
         const client = new Client(config.client ? config.client : {})

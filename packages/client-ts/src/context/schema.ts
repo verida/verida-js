@@ -81,7 +81,7 @@ export default class Schema {
     }
 
     /**
-     * @todo: Deprecate in favour of `getProperties()`
+     * @todo Deprecate in favour of `getProperties()`
      * Get an object that represents the JSON Schema. Fully resolved.
      * Warning: This can cause issues with very large schemas.
      * 
@@ -114,7 +114,7 @@ export default class Schema {
     public async validate(data: any): Promise<boolean> {
         if (!this.validateFunction) {
             const schemaJson = await this.getSchemaJson()
-            // @todo: Fix schemas to have valid definitions and then enable strict compile
+            // @todo Fix schemas to have valid definitions and then enable strict compile
             this.validateFunction = await this.ajv.compileAsync(schemaJson)
         }
 

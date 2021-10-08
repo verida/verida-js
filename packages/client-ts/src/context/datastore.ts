@@ -182,7 +182,7 @@ export default class Datastore {
     /**
      * Initialize this datastore instance before use.
      * 
-     * @todo: move this into context.openDatastore???
+     * @todo move this into context.openDatastore???
      */
     private async init() {
         if (this.db) {
@@ -207,8 +207,8 @@ export default class Datastore {
     }
 
     /**
-     * @todo: Support removing indexes that were deleted from the spec
-     * @todo: Validate indexes
+     * @todo Support removing indexes that were deleted from the spec
+     * @todo Validate indexes
      * 
      * @param indexes 
      */

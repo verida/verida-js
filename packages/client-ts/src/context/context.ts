@@ -106,7 +106,6 @@ export default class Context {
      * Get a storage engine for a given DID and this contextName
      * 
      * @param did 
-     * @returns 
      */
     private async getDatabaseEngine(did: string, createContext?: boolean): Promise<BaseStorageEngine> {
         if (this.databaseEngines[did]) {
@@ -139,7 +138,6 @@ export default class Context {
      * 
      * Allows you to send and receive messages as the currently connected account.
      * 
-     * @returns {Messaging} Messaging instance
      */
     public async getMessaging(): Promise<Messaging> {
         if (this.messagingEngine) {
@@ -193,7 +191,6 @@ export default class Context {
      * @param databaseName {string} Name of the database to open
      * @param options {DatabaseOpenConfig} Optional database configuration
      * 
-     * @returns {Promise<Database>}
      */
     public async openDatabase(databaseName: string, config: DatabaseOpenConfig = {}): Promise<Database> {
         if (!this.account) {
@@ -221,7 +218,6 @@ export default class Context {
      * @param databaseName {string} Name of the database to open
      * @param did {string} DID of the external account that owns the database
      * @param options {DatabaseOpenConfig} Optional database configuration
-     * @returns 
      */
     public async openExternalDatabase(databaseName: string, did: string, config: DatabaseOpenConfig = {}): Promise<Database> {
         let contextConfig
@@ -255,7 +251,6 @@ export default class Context {
      * 
      * @param schemaUri {string} URI of the schema to open (ie: https://schemas.verida.io/social/contact/schema.json)
      * @param config {DatastoreOpenConfig} Optional datastore configuration
-     * @returns 
      */
     public async openDatastore(schemaUri: string, config: DatastoreOpenConfig = {}): Promise<Datastore> {
         if (!this.account) {
@@ -272,7 +267,6 @@ export default class Context {
      * @param schemaUri {string} URI of the schema to open (ie: https://schemas.verida.io/social/contact/schema.json)
      * @param did {string} DID of the external account that owns the database
      * @param options {DatabaseOpenConfig} Optional database configuration
-     * @returns 
      */
     public async openExternalDatastore(schemaUri: string, did: string, options: DatastoreOpenConfig = {}): Promise<Datastore> {
         //const contextConfig = await this.getContextConfig(did, false)

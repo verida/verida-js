@@ -71,7 +71,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
      * 
      * @param endpointUri 
      * @param did 
-     * @returns 
+     * @returns {string}
      */
     protected async buildExternalDsn(endpointUri: string): Promise<string> {
         const client = new DatastoreServerClient(this.storageContext, endpointUri)
@@ -101,7 +101,7 @@ export default class StorageEngineVerida extends BaseStorageEngine {
      * 
      * @param databaseName 
      * @param options 
-     * @returns 
+     * @returns {Database}
      */
     public async openDatabase(databaseName: string, options: DatabaseOpenConfig): Promise<Database> {
         const config: DatabaseOpenConfig = _.merge({
