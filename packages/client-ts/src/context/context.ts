@@ -235,6 +235,8 @@ export default class Context {
             signingContext: this
         }, config)
 
+        config.saveDatabase = false
+
         if (config.contextName && config.contextName != this.contextName) {
             // We are opening a database for a different context.
             // Open the new context
