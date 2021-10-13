@@ -336,12 +336,16 @@ export default async function (
   }
 
   if (modal && closeModal) {
-    closeModal.onclick = () => (modal.style.display = "none");
+    closeModal.onclick = () => {
+      modal.style.display = 'none';
+      authConfig.callbackRejected!();
+    }
   }
 
   window.onclick = function (event: Event) {
     if (event.target === modal && modal !== null) {
-      modal.style.display = "none";
+      modal.style.display = 'none';
+      authConfig.callbackRejected!();
     }
   };
 
