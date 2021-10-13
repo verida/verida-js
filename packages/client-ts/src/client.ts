@@ -109,7 +109,7 @@ export default class Client {
         }
 
         if (!contextConfig) {
-            throw new Error ('Unable to locate requested storage context for requeseted DID. Force create?')
+            throw new Error ('Unable to locate requested storage context for requested DID. Force create?')
         }
 
         // @todo cache the storage contexts
