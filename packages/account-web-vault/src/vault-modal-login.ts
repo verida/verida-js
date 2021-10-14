@@ -1,21 +1,27 @@
-import AuthClient from './auth-client';
+import AuthClient from "./auth-client";
 
 // @ts-ignore
-import Sora from './assets/fonts/Sora-Regular.ttf';
-import VeridaVaultImage from './assets/open_verida_vault_dark.png';
+import Sora from "./assets/fonts/Sora-Regular.ttf";
+import VeridaVaultImage from "./assets/open_verida_vault_dark.png";
 
-import { AuthClientConfig, VaultModalLoginConfig } from './interfaces';
-const _ = require('lodash');
-const store = require('store');
+import { AuthClientConfig, VaultModalLoginConfig } from "./interfaces";
+const _ = require("lodash");
+const store = require("store");
 
-const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
+const VERIDA_AUTH_CONTEXT = "_verida_auth_context";
 
-export default async function (contextName: string, config: VaultModalLoginConfig) {
-  const authConfig: AuthClientConfig = _.merge({
-    loginUri: 'https://vault.verida.io/request/',
-    canvasId: 'verida-auth-client-canvas',
-    context: contextName
-  }, config)
+export default async function (
+  contextName: string,
+  config: VaultModalLoginConfig
+) {
+  const authConfig: AuthClientConfig = _.merge(
+    {
+      loginUri: "https://vault.verida.io/request/",
+      canvasId: "verida-auth-client-canvas",
+      context: contextName,
+    },
+    config
+  );
 
   const modalHTML = `
   <div id="verida-modal" hidden="true" class="verida-modal-wrapper">
@@ -302,43 +308,65 @@ export default async function (contextName: string, config: VaultModalLoginConfi
       display: none;
     }
     </style>
-  `
+  `;
 
-  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-  const modal: HTMLElement | null = document.getElementById('verida-modal');
-  const closeModal: HTMLElement | null = document.getElementById('verida-modal-close');
+  const modal: HTMLElement | null = document.getElementById("verida-modal");
+  const closeModal: HTMLElement | null =
+    document.getElementById("verida-modal-close");
 
-  const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${contextName}`)
+  const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${contextName}`);
 
   const body = document.body;
-  if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+  if (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  ) {
     // true for mobile device
     body.classList.add("mobile");
   } else {
     body.classList.add("desktop");
   }
 
+  function callbackRejected(modal: HTMLElement) {
+    addVeridaButtonImage();
+    modal.style.display = "none";
+    authConfig.callbackRejected!();
+  }
+
   if (modal && closeModal) {
+    addVeridaButtonImage();
     closeModal.onclick = () => {
-      modal.style.display = 'none';
-      authConfig.callbackRejected!();
-    }
+      callbackRejected(modal);
+    };
   }
 
   window.onclick = function (event: Event) {
+    addVeridaButtonImage();
     if (event.target === modal && modal !== null) {
-      modal.style.display = 'none';
-      authConfig.callbackRejected!();
+      callbackRejected(modal);
     }
-  }
+  };
 
-  new AuthClient(authConfig, modal)
+  new AuthClient(authConfig, modal);
 
   if (authContext && modal) {
-    modal.style.display = 'none'
+    modal.style.display = "none";
   } else {
     modal && (modal.style.display = "block");
   }
+}
 
-};
+function addVeridaButtonImage() {
+  const veridaButton: HTMLImageElement | null =
+    document.querySelector("#verida-button");
+
+  if (veridaButton) {
+    veridaButton.src = VeridaVaultImage;
+    veridaButton.style.width = "80%";
+  }
+}
+
+window.addEventListener("load", addVeridaButtonImage);
