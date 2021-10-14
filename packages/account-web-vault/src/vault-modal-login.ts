@@ -86,6 +86,7 @@ export default async function (
       background-color: #E5E5E5;
     }
 
+
     .verida-modal-container {
       margin: 3% auto;
       border-radius: 14.35px;
@@ -252,7 +253,11 @@ export default async function (
 
       .verida-modal-container {
         width: 100%;
-        height: 100%;
+        height: 783px;
+      }
+
+      .verida-modal-wrapper {
+        overflow: scroll;
       }
 
       .verida-modal-body {
