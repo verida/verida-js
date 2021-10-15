@@ -216,7 +216,7 @@ export default class VeridaInbox extends EventEmitter {
         const items = await privateInbox.getMany({
             read: true                  // Only delete read inbox items
         }, {
-            skip: this._maxItems,
+            skip: this.maxItems,
             sort: [{ sentAt: 'desc' }]  // Delete oldest first
         })
 
