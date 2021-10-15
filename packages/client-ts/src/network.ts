@@ -11,12 +11,19 @@ export default class Network {
      * and then opening a context.
      * 
      * @param config NetworkConnectionConfig Configuration 
-     * @returns 
+     * @returns {Context | undefined} If the user logs in a valid `Context` object is returned. If an unexpected error occurs or the user cancels the login attempt then nothing is returned.
      */
     public static async connect(config: NetworkConnectionConfig): Promise<Context | undefined> {
         const client = new Client(config.client ? config.client : {})
         await client.connect(config.account)
-        return client.openContext(config.context.name, config.context.forceCreate)
+
+        try {
+            const context = await client.openContext(config.context.name, config.context.forceCreate)
+            return context
+        } catch (err) {
+            // User may have cancelled the login attempt
+            return
+        }
     }
 
 }

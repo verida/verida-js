@@ -50,7 +50,7 @@ export default class VaultAccount extends Account {
             return contextConfig
         }
 
-        const promise = new Promise<void>((resolve, reject) => {
+        const promise = new Promise<boolean>((resolve, reject) => {
             const cb = async (response: any, saveSession: boolean) => {
                 if (saveSession) {
                     let storedSessions = store.get(VERIDA_AUTH_CONTEXT)
@@ -64,11 +64,14 @@ export default class VaultAccount extends Account {
 
                 this.setDid(response.did)
                 vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
-                resolve()
+                resolve(true)
             }
 
             const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, this.config.vaultConfig, {
-                callback: cb
+                callback: cb,
+                callbackRejected: function() {
+                    resolve(false)
+                }
             })
 
             VaultModalLogin(contextName, config)
