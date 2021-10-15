@@ -35,9 +35,9 @@ export default class Schema {
 
     /**
      * An object representation of a JSON Schema.
-     * 
+     *
      * **Do not instantiate directly.**
-     * 
+     *
      * Access via {@link App#getSchema}
      * @param {string} path Path to a schema in the form (http://..../schema.json, /schemas/name/schema.json, name/of/schema)
      * @constructor
@@ -84,7 +84,7 @@ export default class Schema {
      * @todo: Deprecate in favour of `getProperties()`
      * Get an object that represents the JSON Schema. Fully resolved.
      * Warning: This can cause issues with very large schemas.
-     * 
+     *
      * @example
      * let schemaDoc = await app.getSchema("social/contact");
      * let spec = schemaDoc.getSpecification();
@@ -107,8 +107,8 @@ export default class Schema {
 
     /**
      * Validate a data object with this schema, using AJV
-     * 
-     * @param {object} data 
+     *
+     * @param {object} data
      * @returns {boolean} True if the data validates against the schema.
      */
     public async validate(data: any): Promise<boolean> {
@@ -122,7 +122,7 @@ export default class Schema {
         if (!valid) {
             this.errors = this.validateFunction.errors
         }
-        
+
         return valid
     }
 
@@ -136,7 +136,10 @@ export default class Schema {
 
         const path = await this.getPath();
         const fileData = await axios.get(path, {
-            responseType: 'json'
+            responseType: 'json',
+            params: {
+                t: new Date().getTime()
+            }
         })
 
         this.schemaJson = await fileData.data
@@ -165,13 +168,13 @@ export default class Schema {
 
             schemaJson.appearance.style.icon = icon
         }
-        
+
         return appearance
     }
 
     /**
      * Get a rully resolveable path for a URL
-     * 
+     *
      * Handle shortened paths:
      *  - `health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
      *  - `https://schemas.verida.io/health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
@@ -207,7 +210,7 @@ export default class Schema {
 
     /**
      * Force schema paths to be applied to URLs
-     * 
+     *
      */
     static async resolvePath(uri: string): Promise<string> {
         const resolvePaths = Schema.schemaPaths!
@@ -224,16 +227,16 @@ export default class Schema {
 
     /**
      * Load JSON from a url that is fully resolved.
-     * 
+     *
      * Used by AJV.
-     * 
-     * @param {*} uri 
+     *
+     * @param {*} uri
      */
     static async loadJson(uri: string): Promise<object> {
         if (jsonCache[uri]) {
             return jsonCache[uri]
         }
-    
+
         jsonCache[uri] = new Promise(async (resolve, reject) => {
             uri = await Schema.resolvePath(uri)
 
@@ -247,9 +250,9 @@ export default class Schema {
             } catch (err) {
                 reject(err)
             }
-            
+
         })
-    
+
         return jsonCache[uri]
       }
 
