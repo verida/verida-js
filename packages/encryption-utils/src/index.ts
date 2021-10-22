@@ -12,6 +12,11 @@ const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
 const newKey = (length: number) => randomBytes(length ? length : secretbox.keyLength);
 
+/**
+ * Utilizes `tweetnacl` for symmetric and asymmetric encryption.
+ * 
+ * Utilizes `keccak256` algorithm to hash signed data and `secp256k1` signature algorithm for the resulting signature.
+ */
 export default class EncryptionUtils {
 
     static symEncryptBuffer(data: any, keyUint8Array: Uint8Array) {
@@ -102,24 +107,14 @@ export default class EncryptionUtils {
     }
 
     static signData(data: any, privateKeyBytes: Uint8Array) {
-        if (typeof(data) != 'string') {
-            data = JSON.stringify(data)
-        }
-
-        const hash = utils.keccak256(utils.toUtf8Bytes(data))
-        const messageHashBytes = utils.arrayify(hash)
+        const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signingKey = new utils.SigningKey(privateKeyBytes)
         const signature = signingKey.signDigest(messageHashBytes)
         return utils.joinSignature(signature)
     }
 
     static verifySig(data: any, signature: string, publicKeyBytes: Uint8Array) {
-        if (typeof(data) != 'string') {
-            data = JSON.stringify(data)
-        }
-
-        const hash = utils.keccak256(utils.toUtf8Bytes(data))
-        const messageHashBytes = utils.arrayify(hash)
+        const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signerAddress = utils.recoverAddress(messageHashBytes, signature)
         const expectedAddress = utils.computeAddress(publicKeyBytes)
 
@@ -132,5 +127,18 @@ export default class EncryptionUtils {
 
     static encodeBase64(data: any) {
         return encodeBase64(data)
+    }
+
+    static hash(data: any) {
+        if (typeof(data) != 'string') {
+            data = JSON.stringify(data)
+        }
+
+        return utils.keccak256(utils.toUtf8Bytes(data))
+    }
+
+    static hashBytes(data: any) {
+        const hash = EncryptionUtils.hash(data)
+        return utils.arrayify(hash)
     }
 }
