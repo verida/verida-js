@@ -113,10 +113,14 @@ export default class EncryptionUtils {
         return utils.joinSignature(signature)
     }
 
-    static verifySig(data: any, signature: string, publicKeyBytes: Uint8Array) {
+    static verifySig(data: any, signature: string, publicKey: string | Uint8Array) {
+        let expectedAddress = publicKey
+        if (typeof(publicKey) != "string") {
+            expectedAddress = utils.computeAddress(publicKey)
+        }
+
         const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signerAddress = utils.recoverAddress(messageHashBytes, signature)
-        const expectedAddress = utils.computeAddress(publicKeyBytes)
 
         return signerAddress == expectedAddress
     }
