@@ -1,10 +1,12 @@
-import { secretbox, sign, box, randomBytes } from "tweetnacl";
+import { secretbox, box, randomBytes } from "tweetnacl";
 import {
   decodeUTF8,
   encodeUTF8,
   encodeBase64,
   decodeBase64
 } from "tweetnacl-util";
+import { utils } from 'ethers'
+import util = require("tweetnacl-util");
 
 const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
@@ -100,13 +102,28 @@ export default class EncryptionUtils {
     }
 
     static signData(data: any, privateKeyBytes: Uint8Array) {
-        let messageUint8 = decodeUTF8(JSON.stringify(data));
-        return encodeBase64(sign.detached(messageUint8, privateKeyBytes));
+        if (typeof(data) != 'string') {
+            data = JSON.stringify(data)
+        }
+
+        const hash = utils.keccak256(utils.toUtf8Bytes(data))
+        const messageHashBytes = utils.arrayify(hash)
+        const signingKey = new utils.SigningKey(privateKeyBytes)
+        const signature = signingKey.signDigest(messageHashBytes)
+        return utils.joinSignature(signature)
     }
 
-    static verifySig(data: any, sig: string, publicKeyBytes: Uint8Array) {
-        let messageUint8 = decodeUTF8(JSON.stringify(data));
-        return sign.detached.verify(messageUint8, decodeBase64(sig), publicKeyBytes);
+    static verifySig(data: any, signature: string, publicKeyBytes: Uint8Array) {
+        if (typeof(data) != 'string') {
+            data = JSON.stringify(data)
+        }
+
+        const hash = utils.keccak256(utils.toUtf8Bytes(data))
+        const messageHashBytes = utils.arrayify(hash)
+        const signerAddress = utils.recoverAddress(messageHashBytes, signature)
+        const expectedAddress = utils.computeAddress(publicKeyBytes)
+
+        return signerAddress == expectedAddress
     }
 
     static decodeBase64(data: any) {
