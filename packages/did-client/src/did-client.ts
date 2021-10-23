@@ -1,6 +1,5 @@
-import { DIDDocument } from "./interfaces"
 import Axios from 'axios'
-import VdaDidDocument from "./did-document"
+import { DIDDocument, Interfaces } from "@verida/did-document"
 
 export default class DIDClient {
 
@@ -10,19 +9,21 @@ export default class DIDClient {
         this.endpointUrl = endpointUrl
     }
 
-    public async save(document: DIDDocument) {
-        // @todo: verify proof before sending
+    public async save(document: DIDDocument): Promise<boolean> {
+        if (!document.verifyProof()) {
+            throw new Error('Document has invalid proof')
+        }
+        
 
         try {
-            await Axios.post(`${this.endpointUrl}/commit`, {
+            const response = await Axios.post(`${this.endpointUrl}/commit`, {
                 params: {
-                    document
+                    document: document.export()
                 }
             })
 
             return true
         } catch (err: any) {
-            console.log(err)
             if (err.response && typeof err.response.data && err.response.data.status == 'fail') {
                 throw new Error(err.response.data.message)
             }
@@ -31,15 +32,15 @@ export default class DIDClient {
         }
     }
 
-    public async get(did: string) {
+    public async get(did: string): Promise<DIDDocument> {
         try {
             const response: any = await Axios.get(`${this.endpointUrl}/load?did=${did}`);
-            const documentData: DIDDocument = response.data.data.document
-            const doc = new VdaDidDocument(documentData)
+            const documentData: Interfaces.DIDDocumentStruct = response.data.data.document
+            const doc = new DIDDocument(documentData)
 
             return doc
         } catch (err) {
-            return null
+            return
         }
     }
 

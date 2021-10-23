@@ -1,19 +1,22 @@
 'use strict'
 const assert = require('assert')
 
-import { DIDDocument } from "../src/index"
+import { DIDClient } from "../src/index"
 import { Wallet, utils } from 'ethers'
 import { Keyring } from '@verida/keyring'
-import { Endpoints, EndpointType } from "../src/interfaces"
+import { Interfaces, DIDDocument } from "@verida/did-document"
 import { ServiceEndpoint } from "did-resolver"
 
-const mnemonic = "slight crop cactus cute trend tape undo exile retreat large clay average"
-const wallet = Wallet.fromMnemonic(mnemonic)
+const Endpoints = Interfaces.Endpoints
+const EndpointType = Interfaces.EndpointType
 
-const address = wallet.address
+const wallet = Wallet.createRandom()
+
+const address = wallet.address.toLowerCase()
 const did = `did:vda:${address}`
 
 const CONTEXT_NAME = 'Verida: Test DID Context'
+const DID_REGISTRY_ENDPOINT = 'http://localhost:5001'
 
 const keyring = new Keyring(wallet.mnemonic.phrase)
 
@@ -28,6 +31,8 @@ const endpoints: Endpoints = {
     }
 }
 
+const didClient = new DIDClient(DID_REGISTRY_ENDPOINT)
+
 /**
  * 
  */
@@ -36,22 +41,36 @@ describe('DID document tests', () => {
     describe('Document creation', function() {
         it('can create an empty document', async function() {
             const doc = new DIDDocument(did)
-            const data = doc.export()
+            doc.signProof(wallet.privateKey)
+            const saved = await didClient.save(doc)
 
-            assert.ok(doc)
-            assert.equal(did, data.id, 'Document ID matches DID')
+            assert.ok(saved)
         })
 
-        it('can add a context', async function() {
-            const doc = new DIDDocument(did)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+        it('can fetch an existing document', async function() {
+            const doc = await didClient.get(did)
+            assert.ok(doc)
 
+            assert.equal(doc.id, did, 'Retreived document has matching DID')
+        })
+
+        it('can add a context to an existing DID and verify', async function() {
+            const initialDoc = new DIDDocument(did)
+            await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
+            initialDoc.signProof(wallet.privateKey)
+            const saved = await didClient.save(initialDoc)
+
+            assert.ok(saved)
+
+            const doc = await didClient.get(did)
             const data = doc.export()
+
+            const contextHash = initialDoc.generateContextHash(CONTEXT_NAME)
 
             // Validate service endpoints
             assert.equal(data.service.length, 2, "Have two service entries")
             function validateServiceEndpoint(type, endpointUri, actual: ServiceEndpoint) {
-                assert.equal(actual.id, `did:vda:0xb194A2809B5b3b8aaE350d85233439D32b361694?context=0x2d23fba7467f275904b4bc474c816ff37056ae8436ddfc555747613945034a91#${type}`, "Endpoint ID matches hard coded value")
+                assert.equal(actual.id, `${did}?context=${contextHash}#${type}`, "Endpoint ID matches hard coded value")
                 assert.equal(actual.type, type, "Type has expected value")
                 assert.equal(actual.serviceEndpoint, endpointUri, "Endpoint has expected value")
             }
@@ -64,21 +83,17 @@ describe('DID document tests', () => {
 
             // @todo: validate verification method
             assert.equal(data.verificationMethod.length, 2, "Have two verificationMethod entries")
-
-            // @todo: validate signing key
-
-            // @todo: validate asymmetric key
         })
 
-        it('can sign and verify a proof', async function() {
-            const doc = new DIDDocument(did)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+        it('can handle invalid DIDs', async function() {
+            const doc1 = await didClient.get(`did:vda:0xabcd`)
+            assert.ok(!doc1, 'Document not returned')
 
-            doc.signProof(wallet.privateKey)
-            assert.ok(doc.verifyProof(), "Proof is valid")
+            const doc2 = await didClient.get(`did:vda`)
+            assert.ok(!doc2, 'Document not returned')
 
-            const data = doc.export()
-            assert.ok(data.proof, "Proof still exists after verification")
+            const doc3 = await didClient.get("")
+            assert.ok(!doc3, 'Document not returned')
         })
     })
 

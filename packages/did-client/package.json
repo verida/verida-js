@@ -17,11 +17,8 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/keyring": "*",
-    "@verida/storage-link": "*",
-    "@verida/encryption-utils": "*",
-    "axios": "^0.23.0",
-    "did-resolver": "^3.1.2"
+    "@verida/did-document": "*",
+    "axios": "^0.23.0"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
