@@ -8,7 +8,7 @@ export interface Proof {
     proofValue: string
 }
 
-export interface DIDDocument extends DD {
+export interface DIDDocumentStruct extends DD {
     proof?: Proof
 }
 
@@ -24,11 +24,4 @@ export enum EndpointType {
     MESSAGING = 'messaging',
     STORAGE = 'storage',
     NOTIFICATION = 'notification'
-}
-
-export enum ServiceType {
-    VeridaDatabase = 'VeridaDatabase',
-    VeridaMessaging = 'VeridaMessaging',
-    VeridaStorage = 'VeirdaStorage',
-    VeridaNotification = 'VeridaNotification',
 }

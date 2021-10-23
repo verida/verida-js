@@ -1,9 +1,9 @@
 import DIDClient from "./did-client"
-import VdaDidDocument from "./did-document"
+import DIDDocument from "./did-document"
 import * as Interfaces from "./interfaces"
 
-export default {
+export {
     DIDClient,
-    DIDDocument: VdaDidDocument,
+    DIDDocument,
     Interfaces
 }

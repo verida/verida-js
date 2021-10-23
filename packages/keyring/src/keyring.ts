@@ -1,7 +1,7 @@
 import Encryption from '@verida/encryption-utils'
 import nacl, { box, sign } from 'tweetnacl'
 const bs58 = require('bs58')
-import ethers from 'ethers'
+import { utils } from 'ethers'
 
 import { KeyringKeyType } from './interfaces'
 
@@ -12,8 +12,8 @@ import { KeyringKeyType } from './interfaces'
  */
 export default class Keyring {
 
-    public asymKeyPair?: nacl.BoxKeyPair    // was 'any'
-    public signKeyPair?: nacl.SignKeyPair   // was 'any'
+    public asymKeyPair?: nacl.BoxKeyPair
+    public signKeyPair?: nacl.SignKeyPair
     public symKey?: Uint8Array
 
     private seed: string
@@ -51,9 +51,11 @@ export default class Keyring {
             return
         }
 
-        this.asymKeyPair = <nacl.BoxKeyPair> await this.buildKey(this.seed, KeyringKeyType.ASYM)
-        this.signKeyPair = <nacl.BoxKeyPair> await this.buildKey(this.seed, KeyringKeyType.SIGN)
-        this.symKey = <Uint8Array> await this.buildKey(this.seed, KeyringKeyType.SYM)
+        this.asymKeyPair = await this.buildKey(this.seed, KeyringKeyType.ASYM)
+        this.signKeyPair = await this.buildKey(this.seed, KeyringKeyType.SIGN)
+
+        const symmetricKey = await this.buildKey(this.seed, KeyringKeyType.SYM)
+        this.symKey = symmetricKey.secretKey
     }
 
     /**
@@ -63,14 +65,20 @@ export default class Keyring {
      * @param keyType 
      * @returns 
      */
-    private async buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair | Uint8Array> {
+    private async buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair> {
         const inputMessage = `${seed}-${keyType}`
         const hashBytes = Encryption.hashBytes(inputMessage)
 
         switch (keyType) {
             case KeyringKeyType.SIGN:
-                const hdnode = ethers.utils.HDNode.fromSeed(hashBytes)
-                return new Uint8Array(Buffer.from(hdnode.privateKey.substr(2),'hex'))
+                const hdnode = utils.HDNode.fromSeed(hashBytes)
+                const secretKey = new Uint8Array(Buffer.from(hdnode.privateKey.substr(2),'hex'))
+                const publicKey = new Uint8Array(Buffer.from(hdnode.publicKey.substr(2),'hex'))
+
+                return {
+                    secretKey,
+                    publicKey
+                }
             case KeyringKeyType.ASYM:
                 return box.keyPair.fromSecretKey(hashBytes)
             case KeyringKeyType.SYM:

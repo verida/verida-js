@@ -1,11 +1,12 @@
 import { Keyring } from '@verida/keyring'
-import { DIDDocument, Endpoints, EndpointType, ServiceType } from './interfaces'
+import { DIDDocumentStruct, Endpoints, EndpointType } from './interfaces'
+import EncryptionUtils from '@verida/encryption-utils'
 
-export default class VdaDidDocument {
+export default class DIDDocument {
 
-    private doc: DIDDocument
+    private doc: DIDDocumentStruct
 
-    constructor(doc: DIDDocument | string) {
+    constructor(doc: DIDDocumentStruct | string) {
         if (typeof(doc) == 'string') {
             const did = doc
             this.doc = {
@@ -17,7 +18,10 @@ export default class VdaDidDocument {
         }
     }
 
-    public async addContext(contextHash: string, keyring: Keyring, endpoints: Endpoints) {
+    public async addContext(contextName: string, keyring: Keyring, endpoints: Endpoints) {
+        // Build context hash in the correct format
+        const contextHash = this.generateContextHash(contextName)
+
         // Add services
         this.addService(contextHash, EndpointType.DATABASE, endpoints.database.type, endpoints.database.endpointUri)
         this.addService(contextHash, EndpointType.MESSAGING, endpoints.messaging.type, endpoints.messaging.endpointUri)
@@ -33,13 +37,14 @@ export default class VdaDidDocument {
         // Add keys
         const keys = await keyring.getKeys()
         this.addSignKey(contextHash, keys.signPublicKeyBase58)
+        this.addAsymKey(contextHash, keys.asymPublicKeyBase58)
     }
 
     public removeContext() {
         throw new Error('Not implemented')
     }
 
-    public import(doc: DIDDocument) {
+    public import(doc: DIDDocumentStruct) {
         this.doc = doc
     }
 
@@ -47,7 +52,7 @@ export default class VdaDidDocument {
         return this.doc
     }
 
-    private addService(contextHash: string, endpointType: EndpointType, serviceType: ServiceTypes, endpointUri: string) {
+    private addService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUri: string) {
         if (!this.doc.service) {
             this.doc.service = []
         }
@@ -101,13 +106,52 @@ export default class VdaDidDocument {
         this.doc.keyAgreement.push(`${this.doc.id}?context=${contextHash}#asym`)
     }
 
-    public async addProof(signature: string) {
+    public async signProof(privateKey: Uint8Array | string) {
+        if (privateKey == 'string') {
+            privateKey = new Uint8Array(Buffer.from(privateKey.substr(2),'hex'))
+        }
+
+        const proofData = this.getProofData()
+        const signature = EncryptionUtils.signData(proofData, <Uint8Array> privateKey)
+
         this.doc.proof = {
             type: "EcdsaSecp256k1VerificationKey2019",
             verificationMethod: `${this.doc.id}`,
             proofPurpose: "assertionMethod",
             proofValue: signature
         }
+    }
+
+    public verifyProof() {
+        if (!this.doc.proof) {
+            return false
+        }
+
+        const signature = this.doc.proof.proofValue
+        const did = this.doc.proof.verificationMethod
+        const proofData = this.getProofData()
+        
+        const address = did.replace('did:vda:','')
+
+        return EncryptionUtils.verifySig(proofData, signature, address)
+    }
+
+    private getProofData() {
+        const proofData = Object.assign({}, this.doc)
+        delete proofData['proof']
+        return proofData
+    }
+
+    public generateContextHash(contextName: string) {
+        const did = this.doc.id.toLowerCase()
+        return EncryptionUtils.hash(`${did}/${contextName}`)
+    }
+
+    public locateServiceEndpoint(contextName: string, endpointType: EndpointType) {
+        const contextHash = this.generateContextHash(contextName)
+        const expectedEndpointId = `${this.doc.id}?context=${contextHash}#${endpointType}`
+
+        return this.doc.service!.find(entry => entry.id == expectedEndpointId)
     }
 
 }
