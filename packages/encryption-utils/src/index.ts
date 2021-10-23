@@ -122,7 +122,7 @@ export default class EncryptionUtils {
         const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signerAddress = utils.recoverAddress(messageHashBytes, signature)
 
-        return signerAddress == expectedAddress
+        return signerAddress.toLowerCase() == String(expectedAddress).toLowerCase()
     }
 
     static decodeBase64(data: any) {
