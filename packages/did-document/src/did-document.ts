@@ -1,6 +1,7 @@
 import { Keyring } from '@verida/keyring'
 import { DIDDocumentStruct, Endpoints, EndpointType } from './interfaces'
 import EncryptionUtils from '@verida/encryption-utils'
+import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
 
 export default class DIDDocument {
 
@@ -28,30 +29,65 @@ export default class DIDDocument {
         return this.doc.id
     }
 
+    /**
+     * Not used directly, used for testing
+     * 
+     * @param contextName 
+     * @param keyring 
+     * @param endpoints 
+     */
     public async addContext(contextName: string, keyring: Keyring, endpoints: Endpoints) {
         // Build context hash in the correct format
-        const contextHash = this.generateContextHash(contextName)
+        const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         // Add services
-        this.addService(contextHash, EndpointType.DATABASE, endpoints.database.type, endpoints.database.endpointUri)
-        this.addService(contextHash, EndpointType.MESSAGING, endpoints.messaging.type, endpoints.messaging.endpointUri)
+        this.addContextService(contextHash, EndpointType.DATABASE, endpoints.database.type, endpoints.database.endpointUri)
+        this.addContextService(contextHash, EndpointType.MESSAGING, endpoints.messaging.type, endpoints.messaging.endpointUri)
 
         if (endpoints.storage) {
-            this.addService(contextHash, EndpointType.STORAGE, endpoints.storage.type, endpoints.storage.endpointUri)
+            this.addContextService(contextHash, EndpointType.STORAGE, endpoints.storage.type, endpoints.storage.endpointUri)
         }
 
         if (endpoints.notification) {
-            this.addService(contextHash, EndpointType.NOTIFICATION, endpoints.notification.type, endpoints.notification.endpointUri)
+            this.addContextService(contextHash, EndpointType.NOTIFICATION, endpoints.notification.type, endpoints.notification.endpointUri)
         }
 
         // Add keys
         const keys = await keyring.getKeys()
-        this.addSignKey(contextHash, keys.signPublicKeyBase58)
-        this.addAsymKey(contextHash, keys.asymPublicKeyBase58)
+        this.addContextSignKey(contextHash, keys.signPublicKeyBase58)
+        this.addContextAsymKey(contextHash, keys.asymPublicKeyBase58)
     }
 
-    public removeContext() {
-        throw new Error('Not implemented')
+    public async removeContext(contextName: string): Promise<boolean> {
+        const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
+
+        if (!this.doc.verificationMethod) {
+            return false
+        }
+
+        const contextDid = `${this.doc.id}\\?context=${contextHash}`
+
+        if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextDid))) {
+            return false
+        }
+
+        // Remove signing key and asymmetric key
+        this.doc.verificationMethod = this.doc.verificationMethod!.filter((entry: VerificationMethod) => {
+            return !entry.id.match(contextDid)
+        })
+        this.doc.assertionMethod = this.doc.assertionMethod!.filter((entry: string | VerificationMethod) => {
+            return entry !== `${contextDid}#sign`
+        })
+        this.doc.keyAgreement = this.doc.keyAgreement!.filter((entry: string | VerificationMethod) => {
+            return entry !== `${contextDid}#asym`
+        })
+        
+        // Remove services
+        this.doc.service = this.doc.service!.filter((entry: ServiceEndpoint) => {
+            return !entry.id.match(contextDid)
+        })
+
+        return true
     }
 
     public import(doc: DIDDocumentStruct) {
@@ -63,7 +99,7 @@ export default class DIDDocument {
         return this.doc
     }
 
-    private addService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUri: string) {
+    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUri: string) {
         if (!this.doc.service) {
             this.doc.service = []
         }
@@ -75,7 +111,7 @@ export default class DIDDocument {
         })
     }
 
-    private addSignKey(contextHash: string, publicKeyBase58: string) {
+    public addContextSignKey(contextHash: string, publicKeyBase58: string) {
         // Add verification method
         if (!this.doc.verificationMethod) {
             this.doc.verificationMethod = []
@@ -96,7 +132,7 @@ export default class DIDDocument {
         this.doc.assertionMethod.push(`${this.doc.id}?context=${contextHash}#sign`)
     }
 
-    private addAsymKey(contextHash: string, publicKeyBase58: string) {
+    public addContextAsymKey(contextHash: string, publicKeyBase58: string) {
         // Add verification method
         if (!this.doc.verificationMethod) {
             this.doc.verificationMethod = []
@@ -153,13 +189,12 @@ export default class DIDDocument {
         return proofData
     }
 
-    public generateContextHash(contextName: string) {
-        const did = this.doc.id.toLowerCase()
+    public static generateContextHash(did: string, contextName: string) {
         return EncryptionUtils.hash(`${did}/${contextName}`)
     }
 
     public locateServiceEndpoint(contextName: string, endpointType: EndpointType) {
-        const contextHash = this.generateContextHash(contextName)
+        const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
         const expectedEndpointId = `${this.doc.id}?context=${contextHash}#${endpointType}`
 
         return this.doc.service!.find(entry => entry.id == expectedEndpointId)

@@ -14,6 +14,7 @@ const address = wallet.address.toLowerCase()
 const did = `did:vda:${address}`
 
 const CONTEXT_NAME = 'Verida: Test DID Context'
+const CONTEXT_NAME_2 = 'Verida: Test DID Context 2'
 
 const keyring = new Keyring(wallet.mnemonic.phrase)
 
@@ -69,7 +70,56 @@ describe('DID document tests', () => {
 
             // @todo: validate asymmetric key
         })
+    })
 
+    describe('Document changes', function() {
+        it('can add multiple contexts', async function() {
+            const doc = new DIDDocument(did)
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
+
+            const data = doc.export()
+            assert.equal(data.service.length, 4, "Have four service entries")
+
+            // Check we have both endpoints for context 1
+            const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
+            assert.ok(endpoint1, "Have database endpoint for context 1")
+            const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.MESSAGING)
+            assert.ok(endpoint2, "Have messaging endpoint for context 1")
+
+            // Check we have both endpoints for context 2
+            const endpoint3 = doc.locateServiceEndpoint(CONTEXT_NAME_2, EndpointType.DATABASE)
+            assert.ok(endpoint3, "Have database endpoint for context 2")
+            const endpoint4 = doc.locateServiceEndpoint(CONTEXT_NAME_2, EndpointType.MESSAGING)
+            assert.ok(endpoint4, "Have messaging endpoint for context 2")
+
+            // @todo: validate verification method
+            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
+        })
+
+        it('can remove a context', async function() {
+            const doc = new DIDDocument(did)
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
+
+            // Confirm we have two contexts
+            const data2 = doc.export()
+            assert.equal(data2.service.length, 4, "Have four service entries")
+
+            // Remove a context
+            const success = await doc.removeContext(CONTEXT_NAME)
+            assert.ok(success, "Remove was successful")
+            const data = doc.export()
+
+            // Confirm we have the correct number of entries
+            assert.equal(data.service.length, 2, "Have two service entries")
+            assert.equal(data.verificationMethod.length, 2, "Have two verificationMethod entries")
+
+            // @todo deeper validation of signatures and service endpoints
+        })
+    })
+
+    describe('Document signing and verification', function() {
         it('can sign and verify a proof', async function() {
             const doc = new DIDDocument(did)
             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
