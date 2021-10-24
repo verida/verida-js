@@ -1,32 +1,29 @@
 {
-  "name": "@verida/keyring",
-  "version": "1.0.1",
+  "name": "@verida/vda-did-resolver",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
     "src": "src",
     "test": "tests"
   },
-  "repository": "https://github.com/verida/verida-js.git",
+  "repository": "https://github.com/verida/vaid-did-resolver.git",
   "scripts": {
-    "test": "ts-mocha './test/**/*.ts'",
+    "tests": "ts-mocha './test/**/*.ts'",
+    "test": "ts-mocha",
     "build": "rm -rf dist; tsc"
   },
   "engines": {
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/encryption-utils": "^1.0.0",
-    "bs58": "^4.0.1",
-    "ethers": "^5.5.1",
-    "tweetnacl": "^1.0.3",
-    "uuid": "^8.3.2"
+    "@verida/storage-link": "*",
+    "did-resolver": "^3.1.2"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
-  },
-  "gitHead": "242b95cbb8a85b9d4680019b5a5250f1aa32bb59"
+  }
 }

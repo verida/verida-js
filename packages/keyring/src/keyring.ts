@@ -1,21 +1,19 @@
 import Encryption from '@verida/encryption-utils'
-import { box, sign } from 'tweetnacl'
+import nacl, { box, sign } from 'tweetnacl'
 const bs58 = require('bs58')
-import * as jsSHA from "jssha"
+import { utils } from 'ethers'
 
 import { KeyringKeyType } from './interfaces'
 
 /**
- * Class that takes a signature (generated from a 3ID consent message) and generates a
+ * Class that takes a signature (generated from a signed consent message) and generates a
  * collection of asymmetric keys, symmetric key and signing key for a given secure storage
  * context.
- * 
- * @todo: Consider replacing encryption-utils to use `digitalbazaar/minimal-cipher` for asym encryption
  */
 export default class Keyring {
 
-    public asymKeyPair?: nacl.BoxKeyPair    // was 'any'
-    public signKeyPair?: nacl.SignKeyPair   // was 'any'
+    public asymKeyPair?: nacl.BoxKeyPair
+    public signKeyPair?: nacl.SignKeyPair
     public symKey?: Uint8Array
 
     private seed: string
@@ -55,8 +53,9 @@ export default class Keyring {
 
         this.asymKeyPair = await this.buildKey(this.seed, KeyringKeyType.ASYM)
         this.signKeyPair = await this.buildKey(this.seed, KeyringKeyType.SIGN)
-        const symKeyPair = await this.buildKey(this.seed, KeyringKeyType.SYM)
-        this.symKey = symKeyPair.secretKey
+
+        const symmetricKey = await this.buildKey(this.seed, KeyringKeyType.SYM)
+        this.symKey = symmetricKey.secretKey
     }
 
     /**
@@ -66,16 +65,20 @@ export default class Keyring {
      * @param keyType 
      * @returns 
      */
-    private async buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair | nacl.SignKeyPair> {
+    private async buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair> {
         const inputMessage = `${seed}-${keyType}`
-
-        const hash = new jsSHA.default('SHA-256', 'TEXT')
-        hash.update(inputMessage)
-        const hashBytes = hash.getHash('UINT8ARRAY')
+        const hashBytes = Encryption.hashBytes(inputMessage)
 
         switch (keyType) {
             case KeyringKeyType.SIGN:
-                return sign.keyPair.fromSeed(hashBytes)
+                const hdnode = utils.HDNode.fromSeed(hashBytes)
+                const secretKey = new Uint8Array(Buffer.from(hdnode.privateKey.substr(2),'hex'))
+                const publicKey = new Uint8Array(Buffer.from(hdnode.publicKey.substr(2),'hex'))
+
+                return {
+                    secretKey,
+                    publicKey
+                }
             case KeyringKeyType.ASYM:
                 return box.keyPair.fromSecretKey(hashBytes)
             case KeyringKeyType.SYM:

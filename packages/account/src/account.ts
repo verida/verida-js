@@ -2,7 +2,6 @@ import { Keyring } from '@verida/keyring'
 import { Interfaces } from '@verida/storage-link'
 import { createJWT, EdDSASigner } from 'did-jwt'
 import { encodeBase64 } from "tweetnacl-util"
-import { AccountConfig } from "./interfaces"
 
 const _ = require('lodash')
 

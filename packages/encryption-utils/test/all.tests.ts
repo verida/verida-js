@@ -3,6 +3,29 @@ const assert = require('assert')
 import { box } from "tweetnacl"
 
 import EncryptionUtils from "../src/index"
+import { Wallet, utils } from 'ethers'
+
+const wallet = Wallet.createRandom()
+
+const signingKey = {
+    publicKey: new Uint8Array(Buffer.from(wallet.publicKey.substr(2),'hex')),
+    privateKey: new Uint8Array(Buffer.from(wallet.privateKey.substr(2),'hex'))
+}
+
+const keyring1 = {
+    publicKey: new Uint8Array([
+        174, 46, 180,  28, 236,  89, 211,  62,
+        173,  2, 249,  95,  77, 119, 164, 207,
+        103, 68,  91,  68, 111, 224, 180,  61,
+        19,  2, 220, 135, 249,  54,  94,  43
+    ]),
+    privateKey: new Uint8Array([
+        76, 172,  49, 249,  10,  24, 125, 157,
+        249, 115,  72, 250, 231,  95, 247, 250,
+        145, 133,  14, 254,  32, 178,  73, 174,
+        170, 231, 185, 206, 174,  71, 128,  29
+    ])
+}
 
 /**
  * 
@@ -13,21 +36,6 @@ describe('Encryption tests', () => {
         this.timeout(200000)
         
         it('can send a message between users of the same application', async function() {
-            const keyring1 = {
-                publicKey: new Uint8Array([
-                    174, 46, 180,  28, 236,  89, 211,  62,
-                    173,  2, 249,  95,  77, 119, 164, 207,
-                    103, 68,  91,  68, 111, 224, 180,  61,
-                    19,  2, 220, 135, 249,  54,  94,  43
-                ]),
-                privateKey: new Uint8Array([
-                    76, 172,  49, 249,  10,  24, 125, 157,
-                    249, 115,  72, 250, 231,  95, 247, 250,
-                    145, 133,  14, 254,  32, 178,  73, 174,
-                    170, 231, 185, 206, 174,  71, 128,  29
-                ])
-            }
-
             const sharedInputKey = box.before(keyring1.publicKey, keyring1.privateKey)
             const data = "some random string"
             let encrypted = EncryptionUtils.asymEncrypt(data, sharedInputKey)
@@ -37,6 +45,24 @@ describe('Encryption tests', () => {
             const decrypted = EncryptionUtils.asymDecrypt(encrypted, sharedOutputKey)
 
             assert.equal(data, decrypted, "Input and output match")
+        })
+
+        it('can create and verify signatures of a string input', async () => {
+            const input = 'hello world'
+            const signature = EncryptionUtils.signData(input, signingKey.privateKey)
+
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
+        })
+
+        it('can create and verify signatures of a JSON input', async () => {
+            const input = {
+                hello: 'world'
+            }
+
+            const signature = EncryptionUtils.signData(input, signingKey.privateKey)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
         })
     })
 
