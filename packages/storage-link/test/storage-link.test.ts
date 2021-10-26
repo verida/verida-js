@@ -6,7 +6,6 @@ import { SecureContextConfig } from '../src/interfaces'
 import { DIDClient } from '@verida/did-client'
 import { DIDDocument } from '@verida/did-document'
 
-// Test Ethereum Private key used to create / unlock a 3ID
 const MNEMONIC = "slight crop cactus cute trend tape undo exile retreat large clay average"
 const DID_SERVER_URL = 'http://localhost:5001'
 
