@@ -5,7 +5,7 @@ import {
   encodeBase64,
   decodeBase64
 } from "tweetnacl-util";
-import { utils } from 'ethers'
+import { ethers, utils } from 'ethers'
 import util = require("tweetnacl-util");
 
 const newSymNonce = () => randomBytes(secretbox.nonceLength);
@@ -113,6 +113,13 @@ export default class EncryptionUtils {
         return utils.joinSignature(signature)
     }
 
+    /**
+     * 
+     * @param data 
+     * @param signature 
+     * @param publicKey Hex encoding public key or Uint8Array public key
+     * @returns 
+     */
     static verifySig(data: any, signature: string, publicKey: string | Uint8Array) {
         let expectedAddress = publicKey
         if (typeof(publicKey) != "string") {
@@ -144,5 +151,13 @@ export default class EncryptionUtils {
     static hashBytes(data: any) {
         const hash = EncryptionUtils.hash(data)
         return utils.arrayify(hash)
+    }
+
+    static base58ToHex(b58: string) {
+        return ethers.utils.base58.decode(b58)
+    }
+
+    static hexToBase58(hex: string) {
+        return ethers.utils.base58.encode(hex)
     }
 }
