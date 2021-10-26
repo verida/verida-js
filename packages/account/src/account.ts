@@ -57,6 +57,10 @@ export default class Account {
         throw new Error("Not implemented")
     }
 
+    getDidClient() {
+        throw new Error("Not implemented")
+    }
+
     /**
      * Create a DID-JWT from a data object
      * @param {*} data 

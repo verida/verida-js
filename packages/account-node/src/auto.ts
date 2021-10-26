@@ -80,4 +80,8 @@ export default class AutoAccount extends Account {
         return await StorageLink.unlink(this.didClient, contextName)
     }
 
+    public getDidClient() {
+        return this.didClient
+    }
+
 }
