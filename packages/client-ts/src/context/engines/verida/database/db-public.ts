@@ -1,89 +1,87 @@
-import BaseDb from './base-db'
-import { DbRegistryEntry } from '../../../db-registry'
-import * as PouchDBFind from "pouchdb-find"
-import * as PouchDBLib from "pouchdb"
+import BaseDb from "./base-db";
+import { DbRegistryEntry } from "../../../db-registry";
+import * as PouchDBFind from "pouchdb-find";
+import * as PouchDBLib from "pouchdb";
 
 // See https://github.com/pouchdb/pouchdb/issues/6862
-const {default:PouchDB} = PouchDBLib as any
+const { default: PouchDB } = PouchDBLib as any;
 
-PouchDB.plugin(PouchDBFind)
+PouchDB.plugin(PouchDBFind);
 
-export default class PublicDatabase extends BaseDb {
+class PublicDatabase extends BaseDb {
+  //constructor(dbHumanName: string, dbName: string, dataserver: any, did: string, permissions: PermissionsConfig, isOwner: boolean) {
+  private _remoteDb: any;
 
-    //constructor(dbHumanName: string, dbName: string, dataserver: any, did: string, permissions: PermissionsConfig, isOwner: boolean) {
-    private _remoteDb: any
-
-    public async init() {
-        if (this._remoteDb) {
-            return
-        }
-        
-        await super.init()
-
-        const databaseName = this.databaseName
-        
-        this._remoteDb = new PouchDB(this.dsn + this.databaseHash, {
-            skip_setup: true
-        })
-
-        try {
-            let info = await this._remoteDb.info()
-            if (info.error && info.error == "not_found") {
-                if (this.isOwner) {
-                    await this.createDb()
-                }
-                else {
-                    throw new Error(`Public database not found: ${databaseName}`)
-                }
-            }
-        } catch(err: any) {
-            if (this.isOwner) {
-                await this.createDb()
-            }
-            else {
-                throw new Error(`Public database not found: ${databaseName}`)
-            }
-        }
-
-        this.db = this._remoteDb
+  public async init() {
+    if (this._remoteDb) {
+      return;
     }
 
-    public async getDb() {
-        if (!this._remoteDb) {
-            await this._init()
-        }
+    await super.init();
 
-        return this._remoteDb
+    const databaseName = this.databaseName;
+
+    this._remoteDb = new PouchDB(this.dsn + this.databaseHash, {
+      skip_setup: true,
+    });
+
+    try {
+      let info = await this._remoteDb.info();
+      if (info.error && info.error == "not_found") {
+        if (this.isOwner) {
+          await this.createDb();
+        } else {
+          throw new Error(`Public database not found: ${databaseName}`);
+        }
+      }
+    } catch (err: any) {
+      if (this.isOwner) {
+        await this.createDb();
+      } else {
+        throw new Error(`Public database not found: ${databaseName}`);
+      }
     }
 
-    public async info(): Promise<any> {
-        await this.init()
+    this.db = this._remoteDb;
+  }
 
-        const info = {
-            type: 'VeridaDatabase',
-            privacy: 'public',
-            did: this.did,
-            dsn: this.dsn,
-            storageContext: this.storageContext,
-            databaseName: this.databaseName,
-            databaseHash: this.databaseHash,
-            remoteDb: this.db._remoteDb
-        }
-
-        return info
+  public async getDb() {
+    if (!this._remoteDb) {
+      await this._init();
     }
 
-    public async registryEntry(): Promise<DbRegistryEntry> {
-        await this.init()
-        
-        return {
-            dbHash: this.databaseHash,
-            dbName: this.databaseName,
-            endpointType: 'VeridaDatabase',
-            did: this.did,
-            contextName: this.storageContext,
-            permissions: this.permissions!
-        }
-    }
+    return this._remoteDb;
+  }
 
+  public async info(): Promise<any> {
+    await this.init();
+
+    const info = {
+      type: "VeridaDatabase",
+      privacy: "public",
+      did: this.did,
+      dsn: this.dsn,
+      storageContext: this.storageContext,
+      databaseName: this.databaseName,
+      databaseHash: this.databaseHash,
+      remoteDb: this.db._remoteDb,
+    };
+
+    return info;
+  }
+
+  public async registryEntry(): Promise<DbRegistryEntry> {
+    await this.init();
+
+    return {
+      dbHash: this.databaseHash,
+      dbName: this.databaseName,
+      endpointType: "VeridaDatabase",
+      did: this.did,
+      contextName: this.storageContext,
+      permissions: this.permissions!,
+    };
+  }
 }
+
+export default PublicDatabase;

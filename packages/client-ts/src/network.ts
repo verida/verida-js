@@ -2,7 +2,7 @@ import Client from "./client";
 import Context from "./context/context";
 import { NetworkConnectionConfig } from "./interfaces";
 
-export default class Network {
+class Network {
   /**
    * Opens a new application context to provide encrypted storage and messaging to an application.
    *
@@ -30,3 +30,5 @@ export default class Network {
     }
   }
 }
+
+export default Network;
