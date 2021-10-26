@@ -37,6 +37,9 @@ export default class DIDDocument {
      * @param endpoints 
      */
     public async addContext(contextName: string, keyring: Keyring, endpoints: Endpoints) {
+        // Remove this context if it already exists
+        this.removeContext(contextName)
+
         // Build context hash in the correct format
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
@@ -58,7 +61,7 @@ export default class DIDDocument {
         this.addContextAsymKey(contextHash, keys.asymPublicKeyBase58)
     }
 
-    public async removeContext(contextName: string): Promise<boolean> {
+    public removeContext(contextName: string): boolean {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         if (!this.doc.verificationMethod) {
@@ -183,6 +186,19 @@ export default class DIDDocument {
         return EncryptionUtils.verifySig(proofData, signature, address)
     }
 
+    public verifyContextSignature(data: any, contextName: string, signature: string) {
+        const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
+        const publicKeyLookup = `${this.doc.id}\\?context=${contextHash}#sign`
+
+        const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == publicKeyLookup)
+        if (!verificationMethod) {
+            return false
+        }
+
+        const signAddress = EncryptionUtils.base58ToHex(verificationMethod.publicKeyBase58!)
+        return EncryptionUtils.verifySig(data, signature, signAddress)
+    }
+
     private getProofData() {
         const proofData = Object.assign({}, this.doc)
         delete proofData['proof']
@@ -196,7 +212,7 @@ export default class DIDDocument {
 
     public locateServiceEndpoint(contextName: string, endpointType: EndpointType) {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
-        const expectedEndpointId = `${this.doc.id}\\?context=${contextHash}#${endpointType}`
+        const expectedEndpointId = `${this.doc.id}?context=${contextHash}#${endpointType}`
 
         return this.doc.service!.find(entry => entry.id == expectedEndpointId)
     }
