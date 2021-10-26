@@ -1,6 +1,6 @@
 import { Keyring } from '@verida/keyring'
 import { Interfaces } from '@verida/storage-link'
-import { createJWT, EdDSASigner } from 'did-jwt'
+import { createJWT, ES256KSigner } from 'did-jwt'
 import { encodeBase64 } from "tweetnacl-util"
 
 const _ = require('lodash')
@@ -70,7 +70,7 @@ export default class Account {
         const keyring = await this.keyring(contextName)
         const keys = await keyring.getKeys()
         const privateKey = encodeBase64(keys.signPrivateKey)
-        const signer = EdDSASigner(privateKey)
+        const signer = ES256KSigner(privateKey)
         const did = await this.did()
 
         const jwt = await createJWT({
@@ -80,7 +80,7 @@ export default class Account {
             context: contextName,
             insertedAt: config.insertedAt
         }, {
-            alg: 'Ed25519',
+            alg: 'ES256K',
             issuer: did,
             signer
         })

@@ -32,8 +32,8 @@ export default class Keyring {
         await this._init()
 
         return {
-            asymPublicKey: this.asymKeyPair?.publicKey,
-            asymPrivateKey: this.asymKeyPair?.secretKey,
+            asymPublicKey: this.asymKeyPair!.publicKey,
+            asymPrivateKey: this.asymKeyPair!.secretKey,
             asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
             asymPrivateKeyBase58: utils.base58.encode(this.asymKeyPair!.secretKey),
             signPublicKey: this.signKeyPair!.publicKey,
