@@ -23,7 +23,7 @@ export default class DIDStorageConfig {
                     base58: publicKeys.asymPublicKeyBase58
                 },
                 signKey: {
-                    type: 'ED25519SignatureVerification',
+                    type: 'EcdsaSecp256k1VerificationKey2019',
                     base58: publicKeys.signPublicKeyBase58
                 }
             },
