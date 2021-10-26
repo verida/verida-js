@@ -36,10 +36,12 @@ export default class Keyring {
             asymPrivateKey: this.asymKeyPair!.secretKey,
             asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
             asymPrivateKeyBase58: utils.base58.encode(this.asymKeyPair!.secretKey),
+            asymPublicKeyHex: utils.hexValue(this.asymKeyPair!.publicKey),
             signPublicKey: this.signKeyPair!.publicKey,
             signPrivateKey: this.signKeyPair!.secretKey,
             signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey),
             signPrivateKeyBase58: utils.base58.encode(this.signKeyPair!.secretKey),
+            signPublicKeyHex: utils.hexValue(this.signKeyPair!.publicKey),
             symKey: this.symKey!,
             symKeyBase58: utils.base58.encode(this.symKey!)
         }
@@ -97,14 +99,17 @@ export default class Keyring {
         
         return {
             asymPublicKey: this.asymKeyPair!.publicKey,
+            asymPublicKeyHex: utils.hexValue(this.asymKeyPair!.publicKey),
             asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
             signPublicKey: this.signKeyPair!.publicKey,
+            signPublicKeyHex: utils.hexValue(this.signKeyPair!.publicKey),
             signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey)
         }
     }
 
     public async sign(data: string): Promise<string> {
         await this._init()
+        console.log("signing with", this.signKeyPair!)
         return Encryption.signData(data, this.signKeyPair!.secretKey)
     }
 
