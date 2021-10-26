@@ -64,7 +64,7 @@ describe('DID document tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 2, "Have two verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
 
             // @todo: validate signing key
 
@@ -94,7 +94,7 @@ describe('DID document tests', () => {
             assert.ok(endpoint4, "Have messaging endpoint for context 2")
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 5, "Have five verificationMethod entries")
         })
 
         it('can remove a context', async function() {
@@ -113,7 +113,7 @@ describe('DID document tests', () => {
 
             // Confirm we have the correct number of entries
             assert.equal(data.service.length, 2, "Have two service entries")
-            assert.equal(data.verificationMethod.length, 2, "Have two verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
 
             // @todo deeper validation of signatures and service endpoints
         })

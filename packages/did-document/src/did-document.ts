@@ -19,6 +19,15 @@ export default class DIDDocument {
                 id: did,
                 controller: did
             }
+
+            // Add default signing key
+            this.doc.assertionMethod = [this.doc.id]
+            this.doc.verificationMethod = [{
+                id: this.doc.id,
+                type: "EcdsaSecp256k1VerificationKey2019",
+                controller: this.doc.id,
+                publicKeyHex: this.doc.id
+            }]
         } else {
             doc.id = doc.id.toLowerCase()
             this.doc = doc
@@ -57,8 +66,8 @@ export default class DIDDocument {
 
         // Add keys
         const keys = await keyring.getKeys()
-        this.addContextSignKey(contextHash, keys.signPublicKeyBase58)
-        this.addContextAsymKey(contextHash, keys.asymPublicKeyBase58)
+        this.addContextSignKey(contextHash, keys.signPublicKeyHex)
+        this.addContextAsymKey(contextHash, keys.asymPublicKeyHex)
     }
 
     public removeContext(contextName: string): boolean {
@@ -79,10 +88,10 @@ export default class DIDDocument {
             return !entry.id.match(contextDid)
         })
         this.doc.assertionMethod = this.doc.assertionMethod!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${contextDid}#sign`
+            return entry !== `${this.doc.id}?context=${contextHash}#sign`
         })
         this.doc.keyAgreement = this.doc.keyAgreement!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${contextDid}#asym`
+            return entry !== `${this.doc.id}?context=${contextHash}#asym`
         })
         
         // Remove services
@@ -114,7 +123,7 @@ export default class DIDDocument {
         })
     }
 
-    public addContextSignKey(contextHash: string, publicKeyBase58: string) {
+    public addContextSignKey(contextHash: string, publicKeyHex: string) {
         // Add verification method
         if (!this.doc.verificationMethod) {
             this.doc.verificationMethod = []
@@ -124,7 +133,7 @@ export default class DIDDocument {
             id: `${this.doc.id}?context=${contextHash}#sign`,
             type: "EcdsaSecp256k1VerificationKey2019",
             controller: this.doc.id,
-            publicKeyBase58: publicKeyBase58
+            publicKeyHex: publicKeyHex
         })
 
         // Add assertion method
@@ -135,7 +144,7 @@ export default class DIDDocument {
         this.doc.assertionMethod.push(`${this.doc.id}?context=${contextHash}#sign`)
     }
 
-    public addContextAsymKey(contextHash: string, publicKeyBase58: string) {
+    public addContextAsymKey(contextHash: string, publicKeyHex: string) {
         // Add verification method
         if (!this.doc.verificationMethod) {
             this.doc.verificationMethod = []
@@ -145,7 +154,7 @@ export default class DIDDocument {
             id: `${this.doc.id}?context=${contextHash}#asym`,
             type: "Curve25519EncryptionPublicKey",
             controller: this.doc.id,
-            publicKeyBase58: publicKeyBase58
+            publicKeyHex: publicKeyHex
         })
 
         // Add assertion method
@@ -178,12 +187,15 @@ export default class DIDDocument {
         }
 
         const signature = this.doc.proof.proofValue
-        const did = this.doc.proof.verificationMethod
         const proofData = this.getProofData()
-        
-        const address = did.replace('did:vda:','')
 
-        return EncryptionUtils.verifySig(proofData, signature, address)
+        return this.verifySig(proofData, signature)
+    }
+
+    public verifySig(data: any, signature: string) {
+        // @todo: update this to use the actual signing key for the did when revocation is implemented
+        const address = this.doc.id.replace('did:vda:','')
+        return EncryptionUtils.verifySig(data, signature, address)
     }
 
     public verifyContextSignature(data: any, contextName: string, signature: string) {
@@ -195,7 +207,7 @@ export default class DIDDocument {
             return false
         }
 
-        const signAddress = EncryptionUtils.base58ToHex(verificationMethod.publicKeyBase58!)
+        const signAddress = verificationMethod.publicKeyHex!
         return EncryptionUtils.verifySig(data, signature, signAddress)
     }
 
