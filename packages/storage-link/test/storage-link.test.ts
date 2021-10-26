@@ -22,11 +22,11 @@ const testConfig: SecureContextConfig = {
     publicKeys: {
         signKey: {
             type: 'EcdsaSecp256k1VerificationKey2019',
-            base58: 'HtJ9j1kWdohkGBhgrWjPTa8UkzEdfTJvF93eMzJJ9Za6'
+            publicKeyHex: '0x970c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
         },
         asymKey: {
             type: 'Curve25519EncryptionPublicKey',
-            base58: '2oCCWT6ryrrDjTDbUFYJ4Q6RiN9n4ZMKeZCgf6qY81Dh'
+            publicKeyHex: '0x270c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
         }
     },
     services: {

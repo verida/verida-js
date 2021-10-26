@@ -82,8 +82,8 @@ export default class StorageLink {
         }
 
         // Add keys
-        didDocument.addContextSignKey(contextHash, storageConfig.publicKeys.signKey.base58)
-        didDocument.addContextAsymKey(contextHash, storageConfig.publicKeys.asymKey.base58)
+        didDocument.addContextSignKey(contextHash, storageConfig.publicKeys.signKey.publicKeyHex)
+        didDocument.addContextAsymKey(contextHash, storageConfig.publicKeys.asymKey.publicKeyHex)
 
         return await didClient.save(didDocument)
     }
@@ -136,7 +136,7 @@ export default class StorageLink {
                 return
             }
 
-            const signKey58 = signKeyVerificationMethod!.publicKeyBase58
+            const signKey = signKeyVerificationMethod!.publicKeyHex
 
             // Get asym key
             const asymKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?context=${contextHash}#asym`)
@@ -144,16 +144,16 @@ export default class StorageLink {
                 return 
             }
 
-            const asymKey58 = asymKeyVerificationMethod!.publicKeyBase58
+            const asymKey = asymKeyVerificationMethod!.publicKeyHex
 
-            // Get services\
+            // Get services
             const databaseService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#database`)
             const messageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#messaging`)
             const storageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#storage`)
             const notificationService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#notification`)
 
             // Valid we have everything
-            if (!signKey58 || !asymKey58 || !databaseService || !messageService) {
+            if (!signKey || !asymKey || !databaseService || !messageService) {
                 return
             }
 
@@ -163,11 +163,11 @@ export default class StorageLink {
                 publicKeys: {
                     signKey: {
                         type: "EcdsaSecp256k1VerificationKey2019",
-                        base58: signKey58!
+                        publicKeyHex: signKey!
                     },
                     asymKey: {
                         type: "Curve25519EncryptionPublicKey",
-                        base58: asymKey58!
+                        publicKeyHex: asymKey!
                     }
                 },
                 services: {
