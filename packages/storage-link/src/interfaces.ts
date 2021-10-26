@@ -16,17 +16,14 @@ export interface SecureContextEndpoint {
 }
 
 export interface SecureContextServices {
-    storageServer?: SecureContextEndpoint,
     databaseServer: SecureContextEndpoint,
-    messageServer: SecureContextEndpoint
+    messageServer: SecureContextEndpoint,
+    storageServer?: SecureContextEndpoint,
+    notificationServer?: SecureContextEndpoint
 }
 
 export interface SecureContextConfig {
     id: string,
     publicKeys: SecureStorageContextPublicKeys,
     services: SecureContextServices
-}
-
-export interface SecureContexts {
-    contexts: SecureContextConfig[]
 }

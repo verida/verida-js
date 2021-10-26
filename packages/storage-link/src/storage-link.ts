@@ -1,32 +1,25 @@
-import CeramicClient from '@ceramicnetwork/http-client'
-import { SecureContextConfig, SecureContexts } from './interfaces'
-import { IDX } from '@ceramicstudio/idx'
-import * as jsSHA from "jssha"
-
-// Latest on Clay Testnet 9 July 2021
-const SECURE_CONTEXTS_SCHEMA_ID = 'kjzl6cwe1jw145l8jya7g6cuyluj17xlyc6t7p6iif12isbi1ppu5cuze4u3njc'
+import { SecureContextConfig } from './interfaces'
+import { DIDClient } from "@verida/did-client"
+import { DIDDocument, Interfaces } from "@verida/did-document"
+const Url = require('url-parse')
 
 /**
  * Class representing the link between a DID and Storage context
  */
 export default class StorageLink {
 
-    static schemaId = SECURE_CONTEXTS_SCHEMA_ID
-
-    static setSchemaId(schemaId: string) {
-        StorageLink.schemaId = schemaId
-    }
-
     // @todo: cache
-    static async getLinks(ceramic: CeramicClient, did: string): Promise<SecureContextConfig[]> {
+    static async getLinks(didClient: DIDClient, did: string): Promise<SecureContextConfig[]> {
         if (!did) {
             return []
         }
 
-        const idx = new IDX({ ceramic })
-        const secureContexts = <SecureContexts> await idx.get(StorageLink.schemaId, did)
+        const didDocument = await didClient.get(did)
+        if (!didDocument) {
+            return []
+        }
 
-        return secureContexts ? secureContexts.contexts : []
+        return StorageLink.buildSecureContexts(didDocument)
     }
 
     /**
@@ -36,13 +29,13 @@ export default class StorageLink {
      * @param contextName 
      * @returns SecureStorageContextConfig | undefined (if not found)
      */
-    static async getLink(ceramic: CeramicClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
+    static async getLink(didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
         let contextHash = context
         if (contextIsName) {
-            contextHash = StorageLink.hash(`${did}/${context}`)
+            contextHash = DIDDocument.generateContextHash(did, context)
         }
 
-        const secureContexts =  await StorageLink.getLinks(ceramic, did)
+        const secureContexts =  await StorageLink.getLinks(didClient, did)
         const secureContext = StorageLink._findHash(secureContexts, contextHash)
 
         return secureContext
@@ -54,45 +47,60 @@ export default class StorageLink {
      * @param did 
      * @param storageConfig (Must have .id as the contextName)
      */
-    static async setLink(ceramic: CeramicClient, did: string, storageConfig: SecureContextConfig) {
-        const contextHash = StorageLink.hash(`${did}/${storageConfig.id}`)
+    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig) {
+        const did = didClient.getDid()
+        if (!did) {
+            throw new Error("DID client is not authenticated")
+        }
 
-        const secureContexts = <SecureContextConfig[]> await StorageLink.getLinks(ceramic, did)
+        let didDocument = await didClient.get(did)
 
-        // Remove if already exists
-        const contexts = secureContexts.filter((item: SecureContextConfig) => {
-            return item.id != contextHash
-        })
+        // Create a new DID document if it doesn't already exist
+        if (!didDocument) {
+            didDocument = new DIDDocument(did)
+        } else {
+            // Remove existing context if it exists
+            const existing = await StorageLink.getLink(didClient, did, storageConfig.id)
+            if (existing) {
+                StorageLink.unlink(didClient, storageConfig.id)
+            }
+        }
 
-        storageConfig.id = contextHash
-        contexts.push(storageConfig)
+        // Build context hash in the correct format
+        const contextHash = DIDDocument.generateContextHash(did, storageConfig.id)
 
-        const idx = new IDX({ ceramic })
-        await idx.set(StorageLink.schemaId, {
-            contexts: contexts
-        })
+        // Add services
+        didDocument.addContextService(contextHash, Interfaces.EndpointType.DATABASE, storageConfig.services.databaseServer.type, storageConfig.services.databaseServer.endpointUri)
+        didDocument.addContextService(contextHash, Interfaces.EndpointType.MESSAGING, storageConfig.services.messageServer.type, storageConfig.services.messageServer.endpointUri)
+
+        if (storageConfig.services.storageServer) {
+            didDocument.addContextService(contextHash, Interfaces.EndpointType.STORAGE, storageConfig.services.storageServer!.type, storageConfig.services.storageServer!.endpointUri)
+        }
+
+        if (storageConfig.services.notificationServer) {
+            didDocument.addContextService(contextHash, Interfaces.EndpointType.NOTIFICATION, storageConfig.services.notificationServer!.type, storageConfig.services.notificationServer!.endpointUri)
+        }
+
+        // Add keys
+        didDocument.addContextSignKey(contextHash, storageConfig.publicKeys.signKey.base58)
+        didDocument.addContextAsymKey(contextHash, storageConfig.publicKeys.asymKey.base58)
+
+        return await didClient.save(didDocument)
     }
 
-    static async unlink(ceramic: CeramicClient, did: string, contextName: string) {
-        const contextHash = StorageLink.hash(`${did}/${contextName}`)
-        const secureContexts = <SecureContextConfig[]> await StorageLink.getLinks(ceramic, did)
-        const contexts = secureContexts.filter((item: SecureContextConfig) => {
-            return item.id != contextHash
-        })
+    static async unlink(didClient: DIDClient, contextName: string): Promise<boolean> {
+        const did = didClient.getDid()
+        const didDocument = await didClient.get(did)
+        if (!didDocument) {
+            return false
+        }
 
-        const idx = new IDX({ ceramic })
-        await idx.set(StorageLink.schemaId, {
-            contexts: contexts
-        })
+        const success = await didDocument!.removeContext(contextName)
+        if (!success) {
+            return false
+        }
 
-        return true
-    }
-
-    public static hash(input: string): string {
-        const hash = new jsSHA.default('SHA-256', 'TEXT')
-        hash.update(input)
-        const result = hash.getHash('HEX')
-        return result
+        return await didClient.save(didDocument)
     }
 
     static _findHash(contexts: any[], hash: string): SecureContextConfig | undefined {
@@ -101,6 +109,93 @@ export default class StorageLink {
                 return contexts[i]
             }
         }
+    }
+
+    static buildSecureContexts(didDocument: DIDDocument): SecureContextConfig[] {
+        const doc: Interfaces.DIDDocumentStruct = didDocument.export()
+        const did = doc.id
+
+        // strategy: loop through all signing keys as our way of looping through all contexts
+
+        const contexts: SecureContextConfig[] = []
+        doc.assertionMethod?.map((value: any) => {
+            const assertionParts = Url(value, true)
+            if (!assertionParts.query || !assertionParts.query.context) {
+                return
+            }
+
+            const contextHash = assertionParts.query.context
+            
+            // Get signing key
+            const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?context=${contextHash}#sign`)
+            if (!signKeyVerificationMethod) {
+                return
+            }
+
+            const signKey58 = signKeyVerificationMethod!.publicKeyBase58
+
+            // Get asym key
+            const asymKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?context=${contextHash}#asym`)
+            if (!asymKeyVerificationMethod)  {
+                return 
+            }
+
+            const asymKey58 = asymKeyVerificationMethod!.publicKeyBase58
+
+            // Get services\
+            const databaseService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#database`)
+            const messageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#messaging`)
+            const storageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#storage`)
+            const notificationService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#notification`)
+
+            // Valid we have everything
+            if (!signKey58 || !asymKey58 || !databaseService || !messageService) {
+                return
+            }
+
+            // Build complete config
+            const config: SecureContextConfig = {
+                id: contextHash,
+                publicKeys: {
+                    signKey: {
+                        type: "EcdsaSecp256k1VerificationKey2019",
+                        base58: signKey58!
+                    },
+                    asymKey: {
+                        type: "Curve25519EncryptionPublicKey",
+                        base58: asymKey58!
+                    }
+                },
+                services: {
+                    databaseServer: {
+                        type: databaseService!.type,
+                        endpointUri: databaseService!.serviceEndpoint
+                    },
+                    messageServer: {
+                        type: messageService!.type,
+                        endpointUri: messageService!.serviceEndpoint
+                    }
+                }
+            }
+
+            if (storageService) {
+                config.services.storageServer = {
+                    type: storageService!.type,
+                    endpointUri: storageService!.serviceEndpoint
+                }
+            }
+
+            if (notificationService) {
+                config.services.notificationServer = {
+                    type: notificationService!.type,
+                    endpointUri: notificationService!.serviceEndpoint
+                }
+            }
+
+            contexts.push(config)
+        })
+
+        return contexts
     }
 
 }
