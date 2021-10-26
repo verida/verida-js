@@ -14,7 +14,7 @@
     "build": "tsc"
   },
   "engines": {
-    "node": "^12.0.0"
+    "node": "^14.0.0"
   },
   "dependencies": {
     "3id-did-provider": "^1.1.0",

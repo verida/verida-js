@@ -1,4 +1,9 @@
 
+2021-10-08 (v1.0.8)
+-------------------
+
+- Fix critical issue with public databases being added to local database registry
+
 2021-10-08 (v1.0.7)
 -------------------
 
