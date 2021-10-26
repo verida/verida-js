@@ -3,7 +3,7 @@ import Database from './database'
 import Datastore from './datastore'
 import { PermissionsConfig } from './interfaces'
 const _ = require('lodash')
-import * as jsSHA from "jssha"
+import EncryptionUtils from '@verida/encryption-utils'
 
 export interface DbRegistryEntryEncryptionKey {
     key: string,
@@ -108,15 +108,13 @@ export default class DbRegistry {
     }
 
     private buildDatabaseId(dbName: string, did: string, contextName: string): string {
-        const jsHash = new jsSHA.default('SHA-256', 'TEXT')
         const text = [
             did,
             contextName,
             dbName
         ].join("/")
 
-        jsHash.update(text)
-        return jsHash.getHash('HEX')
+        return EncryptionUtils.hash(text)
     }
 
     /*

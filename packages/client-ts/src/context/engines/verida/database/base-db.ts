@@ -1,7 +1,6 @@
 const EventEmitter = require('events')
 const _ = require('lodash')
 import { v1 as uuidv1 } from 'uuid'
-import * as jsSHA from "jssha"
 
 import { VeridaDatabaseConfig } from "./interfaces"
 import Database from '../../../database'
@@ -11,6 +10,8 @@ import DatastoreServerClient from "./client"
 import Utils from './utils'
 import { Context } from '../../../..'
 import { DbRegistryEntry } from '../../../db-registry'
+import EncryptionUtils from '@verida/encryption-utils'
+import { DIDDocument } from '@verida/did-document'
 
 export default class BaseDb extends EventEmitter implements Database {
 
@@ -73,16 +74,10 @@ export default class BaseDb extends EventEmitter implements Database {
             this.databaseName
         ].join("/")
 
-        const hash = this.buildHash(text)
+        const hash = EncryptionUtils.hash(text)
 
         // Database name in CouchDB must start with a letter, so prepend a `v`
         return "v" + hash
-    }
-
-    protected buildHash(text: string) {
-        const jsHash = new jsSHA.default('SHA-256', 'TEXT')
-        jsHash.update(text)
-        return jsHash.getHash('HEX')
     }
 
     /**
@@ -390,9 +385,8 @@ export default class BaseDb extends EventEmitter implements Database {
             data.signatures = {}
         }
 
-    
-        const signContextHash = StorageLink.hash(`${signDid}/${this.signContextName}`)
-        const signKey = `${signDid}:${signContextHash}`
+        const signContextHash = DIDDocument.generateContextHash(signDid, this.signContextName)
+        const signKey = `${signDid}?context=${signContextHash}`
 
         let _data = _.merge({}, data)
         delete _data['signatures']
