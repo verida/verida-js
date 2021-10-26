@@ -109,7 +109,6 @@ export default class Keyring {
 
     public async sign(data: string): Promise<string> {
         await this._init()
-        console.log("signing with", this.signKeyPair!)
         return Encryption.signData(data, this.signKeyPair!.secretKey)
     }
 
