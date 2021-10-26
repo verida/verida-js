@@ -27,7 +27,8 @@ export default class AutoAccount extends Account {
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
-        const did = await this.did()
+        let did = await this.did()
+        did = did.toLowerCase()
         const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?\n\n${did}`
         const signature = await this.sign(consentMessage)
         return new Keyring(signature)
