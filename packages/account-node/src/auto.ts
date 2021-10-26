@@ -22,7 +22,7 @@ export default class AutoAccount extends Account {
         this.accountConfig = accountConfig
         this.wallet = new Wallet(autoConfig.privateKey)
 
-        const didServerUrl = autoConfig.didServerUrl ? autoConfig.didServerUrl : Config.environments[autoConfig.environment]
+        const didServerUrl = autoConfig.didServerUrl ? autoConfig.didServerUrl : Config.environments[autoConfig.environment].didServerUrl
         this.didClient = new DIDClient(didServerUrl)
         
         this.privateKey = this.wallet.privateKey
