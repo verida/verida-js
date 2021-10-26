@@ -1,9 +1,15 @@
 'use strict'
 const assert = require('assert')
 import { LimitedAccount } from "../src/index"
+import { DIDClient } from "@verida/did-client"
 
-const ETH_PRIVATE_KEY = '0xc0da48347b4bcb2cfb08d6b8c26b52b47fd36ca6114974a0104d15fab076f553'
-const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+const DID_SERVER_URL = 'http://localhost:5001'
+const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
+
+const didClient = new DIDClient(DID_SERVER_URL)
+didClient.authenticate(MNEMONIC)
+const DID = didClient.getDid()
+
 const DEFAULT_ENDPOINTS = {
     defaultDatabaseServer: {
         type: 'VeridaDatabase',
@@ -26,9 +32,8 @@ describe('Limited account tests', () => {
 
         it('Won\'t fetch keyring for an unsupported context', async function() {
             const account = new LimitedAccount(DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: ETH_PRIVATE_KEY,
-                ceramicUrl: CERAMIC_URL
+                privateKey: MNEMONIC,
+                didServerUrl: DID_SERVER_URL
             }, [VALID_CONTEXT])
 
             const validKeyring = await account.keyring(VALID_CONTEXT)

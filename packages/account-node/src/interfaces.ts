@@ -1,8 +1,6 @@
-import { Interfaces } from "@verida/storage-link"
 
 export interface NodeAccountConfig {
-    chain: string,
-    privateKey: string,
-    ceramicUrl?: string
+    privateKey: string, // or mnemonic
+    didServerUrl: string
     options?: any
 }

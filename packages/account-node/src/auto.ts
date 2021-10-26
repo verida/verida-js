@@ -1,55 +1,32 @@
-import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
-import { Utils } from '@verida/3id-utils-node'
 import { Keyring } from '@verida/keyring'
 import { Account, AccountConfig } from '@verida/account'
 import { NodeAccountConfig } from './interfaces'
 
-import { DagJWS } from 'dids'
-
-// Pulled from https://github.com/ceramicnetwork/js-did/blob/bc5271f7e659d073e150389828c021156a80e6d0/src/utils.ts#L29
-function fromDagJWS(jws: DagJWS): string {
-    if (jws.signatures.length > 1) throw new Error('Cant convert to compact jws')
-    return `${jws.signatures[0].protected}.${jws.payload}.${jws.signatures[0].signature}`
-}
+import { DIDClient, Wallet } from '@verida/did-client'
+import EncryptionUtils from "@verida/encryption-utils"
 
 /**
  * An Authenticator that automatically signs everything
  */
 export default class AutoAccount extends Account {
 
-    private chain: string
     private privateKey: string
-    private utils: Utils
+    private didClient: DIDClient
 
-    private ceramic?: CeramicClient
-    private accountOptions: any
-
+    private wallet: Wallet
     protected accountConfig: AccountConfig
 
     constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
         super()
         this.accountConfig = accountConfig
-        this.utils = new Utils(autoConfig.ceramicUrl)
-        this.chain = autoConfig.chain
-        this.privateKey = autoConfig.privateKey
-        this.accountOptions = autoConfig.options ? autoConfig.options : {}
-    }
-
-    private async init() {
-        if (this.ceramic) {
-            return
-        }
-
-        this.ceramic = await this.utils.createAccount(this.chain, this.privateKey, this.accountOptions)
-
-        if (!this.ceramic!.did) {
-            throw new Error('Ceramic client is not authenticated with a valid DID')
-        }
+        this.wallet = new Wallet(autoConfig.privateKey)
+        this.didClient = new DIDClient(autoConfig.didServerUrl)
+        this.privateKey = this.wallet.privateKey
+        this.didClient.authenticate(this.privateKey)
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
-        await this.init()
         const did = await this.did()
         const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?\n\n${did}`
         const signature = await this.sign(consentMessage)
@@ -58,22 +35,15 @@ export default class AutoAccount extends Account {
 
     // returns a compact JWS
     public async sign(message: string): Promise<string> {
-        await this.init()
-        const input = {
-            message
-        }
-        const jws = await this.ceramic!.did!.createJWS(input)
-
-        return fromDagJWS(jws)
+        return EncryptionUtils.signData(message, this.wallet.privateKeyBuffer)
     }
 
     public async did(): Promise<string> {
-        await this.init()
-        return this.ceramic!.did!.id
+        return this.wallet.did
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
-        let storageConfig = await StorageLink.getLink(this.ceramic!, this.ceramic!.did!.id, contextName, true)
+        let storageConfig = await StorageLink.getLink(this.didClient, this.wallet.did, contextName, true)
         
         if (!storageConfig && forceCreate) {
             const endpoints: Interfaces.SecureContextServices = {
@@ -98,8 +68,7 @@ export default class AutoAccount extends Account {
      * @param storageConfig 
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
-        await this.init()
-        await StorageLink.setLink(this.ceramic!, this.ceramic!.did!.id, storageConfig)
+        await StorageLink.setLink(this.didClient, storageConfig)
      }
 
      /**
@@ -108,13 +77,7 @@ export default class AutoAccount extends Account {
       * @param contextName 
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
-        await this.init()
-        return await StorageLink.unlink(this.ceramic!, this.ceramic!.did!.id, contextName)
-    }
-
-    public async getCeramic(): Promise<CeramicClient> {
-        await this.init()
-        return this.ceramic!
+        return await StorageLink.unlink(this.didClient, contextName)
     }
 
 }
