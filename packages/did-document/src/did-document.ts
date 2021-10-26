@@ -190,12 +190,13 @@ export default class DIDDocument {
     }
 
     public static generateContextHash(did: string, contextName: string) {
+        did = did.toLowerCase()
         return EncryptionUtils.hash(`${did}/${contextName}`)
     }
 
     public locateServiceEndpoint(contextName: string, endpointType: EndpointType) {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
-        const expectedEndpointId = `${this.doc.id}?context=${contextHash}#${endpointType}`
+        const expectedEndpointId = `${this.doc.id}\\?context=${contextHash}#${endpointType}`
 
         return this.doc.service!.find(entry => entry.id == expectedEndpointId)
     }
