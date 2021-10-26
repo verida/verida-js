@@ -5,3 +5,9 @@ export interface AccountConfig {
     defaultMessageServer: Interfaces.SecureContextEndpoint,
     defaultStorageServer?: Interfaces.SecureContextEndpoint,
 }
+
+export enum EnvironmentType {
+    LOCAL = 'local',
+    TESTNET = 'testnet',
+    MAINNET = 'mainnet'
+}

@@ -1,7 +1,10 @@
 import Account from "./account"
-import { AccountConfig } from "./interfaces"
+import { AccountConfig, EnvironmentType } from "./interfaces"
+import Config from "./config"
 
 export {
     Account,
-    AccountConfig
+    AccountConfig,
+    EnvironmentType,
+    Config
 }

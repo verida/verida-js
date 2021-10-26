@@ -1,6 +1,6 @@
 import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { Account, AccountConfig } from '@verida/account'
+import { Account, AccountConfig, Config } from '@verida/account'
 import { NodeAccountConfig } from './interfaces'
 
 import { DIDClient, Wallet } from '@verida/did-client'
@@ -21,7 +21,10 @@ export default class AutoAccount extends Account {
         super()
         this.accountConfig = accountConfig
         this.wallet = new Wallet(autoConfig.privateKey)
-        this.didClient = new DIDClient(autoConfig.didServerUrl)
+
+        const didServerUrl = autoConfig.didServerUrl ? autoConfig.didServerUrl : Config.environments[autoConfig.environment]
+        this.didClient = new DIDClient(didServerUrl)
+        
         this.privateKey = this.wallet.privateKey
         this.didClient.authenticate(this.privateKey)
     }
