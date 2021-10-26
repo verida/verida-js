@@ -20,9 +20,9 @@ export interface ClientConfig {
     environment?: ClientEnvironment
 
     /**
-     * URL of Ceramic node to use.
+     * URL of Verida DID Server node to use.
      */
-    ceramicUrl?: string
+    didServerUrl?: string
 
     /**
      * Specify custom schema paths (typicaly for local development).

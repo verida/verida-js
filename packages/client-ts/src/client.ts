@@ -3,9 +3,9 @@ const bs58 = require('bs58')
 const _ = require('lodash')
 
 import { Account } from '@verida/account'
-import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
 import { Profile } from './context/profiles/profile'
+import { DIDClient } from '@verida/did-client'
 
 import { ClientConfig } from './interfaces'
 import Context from './context/context'
@@ -23,9 +23,8 @@ export default class Client {
      * 
      * Defaults to Ceramic testnet. Specify custom URL via `ClientConfig` in the constructor.
      */
-    public ceramicUrl: string
+    public didClient: DIDClient
 
-    private ceramic: CeramicClient
     private didContextManager: DIDContextManager
 
     private account?: Account
@@ -45,9 +44,8 @@ export default class Client {
         const defaultConfig = DEFAULT_CONFIG.environments[this.environment] ? DEFAULT_CONFIG.environments[this.environment] : {}
         const config = _.merge(defaultConfig, userConfig)
 
-        this.ceramicUrl = config.ceramicUrl
-        this.ceramic = new CeramicClient(this.ceramicUrl)
-        this.didContextManager = new DIDContextManager(this.ceramic)
+        this.didClient = new DIDClient(config.didServerUrl)
+        this.didContextManager = new DIDContextManager(this.didClient)
         Schema.setSchemaPaths(config.schemaPaths)
     }
 
