@@ -90,6 +90,10 @@ export default class StorageLink {
 
     static async unlink(didClient: DIDClient, contextName: string): Promise<boolean> {
         const did = didClient.getDid()
+        if (!did) {
+            throw  new Error("DID Client is not authenticated")
+        }
+
         const didDocument = await didClient.get(did)
         if (!didDocument) {
             return false
