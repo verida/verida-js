@@ -12,7 +12,7 @@
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha",
     "build": "rm -rf dist && tsc",
-    "generate-api-docs": "rm -rf apidocs && ./node_modules/.bin/jsdoc ./ -r -c .jsdoc.conf -d apidocs --readme README.api.md"
+    "generate-api-docs": " rm -rf api-docs && ./node_modules/.bin/jsdoc && jsdoc -c 'jsdoc.json' --readme README.api.md"
   },
   "engines": {
     "node": "^12.0.0"
