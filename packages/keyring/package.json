@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@verida/encryption-utils": "^1.0.0",
-    "bs58": "^4.0.1",
     "ethers": "^5.5.1",
     "tweetnacl": "^1.0.3",
     "uuid": "^8.3.2"

@@ -1,6 +1,5 @@
 import Encryption from '@verida/encryption-utils'
 import nacl, { box, sign } from 'tweetnacl'
-const bs58 = require('bs58')
 import { utils } from 'ethers'
 
 import { KeyringKeyType } from './interfaces'
@@ -35,14 +34,14 @@ export default class Keyring {
         return {
             asymPublicKey: this.asymKeyPair?.publicKey,
             asymPrivateKey: this.asymKeyPair?.secretKey,
-            asymPublicKeyBase58: bs58.encode(this.asymKeyPair?.publicKey),
-            asymPrivateKeyBase58: bs58.encode(this.asymKeyPair?.secretKey),
-            signPublicKey: this.signKeyPair?.publicKey,
-            signPrivateKey: this.signKeyPair?.secretKey,
-            signPublicKeyBase58: bs58.encode(this.signKeyPair?.publicKey),
-            signPrivateKeyBase58: bs58.encode(this.signKeyPair?.secretKey),
+            asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
+            asymPrivateKeyBase58: utils.base58.encode(this.asymKeyPair!.secretKey),
+            signPublicKey: this.signKeyPair!.publicKey,
+            signPrivateKey: this.signKeyPair!.secretKey,
+            signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey),
+            signPrivateKeyBase58: utils.base58.encode(this.signKeyPair!.secretKey),
             symKey: this.symKey!,
-            symKeyBase58: bs58.encode(this.symKey!)
+            symKeyBase58: utils.base58.encode(this.symKey!)
         }
     }
 
@@ -97,10 +96,10 @@ export default class Keyring {
         await this._init()
         
         return {
-            asymPublicKey: this.asymKeyPair?.publicKey,
-            asymPublicKeyBase58: bs58.encode(this.asymKeyPair?.publicKey),
-            signPublicKey: this.signKeyPair?.publicKey,
-            signPublicKeyBase58: bs58.encode(this.signKeyPair?.publicKey)
+            asymPublicKey: this.asymKeyPair!.publicKey,
+            asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
+            signPublicKey: this.signKeyPair!.publicKey,
+            signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey)
         }
     }
 
