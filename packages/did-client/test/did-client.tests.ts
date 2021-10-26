@@ -41,7 +41,7 @@ describe('DID document tests', () => {
     describe('Document creation', function() {
         it('can create an empty document', async function() {
             const doc = new DIDDocument(did)
-            doc.signProof(wallet.privateKey)
+            didClient.authenticate(wallet.privateKey)
             const saved = await didClient.save(doc)
 
             assert.ok(saved)
@@ -57,7 +57,7 @@ describe('DID document tests', () => {
         it('can add a context to an existing DID and verify', async function() {
             const initialDoc = new DIDDocument(did)
             await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
-            initialDoc.signProof(wallet.privateKey)
+            didClient.authenticate(wallet.privateKey)
             const saved = await didClient.save(initialDoc)
 
             assert.ok(saved)
@@ -65,7 +65,7 @@ describe('DID document tests', () => {
             const doc = await didClient.get(did)
             const data = doc.export()
 
-            const contextHash = initialDoc.generateContextHash(CONTEXT_NAME)
+            const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
 
             // Validate service endpoints
             assert.equal(data.service.length, 2, "Have two service entries")
@@ -92,8 +92,22 @@ describe('DID document tests', () => {
             const doc2 = await didClient.get(`did:vda`)
             assert.ok(!doc2, 'Document not returned')
 
-            const doc3 = await didClient.get("")
-            assert.ok(!doc3, 'Document not returned')
+            let success = true
+            try {
+                const doc3 = await didClient.get("")
+                success = false
+            } catch(err) {
+                if (err.message == `No DID specified`) {
+                    success = true
+                } else {
+                    success = false
+                }
+                
+            }
+
+            assert.ok(success, 'Error is thrown with empty DID request')
+            
+            
         })
     })
 

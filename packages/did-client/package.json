@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "@verida/did-document": "*",
-    "axios": "^0.23.0"
+    "axios": "^0.23.0",
+    "ethers": "^5.5.1"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
