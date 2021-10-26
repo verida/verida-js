@@ -83,7 +83,7 @@ describe('DID document tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 2, "Have two verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
         })
 
         it('can handle invalid DIDs', async function() {
@@ -122,7 +122,9 @@ describe('DID document tests', () => {
             assert.ok(saved)
 
             const data = doc.export()
-            assert.equal(data.verificationMethod.length, 2, 'Have one verification method')
+            assert.equal(data.verificationMethod.length, 3, 'Have three verification methods')
+            assert.equal(data.assertionMethod.length, 2, 'Have two assertionMethods')
+            assert.equal(data.keyAgreement.length, 1, 'Have one keyAgreement')
         })
     })
 
