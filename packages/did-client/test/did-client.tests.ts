@@ -70,6 +70,7 @@ describe('DID document tests', () => {
             // Validate service endpoints
             assert.equal(data.service.length, 2, "Have two service entries")
             function validateServiceEndpoint(type, endpointUri, actual: ServiceEndpoint) {
+                assert.ok(actual)
                 assert.equal(actual.id, `${did}?context=${contextHash}#${type}`, "Endpoint ID matches hard coded value")
                 assert.equal(actual.type, type, "Type has expected value")
                 assert.equal(actual.serviceEndpoint, endpointUri, "Endpoint has expected value")
@@ -106,8 +107,22 @@ describe('DID document tests', () => {
             }
 
             assert.ok(success, 'Error is thrown with empty DID request')
-            
-            
+        })
+
+        it('can replace an existing context, not add again', async function() {
+            const doc = new DIDDocument(did)
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            didClient.authenticate(wallet.privateKey)
+            let saved = await didClient.save(doc)
+            assert.ok(saved)
+
+            // Add the same context and save a second time
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            saved = await didClient.save(doc)
+            assert.ok(saved)
+
+            const data = doc.export()
+            assert.equal(data.verificationMethod.length, 2, 'Have one verification method')
         })
     })
 
