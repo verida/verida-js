@@ -20,11 +20,11 @@ export default class DIDStorageConfig {
             publicKeys: {
                 asymKey: {
                     type: 'Curve25519EncryptionPublicKey',
-                    base58: publicKeys.asymPublicKeyBase58
+                    publicKeyHex: publicKeys.asymPublicKeyHex
                 },
                 signKey: {
                     type: 'EcdsaSecp256k1VerificationKey2019',
-                    base58: publicKeys.signPublicKeyBase58
+                    publicKeyHex: publicKeys.signPublicKeyHex
                 }
             },
             services: servicesConfig

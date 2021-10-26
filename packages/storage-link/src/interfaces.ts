@@ -1,7 +1,7 @@
 
 export interface SecureContextPublicKey {
     type: string,
-    base58: string
+    publicKeyHex: string
 }
 
 export interface SecureStorageContextPublicKeys {
