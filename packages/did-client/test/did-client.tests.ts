@@ -16,7 +16,8 @@ const address = wallet.address.toLowerCase()
 const did = `did:vda:${address}`
 
 const CONTEXT_NAME = 'Verida: Test DID Context'
-const DID_REGISTRY_ENDPOINT = 'http://localhost:5001'
+//const DID_REGISTRY_ENDPOINT = 'http://localhost:5001'
+const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001'
 
 const keyring = new Keyring(wallet.mnemonic.phrase)
 
@@ -40,7 +41,7 @@ describe('DID document tests', () => {
 
     describe('Document creation', function() {
         it('can create an empty document', async function() {
-            const doc = new DIDDocument(did)
+            const doc = new DIDDocument(did, wallet.publicKey)
             didClient.authenticate(wallet.privateKey)
             const saved = await didClient.save(doc)
 
@@ -55,7 +56,7 @@ describe('DID document tests', () => {
         })
 
         it('can add a context to an existing DID and verify', async function() {
-            const initialDoc = new DIDDocument(did)
+            const initialDoc = new DIDDocument(did, wallet.publicKey)
             await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
             didClient.authenticate(wallet.privateKey)
             const saved = await didClient.save(initialDoc)
@@ -110,7 +111,7 @@ describe('DID document tests', () => {
         })
 
         it('can replace an existing context, not add again', async function() {
-            const doc = new DIDDocument(did)
+            const doc = new DIDDocument(did, wallet.publicKey)
             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
             didClient.authenticate(wallet.privateKey)
             let saved = await didClient.save(doc)
