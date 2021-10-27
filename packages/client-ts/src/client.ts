@@ -190,6 +190,10 @@ export default class Client {
             if (!did || signerDid.toLowerCase() == did.toLowerCase()) {
                 const signature = data.signatures[key]
                 const didDocument = await this.didClient.get(signerDid)
+                if (!didDocument) {
+                    continue
+                }
+                
                 const validSig = didDocument.verifyContextSignature(_data, signerContextHash, signature, true)
 
                 if (validSig) {
