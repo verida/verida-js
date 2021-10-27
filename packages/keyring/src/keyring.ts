@@ -99,10 +99,10 @@ export default class Keyring {
         
         return {
             asymPublicKey: this.asymKeyPair!.publicKey,
-            asymPublicKeyHex: utils.hexValue(this.asymKeyPair!.publicKey),
+            asymPublicKeyHex: utils.hexlify(this.asymKeyPair!.publicKey),
             asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
             signPublicKey: this.signKeyPair!.publicKey,
-            signPublicKeyHex: utils.hexValue(this.signKeyPair!.publicKey),
+            signPublicKeyHex: utils.hexlify(this.signKeyPair!.publicKey),
             signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey)
         }
     }
@@ -114,7 +114,7 @@ export default class Keyring {
 
     public async verifySig(data: string, sig: string): Promise<boolean> {
         await this._init()
-        return Encryption.verifySig(data, sig, this.signKeyPair!.publicKey)
+        return Encryption.verifySig(data, sig, utils.hexlify(this.signKeyPair!.publicKey))
     }
 
     public async symEncrypt(data: string): Promise<string> {
