@@ -3,11 +3,13 @@ import Network from './network'
 import Context from './context/context'
 import Messaging from './context/messaging'
 import * as ContextInterfaces from './context/interfaces' 
+import { ClientEnvironment } from './interfaces'
 
 export {
     Client,
     Context,
     Network,
     Messaging,
-    ContextInterfaces
+    ContextInterfaces,
+    ClientEnvironment
 }

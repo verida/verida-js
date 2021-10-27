@@ -3,9 +3,7 @@ const assert = require('assert')
 
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
-StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 
 const DB_NAME_OWNER = 'OwnerTestDb_1'
 
@@ -16,7 +14,8 @@ describe('Verida database tests', () => {
     let context, did1
 
     const network = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     describe('Manage databases for the authenticated user', function() {
@@ -25,9 +24,9 @@ describe('Verida database tests', () => {
         it('can open a database with owner/owner permissions', async function() {
             // Initialize account 1
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did1 = await account1.did()
             await network.connect(account1)

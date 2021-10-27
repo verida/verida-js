@@ -74,7 +74,7 @@ export default class BaseDb extends EventEmitter implements Database {
             this.databaseName
         ].join("/")
 
-        const hash = EncryptionUtils.hash(text)
+        const hash = EncryptionUtils.hash(text).substr(2)
 
         // Database name in CouchDB must start with a letter, so prepend a `v`
         return "v" + hash

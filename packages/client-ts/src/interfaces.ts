@@ -1,12 +1,6 @@
 import { Interfaces } from '@verida/storage-link'
-import { Account } from '@verida/account'
+import { Account, EnvironmentType } from '@verida/account'
 import BaseStorageEngine from './context/engines/base'
-
-export enum ClientEnvironment {
-    LOCAL = "local",
-    TESTNET = "testnet",
-    MAINNET = "mainnet"
-}
 
 /**
  * Configuration for creating a new Client instance.
@@ -17,7 +11,7 @@ export interface ClientConfig {
      * 
      * Environment configuration can still be overriden by config items.
      */
-    environment?: ClientEnvironment
+    environment?: EnvironmentType
 
     /**
      * URL of Verida DID Server node to use.

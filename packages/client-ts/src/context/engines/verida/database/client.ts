@@ -25,7 +25,7 @@ export default class DatastoreServerClient {
         const keyring = await account.keyring(this.storageContext)
 
         this.authentication = {
-            username: did,
+            username: did.toLowerCase(),
             signature: keyring.getSeed()
         }
     }
@@ -86,10 +86,5 @@ export default class DatastoreServerClient {
 
         return Axios.create(config)
     }
-
-    // @todo: replace with tokens via datastore server?
-    /*private generatePassword(signature) {
-        return crypto.createHash('sha256').update(signature).digest("hex");
-    }*/
 
 }

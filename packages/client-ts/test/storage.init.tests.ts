@@ -18,7 +18,8 @@ const VDA_PRIVATE_KEY = wallet.privateKey
 describe('Storage initialization tests', () => {
     let didClient, did
     const network = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     describe('Initialize user storage contexts', function() {
