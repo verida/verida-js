@@ -29,12 +29,14 @@ describe('Basic vault tests', () => {
             const { privateKey } = wallet
 
             const client = new Client({
-                ceramicUrl: CONFIG.CERAMIC_URL
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
 
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: wallet.chain,
-                privateKey: wallet.privateKey
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             await client.connect(account)
             const context = client.openContext(VERIDA_CONTEXT_NAME, true)

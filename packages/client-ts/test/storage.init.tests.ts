@@ -36,7 +36,8 @@ describe('Storage initialization tests', () => {
         it('can authenticate a user', async function() {
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
 
             didClient = await account.getDidClient()
