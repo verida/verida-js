@@ -1,8 +1,8 @@
-import { Interfaces } from "@verida/storage-link"
+import { EnvironmentType } from "@verida/account"
 
 export interface NodeAccountConfig {
-    chain: string,
-    privateKey: string,
-    ceramicUrl?: string
+    privateKey: string, // or mnemonic
+    environment: EnvironmentType
+    didServerUrl?: string
     options?: any
 }

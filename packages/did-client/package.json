@@ -1,0 +1,30 @@
+{
+  "name": "@verida/did-client",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "repository": "https://github.com/verida/verida-js.git",
+  "scripts": {
+    "tests": "ts-mocha './test/**/*.ts'",
+    "test": "ts-mocha",
+    "build": "rm -rf dist; tsc"
+  },
+  "engines": {
+    "node": "^14.0.0"
+  },
+  "dependencies": {
+    "@verida/did-document": "*",
+    "axios": "^0.23.0",
+    "ethers": "^5.5.1"
+  },
+  "devDependencies": {
+    "mocha": "^8.2.1",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}

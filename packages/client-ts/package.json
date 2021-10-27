@@ -17,11 +17,12 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@ceramicnetwork/http-client": "^1.3.0",
     "@verida/account": "^1.0.3",
     "@verida/encryption-utils": "^1.0.0",
     "@verida/keyring": "^1.0.1",
     "@verida/storage-link": "^1.0.3",
+    "@verida/did-client": "*",
+    "@verida/did-document": "*",
     "ajv": "^8.6.2",
     "axios": "^0.21.2",
     "bs58": "^4.0.1",

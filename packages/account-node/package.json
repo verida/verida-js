@@ -17,9 +17,10 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@ceramicnetwork/http-client": "^1.3.0",
     "@verida/account": "^1.0.3",
-    "@verida/keyring": "^1.0.1"
+    "@verida/did-client": "*",
+    "@verida/keyring": "^1.0.1",
+    "@verida/encryption-utils": "*"
   },
   "devDependencies": {
     "did-jwt": "^5.7.0",

@@ -1,15 +1,22 @@
-import { secretbox, sign, box, randomBytes } from "tweetnacl";
+import { secretbox, box, randomBytes } from "tweetnacl";
 import {
   decodeUTF8,
   encodeUTF8,
   encodeBase64,
   decodeBase64
 } from "tweetnacl-util";
+import { ethers, utils } from 'ethers'
+import util = require("tweetnacl-util");
 
 const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
 const newKey = (length: number) => randomBytes(length ? length : secretbox.keyLength);
 
+/**
+ * Utilizes `tweetnacl` for symmetric and asymmetric encryption.
+ * 
+ * Utilizes `keccak256` algorithm to hash signed data and `secp256k1` signature algorithm for the resulting signature.
+ */
 export default class EncryptionUtils {
 
     static symEncryptBuffer(data: any, keyUint8Array: Uint8Array) {
@@ -100,13 +107,25 @@ export default class EncryptionUtils {
     }
 
     static signData(data: any, privateKeyBytes: Uint8Array) {
-        let messageUint8 = decodeUTF8(JSON.stringify(data));
-        return encodeBase64(sign.detached(messageUint8, privateKeyBytes));
+        const messageHashBytes = EncryptionUtils.hashBytes(data)
+        const signingKey = new utils.SigningKey(privateKeyBytes)
+        const signature = signingKey.signDigest(messageHashBytes)
+        return utils.joinSignature(signature)
     }
 
-    static verifySig(data: any, sig: string, publicKeyBytes: Uint8Array) {
-        let messageUint8 = decodeUTF8(JSON.stringify(data));
-        return sign.detached.verify(messageUint8, decodeBase64(sig), publicKeyBytes);
+    /**
+     * 
+     * @param data 
+     * @param signature 
+     * @param publicKey Hex encoded public key
+     * @returns 
+     */
+    static verifySig(data: any, signature: string, publicKey: string) {
+        const expectedAddress = utils.computeAddress(publicKey)
+        const messageHashBytes = EncryptionUtils.hashBytes(data)
+        const signerAddress = utils.recoverAddress(messageHashBytes, signature)
+
+        return signerAddress.toLowerCase() == expectedAddress.toLowerCase()
     }
 
     static decodeBase64(data: any) {
@@ -115,5 +134,39 @@ export default class EncryptionUtils {
 
     static encodeBase64(data: any) {
         return encodeBase64(data)
+    }
+
+    static hash(data: any) {
+        if (typeof(data) != 'string') {
+            data = JSON.stringify(data)
+        }
+
+        return utils.keccak256(utils.toUtf8Bytes(data))
+    }
+
+    static hashBytes(data: any) {
+        const hash = EncryptionUtils.hash(data)
+        return utils.arrayify(hash)
+    }
+
+    static base58ToHex(b58: string) {
+        return ethers.utils.base58.decode(b58)
+    }
+
+    static hexToBase58(hex: string) {
+        return ethers.utils.base58.encode(hex)
+    }
+
+    static hexToBytes(hex: string) {
+        return ethers.utils.arrayify(hex)
+    }
+
+    static bytesToHex(bytes: Uint8Array) {
+        return ethers.utils.hexlify(bytes)
+    }
+
+    static publicKeyToAddress(publicKeyHex: string) {
+        const add = utils.computeAddress(publicKeyHex)
+        return add
     }
 }
