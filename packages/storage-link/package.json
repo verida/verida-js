@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@verida/did-client": "^0.1.1",
-    "@verida/did-document": "^0.1.0",
+    "@verida/did-document": "*",
     "@verida/encryption-utils": "^1.1.1",
     "@verida/keyring": "^1.1.1",
     "url-parse": "^1.5.3"
