@@ -157,6 +157,14 @@ export default class EncryptionUtils {
         return ethers.utils.base58.encode(hex)
     }
 
+    static hexToBytes(hex: string) {
+        return ethers.utils.arrayify(hex)
+    }
+
+    static bytesToHex(bytes: Uint8Array) {
+        return ethers.utils.hexlify(bytes)
+    }
+
     static publicKeyToAddress(publicKeyHex: string) {
         const add = utils.computeAddress(publicKeyHex)
         return add
