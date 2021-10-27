@@ -201,7 +201,6 @@ export default class DIDDocument {
     public verifySig(data: any, signature: string): boolean {
         const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == this.doc.id)
         if (!verificationMethod || !verificationMethod.publicKeyHex) {
-            console.log('cant find vf!')
             return false
         }
 
@@ -217,8 +216,8 @@ export default class DIDDocument {
         }
 
         const publicKeyLookup = `${this.doc.id}?context=${contextHash}#sign`
-
         const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == publicKeyLookup)
+
         if (!verificationMethod) {
             return false
         }
