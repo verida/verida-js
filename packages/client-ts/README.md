@@ -28,10 +28,10 @@ yarn add @verida/account-web-vault
 Here's how you initialize an application:
 
 ```
-import { Network } from '@verida/client-ts'
+import { Network, EnvironmentType } from '@verida/client-ts'
 import { VaultAccount } from '@verida/account-web-vault'
 
-const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+const VERIDA_ENVIRONMENT = EnvironmentType.TESTNET
 const CONTEXT_NAME = 'My Application Context Name'
 const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/'
 
@@ -48,7 +48,7 @@ const account = new VaultAccount({
 
 const context = Network.connect({
     client: {
-        ceramicUrl: CERAMIC_URL
+        environment: VERIDA_ENVIRONMENT
     },
     account: account,
     context: {
@@ -63,20 +63,20 @@ Initialize a connection to the Verida network with an existing private key.
 
 In this example we are providing default Verida servers pointing to `http://localhost:5000/`. These will need to point to any default server infrastructure you provide to your users by spinning up instances of `@verida/storage-node`.
 
-const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+```
+import { Network, EnvironmentType } from '@verida/client-ts'
+import { AutoAccount } from '@verida/account-node'
+
+const VERIDA_ENVIRONMENT = EnvironmentType.TESTNET
 const CONTEXT_NAME = 'My Application Context Name'
 const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/'
-
-```
-import { Network } from '@verida/client-ts'
-import { AutoAccount } from '@verida/account-node'
   
 const context = Network.connect({
     context: {
         name: CONTEXT_NAME
     },
     client: {
-        ceramicUrl: CERAMIC_URL
+        environment: VERIDA_ENVIRONMENT
     },
     account: new AutoAccount({
         defaultDatabaseServer: {
@@ -88,8 +88,7 @@ const context = Network.connect({
             endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
         }
     }, {
-        chain: "ethr",
-        privateKey: '0x...'
+        privateKey: '0x...' // or mnemonic seed phrase
     })
 })
 
@@ -104,16 +103,16 @@ See `@verida/account-3id-connect`. Do not use, for testing / demonstration purpo
 In your application, include the dependency and create a new client network instance:
 
 ```
-import Client from '@verida/client-ts'
+import { Client, EnvironmentType } from '@verida/client-ts'
 import { AutoAccount } from '@verida/account-node'
 
-const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+const VERIDA_ENVIRONMENT = EnvironmentType.TESTNET
 const CONTEXT_NAME = 'My Application Context Name'
 const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/'
 
 // establish a network connection
 const client = new Client({
-    ceramicUrl: CERAMIC_URL
+    environment: VERIDA_ENVIRONMENT
 })
 
 // create a Verida account instance that wraps the authorized Ceramic connection
@@ -128,7 +127,6 @@ const account = new AutoAccount({
         endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
     }
 }, {
-    chain: "ethr",
     privateKey: '0x...'
 })
 
@@ -153,26 +151,17 @@ $ yarn run tests test/<testname>.ts
 
 ### Setting up test environment
 
-**Ceramic Network (run locally)**
+**Verida DID Server (run locally)**
 
-The tests require running a local instance of the Ceramic network to support creating valid DID's.
+The tests require running a local instance of the Verida DID server to support managing DIDs.
 
-Ceramic currently requires NodeJs v14 and can be initialised with:
+See [@verida/did-server](https://github.com/verida/did-server)
 
-```
-$ nvm use 14
-$ ceramic daemon --network inmemory
-```
+**Start a storage node server**
 
-**Install Verida Schema (on local Ceramic instance)**
+You must run the [Datastore server](https://github.com/verida/storage- node) locally so there is a CouchDB instance for your test data.
 
-You must install the Verida schema for linking application contexts to a DID. Follow the steps in [packages/storage-link/idx/README.md](storage-link/idx/README.md) to create the schema in your local Ceramic environment. Creating the schema will generate a unique string representing the schema which needs to be updated in `test/config.ts` (STORAGE_LINK_SCHEMA).
-
-**Start the datastore server**
-
-You must run the [Datastore server](https://github.com/verida/datastore-server) locally so there is a CouchDB instance for your test data.
-
-Run the following in a new terminal within the `datastore-server` directory:
+Run the following in a new terminal within the `storage-node` directory:
 
 ```
 $ npm install
