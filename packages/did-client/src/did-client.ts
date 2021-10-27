@@ -8,6 +8,7 @@ export default class DIDClient {
 
     private privateKey?: Uint8Array
     private did?: string
+    private wallet?: Wallet
 
     constructor(endpointUrl: string) {
         this.endpointUrl = endpointUrl
@@ -21,13 +22,17 @@ export default class DIDClient {
      * @param privateKey {string} Hex representation of the private key or a mnemonic
      */
     public authenticate(privateKey: string) {
-        const wallet = new Wallet(privateKey)
-        this.privateKey = wallet.privateKeyBuffer
-        this.did = wallet.did
+        this.wallet = new Wallet(privateKey)
+        this.privateKey = this.wallet.privateKeyBuffer
+        this.did = this.wallet.did
     }
 
     public getDid(): string | undefined {
         return this.did
+    }
+
+    public getPublicKey(): string {
+        return this.wallet!.publicKey
     }
 
     /**
