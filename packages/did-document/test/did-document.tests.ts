@@ -36,7 +36,7 @@ describe('DID document tests', () => {
 
     describe('Document creation', function() {
         it('can create an empty document', async function() {
-            const doc = new DIDDocument(did)
+            const doc = new DIDDocument(did, wallet.publicKey)
             const data = doc.export()
 
             assert.ok(doc)
@@ -44,7 +44,7 @@ describe('DID document tests', () => {
         })
 
         it('can add a context', async function() {
-            const doc = new DIDDocument(did)
+            const doc = new DIDDocument(did, wallet.publicKey)
             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
 
             const data = doc.export()
@@ -74,7 +74,7 @@ describe('DID document tests', () => {
 
     describe('Document changes', function() {
         it('can add multiple contexts', async function() {
-            const doc = new DIDDocument(did)
+            const doc = new DIDDocument(did, wallet.publicKey)
             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
             await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
 
@@ -98,7 +98,7 @@ describe('DID document tests', () => {
         })
 
         it('can remove a context', async function() {
-            const doc = new DIDDocument(did)
+            const doc = new DIDDocument(did, wallet.publicKey)
             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
             await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
 
@@ -121,7 +121,7 @@ describe('DID document tests', () => {
 
     describe('Document signing and verification', function() {
         it('can sign and verify a proof', async function() {
-            const doc = new DIDDocument(did)
+            const doc = new DIDDocument(did, wallet.publicKey)
             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
 
             doc.signProof(wallet.privateKey)
@@ -129,6 +129,19 @@ describe('DID document tests', () => {
 
             const data = doc.export()
             assert.ok(data.proof, "Proof still exists after verification")
+        })
+
+        it('can sign and verify any context data', async function() {
+            const doc = new DIDDocument(did, wallet.publicKey)
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+
+            const signData = {
+                hello: 'world'
+            }
+            const signature = await keyring.sign(signData)
+            const valid = doc.verifyContextSignature(signData, CONTEXT_NAME, signature)
+
+            assert.ok(valid, "Signature is valid")
         })
     })
 

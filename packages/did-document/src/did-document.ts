@@ -12,8 +12,14 @@ export default class DIDDocument {
      * 
      * @param doc 
      */
-    constructor(doc: DIDDocumentStruct | string) {
+    constructor(doc: DIDDocumentStruct | string, publicKeyHex?: string) {
         if (typeof(doc) == 'string') {
+            // We are creating a new DID Document
+            // Make sure we have a public key
+            if (!publicKeyHex || publicKeyHex.length != 132) {
+                throw new Error('Unable to create DID Document. Invalid or non-existent public key.')
+            }
+
             const did = doc.toLowerCase()
             this.doc = {
                 id: did,
@@ -26,7 +32,7 @@ export default class DIDDocument {
                 id: this.doc.id,
                 type: "EcdsaSecp256k1VerificationKey2019",
                 controller: this.doc.id,
-                publicKeyHex: this.doc.id
+                publicKeyHex: publicKeyHex
             }]
         } else {
             doc.id = doc.id.toLowerCase()
@@ -192,23 +198,33 @@ export default class DIDDocument {
         return this.verifySig(proofData, signature)
     }
 
-    public verifySig(data: any, signature: string) {
-        // @todo: update this to use the actual signing key for the did when revocation is implemented
-        const address = this.doc.id.replace('did:vda:','')
-        return EncryptionUtils.verifySig(data, signature, address)
+    public verifySig(data: any, signature: string): boolean {
+        const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == this.doc.id)
+        if (!verificationMethod || !verificationMethod.publicKeyHex) {
+            console.log('cant find vf!')
+            return false
+        }
+
+
+
+        return EncryptionUtils.verifySig(data, signature, verificationMethod.publicKeyHex!)
     }
 
-    public verifyContextSignature(data: any, contextName: string, signature: string) {
-        const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
-        const publicKeyLookup = `${this.doc.id}\\?context=${contextHash}#sign`
+    public verifyContextSignature(data: any, contextName: string, signature: string, contextIsHash: boolean = false) {
+        let contextHash = contextName
+        if (!contextIsHash) {
+            contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
+        }
+
+        const publicKeyLookup = `${this.doc.id}?context=${contextHash}#sign`
 
         const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == publicKeyLookup)
         if (!verificationMethod) {
             return false
         }
 
-        const signAddress = verificationMethod.publicKeyHex!
-        return EncryptionUtils.verifySig(data, signature, signAddress)
+        const signPublicKey = verificationMethod.publicKeyHex!
+        return EncryptionUtils.verifySig(data, signature, signPublicKey)
     }
 
     private getProofData() {
