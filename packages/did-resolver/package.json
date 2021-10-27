@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-resolver",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,7 +17,7 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/did-client": "*",
+    "@verida/did-client": "^0.1.0",
     "did-resolver": "^3.1.2"
   },
   "devDependencies": {

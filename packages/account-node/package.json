@@ -1,6 +1,6 @@
 {
   "name": "@verida/account-node",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,10 +17,10 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/account": "^1.0.3",
-    "@verida/did-client": "*",
-    "@verida/keyring": "^1.0.1",
-    "@verida/encryption-utils": "*"
+    "@verida/account": "^1.1.0",
+    "@verida/did-client": "^0.1.0",
+    "@verida/encryption-utils": "^1.1.0",
+    "@verida/keyring": "^1.1.0"
   },
   "devDependencies": {
     "did-jwt": "^5.7.0",
