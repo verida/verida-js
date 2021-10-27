@@ -69,7 +69,7 @@ export default class BaseDb extends EventEmitter implements Database {
     // DID + context name + DB Name + readPerm + writePerm
     private buildDatabaseHash() {
         let text = [
-            this.did,
+            this.did.toLowerCase(),
             this.storageContext,
             this.databaseName
         ].join("/")

@@ -92,8 +92,7 @@ export default class DbRegistry {
 
     public async get(dbName: string, did: string, contextName: string): Promise<any> {
         await this.init()
-
-        let dbId = this.buildDatabaseId(dbName, did, contextName)
+        const dbId = this.buildDatabaseId(dbName, did, contextName)
 
         try {
             return await this.dbStore!.get(dbId)
@@ -109,12 +108,12 @@ export default class DbRegistry {
 
     private buildDatabaseId(dbName: string, did: string, contextName: string): string {
         const text = [
-            did,
+            did.toLowerCase(),
             contextName,
             dbName
         ].join("/")
 
-        return EncryptionUtils.hash(text)
+        return 'v' + EncryptionUtils.hash(text).substr(2)
     }
 
     /*
