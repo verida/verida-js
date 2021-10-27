@@ -57,7 +57,7 @@ export default class StorageLink {
 
         // Create a new DID document if it doesn't already exist
         if (!didDocument) {
-            didDocument = new DIDDocument(did)
+            didDocument = new DIDDocument(did, didClient.getPublicKey())
         } else {
             // Remove existing context if it exists
             const existing = await StorageLink.getLink(didClient, did, storageConfig.id)

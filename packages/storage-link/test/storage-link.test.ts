@@ -82,7 +82,7 @@ describe('Storage Link', () => {
 
         after(async () => {
             // Cleanup and remove all contexts by creating an empty DID document
-            const didDocument = new DIDDocument(DID)
+            const didDocument = new DIDDocument(DID, didClient.getPublicKey())
             await didClient.save(didDocument)
         })
     })
