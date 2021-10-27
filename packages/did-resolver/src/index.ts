@@ -1,5 +1,5 @@
-import { getResolver } from "./vda-did-resolver"
+import { getResolver } from "./did-resolver"
 
-export {
+export default {
     getResolver
 }

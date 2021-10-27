@@ -1,4 +1,4 @@
 
-## Account
+## VDA DID Resolver
 
 @todo
