@@ -117,19 +117,15 @@ export default class EncryptionUtils {
      * 
      * @param data 
      * @param signature 
-     * @param publicKey Hex encoding public key or Uint8Array public key
+     * @param publicKey Hex encoded public key
      * @returns 
      */
-    static verifySig(data: any, signature: string, publicKey: string | Uint8Array) {
-        let expectedAddress = publicKey
-        if (typeof(publicKey) != "string") {
-            expectedAddress = utils.computeAddress(publicKey)
-        }
-
+    static verifySig(data: any, signature: string, publicKey: string) {
+        const expectedAddress = utils.computeAddress(publicKey)
         const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signerAddress = utils.recoverAddress(messageHashBytes, signature)
 
-        return signerAddress.toLowerCase() == String(expectedAddress).toLowerCase()
+        return signerAddress.toLowerCase() == expectedAddress.toLowerCase()
     }
 
     static decodeBase64(data: any) {
@@ -159,5 +155,10 @@ export default class EncryptionUtils {
 
     static hexToBase58(hex: string) {
         return ethers.utils.base58.encode(hex)
+    }
+
+    static publicKeyToAddress(publicKeyHex: string) {
+        const add = utils.computeAddress(publicKeyHex)
+        return add
     }
 }
