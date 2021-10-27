@@ -1,11 +1,10 @@
 import Encryption from '@verida/encryption-utils'
-const bs58 = require('bs58')
 const _ = require('lodash')
 
 import { Account } from '@verida/account'
-import CeramicClient from '@ceramicnetwork/http-client'
 import { Interfaces } from '@verida/storage-link'
 import { Profile } from './context/profiles/profile'
+import { DIDClient } from '@verida/did-client'
 
 import { ClientConfig } from './interfaces'
 import Context from './context/context'
@@ -23,9 +22,8 @@ export default class Client {
      * 
      * Defaults to Ceramic testnet. Specify custom URL via `ClientConfig` in the constructor.
      */
-    public ceramicUrl: string
+    public didClient: DIDClient
 
-    private ceramic: CeramicClient
     private didContextManager: DIDContextManager
 
     private account?: Account
@@ -45,9 +43,8 @@ export default class Client {
         const defaultConfig = DEFAULT_CONFIG.environments[this.environment] ? DEFAULT_CONFIG.environments[this.environment] : {}
         const config = _.merge(defaultConfig, userConfig)
 
-        this.ceramicUrl = config.ceramicUrl
-        this.ceramic = new CeramicClient(this.ceramicUrl)
-        this.didContextManager = new DIDContextManager(this.ceramic)
+        this.didClient = new DIDClient(config.didServerUrl)
+        this.didContextManager = new DIDContextManager(this.didClient)
         Schema.setSchemaPaths(config.schemaPaths)
     }
 
@@ -182,22 +179,25 @@ export default class Client {
 
         let validSignatures = []
         for (let key in data.signatures) {
-            const sigKeyParts = key.split(':')
-            if (sigKeyParts.length < 4) {
-                // invalid sig, skip
+            const signerParts = key.match(/did:vda:0x([a-z0-9A-Z]*)\?context=(.*)/)
+            if (!signerParts || signerParts.length != 3) {
                 continue
             }
 
-            const sigDid = `did:${sigKeyParts[1]}:${sigKeyParts[2]}`
-            const contextHash = sigKeyParts[3]
-            if (!did || sigDid == did) {
+            const signerDid = `did:vda:0x${signerParts[1]}`
+            const signerContextHash = signerParts[2]
+
+            if (!did || signerDid.toLowerCase() == did.toLowerCase()) {
                 const signature = data.signatures[key]
-                const contextConfig = await this.didContextManager.getDIDContextHashConfig(sigDid, contextHash)
-                const signKeyBase58 = contextConfig.publicKeys.signKey.base58
-                const signKey = bs58.decode(signKeyBase58)
-                const validSig = await Encryption.verifySig(_data, signature, signKey)
+                const didDocument = await this.didClient.get(signerDid)
+                if (!didDocument) {
+                    continue
+                }
+                
+                const validSig = didDocument.verifyContextSignature(_data, signerContextHash, signature, true)
+
                 if (validSig) {
-                    validSignatures.push(sigDid)
+                    validSignatures.push(signerDid)
                 }
             }
         }

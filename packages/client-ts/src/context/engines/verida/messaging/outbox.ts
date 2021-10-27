@@ -4,9 +4,9 @@ import { box } from "tweetnacl"
 import { Keyring } from '@verida/keyring'
 import Datastore from "../../../datastore"
 import { MessageSendConfig, PermissionOptionsEnum } from "../../../interfaces"
-const bs58 = require('bs58')
 import DIDContextManager from '../../../../did-context-manager'
 import Context from "../../../context"
+import EncryptionUtils from "@verida/encryption-utils"
 
 const VAULT_CONTEXT_NAME = 'Verida: Vault'
 
@@ -105,7 +105,7 @@ export default class VeridaOutbox {
         // Use the current application's keyring as we can't request access to
         // the user's private vault
         const keys = await this.keyring.getKeys()
-        const signer = await didJWT.EdDSASigner(keys.signPrivateKey)
+        const signer = await didJWT.ES256KSigner(keys.signPrivateKey)
 
         const jwt = await didJWT.createJWT({
             aud: this.accountDid,
@@ -114,14 +114,14 @@ export default class VeridaOutbox {
             context: sendingContextName,
             insertedAt: (new Date()).toISOString()
         }, {
-            alg: 'Ed25519',
+            alg: 'ES256K',
             issuer: this.accountDid,
             signer
         })
 
         // Encrypt this message using the receipients public key and this apps private key
-        const publicAsymKeyBase58 = recipientContextConfig.publicKeys.asymKey.base58
-        const publicAsymKeyBytes = bs58.decode(publicAsymKeyBase58)
+        const publicAsymKey = recipientContextConfig.publicKeys.asymKey.publicKeyHex
+        const publicAsymKeyBytes = EncryptionUtils.hexToBytes(publicAsymKey)
         const sharedKey = box.before(publicAsymKeyBytes, keys.asymPrivateKey)
         const encrypted = await this.keyring.asymEncrypt(jwt, sharedKey)
 
@@ -140,7 +140,7 @@ export default class VeridaOutbox {
 
         const inboxBody = {
             content: encrypted,
-            key: bs58.encode(keys.asymPublicKey)
+            key: EncryptionUtils.bytesToHex(keys.asymPublicKey)
         }
 
         const inboxResponse = await inbox.save(inboxBody)

@@ -1,4 +1,8 @@
 
+2021-10-27 (v1.1.0)
+-------------------
+
+- Large refactor to use [Verida DID Server](https://github.com/verida/did-server) and Ethereum compatible key structure
 
 2021-10-04 (v1.0.3)
 -------------------

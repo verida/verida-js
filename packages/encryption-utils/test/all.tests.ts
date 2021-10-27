@@ -3,6 +3,44 @@ const assert = require('assert')
 import { box } from "tweetnacl"
 
 import EncryptionUtils from "../src/index"
+import { Wallet, utils } from 'ethers'
+
+const wallet = Wallet.createRandom()
+
+const signingKey = {
+    publicKey: new Uint8Array(Buffer.from(wallet.publicKey.substr(2),'hex')),
+    privateKey: new Uint8Array(Buffer.from(wallet.privateKey.substr(2),'hex'))
+}
+
+const sender = {
+    publicKey: new Uint8Array([
+        250, 121, 196, 219,  20,  87,   6,  49,
+        23,  10, 171, 230, 116, 229, 145, 253,
+        64, 230,  27, 241,  50, 211,  89, 159,
+        31, 110, 122,  60,  26, 119, 249,  25
+    ]),
+    privateKey: new Uint8Array([
+        120, 241, 232,  72,  29,  72, 216, 184,
+         73,  15, 211, 142, 107,  55, 217, 183,
+        238, 163,  73,   0, 148,  25, 121, 205,
+        153,  51, 245,  42, 111, 169, 208,  28
+    ])
+}
+
+const recipient = {
+    publicKey: new Uint8Array([
+        140, 136,  68,  36, 185,  64,  46,  58,
+        2, 208, 196,   7, 211, 230, 219, 148,
+        97, 139,  32, 224, 182, 163,  10, 100,
+        11, 131, 158,  10,  49,  67, 167,  33
+    ]),
+    privateKey: new Uint8Array([
+        185, 136,  27,  24, 181, 160, 214,  62,
+         16, 177, 159,  30, 193, 150, 146, 129,
+        235, 108,  98,  97,  31, 209,   7, 124,
+        115, 208, 157, 223,   7, 142,  13, 124
+    ])
+}
 
 /**
  * 
@@ -12,31 +50,44 @@ describe('Encryption tests', () => {
     describe('Sending messages', function() {
         this.timeout(200000)
         
-        it('can send a message between users of the same application', async function() {
-            const keyring1 = {
-                publicKey: new Uint8Array([
-                    174, 46, 180,  28, 236,  89, 211,  62,
-                    173,  2, 249,  95,  77, 119, 164, 207,
-                    103, 68,  91,  68, 111, 224, 180,  61,
-                    19,  2, 220, 135, 249,  54,  94,  43
-                ]),
-                privateKey: new Uint8Array([
-                    76, 172,  49, 249,  10,  24, 125, 157,
-                    249, 115,  72, 250, 231,  95, 247, 250,
-                    145, 133,  14, 254,  32, 178,  73, 174,
-                    170, 231, 185, 206, 174,  71, 128,  29
-                ])
-            }
-
-            const sharedInputKey = box.before(keyring1.publicKey, keyring1.privateKey)
+        it('can encrypt a message between users of the same application', async function() {
+            const sharedInputKey = box.before(sender.publicKey, sender.privateKey)
             const data = "some random string"
-            let encrypted = EncryptionUtils.asymEncrypt(data, sharedInputKey)
-            encrypted = 'GRz4pwYHneypgX8bge1r2nABDpGI/a2nkrWHm/WEhBNPwqQB/dfJqO12RyDCdaQjVEtoXrEjhdZHRzwUDeYAL+34DdOrOOG0XLyYyQomtS2gFs8tA+frWolkFgMdD4zD3N7G2c/F9Mx9F+SsYlPFgtQrJS8qJKA5TmNTko8FAjX/LxHxoPXYo9SDGojUK6iG7PlG0Yynn8tqXJhSB/ZsTWgt1O6IAerLj03KryAB7F3KsRA1tAL8V+BNaEMLglSdfhz4mWm/35ntZ/ut6/uX/nDUnD3YknLyEoviQJgwdLcdP6BZvBhrz3RFy4BwpWqMr9tm4IxhtVWp1pb1D9S/ItXd4SjyGcoUQd3QXzONbjdfHntjjMCsiVN88nwl3m6gxvOWr4nZTMiNI3lyEIiewnyR9d1WrEzs/ZIeGwPAnqKJWib9Bp8qGohPqYiJdM4X1J6BtKldhsX2BDlrEGW5zOO+bBBg4u4ff2AIsl7Z67a9sFRqQgT813GrXU/tjGEw/hWTYWNXg5hAiLQnS3+J469WhXHFpt3UQYyVgZjC+hfEiAyh2CdrlRZoc2afpB1Z6EsqkFL9ls6YCLx5IOWbm9xXLWEQQlyC9aOKbFZ+IdIUyNNbRBEURsl0tozrgEa1OrM2NaVjaZHRdV0fRh3D5ocedSrPcr2xqM4wMGEgtrTHrShhtrFIlmY1Z/z1TQ3gTafhAiCOzwa/ZGnFM1ZzFnqrJOgIbRCDAVEeafCtTmE5rvYLhrQ+bU+V17fqLMybKuADkfl2Ne2i0XqNJDJtBYyyI9ZBoBORxQ/v+iO5tr0VJj5QA07bwo1pnpUplU9eyWyQS5UdIaMjxibqPZvFIp0HLhAMk2TveMBqgsspBZWNeUrAV0jJUBQukV0ehJPij2dk0SC/l0vVU/XV6njQJac91RZayZ82ah1/l99QggtB+YDXDy6uizUSKcYABDcqU5bWZu58nY9j0RZdoVqSmEL/X41XGJRuLM4kPgQuvAxDz7lMnrDrBU/JYR3DnkRuhJS39yE80+I9b6HW/ykSnFZrcUUiqn1Bf4BoXIZdzcp648Dc1TU6oDDa1odAI2HxHuuOyeCsIbJvecPKiPuxjAQOTmQlcN0ayV0z3Q93tv1u5gF18LGtY/90mbbhypMK06eeBGFU82JcguuL0gHRb3ceQRXfV+dsAJR4eaG673f60fhiLoxpjAilpHcDgEou4xd5RzI399GfzAjpd8oV6TzyoXGfiGwdIZGR2pGakyCkagMF7GwcPjSvWV0DJpZGR0t2xYVeepCKNyWVRQpgx72FzHHAiAQVxf77NOKPMupolIuMtQ3Vj7tiM2QWBZnHVSCFnp4z9zbbV0Gc9p3dnxxECihW+uYiK3s8NEQDjXwe8/5GYUFZCglGMOzuRGksez2GBzg215M0BQSWLZHBv7frWJjSF3UmpGEmLDFnckdgPoIylMLzgiK603JHV8pniotn1LINT1XoV5OLhAkn3/z1glEucbeSyrxah9z20Tp8LzE2OWXgHb5Oh68FKM8zaTO0sYvtCCpmtEHcBxUS'
+            const encrypted = EncryptionUtils.asymEncrypt(data, sharedInputKey)
 
-            const sharedOutputKey = box.before(keyring1.publicKey, keyring1.privateKey)
+            const sharedOutputKey = box.before(sender.publicKey, sender.privateKey)
             const decrypted = EncryptionUtils.asymDecrypt(encrypted, sharedOutputKey)
 
             assert.equal(data, decrypted, "Input and output match")
+        })
+
+        it('can encrypt a message between users of different applications', () => {
+            const sharedInputKey = box.before(recipient.publicKey, sender.privateKey)
+            const data = "some random string"
+            const encrypted = EncryptionUtils.asymEncrypt(data, sharedInputKey)
+
+            const sharedOutputKey = box.before(sender.publicKey, recipient.privateKey)
+            const decrypted = EncryptionUtils.asymDecrypt(encrypted, sharedOutputKey)
+
+            assert.equal(data, decrypted, "Input and output match")
+        })
+
+        it('can create and verify signatures of a string input', async () => {
+            const input = 'hello world'
+            const signature = EncryptionUtils.signData(input, signingKey.privateKey)
+
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
+        })
+
+        it('can create and verify signatures of a JSON input', async () => {
+            const input = {
+                hello: 'world'
+            }
+
+            const signature = EncryptionUtils.signData(input, signingKey.privateKey)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
         })
     })
 

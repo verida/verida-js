@@ -41,17 +41,18 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                     response = await this.client.createUser()
                 }
                 else if (err.response && err.response.statusText == "Unauthorized") {
-                    throw new Error("Invalid signature or permission to access DID server");
+                    throw new Error("Invalid signature or permission to access DID server")
                 }
                 else {
                     // Unknown error
-                    throw err;
+                    throw err
                 }
             }
 
             const user = response.data.user;
             this.dsn = user.dsn
         } catch (err: any) {
+            //console.log(err)
             // Connecting the account may fail.
             // For example, the user is connect via `account-web-vault` and doesn't have
             // a keyring for the context associated with this storage engine
@@ -85,11 +86,11 @@ export default class StorageEngineVerida extends BaseStorageEngine {
                 response = await client.createUser()
             }
             else if (err.response && err.response.statusText == "Unauthorized") {
-                throw new Error("Invalid signature or permission to access DID server");
+                throw new Error("Invalid signature or permission to access DID server")
             }
             else {
                 // Unknown error
-                throw err;
+                throw err
             }
         }
 
