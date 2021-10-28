@@ -20,7 +20,8 @@
     "@verida/encryption-utils": "^1.1.1",
     "@verida/keyring": "^1.1.1",
     "lodash": "^4.17.21",
-    "qrcode-with-logos": "^1.0.3"
+    "qrcode-with-logos": "^1.0.3",
+    "store": "^2.0.12"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
