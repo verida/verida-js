@@ -94,10 +94,6 @@ const context = Network.connect({
 
 ```
 
-### Context Initializing (Web - Ceramic)
-
-See `@verida/account-3id-connect`. Do not use, for testing / demonstration purposes only. See README.md in the package.
-
 ### Advanced Initializing
 
 In your application, include the dependency and create a new client network instance:
@@ -127,6 +123,7 @@ const account = new AutoAccount({
         endpointUri: VERIDA_TESTNET_DEFAULT_SERVER
     }
 }, {
+    environment: VERIDA_ENVIRONMENT,
     privateKey: '0x...'
 })
 
