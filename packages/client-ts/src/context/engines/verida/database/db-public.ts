@@ -46,6 +46,26 @@ export default class PublicDatabase extends BaseDb {
         }
 
         this.db = this._remoteDb
+        this.autoRetry()
+    }
+
+    /**
+     * A helper method that automatically retries binding to database changes
+     * when an error occurs.
+     * 
+     * This has the effect of re-establishing a network connection of the socket is closed
+     */
+     public autoRetry() {
+        const db = this
+        
+        db._remoteDb.changes({
+            live: true
+        }).on('error', function(err: any) {
+            setTimeout(() => {
+                console.log('public database had error, reconnecting...')
+                db.autoRetry()
+            }, 500)
+        })
     }
 
     public async getDb() {
