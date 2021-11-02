@@ -146,7 +146,7 @@ export default class VeridaInbox extends EventEmitter {
             setTimeout(() => {
                 console.log('Retrying to establish public inbox connection')
                 inbox.watch()
-            }, 10000)
+            }, 1000)
             
         }); // Setup watching for any changes to the local private inbox (ie: marking an item as read)
     }
