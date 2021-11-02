@@ -336,20 +336,17 @@ export default async function (
   }
 
   function callbackRejected(modal: HTMLElement) {
-    addVeridaButtonImage();
     modal.style.display = "none";
     authConfig.callbackRejected!();
   }
 
   if (modal && closeModal) {
-    addVeridaButtonImage();
     closeModal.onclick = () => {
       callbackRejected(modal);
     };
   }
 
   window.onclick = function (event: Event) {
-    addVeridaButtonImage();
     if (event.target === modal && modal !== null) {
       callbackRejected(modal);
     }
@@ -363,15 +360,3 @@ export default async function (
     modal && (modal.style.display = "block");
   }
 }
-
-function addVeridaButtonImage() {
-  const veridaButton: HTMLImageElement | null =
-    document.querySelector("#verida-button");
-
-  if (veridaButton) {
-    veridaButton.src = VeridaVaultImage;
-    veridaButton.style.width = "80%";
-  }
-}
-
-window.addEventListener("load", addVeridaButtonImage);
