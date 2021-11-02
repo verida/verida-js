@@ -1,11 +1,11 @@
 import { box } from "tweetnacl"
 const didJWT = require("did-jwt")
 const EventEmitter = require("events")
-const bs58 = require('bs58')
 
 import { Keyring } from '@verida/keyring'
 import { PermissionOptionsEnum } from '../../../interfaces'
 import Context from "../../../context"
+import EncryptionUtils from "@verida/encryption-utils"
 
 export default class VeridaInbox extends EventEmitter {
 
@@ -52,8 +52,8 @@ export default class VeridaInbox extends EventEmitter {
         // Build the shared key using this user's private asymmetric key
         // and the user supplied public key
         const keys = await this.keyring.getKeys()
-        let publicKeyBytes = bs58.decode(inboxItem.key)
-        let sharedKeyEnd = box.before(publicKeyBytes, keys.asymPrivateKey)
+        const publicKeyBytes = EncryptionUtils.hexToBytes(inboxItem.key)
+        const sharedKeyEnd = box.before(publicKeyBytes, keys.asymPrivateKey)
 
         // Decrypt the inbox/tem to obtain the JWT
         let jwt;
@@ -61,7 +61,7 @@ export default class VeridaInbox extends EventEmitter {
             jwt = await this.keyring.asymDecrypt(inboxItem.content, sharedKeyEnd)
         } catch (err) {
             //console.error("Unable to decrypt inbox item")
-            //console.log(this.context, inboxItem.key, publicKeyBytes)
+            await this.publicInbox.delete(inboxItem)
             return
         }
 
@@ -216,7 +216,7 @@ export default class VeridaInbox extends EventEmitter {
         const items = await privateInbox.getMany({
             read: true                  // Only delete read inbox items
         }, {
-            skip: this._maxItems,
+            skip: this.maxItems,
             sort: [{ sentAt: 'desc' }]  // Delete oldest first
         })
 

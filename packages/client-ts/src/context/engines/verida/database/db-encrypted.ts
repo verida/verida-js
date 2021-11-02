@@ -1,6 +1,7 @@
 import { VeridaDatabaseConfig } from "./interfaces"
 import BaseDb from "./base-db"
 import DbRegistry, { DbRegistryEntry } from '../../../db-registry'
+import EncryptionUtils from "@verida/encryption-utils"
 
 import * as PouchDBCryptLib from "pouchdb"
 import * as PouchDBLib from "pouchdb"
@@ -68,7 +69,7 @@ export default class EncryptedDatabase extends BaseDb {
         const password = this.password = Buffer.from(this.encryptionKey).toString('hex')
 
         // Generate a deterministic salt from the password and database hash
-        const saltString = this.buildHash(`${password}/${this.databaseHash}`).substring(0,32)
+        const saltString = EncryptionUtils.hash(`${password}/${this.databaseHash}`)
         const salt = Buffer.from(saltString, 'hex')
 
         await this._localDb.crypto({

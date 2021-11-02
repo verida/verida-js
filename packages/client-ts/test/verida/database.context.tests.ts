@@ -3,10 +3,7 @@ const assert = require('assert')
 
 import { Client } from '../../src/index'
 import { LimitedAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
-StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
-import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
 const DB_NAME_PUBLIC_WRITE = 'ContextPublicWriteTestDb'
 
@@ -23,15 +20,18 @@ describe('Verida database tests relating to contexts', () => {
     let db1
 
     const network = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     const network2 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     const network3 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     describe('Database read / write works across contexts', function() {
@@ -40,9 +40,9 @@ describe('Verida database tests relating to contexts', () => {
         it('can open a database with public write permissions', async function() {
             // Initialize account 1
             const account1 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             }, [CONTEXT_1])
             did1 = await account1.did()
             await network.connect(account1)
@@ -66,9 +66,9 @@ describe('Verida database tests relating to contexts', () => {
         it('can read from an external database from a different context', async function() {
             // Initialize account 2
             const account2 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY_2,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             }, [CONTEXT_2])
             did2 = await account2.did()
             await network2.connect(account2)
@@ -107,7 +107,6 @@ describe('Verida database tests relating to contexts', () => {
             const originalDbRow = await db1.get(result.id)
             assert.ok(originalDbRow && originalDbRow.write == 'from external DID', 'Result has expected value')
         })
-
         
     })
 

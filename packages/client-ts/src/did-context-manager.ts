@@ -1,8 +1,9 @@
 import { DIDContextConfigs } from './interfaces'
 import { Account } from '@verida/account'
-import { StorageLink, DIDStorageConfig } from '@verida/storage-link'
+import { StorageLink } from '@verida/storage-link'
 
-import CeramicClient from '@ceramicnetwork/http-client'
+import { DIDClient } from '@verida/did-client'
+import { DIDDocument } from '@verida/did-document'
 import { Interfaces } from '@verida/storage-link'
 
 /**
@@ -14,11 +15,11 @@ export default class DIDContextManager {
 
     private didContexts: DIDContextConfigs = {}
 
-    private ceramic: CeramicClient
+    private didClient: DIDClient
     private account?: Account
 
-    public constructor(ceramic: CeramicClient) {
-        this.ceramic = ceramic
+    public constructor(didClient: DIDClient) {
+        this.didClient = didClient
     }
 
     public setAccount(account: Account) {
@@ -49,7 +50,7 @@ export default class DIDContextManager {
             return this.didContexts[contextHash]
         }
 
-        let storageConfig = await StorageLink.getLink(this.ceramic, did, contextHash, false)
+        let storageConfig = await StorageLink.getLink(this.didClient, did, contextHash, false)
         if (!storageConfig) {
             throw new Error('Unable to locate requested storage context for this user')
         }
@@ -59,7 +60,7 @@ export default class DIDContextManager {
     }
 
     public async getDIDContextConfig(did: string, contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig> {
-        const contextHash = StorageLink.hash(`${did}/${contextName}`)
+        const contextHash = DIDDocument.generateContextHash(did, contextName)
 
         if (this.didContexts[contextHash]) {
             return this.didContexts[contextHash]
@@ -80,7 +81,7 @@ export default class DIDContextManager {
         }
         
         if (!storageConfig) {
-            storageConfig = await StorageLink.getLink(this.ceramic, did, contextName, true)
+            storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true)
         }
 
         if (!storageConfig) {

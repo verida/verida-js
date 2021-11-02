@@ -3,9 +3,7 @@ const assert = require('assert')
 
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
-StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerTestDb_1'
@@ -24,15 +22,18 @@ describe('Verida database tests', () => {
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     const network2 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     const network3 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     describe('Manage databases for the authenticated user', function() {
@@ -41,9 +42,9 @@ describe('Verida database tests', () => {
         it('can open a database with owner/owner permissions', async function() {
             // Initialize account 1
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did1 = await account1.did()
             await network.connect(account1)
@@ -51,9 +52,9 @@ describe('Verida database tests', () => {
 
             // Initialize account 2
             const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY_2,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did2 = await account2.did()
             await network2.connect(account2)
@@ -61,9 +62,9 @@ describe('Verida database tests', () => {
 
             // Initialize account 3
             const account3 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY_3,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY_3,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did3 = await account3.did()
             await network3.connect(account3)
