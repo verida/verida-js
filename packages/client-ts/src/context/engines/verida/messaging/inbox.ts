@@ -132,10 +132,7 @@ export default class VeridaInbox extends EventEmitter {
                 return
             }
 
-            const inboxItem = await inbox.getItem(info.id, {
-                rev: info.changes[0].rev
-            })
-            await inbox.processItem(inboxItem)
+            await inbox.processAll()
         }).on('denied', function(err: any) {
             console.error('Inbox sync denied')
             console.error(err)
@@ -146,9 +143,11 @@ export default class VeridaInbox extends EventEmitter {
             setTimeout(() => {
                 console.log('Retrying to establish public inbox connection')
                 inbox.watch()
-            }, 10000)
+            }, 1000)
             
         }); // Setup watching for any changes to the local private inbox (ie: marking an item as read)
+
+        this.processAll()
     }
 
     public async watchPrivateChanges() {
@@ -169,7 +168,7 @@ export default class VeridaInbox extends EventEmitter {
             setTimeout(() => {
                 console.log('Retrying to establish private inbox connection')
                 inbox.watchPrivateChanges()
-            }, 10000)
+            }, 1000)
         });
     }
 

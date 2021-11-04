@@ -25,8 +25,25 @@ export default interface Messaging {
 
     /**
      * Register a callback to fire when a new message is received from another DID or application.
+     * 
+     * Usage:
+     * 
+     * ```
+     * // configure the listener
+     * const callback = (msg) => { console.log(msg) }
+     * const emitter = messaging.onMessage(callback)
+     * ```
+     * 
+     * @return {Promise<EventEmitter>} Returns an event emitter
      */
-    onMessage(callback: any): void
+    onMessage(callback: any): Promise<EventEmitter>
+
+    /**
+     * Unregister a callback to fire when a new message is received
+     * 
+     * @param callback 
+     */
+    offMessage(callback: any): Promise<void>
 
     /**
      * Get messages from this inbox.
