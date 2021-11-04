@@ -151,27 +151,6 @@ export default class EncryptedDatabase extends BaseDb {
             // Unknown error, rethrow
             throw err
         }
-
-        this.autoRetry()
-    }
-
-    /**
-     * A helper method that automatically retries binding to database changes
-     * when an error occurs.
-     * 
-     * This has the effect of re-establishing a network connection of the socket is closed
-     */
-    public autoRetry() {
-        const db = this
-        
-        db._remoteDbEncrypted.changes({
-            live: true
-        }).on('error', function(err: any) {
-            setTimeout(() => {
-                console.log('public database had error, reconnecting...')
-                db.autoRetry()
-            }, 500)
-        })
     }
 
     /**

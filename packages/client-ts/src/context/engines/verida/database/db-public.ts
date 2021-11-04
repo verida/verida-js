@@ -44,28 +44,6 @@ export default class PublicDatabase extends BaseDb {
                 throw new Error(`Public database not found: ${databaseName}`)
             }
         }
-
-        this.db = this._remoteDb
-        this.autoRetry()
-    }
-
-    /**
-     * A helper method that automatically retries binding to database changes
-     * when an error occurs.
-     * 
-     * This has the effect of re-establishing a network connection of the socket is closed
-     */
-     public autoRetry() {
-        const db = this
-        
-        db._remoteDb.changes({
-            live: true
-        }).on('error', function(err: any) {
-            setTimeout(() => {
-                console.log('public database had error, reconnecting...')
-                db.autoRetry()
-            }, 500)
-        })
     }
 
     public async getDb() {
@@ -86,8 +64,7 @@ export default class PublicDatabase extends BaseDb {
             dsn: this.dsn,
             storageContext: this.storageContext,
             databaseName: this.databaseName,
-            databaseHash: this.databaseHash,
-            remoteDb: this.db._remoteDb
+            databaseHash: this.databaseHash
         }
 
         return info
