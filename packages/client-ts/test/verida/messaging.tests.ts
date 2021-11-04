@@ -45,7 +45,7 @@ describe('Verida messaging tests', () => {
     })
 
     describe('Sending messages', function() {
-        this.timeout(10000)
+        this.timeout(30000)
 
         it('can send a message between users of the same application', async function() {
             // Initialize account 1
@@ -106,14 +106,16 @@ describe('Verida messaging tests', () => {
             let messaging2
             let isDone = false
 
+            const callback1 = function(info) {
+                if (isDone) return
+                done()
+                isDone = true
+            }
+
             // Configure an event listener that will call done() to complete this test
             const init = async () => {
                 messaging2 = await context2.getMessaging()
-                messaging2.onMessage(function(info) {
-                    if (isDone) return
-                    done()
-                    isDone = true
-                })
+                const event = messaging2.onMessage(callback1)
             }
 
             // Send a new inbox message to trigger the event

@@ -7,6 +7,7 @@ import { Account } from '@verida/account'
 import DIDContextManager from '../../../../did-context-manager'
 import Context from '../../../context'
 import { MessageSendConfig } from "../../../interfaces"
+const EventEmitter = require("events")
 
 export default class MessagingEngineVerida implements BaseMessage {
 
@@ -62,9 +63,14 @@ export default class MessagingEngineVerida implements BaseMessage {
      * 
      * @returns EventEmitter
      */
-    public async onMessage(callback: any): Promise<void> {
+    public async onMessage(callback: any): Promise<EventEmitter> {
         const inbox = await this.getInbox()
         return inbox.on('newMessage', callback)
+    }
+
+    public async offMessage(callback: any): Promise<void> {
+        const inbox = await this.getInbox()
+        inbox.removeListener('newMessage', callback)
     }
 
     public async getMessages(filter?: object, options?: any): Promise<any> {
