@@ -44,6 +44,8 @@ export default class PublicDatabase extends BaseDb {
                 throw new Error(`Public database not found: ${databaseName}`)
             }
         }
+
+        this.db = this._remoteDb
     }
 
     public async getDb() {
