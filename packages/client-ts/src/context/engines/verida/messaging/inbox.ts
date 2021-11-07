@@ -181,14 +181,14 @@ export default class VeridaInbox extends EventEmitter {
         }
 
         this.initComplete = true
-        this.publicInbox = await this.context.openDatastore("https://schemas.verida.io/inbox/item/schema.json", {
+        this.publicInbox = await this.context.openDatastore("https://core.schemas.verida.io/inbox/item/v0.1.0/schema.json", {
             permissions: {
                 read: PermissionOptionsEnum.PUBLIC,
                 write: PermissionOptionsEnum.PUBLIC
             }
         })
 
-        this.privateInbox = await this.context.openDatastore("https://schemas.verida.io/inbox/entry/schema.json", {
+        this.privateInbox = await this.context.openDatastore("https://core.schemas.verida.io/inbox/entry/v0.1.0/schema.json", {
             permissions: {
                 read: PermissionOptionsEnum.OWNER,
                 write: PermissionOptionsEnum.OWNER

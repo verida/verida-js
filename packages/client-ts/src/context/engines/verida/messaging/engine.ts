@@ -93,7 +93,7 @@ export default class MessagingEngineVerida implements BaseMessage {
             return this.outbox
         }
 
-        const outboxDatastore = await this.context.openDatastore("https://schemas.verida.io/outbox/entry/schema.json")
+        const outboxDatastore = await this.context.openDatastore("https://core.schemas.verida.io/outbox/entry/v0.1.0/schema.json")
         this.outbox = new Outbox(this.contextName, this.did!, this.keyring!, outboxDatastore, this.context, this.didContextManager)
         return this.outbox
     }

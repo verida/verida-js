@@ -126,7 +126,7 @@ export default class DbRegistry {
             return
         }
         
-        this.dbStore = await this.context.openDatastore('https://schemas.verida.io/storage/database/v0.2/schema.json', {
+        this.dbStore = await this.context.openDatastore('https://core.schemas.verida.io/storage/database/v0.1.0/schema.json', {
             saveDatabase: false
         })
     }

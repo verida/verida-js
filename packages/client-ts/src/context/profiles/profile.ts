@@ -169,11 +169,11 @@ export class Profile extends EventEmitter {
           }
 
           if (this.writeAccess) {
-            this.store = await this.context.openDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', {
+            this.store = await this.context.openDatastore('https://common.schemas.verida.io/profile/' + this.profileName + '/schema.json', {
               permissions,
             })
           } else {
-            this.store = await this.context.openExternalDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', this.did, {
+            this.store = await this.context.openExternalDatastore('https://common.schemas.verida.io/profile/' + this.profileName + '/schema.json', this.did, {
               permissions,
               readOnly: true
             })

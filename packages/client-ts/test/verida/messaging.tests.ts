@@ -5,7 +5,7 @@ import { Client } from '../../src/index'
 import { LimitedAccount } from '@verida/account-node'
 import CONFIG from '../config'
 
-const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
+const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
 const MESSAGE_DATA = {
     data: [

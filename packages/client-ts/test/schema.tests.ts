@@ -5,14 +5,7 @@ import { Client } from '../src/index'
 import Schema from "../src/context/schema"
 import CONFIG from './config'
 
-const SCHEMA_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
-
-// Initialize the Verida Network even though it's not used
-// This is becuase doing so will configure the schema paths
-// from the default newtork config
-const network = new Client({
-    ceramicUrl: CONFIG.CERAMIC_URL
-})
+const SCHEMA_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
 /**
  * 

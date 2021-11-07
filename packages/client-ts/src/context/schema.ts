@@ -173,9 +173,9 @@ export default class Schema {
      * Get a rully resolveable path for a URL
      * 
      * Handle shortened paths:
-     *  - `health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
-     *  - `https://schemas.verida.io/health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
-     *  - `/health/activity/test.json` -> `https://schemas.verida.io/health/activity/test.json`
+     *  - `health/activity` -> `https://common.schemas.verida.io/health/activity/latest/schema.json`
+     *  - `https://common/schemas.verida.io/health/activity/latest` -> `https://common.schemas.verida.io/health/activity/latest/schema.json`
+     *  - `/health/activity/test.json` -> `https://common/schemas.verida.io/health/activity/test.json`
      */
     protected async getPath(): Promise<string> {
         if (this.finalPath) {

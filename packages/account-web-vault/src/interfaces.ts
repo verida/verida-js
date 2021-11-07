@@ -14,7 +14,7 @@ export interface VaultModalLoginConfig {
     schemeUri?: string,
     logoUrl?: string,
     deeplinkId?: string,
-    request?: object,        // Authorization request object that matches https://schemas.verida.io/auth/request/schema.json
+    request?: object,        // Authorization request object that matches https://vault.schemas.verida.io/auth/loginRequest/latest/schema.json
     callback?(response: AuthResponse): void        // callback function (called when auth response received)
     callbackRejected?(): void   // callback function (called when user rejects / cancels the login by closing the modal)
 }
@@ -27,7 +27,7 @@ export interface AuthClientConfig {
     schemeUri?: string,
     logoUrl?: string,
     deeplinkId?: string,
-    request?: object,        // Authorization request object that matches https://schemas.verida.io/auth/request/schema.json
+    request?: object,        // Authorization request object that matches https://vault.schemas.verida.io/auth/loginRequest/latest/schema.json
     callback(response: AuthResponse): void        // callback function (called when auth response received)
     callbackRejected?(): void   // callback function (called when user rejects / cancels the login by closing the modal)
 }
