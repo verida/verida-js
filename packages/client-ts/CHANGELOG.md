@@ -1,4 +1,10 @@
 
+2021-11-09 (v1.1.4)
+-------------------
+
+- Update code base to use new schema URLs (core, common, vault)
+- Update schemas to expect `draft-2020-12` JSON schemas (uses latest AJV version 8)
+
 2021-10-27 (v1.1.0)
 -------------------
 
