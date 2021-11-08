@@ -4,10 +4,8 @@ import Datastore from "../datastore"
 import { PermissionOptionsEnum } from "../interfaces"
 
 interface ProfileDocument {
-    _id: string,
-    _rev?: string,
-    key: string,
-    value?: any
+  _id: string,
+  [key: string]: string
 }
 
 /**
@@ -59,20 +57,9 @@ export class Profile extends EventEmitter {
      * @return {object} Database record for this profile key. Object has keys [`key`, `value`, `_id`, `_rev`].
      */
     public async get(key: string, options?: any, extended: boolean = false): Promise<any | undefined> {
-      await this.init()
-      try {
-        const response = await this.store!.get(key, options)
-        if (!extended && response) {
-          return response['value']
-        }
-
-        return response
-      } catch (err: any) {
-        if (err.error === 'not_found') {
-          return
-        }
-
-        throw err
+      const record = await this.getRecord()
+      if (record && typeof(record[key]) !== 'undefined') {
+        return record[key]
       }
     }
 
@@ -81,9 +68,14 @@ export class Profile extends EventEmitter {
      * @param {string} key Profile key to delete (ie: `email`)
      * @returns {boolean} Boolean indicating if the delete was successful
      */
-    public async delete(key: string): Promise<void> {
-      await this.init()
-      return this.store!.delete(key)
+    public async delete(key: string): Promise<boolean> {
+      const record = await this.getRecord()
+      if (!record || record[key] == 'undefined') {
+        return false
+      }
+
+      delete record[key]
+      return await this.saveRecord(record)
     }
 
     /**
@@ -93,14 +85,13 @@ export class Profile extends EventEmitter {
      * @param {object} [options] Database options that will be passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
      */
     public async getMany(filter: any, options: any): Promise<any> {
-      await this.init();
-      return this.store!.getMany(filter, options)
+      return this.getRecord()
     }
 
     /**
        * Set a profile value by key
        *
-       * @param {string|object} doc Profile key to set (ie: `email`) **OR** an existing profile document obtained from `get()` or getMany()`.
+       * @param {string} key Profile key to set (ie: `email`)
        * @param {*} value Value to save
        * @example
        * // Set a profile value by key
@@ -114,34 +105,10 @@ export class Profile extends EventEmitter {
        * app.wallet.profile.set('email', 'john@doe.com');
        * @returns {boolean} Boolean indicating if the save was successful
        */
-    public async set(doc: ProfileDocument | string, value: any): Promise<any> {
-        await this.init()
-
-        let profileData: ProfileDocument = typeof doc === 'string' ? {
-          _id: doc,
-          key: doc
-        } : doc
-
-        // Try to find the original document and do an update if it exists
-        if (profileData._rev === undefined) {
-            try {
-              const oldDoc = await this.get(profileData._id, {}, true)
-              if (oldDoc) {
-                  profileData = oldDoc
-              }
-            } catch (err) {
-              console.log(err)
-              // not found, so let the insert continue
-            }
-        }
-
-        profileData.value = value
-        const success = this.store!.save(profileData)
-        if (!success) {
-          this.errors = this.store!.errors
-        }
-
-        return success
+    public async set(key: string, value: any): Promise<any> {
+      const record = await this.getRecord()
+      record[key] = value
+      return await this.saveRecord(record)
     }
 
     /**
@@ -161,6 +128,33 @@ export class Profile extends EventEmitter {
         await this.store!.changes(cb)
     }
 
+    private async getRecord(): Promise<ProfileDocument> {
+      await this.init()
+      try {
+        const record = await this.store!.get(this.profileName)
+        return record
+      } catch (err: any) {
+        if (err.reason == 'missing') {
+          return {
+            _id: this.profileName
+          }
+        }
+
+        throw err
+      }
+    }
+
+    private async saveRecord(record: object): Promise<boolean> {
+      await this.init()
+      const success = await this.store!.save(record)
+
+      if (!success) {
+        this.errors = this.store!.errors
+      }
+
+      return success ? true : false
+    }
+
     private async init() {
         if (!this.store) {
           const permissions = {
@@ -168,12 +162,14 @@ export class Profile extends EventEmitter {
             write: PermissionOptionsEnum.OWNER
           }
 
+          const schemaUri = 'https://common.schemas.verida.io/profile/' + this.profileName + '/v0.1.0/schema.json'
+
           if (this.writeAccess) {
-            this.store = await this.context.openDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', {
+            this.store = await this.context.openDatastore(schemaUri, {
               permissions,
             })
           } else {
-            this.store = await this.context.openExternalDatastore('https://schemas.verida.io/profile/' + this.profileName + '/schema.json', this.did, {
+            this.store = await this.context.openExternalDatastore(schemaUri, this.did, {
               permissions,
               readOnly: true
             })
@@ -182,7 +178,16 @@ export class Profile extends EventEmitter {
           // Attempt to fetch a record to ensure the database is created if it didn't already exist
           try {
             await this.get('')
-          } catch (err: any) {}
+          } catch (err: any) {
+            if (err.response && err.response.status == 403) {
+              throw new Error(`Schema URI not found: ${schemaUri}`)
+            }
+
+            // The profile may not exist yet
+            if (err.reason != 'missing') {
+              throw err
+            }
+          }
         }
     }
   }

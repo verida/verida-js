@@ -173,7 +173,7 @@ export default class Context {
      * @param profileName string Name of the Verida profile schema to load
      * @param did string DID of the profile to get. Leave blank to fetch a read/write profile for the currently authenticated user
      */
-    public async openProfile(profileName: string = "public", did?: string, writeAccess?: boolean): Promise<Profile | undefined> {
+    public async openProfile(profileName: string = "basicProfile", did?: string, writeAccess?: boolean): Promise<Profile | undefined> {
         let ownAccount = false
         if (!did) {
             if (!this.account) {
@@ -255,7 +255,7 @@ export default class Context {
     /**
      * Open a dataastore owned by this account.
      * 
-     * @param schemaUri {string} URI of the schema to open (ie: https://schemas.verida.io/social/contact/schema.json)
+     * @param schemaUri {string} URI of the schema to open (ie: https://common.schemas.verida.io/health/activity/latest/schema.json)
      * @param config {DatastoreOpenConfig} Optional datastore configuration
      * @returns 
      */
@@ -271,7 +271,7 @@ export default class Context {
     /**
      * Open an external datastore owned by an account that isn't the currently connected account.
      * 
-     * @param schemaUri {string} URI of the schema to open (ie: https://schemas.verida.io/social/contact/schema.json)
+     * @param schemaUri {string} URI of the schema to open (ie: https://common.schemas.verida.io/health/activity/latest/schema.json)
      * @param did {string} DID of the external account that owns the database
      * @param options {DatabaseOpenConfig} Optional database configuration
      * @returns 

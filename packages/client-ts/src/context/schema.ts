@@ -1,10 +1,10 @@
 const RefParser = require('json-schema-ref-parser')
-import Ajv from "ajv"
+import Ajv2020 from "ajv/dist/2020"
+import addFormats from "ajv-formats"
+
 const resolveAllOf = require('json-schema-resolve-allof')
 const _ = require('lodash')
 import axios from 'axios'
-
-const draft6 = require('ajv/lib/refs/json-schema-draft-06.json')
 
 // Custom resolver for RefParser
 //const { ono } = require("ono");
@@ -12,7 +12,7 @@ const resolver = {
     order: 1,
     canRead: true,
     async read(file: any) {
-        return Schema.loadJson(file.url);
+        return Schema.loadJson(file.url)
     }
 };
 
@@ -23,7 +23,7 @@ export default class Schema {
     public errors: any[]
 
     protected path: string
-    protected ajv: Ajv
+    protected ajv: Ajv2020
 
     protected schemaJson?: object
     protected finalPath?: string
@@ -47,9 +47,7 @@ export default class Schema {
         this.errors = []
 
         options = _.merge({
-            metaSchemas: [
-                draft6
-            ],
+            metaschemas: {},
             ajv: {
                 loadSchema: Schema.loadJson,
                 logger: false,
@@ -57,7 +55,8 @@ export default class Schema {
             }
         }, options)
 
-        this.ajv = new Ajv(options.ajv)
+        this.ajv = new Ajv2020(options.ajv)
+        addFormats(this.ajv)
 
         for (let s in options.metaSchemas) {
             this.ajv.addMetaSchema(options.metaSchemas[s])
@@ -173,9 +172,9 @@ export default class Schema {
      * Get a rully resolveable path for a URL
      * 
      * Handle shortened paths:
-     *  - `health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
-     *  - `https://schemas.verida.io/health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
-     *  - `/health/activity/test.json` -> `https://schemas.verida.io/health/activity/test.json`
+     *  - `health/activity` -> `https://common.schemas.verida.io/health/activity/latest/schema.json`
+     *  - `https://common/schemas.verida.io/health/activity/latest` -> `https://common.schemas.verida.io/health/activity/latest/schema.json`
+     *  - `/health/activity/test.json` -> `https://common/schemas.verida.io/health/activity/test.json`
      */
     protected async getPath(): Promise<string> {
         if (this.finalPath) {
@@ -238,11 +237,11 @@ export default class Schema {
             uri = await Schema.resolvePath(uri)
 
             try {
-                const request = await axios.get(uri, {
+                const response = await axios.get(uri, {
                     responseType: 'json'
                 }) // @todo: check valid uri
 
-                const json = await request.data
+                const json = await response.data
                 resolve(json)
             } catch (err) {
                 reject(err)

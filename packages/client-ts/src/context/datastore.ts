@@ -192,7 +192,7 @@ export default class Datastore {
         this.schema = await Schema.getSchema(this.schemaName)
         const schemaJson = await this.schema.getSchemaJson()
         const dbName = this.config.databaseName ? this.config.databaseName : schemaJson.database.name
-        this.schemaPath = this.schema.path
+        this.schemaPath = schemaJson['$id']
 
         if (this.config.external) {
             this.db = await this.context.openExternalDatabase(dbName, this.config.did!, this.config)

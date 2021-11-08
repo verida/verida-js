@@ -171,7 +171,7 @@ export default class VeridaOutbox {
         /**
          * Open a database owned by any user
          */
-        const inbox = await this.context!.openExternalDatastore("https://schemas.verida.io/inbox/item/schema.json", did, {
+        const inbox = await this.context!.openExternalDatastore("https://core.schemas.verida.io/inbox/item/v0.1.0/schema.json", did, {
             permissions: {
                 read: PermissionOptionsEnum.PUBLIC,
                 write: PermissionOptionsEnum.PUBLIC

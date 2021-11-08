@@ -42,6 +42,14 @@ describe('Profile tests', () => {
             assert.equal(name, DATA.name, "Can set and get a profile value")
         })
 
+        it('can not set invalid profile values', async () => {
+            context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
+
+            profile1 = await context1.openProfile()
+            const response = await profile1.set("name", "")
+            assert.equal(response, false, "Can not set an invalid profile value")
+        })
+
         it('can access an external profile', async () => {
             const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
@@ -52,7 +60,7 @@ describe('Profile tests', () => {
             await client2.connect(account2)
             context2 = await client2.openContext(CONFIG.CONTEXT_NAME, true)
 
-            profile2 = await context2.openProfile("public", did1, false)
+            profile2 = await context2.openProfile(undefined, did1, false)
             const name = await profile2.get("name")
             assert.equal(name, DATA.name, "Can get external public profile data")
         })

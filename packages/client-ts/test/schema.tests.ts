@@ -1,18 +1,9 @@
 'use strict'
 const assert = require('assert')
 
-import { Client } from '../src/index'
 import Schema from "../src/context/schema"
-import CONFIG from './config'
 
-const SCHEMA_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
-
-// Initialize the Verida Network even though it's not used
-// This is becuase doing so will configure the schema paths
-// from the default newtork config
-const network = new Client({
-    ceramicUrl: CONFIG.CERAMIC_URL
-})
+const SCHEMA_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
 /**
  * 
@@ -29,7 +20,7 @@ describe('Schema tests', () => {
 
             const spec = await schema.getSpecification()
             assert.ok(spec, 'Schema spec exists')
-            assert.ok(spec.required.length == 2 && spec.required[0] == 'firstName', 'Schema specification has expected required value')
+            assert.ok(spec.required.length == 3 && spec.required[0] == 'schema', 'Schema specification has expected required value')
         })
 
         it('can fetch a known schema JSON', async function() {
@@ -45,17 +36,20 @@ describe('Schema tests', () => {
             const schema = await Schema.getSchema(SCHEMA_CONTACTS)
             assert.ok(schema, 'Response received')
 
-            const validate1 = await schema.validate({})
+            const validate1 = await schema.validate({
+                schema: SCHEMA_CONTACTS
+            })
             assert.ok(validate1 === false, 'Data correctly marked as invalid')
             assert.ok(schema.errors.length, 'Data correctly has a list of validation errors')
 
             const contact = {
                 firstName: 'John',
                 lastName: 'Smith',
-                email: 'john__smith.com'
+                email: 'john@smith.com',
+                schema: SCHEMA_CONTACTS
             }
             const validate2 = await schema.validate(contact)
-            assert.ok(validate2 === true, 'Data correctly marked as valid')
+            assert.ok(validate2 === true, 'Data correctly marked as valid')            
         })
 
         it('can get appearance', async function() {

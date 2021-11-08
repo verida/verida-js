@@ -5,7 +5,7 @@ import { Client } from '../../src/index'
 import { LimitedAccount } from '@verida/account-node'
 import CONFIG from '../config'
 
-const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
+const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
 const MESSAGE_DATA = {
     data: [
@@ -84,9 +84,10 @@ describe('Verida messaging tests', () => {
                 recipientContextName: CONTEXT_1
             })
 
-            const messages1 = await messaging1.getMessages()
-            const messages2 = await messaging2.getMessages()
+            // manually force processing all inbox items
+            await inbox.processAll()
 
+            const messages2 = await messaging2.getMessages()
             assert.ok(result && result.id, "Message send returned a valid result object")
             assert.ok(messages2.length, "At least one message exists for the recipient")
             
