@@ -22,7 +22,7 @@ describe('Schema tests', () => {
 
             const spec = await schema.getSpecification()
             assert.ok(spec, 'Schema spec exists')
-            assert.ok(spec.required.length == 2 && spec.required[0] == 'firstName', 'Schema specification has expected required value')
+            assert.ok(spec.required.length == 3 && spec.required[0] == 'schema', 'Schema specification has expected required value')
         })
 
         it('can fetch a known schema JSON', async function() {
@@ -38,17 +38,20 @@ describe('Schema tests', () => {
             const schema = await Schema.getSchema(SCHEMA_CONTACTS)
             assert.ok(schema, 'Response received')
 
-            const validate1 = await schema.validate({})
+            const validate1 = await schema.validate({
+                schema: SCHEMA_CONTACTS
+            })
             assert.ok(validate1 === false, 'Data correctly marked as invalid')
             assert.ok(schema.errors.length, 'Data correctly has a list of validation errors')
 
             const contact = {
                 firstName: 'John',
                 lastName: 'Smith',
-                email: 'john__smith.com'
+                email: 'john@smith.com',
+                schema: SCHEMA_CONTACTS
             }
             const validate2 = await schema.validate(contact)
-            assert.ok(validate2 === true, 'Data correctly marked as valid')
+            assert.ok(validate2 === true, 'Data correctly marked as valid')            
         })
 
         it('can get appearance', async function() {
