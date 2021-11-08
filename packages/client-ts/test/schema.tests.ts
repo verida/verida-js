@@ -1,9 +1,7 @@
 'use strict'
 const assert = require('assert')
 
-import { Client } from '../src/index'
 import Schema from "../src/context/schema"
-import CONFIG from './config'
 
 const SCHEMA_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
