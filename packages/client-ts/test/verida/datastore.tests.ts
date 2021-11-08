@@ -56,7 +56,7 @@ describe('Verida datastore tests', () => {
             const contact = {
                 firstName: 'John',
                 lastName: 'Smith',
-                email: 'john__smith.com'
+                email: 'john@smith.com'
             }
 
             const result2 = await datastore.save(contact)
@@ -84,7 +84,7 @@ describe('Verida datastore tests', () => {
             const contact = {
                 firstName: 'Jane',
                 lastName: 'Doe',
-                email: 'jane__doe.com'
+                email: 'jane@doe.com'
             }
 
             const result = await datastore.save(contact)
