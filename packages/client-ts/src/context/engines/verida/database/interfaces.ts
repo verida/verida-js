@@ -1,23 +1,26 @@
-import { Context } from '../../../..';
-import { PermissionsConfig } from '../../../interfaces'
-import DatastoreServerClient from './client'
+import { Context } from "../../../..";
+import { PermissionsConfig } from "../../../interfaces";
+import DatastoreServerClient from "./client";
 
+/**
+ * Interface for VeridaDatabaseConfig
+ */
 export interface VeridaDatabaseConfig {
-    databaseName: string
-    did: string,
-    dsn: string,
-    storageContext: string,
+  databaseName: string;
+  did: string;
+  dsn: string;
+  storageContext: string;
 
-    permissions?: PermissionsConfig,
-    
-    signData?: boolean,
-    signContext: Context,
+  permissions?: PermissionsConfig;
 
-    readOnly?: boolean,
-    isOwner?: boolean,
-    encryptionKey?: Buffer
+  signData?: boolean;
+  signContext: Context;
 
-    saveDatabase: boolean
+  readOnly?: boolean;
+  isOwner?: boolean;
+  encryptionKey?: Buffer;
 
-    client: DatastoreServerClient
+  saveDatabase: boolean;
+
+  client: DatastoreServerClient;
 }
