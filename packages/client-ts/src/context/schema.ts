@@ -138,7 +138,7 @@ export default class Schema {
         const fileData = await axios.get(path, {
             responseType: 'json',
             params: {
-                t: new Date().getTime()
+                t: Math.floor(Date.now() / 1000 / 60 / 60)
             }
         })
 
