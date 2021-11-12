@@ -1,42 +1,55 @@
-import { Account } from '@verida/account'
-import { Keyring } from '@verida/keyring'
-import { DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces'
-import Database from '../database'
-import Datastore from '../datastore'
-import DbRegistry from '../db-registry'
+import { Account } from "@verida/account";
+import { Keyring } from "@verida/keyring";
+import { DatabaseOpenConfig, DatastoreOpenConfig } from "../interfaces";
+import Database from "../database";
+import Datastore from "../datastore";
+import DbRegistry from "../db-registry";
 
+/**
+ * @category
+ * Modules
+ */
+class BaseStorageEngine {
+  protected storageContext: string;
+  protected dbRegistry: DbRegistry;
+  protected endpointUri: string;
 
-export default class BaseStorageEngine {
+  protected account?: Account;
+  protected keyring?: Keyring;
 
-    protected storageContext: string
-    protected dbRegistry: DbRegistry
-    protected endpointUri: string
+  constructor(
+    storageContext: string,
+    dbRegistry: DbRegistry,
+    endpointUri: string
+  ) {
+    this.storageContext = storageContext;
+    this.dbRegistry = dbRegistry;
+    this.endpointUri = endpointUri;
+  }
 
-    protected account?: Account
-    protected keyring?: Keyring
+  public async connectAccount(account: Account) {
+    this.account = account;
+    this.keyring = await account.keyring(this.storageContext);
+  }
 
-    constructor(storageContext: string, dbRegistry: DbRegistry, endpointUri: string) {
-        this.storageContext = storageContext
-        this.dbRegistry = dbRegistry
-        this.endpointUri = endpointUri
-    }
+  public async openDatabase(
+    databaseName: string,
+    config: DatabaseOpenConfig
+  ): Promise<Database> {
+    throw new Error("Not implemented");
+  }
 
-    public async connectAccount(account: Account) {
-        this.account = account
-        this.keyring = await account.keyring(this.storageContext)
-    }
+  public async openDatastore(
+    schemaName: string,
+    config: DatastoreOpenConfig
+  ): Promise<Datastore> {
+    throw new Error("Not implemented");
+  }
 
-    public async openDatabase(databaseName: string, config: DatabaseOpenConfig): Promise<Database> {
-        throw new Error('Not implemented')
-    }
-
-    public async openDatastore(schemaName: string, config: DatastoreOpenConfig): Promise<Datastore> {
-        throw new Error('Not implemented')
-    }
-
-    public logout() {
-        this.account = undefined
-        this.keyring = undefined
-    }
-
+  public logout() {
+    this.account = undefined;
+    this.keyring = undefined;
+  }
 }
+
+export default BaseStorageEngine;

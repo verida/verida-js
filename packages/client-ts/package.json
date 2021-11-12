@@ -11,7 +11,8 @@
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha",
-    "build": "rm -rf dist; tsc"
+    "build": "rm -rf dist; tsc",
+    "generate-api-docs": " rm -rf api-docs && ./node_modules/.bin/jsdoc && jsdoc -c 'jsdoc.json' --readme README.api.md"
   },
   "engines": {
     "node": "^14.0.0"
@@ -38,6 +39,8 @@
   },
   "devDependencies": {
     "@types/pouchdb": "^6.4.0",
+    "better-docs": "^2.3.2",
+    "jsdoc": "^3.6.7",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
