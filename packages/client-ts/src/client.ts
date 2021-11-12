@@ -147,13 +147,13 @@ export default class Client {
      * @param contextName 
      * @returns <Profile | undefined>
      */
-    public async openPublicProfile(did: string, contextName: string): Promise<Profile | undefined> {
+    public async openPublicProfile(did: string, contextName: string, profileName: string = "basicProfile"): Promise<Profile | undefined> {
         const context = await this.openExternalContext(contextName, did)
         if (!context) {
             throw new Error(`Account does not have a public profile for ${contextName}`)
         }
 
-        return context!.openProfile("public", did, false)
+        return context!.openProfile(profileName, did, false)
     }
 
     /**
