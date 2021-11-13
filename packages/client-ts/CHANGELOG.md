@@ -1,4 +1,10 @@
 
+2021-11-13 (v1.1.5)
+-------------------
+
+- Fix public profiles defaulting to incorrect profile name
+- Fix API documentation generation
+
 2021-11-09 (v1.1.4)
 -------------------
 
