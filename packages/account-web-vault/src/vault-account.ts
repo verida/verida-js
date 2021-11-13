@@ -1,6 +1,5 @@
-import CeramicClient from '@ceramicnetwork/http-client'
-import { Account, AccountConfig } from '@verida/account'
-import { Interfaces, StorageLink } from '@verida/storage-link'
+import { Account } from '@verida/account'
+import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
 const _ = require('lodash')
@@ -156,10 +155,6 @@ export default class VaultAccount extends Account {
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         throw new Error("Unlink storage is not supported. Request via the Vault.")
-    }
-
-    public async getCeramic(): Promise<CeramicClient> {
-        throw new Error("Getting ceramic instance is not supported by Account Web Vault.")
     }
 
     public async disconnect(contextName?: string): Promise<void> {
