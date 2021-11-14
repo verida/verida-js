@@ -5,7 +5,6 @@ import { v1 as uuidv1 } from "uuid";
 import { VeridaDatabaseConfig } from "./interfaces";
 import Database from "../../../database";
 import { PermissionsConfig } from "../../../interfaces";
-import { StorageLink } from "@verida/storage-link";
 import DatastoreServerClient from "./client";
 import Utils from "./utils";
 import { Context } from "../../../..";

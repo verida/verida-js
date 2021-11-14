@@ -8,6 +8,7 @@ import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerTestDb_1'
 const DB_NAME_USER = 'UserTestDb_1'
+const DB_NAME_USER_2 = 'UserTestDb_2'
 const DB_NAME_PUBLIC = 'PublicTestDb_1'
 const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_1'
 const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_1'
@@ -79,7 +80,7 @@ describe('Verida database tests', () => {
             assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
 
-        it('can open a database with user permissions', async function() {
+        it('can open an existing database with user permissions', async function() {
             const database = await context.openDatabase(DB_NAME_USER, {
                 permissions: {
                     read: 'users',
@@ -106,6 +107,37 @@ describe('Verida database tests', () => {
             })
 
             await database2.save({'hello': 'world'})
+        })
+
+        it('can create a new database defining initial users', async function() {
+            const database = await context.openDatabase(DB_NAME_USER_2, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did3],
+                    write: 'users',
+                    writeList: [did1, did3]
+                }
+            })
+            const info = await database.info()
+
+            const result = await database.save({'hello': 'world'})
+            const data = await database.get(result.id)
+
+            assert.ok(data.hello == 'world', 'First result has expected value')
+
+            // open the previously created database as an external user
+            const database3 = await context3.openExternalDatabase(DB_NAME_USER_2, did1, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did3],
+                    write: 'users',
+                    writeList: [did1, did3]
+                },
+                encryptionKey: info.encryptionKey
+            })
+
+            const results = await database3.getMany()
+            assert.ok(results.length, 'Results returned')
         })
 
         it('can open a database with public read permissions', async function() {
