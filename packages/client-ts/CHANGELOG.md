@@ -1,4 +1,9 @@
 
+2021-11-14 (v1.1.7)
+-------------------
+
+- Fix DID of current account not being included in the config to databaseEngine.openDatabase when opening an external database
+
 2021-11-13 (v1.1.6)
 -------------------
 
