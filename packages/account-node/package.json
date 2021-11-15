@@ -23,7 +23,7 @@
     "@verida/keyring": "^1.1.1"
   },
   "devDependencies": {
-    "did-jwt": "^5.7.0",
+    "did-jwt": "5.7.0",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
