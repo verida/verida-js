@@ -1,3 +1,8 @@
+2021-11-15 (v1.1.8)
+-------------------
+
+- Fix did-jwt version to be locked in to currently supported version
+
 
 2021-11-14 (v1.1.7)
 -------------------
