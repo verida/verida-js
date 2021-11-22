@@ -390,6 +390,10 @@ describe('Verida database tests', () => {
             // However, the real issue is that when syncing to the remote database the
             // there is a permission exception thrown by couch saying it can't sync
             // the record BUT looking in couch, the record is actually saved!!
+            //
+            // A unit test in storage-node tests this sync scenario and confirms
+            // data isn't saved..
+            // https://github.com/verida/storage-node/blob/e20f5e4464e4311e72e45af5646ea9e1e3560d58/test/permissions.js#L361
 
             const ownerDatabase = await context.openDatabase(DB_NAME_USER_3, {
                 permissions: {
