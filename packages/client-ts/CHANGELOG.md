@@ -1,3 +1,8 @@
+2021-11-22 (v1.1.9)
+-------------------
+
+- Fix: User with read, but not write access could write to the local database (but not remote). Now a permission denied exception is thrown.
+
 2021-11-15 (v1.1.8)
 -------------------
 
