@@ -175,6 +175,17 @@ class StorageEngineVerida extends BaseStorageEngine {
       throw new Error("Unable to determine DSN for this user and this context");
     }
 
+    // force read only access if the current user doesn't have write access
+    if (!config.isOwner) {
+      if (config.permissions!.write == "owner") {
+        // Only the owner can write, so set to read only
+        config.readOnly = true
+      } else if (config.permissions!.write == "users" && config.permissions!.writeList && config.permissions!.writeList!.indexOf(config.did!) == -1) {
+        // This user doesn't have explicit write access
+        config.readOnly = true
+      }
+    }
+
     if (
       config.permissions!.read == "owner" &&
       config.permissions!.write == "owner"
