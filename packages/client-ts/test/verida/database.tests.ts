@@ -381,5 +381,41 @@ describe('Verida database tests', () => {
             assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
         })
 
+        /*it(`can't write an external database where a did has read access, but not write access -- 2`, async () => {
+            // @todo
+            // Disable this fix in engine:
+            // force read only access if the current user doesn't have write access
+            //
+            // running the code below will now save (incorrectly) to local database
+            // However, the real issue is that when syncing to the remote database the
+            // there is a permission exception thrown by couch saying it can't sync
+            // the record BUT looking in couch, the record is actually saved!!
+
+            const ownerDatabase = await context.openDatabase(DB_NAME_USER_3, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did2],
+                    write: 'owner'
+                }
+            })
+            const info = await ownerDatabase.info()
+            const encryptionKey = info.encryptionKey
+            console.log(did1, did2)
+            console.log(info)
+
+            const did2Database = await context2.openExternalDatabase(DB_NAME_USER_3, did1, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did2],
+                    write: 'owner'
+                },
+                encryptionKey: encryptionKey
+            })
+            const info2 = await did2Database.info()
+            console.log(info2)
+
+            const result = await did2Database.save({'write': 'from valid external user DID'})
+            console.log(result)
+        })*/
     })
 })
