@@ -30,14 +30,11 @@ export interface DbRegistryEntry {
  * Maintain a registry of all databases owned by the current user
  * in a given context
  */
-<<<<<<< HEAD
-=======
 
 /**
  * @category
  * Modules
  */
->>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 class DbRegistry {
   private context: Context;
   private dbStore?: Datastore;
@@ -148,11 +145,7 @@ class DbRegistry {
     }
 
     this.dbStore = await this.context.openDatastore(
-<<<<<<< HEAD
-      "https://schemas.verida.io/storage/database/v0.2/schema.json",
-=======
       "https://core.schemas.verida.io/storage/database/v0.1.0/schema.json",
->>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
       {
         saveDatabase: false,
       }

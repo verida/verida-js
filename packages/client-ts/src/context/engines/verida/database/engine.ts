@@ -108,7 +108,6 @@ class StorageEngineVerida extends BaseStorageEngine {
         // Unknown error
         throw err;
       }
-<<<<<<< HEAD
     }
 
     return response.data.user.dsn;
@@ -174,160 +173,23 @@ class StorageEngineVerida extends BaseStorageEngine {
     let dsn = config.isOwner ? this.dsn! : config.dsn!;
     if (!dsn) {
       throw new Error("Unable to determine DSN for this user and this context");
-=======
     }
-
-    return response.data.user.dsn;
-  }
-
-  /**
-   * Open a database either that may or may not be owned by this usesr
-   *
-   * @param databaseName
-   * @param options
-   * @returns {Database}
-   */
-  public async openDatabase(
-    databaseName: string,
-    options: DatabaseOpenConfig
-  ): Promise<Database> {
-    const config: DatabaseOpenConfig = _.merge(
-      {
-        permissions: {
-          read: "owner",
-          write: "owner",
-        },
-        did: this.accountDid,
-        readOnly: false,
-      },
-      options
-    );
-
-    // Default to user's account did if not specified
-    config.isOwner = config.did == this.accountDid;
-    config.saveDatabase = config.isOwner; // always save this database to registry if user is the owner
-    let did = config.did!.toLowerCase();
-
-    // If permissions require "owner" access, connect the current user
-    if (
-      (config.permissions!.read == "owner" ||
-        config.permissions!.write == "owner") &&
-      !config.readOnly
-    ) {
-      if (!config.readOnly && !this.keyring) {
-        throw new Error(
-          `Unable to open database. Permissions require "owner" access, but no account connected.`
-        );
-      }
-
-      if (!config.readOnly && config.isOwner && !this.keyring) {
-        throw new Error(
-          `Unable to open database. Permissions require "owner" access, but account is not owner.`
-        );
-      }
-
-      if (
-        !config.readOnly &&
-        !config.isOwner &&
-        config.permissions!.read == "owner"
-      ) {
-        throw new Error(
-          `Unable to open database. Permissions require "owner" access to read, but account is not owner.`
-        );
-      }
-    }
-
-<<<<<<< HEAD
-    /**
-     * When connecting to a CouchDB server for an external user, the current user may not
-     * have access to read/write.
-     * 
-     * Take the external user's `endpointUri` that points to their CouchDB server. Establish
-     * a connection to the Verida Middleware (DatastoreServerClient) as the current user
-     * (accountDid) and create a new account if required.
-     * 
-     * Return the current user's DSN which provides authenticated access to the external
-     * user's CouchDB server for the current user.
-     * 
-     * @param endpointUri 
-     * @param did 
-     * @returns {string}
-     */
-    protected async buildExternalDsn(endpointUri: string): Promise<string> {
-        const client = new DatastoreServerClient(this.storageContext, endpointUri)
-        await client.setAccount(this.account!)
-        let response
-        try {
-            response = await client.getUser(this.accountDid!)
-        } catch (err: any) {
-            if (err.response && err.response.data.data && err.response.data.data.did == "Invalid DID specified") {
-                // User doesn't exist, so create on this endpointUri server
-                response = await client.createUser()
-            }
-            else if (err.response && err.response.statusText == "Unauthorized") {
-                throw new Error("Invalid signature or permission to access DID server")
-            }
-            else {
-                // Unknown error
-                throw err
-            }
-        }
-=======
-    let dsn = config.isOwner ? this.dsn! : config.dsn!;
-    if (!dsn) {
-      throw new Error("Unable to determine DSN for this user and this context");
-    }
->>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 
     // force read only access if the current user doesn't have write access
     if (!config.isOwner) {
       if (config.permissions!.write == "owner") {
         // Only the owner can write, so set to read only
-        config.readOnly = true
-      } else if (config.permissions!.write == "users" && config.permissions!.writeList && config.permissions!.writeList!.indexOf(config.did!) == -1) {
+        config.readOnly = true;
+      } else if (
+        config.permissions!.write == "users" &&
+        config.permissions!.writeList &&
+        config.permissions!.writeList!.indexOf(config.did!) == -1
+      ) {
         // This user doesn't have explicit write access
-        config.readOnly = true
+        config.readOnly = true;
       }
->>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
     }
 
-<<<<<<< HEAD
-    /**
-     * Open a database either that may or may not be owned by this usesr
-     * 
-     * @param databaseName 
-     * @param options 
-     * @returns {Database}
-     */
-    public async openDatabase(databaseName: string, options: DatabaseOpenConfig): Promise<Database> {
-        const config: DatabaseOpenConfig = _.merge({
-            permissions: {
-                read: "owner",
-                write: "owner"
-            },
-            did: this.accountDid,
-            readOnly: false
-        }, options)
-
-        // Default to user's account did if not specified
-        config.isOwner = config.did == this.accountDid
-        config.saveDatabase = config.isOwner            // always save this database to registry if user is the owner
-        let did = config.did!.toLowerCase()
-
-        // If permissions require "owner" access, connect the current user
-        if ((config.permissions!.read == "owner" || config.permissions!.write == "owner") && !config.readOnly) {
-            if (!config.readOnly && !this.keyring) {
-                throw new Error(`Unable to open database. Permissions require "owner" access, but no account connected.`)
-            }
-
-            if (!config.readOnly && config.isOwner && !this.keyring) {
-                throw new Error(`Unable to open database. Permissions require "owner" access, but account is not owner.`)
-            }
-
-            if (!config.readOnly && !config.isOwner && config.permissions!.read == "owner") {
-                throw new Error(`Unable to open database. Permissions require "owner" access to read, but account is not owner.`)
-            }
-=======
     if (
       config.permissions!.read == "owner" &&
       config.permissions!.write == "owner"
@@ -370,7 +232,6 @@ class StorageEngineVerida extends BaseStorageEngine {
 
         if (config.permissions!.write != "public") {
           config.readOnly = true;
->>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
         }
       }
 

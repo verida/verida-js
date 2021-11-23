@@ -11,11 +11,7 @@
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha",
-<<<<<<< HEAD
-    "build": "rm -rf dist && tsc",
-=======
     "build": "rm -rf dist; tsc",
->>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
     "generate-api-docs": " rm -rf api-docs && ./node_modules/.bin/jsdoc && jsdoc -c 'jsdoc.json' --readme README.api.md"
   },
   "engines": {

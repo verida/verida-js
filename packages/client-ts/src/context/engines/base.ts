@@ -5,13 +5,10 @@ import Database from "../database";
 import Datastore from "../datastore";
 import DbRegistry from "../db-registry";
 
-<<<<<<< HEAD
-=======
 /**
  * @category
  * Modules
  */
->>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 class BaseStorageEngine {
   protected storageContext: string;
   protected dbRegistry: DbRegistry;
