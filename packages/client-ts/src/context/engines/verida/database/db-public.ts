@@ -65,6 +65,7 @@ class PublicDatabase extends BaseDb {
       privacy: "public",
       did: this.did,
       dsn: this.dsn,
+      permissions: this.permissions!,
       storageContext: this.storageContext,
       databaseName: this.databaseName,
       databaseHash: this.databaseHash,
