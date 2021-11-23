@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-document",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,8 +17,8 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/encryption-utils": "^1.1.1",
-    "@verida/keyring": "^1.1.1",
+    "@verida/encryption-utils": "^1.1.2",
+    "@verida/keyring": "^1.1.2",
     "did-resolver": "^3.1.2"
   },
   "devDependencies": {

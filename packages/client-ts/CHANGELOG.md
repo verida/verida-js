@@ -1,3 +1,29 @@
+2021-11-22 (v1.1.9)
+-------------------
+
+- Fix: User with read, but not write access could write to the local database (but not remote). Now a permission denied exception is thrown.
+
+2021-11-15 (v1.1.8)
+-------------------
+
+- Fix did-jwt version to be locked in to currently supported version
+
+
+2021-11-14 (v1.1.7)
+-------------------
+
+- Fix DID of current account not being included in the config to databaseEngine.openDatabase when opening an external database
+
+2021-11-13 (v1.1.6)
+-------------------
+
+- Update @verida/account to latest
+
+2021-11-13 (v1.1.5)
+-------------------
+
+- Fix public profiles defaulting to incorrect profile name
+- Fix API documentation generation
 
 2021-11-09 (v1.1.4)
 -------------------

@@ -8,6 +8,8 @@ import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerTestDb_1'
 const DB_NAME_USER = 'UserTestDb_1'
+const DB_NAME_USER_2 = 'UserTestDb_2'
+const DB_NAME_USER_3 = 'UserTestDb_3'
 const DB_NAME_PUBLIC = 'PublicTestDb_1'
 const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_1'
 const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_1'
@@ -79,7 +81,7 @@ describe('Verida database tests', () => {
             assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
 
-        it('can open a database with user permissions', async function() {
+        it('can open an existing database with user permissions', async function() {
             const database = await context.openDatabase(DB_NAME_USER, {
                 permissions: {
                     read: 'users',
@@ -106,6 +108,37 @@ describe('Verida database tests', () => {
             })
 
             await database2.save({'hello': 'world'})
+        })
+
+        it('can create a new database defining initial users', async function() {
+            const database = await context.openDatabase(DB_NAME_USER_2, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did3],
+                    write: 'users',
+                    writeList: [did1, did3]
+                }
+            })
+            const info = await database.info()
+
+            const result = await database.save({'hello': 'world'})
+            const data = await database.get(result.id)
+
+            assert.ok(data.hello == 'world', 'First result has expected value')
+
+            // open the previously created database as an external user
+            const database3 = await context3.openExternalDatabase(DB_NAME_USER_2, did1, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did3],
+                    write: 'users',
+                    writeList: [did1, did3]
+                },
+                encryptionKey: info.encryptionKey
+            })
+
+            const results = await database3.getMany()
+            assert.ok(results.length, 'Results returned')
         })
 
         it('can open a database with public read permissions', async function() {
@@ -319,5 +352,34 @@ describe('Verida database tests', () => {
             const result = await promise
             assert.deepEqual(result, new Error('Invalid encryption key supplied'))
         })
+
+        it(`can't write an external database where a did has read access, but not write access`, async () => {
+            const ownerDatabase = await context.openDatabase(DB_NAME_USER_3, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did2],
+                    write: 'owner'
+                }
+            })
+            const info = await ownerDatabase.info()
+            const encryptionKey = info.encryptionKey
+
+            const did2Database = await context2.openExternalDatabase(DB_NAME_USER_3, did1, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did2],
+                    write: 'owner'
+                },
+                encryptionKey: encryptionKey
+            })
+
+            const promise = new Promise((resolve, rejects) => {
+                did2Database.save({'write': 'from valid external user DID'}).then(rejects, resolve)
+            })
+
+            const result = await promise
+            assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
+        })
+
     })
 })

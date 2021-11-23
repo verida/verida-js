@@ -108,6 +108,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         // Unknown error
         throw err;
       }
+<<<<<<< HEAD
     }
 
     return response.data.user.dsn;
@@ -173,6 +174,84 @@ class StorageEngineVerida extends BaseStorageEngine {
     let dsn = config.isOwner ? this.dsn! : config.dsn!;
     if (!dsn) {
       throw new Error("Unable to determine DSN for this user and this context");
+=======
+    }
+
+    return response.data.user.dsn;
+  }
+
+  /**
+   * Open a database either that may or may not be owned by this usesr
+   *
+   * @param databaseName
+   * @param options
+   * @returns {Database}
+   */
+  public async openDatabase(
+    databaseName: string,
+    options: DatabaseOpenConfig
+  ): Promise<Database> {
+    const config: DatabaseOpenConfig = _.merge(
+      {
+        permissions: {
+          read: "owner",
+          write: "owner",
+        },
+        did: this.accountDid,
+        readOnly: false,
+      },
+      options
+    );
+
+    // Default to user's account did if not specified
+    config.isOwner = config.did == this.accountDid;
+    config.saveDatabase = config.isOwner; // always save this database to registry if user is the owner
+    let did = config.did!.toLowerCase();
+
+    // If permissions require "owner" access, connect the current user
+    if (
+      (config.permissions!.read == "owner" ||
+        config.permissions!.write == "owner") &&
+      !config.readOnly
+    ) {
+      if (!config.readOnly && !this.keyring) {
+        throw new Error(
+          `Unable to open database. Permissions require "owner" access, but no account connected.`
+        );
+      }
+
+      if (!config.readOnly && config.isOwner && !this.keyring) {
+        throw new Error(
+          `Unable to open database. Permissions require "owner" access, but account is not owner.`
+        );
+      }
+
+      if (
+        !config.readOnly &&
+        !config.isOwner &&
+        config.permissions!.read == "owner"
+      ) {
+        throw new Error(
+          `Unable to open database. Permissions require "owner" access to read, but account is not owner.`
+        );
+      }
+    }
+
+    let dsn = config.isOwner ? this.dsn! : config.dsn!;
+    if (!dsn) {
+      throw new Error("Unable to determine DSN for this user and this context");
+    }
+
+    // force read only access if the current user doesn't have write access
+    if (!config.isOwner) {
+      if (config.permissions!.write == "owner") {
+        // Only the owner can write, so set to read only
+        config.readOnly = true
+      } else if (config.permissions!.write == "users" && config.permissions!.writeList && config.permissions!.writeList!.indexOf(config.did!) == -1) {
+        // This user doesn't have explicit write access
+        config.readOnly = true
+      }
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
     }
 
     if (

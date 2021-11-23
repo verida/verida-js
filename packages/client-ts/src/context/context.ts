@@ -35,6 +35,7 @@ const MESSAGING_ENGINES: StorageEngineTypes = {
  * - Messaging (between users and applications)
  * - Block storage (large files such as images and video) -- Coming soon
  */
+<<<<<<< HEAD
 
 /**
  * @category
@@ -136,6 +137,109 @@ class Context {
     const contextConfig = await this.getContextConfig(did, createContext);
     const engineType = contextConfig.services.databaseServer.type;
 
+=======
+
+/**
+ * @category
+ * Modules
+ */
+class Context {
+  private client: Client;
+  private account?: Account;
+  private messagingEngine?: Messaging;
+
+  private contextName: string;
+  private didContextManager: DIDContextManager;
+  private databaseEngines: DatabaseEngines = {};
+  private dbRegistry: DbRegistry;
+
+  /**
+   * Instantiate a new context.
+   *
+   * **Do not use directly**. Use `client.openContext()` or `Network.connect()`.
+   *
+   * @param client {Client}
+   * @param contextName {string}
+   * @param didContextManager {DIDContextManager}
+   * @param account {AccountInterface}
+   */
+  constructor(
+    client: Client,
+    contextName: string,
+    didContextManager: DIDContextManager,
+    account?: Account
+  ) {
+    this.client = client;
+    this.contextName = contextName;
+    this.didContextManager = didContextManager;
+    this.account = account;
+    this.dbRegistry = new DbRegistry(this);
+  }
+
+  public async getContextConfig(
+    did?: string,
+    forceCreate?: boolean,
+    customContextName?: string
+  ): Promise<Interfaces.SecureContextConfig> {
+    if (!did) {
+      if (!this.account) {
+        throw new Error("No DID specified and no authenticated user");
+      }
+
+      did = await this.account.did();
+    }
+
+    return this.didContextManager.getDIDContextConfig(
+      did!,
+      customContextName ? customContextName : this.contextName,
+      forceCreate
+    );
+  }
+
+  public getContextName(): string {
+    return this.contextName;
+  }
+
+  public getAccount(): Account {
+    return this.account!;
+  }
+
+  public getDidContextManager(): DIDContextManager {
+    return this.didContextManager;
+  }
+
+  public getClient(): Client {
+    return this.client;
+  }
+
+  public async disconnect(): Promise<boolean> {
+    if (this.account) {
+      await this.account.disconnect(this.contextName);
+      this.account = undefined;
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Get a storage engine for a given DID and this contextName
+   *
+   * @param did
+   * @returns {BaseStorageEngine}
+   */
+  private async getDatabaseEngine(
+    did: string,
+    createContext?: boolean
+  ): Promise<BaseStorageEngine> {
+    if (this.databaseEngines[did]) {
+      return this.databaseEngines[did];
+    }
+
+    const contextConfig = await this.getContextConfig(did, createContext);
+    const engineType = contextConfig.services.databaseServer.type;
+
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
     if (!DATABASE_ENGINES[engineType]) {
       throw new Error(
         `Unsupported database engine type specified: ${engineType}`
@@ -239,6 +343,7 @@ class Context {
   ): Promise<Database> {
     if (!this.account) {
       throw new Error(`Unable to open database. No authenticated user.`);
+<<<<<<< HEAD
     }
 
     const accountDid = await this.account!.did();
@@ -362,4 +467,137 @@ class Context {
   }
 }
 
+=======
+    }
+
+    const accountDid = await this.account!.did()
+    if (!config.did) {
+      config.did = accountDid
+    }
+
+    const databaseEngine = await this.getDatabaseEngine(
+      config.did,
+      config.createContext!
+    );
+
+    if (!config.signingContext) {
+      config.signingContext = this;
+    }
+
+    const database = await databaseEngine.openDatabase(databaseName, config);
+    if (config.saveDatabase !== false) {
+      await this.dbRegistry.saveDb(database, false);
+    }
+
+    return database;
+  }
+
+  /**
+   * Open an external database owned by an account that isn't the currently connected account.
+   *
+   * @param databaseName {string} Name of the database to open
+   * @param did {string} DID of the external account that owns the database
+   * @param options {DatabaseOpenConfig} Optional database configuration
+   * @returns {Database}
+   */
+  public async openExternalDatabase(
+    databaseName: string,
+    did: string,
+    config: DatabaseOpenConfig = {}
+  ): Promise<Database> {
+    let contextConfig;
+    if (!config.dsn) {
+      contextConfig = await this.getContextConfig(
+        did,
+        false,
+        config.contextName ? config.contextName : this.contextName
+      );
+      config.dsn = contextConfig.services.databaseServer.endpointUri;
+    }
+
+    config = _.merge(
+      {
+        did,
+        signingContext: this,
+        permissions: {
+          read: "users",
+          write: "users"
+        }
+      },
+      config
+    );
+
+    config.saveDatabase = false;
+
+    if (config.contextName && config.contextName != this.contextName) {
+      // We are opening a database for a different context.
+      // Open the new context
+      const client = this.getClient();
+      const context = await client.openExternalContext(
+        config.contextName!,
+        did
+      );
+      config.signingContext = this;
+
+      return context!.openDatabase(databaseName, config);
+    }
+
+    const databaseEngine = await this.getDatabaseEngine(did);
+
+    return databaseEngine.openDatabase(databaseName, config);
+  }
+
+  /**
+   * Open a dataastore owned by this account.
+   *
+   * @param schemaUri {string} URI of the schema to open (ie: https://common.schemas.verida.io/health/activity/latest/schema.json)
+   * @param config {DatastoreOpenConfig} Optional datastore configuration
+   * @returns {Datastore}
+   */
+  public async openDatastore(
+    schemaUri: string,
+    config: DatastoreOpenConfig = {}
+  ): Promise<Datastore> {
+    if (!this.account) {
+      throw new Error(`Unable to open datastore. No authenticated user.`);
+    }
+
+    // @todo: Should this also call _init to confirm everything is good?
+    return new Datastore(schemaUri, this, config);
+  }
+
+  /**
+   * Open an external datastore owned by an account that isn't the currently connected account.
+   *
+   * @param schemaUri {string} URI of the schema to open (ie: https://common.schemas.verida.io/health/activity/latest/schema.json)
+   * @param did {string} DID of the external account that owns the database
+   * @param options {DatabaseOpenConfig} Optional database configuration
+   * @returns {Datastore}
+   */
+  public async openExternalDatastore(
+    schemaUri: string,
+    did: string,
+    options: DatastoreOpenConfig = {}
+  ): Promise<Datastore> {
+    //const contextConfig = await this.getContextConfig(did, false)
+
+    options = _.merge(
+      {
+        did,
+        //dsn: contextConfig.services.databaseServer.endpointUri,
+        external: true,
+      },
+      options
+    );
+
+    // @todo: Should this also call _init to confirm everything is good?
+    return new Datastore(schemaUri, this, options);
+  }
+
+  public getDbRegistry(): DbRegistry {
+    return this.dbRegistry;
+  }
+}
+
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
 export default Context;

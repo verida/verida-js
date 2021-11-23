@@ -176,7 +176,12 @@ class Client {
    */
   public async openPublicProfile(
     did: string,
+<<<<<<< HEAD
     contextName: string
+=======
+    contextName: string,
+    profileName: string = "basicProfile"
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
   ): Promise<Profile | undefined> {
     const context = await this.openExternalContext(contextName, did);
     if (!context) {
@@ -185,7 +190,11 @@ class Client {
       );
     }
 
+<<<<<<< HEAD
     return context!.openProfile("public", did, false);
+=======
+    return context!.openProfile(profileName, did, false);
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
   }
 
   /**

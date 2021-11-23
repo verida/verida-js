@@ -311,6 +311,10 @@ class EncryptedDatabase extends BaseDb {
       privacy: "encrypted",
       did: this.did,
       dsn: this.dsn,
+<<<<<<< HEAD
+=======
+      permissions: this.permissions!,
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
       storageContext: this.storageContext,
       databaseName: this.databaseName,
       databaseHash: this.databaseHash,
