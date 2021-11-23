@@ -1,6 +1,6 @@
 {
   "name": "@verida/keyring",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -16,7 +16,7 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/encryption-utils": "^1.1.1",
+    "@verida/encryption-utils": "^1.1.2",
     "ethers": "^5.5.1",
     "tweetnacl": "^1.0.3",
     "uuid": "^8.3.2"

@@ -26,11 +26,11 @@ These are helper packages that typically aren't used directly:
 
 ### Node Version
 
-This requires **node v12.20.0** to build. We use [nvm](https://github.com/nvm-sh/nvm) to manage this:
+This requires **node v14.17.1** to build. We use [nvm](https://github.com/nvm-sh/nvm) to manage this:
 
 ```
-nvm install v12.20.0
-nvm use v12.20.0
+nvm install v14.17.1
+nvm use v14.17.1
 ```
 
 
@@ -55,13 +55,14 @@ Need to build the packages in this order:
 
 1. encryption-utils 
 2. keyring
-3. 3id-utils-node
-4. storage-link
-5. account
-6. account-node
-7. account-3id-connect
-8. account-web-vault
-9. client-ts
+3. did-document
+4. did-client
+5. did-resolver
+6. storage-link
+7. account
+8. account-node
+9. account-web-vault
+10. client-ts
 
 
 ## Creating a release

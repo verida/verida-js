@@ -13,7 +13,8 @@ import Schema from "./context/schema";
 import DEFAULT_CONFIG from "./config";
 
 /**
- * A client connection to the Verida network
+ * @category
+ * Modules
  */
 class Client {
   /**
@@ -175,7 +176,16 @@ class Client {
    */
   public async openPublicProfile(
     did: string,
+<<<<<<< HEAD
     contextName: string
+=======
+<<<<<<< HEAD
+    contextName: string
+=======
+    contextName: string,
+    profileName: string = "basicProfile"
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
   ): Promise<Profile | undefined> {
     const context = await this.openExternalContext(contextName, did);
     if (!context) {
@@ -184,7 +194,15 @@ class Client {
       );
     }
 
+<<<<<<< HEAD
     return context!.openProfile("public", did, false);
+=======
+<<<<<<< HEAD
+    return context!.openProfile("public", did, false);
+=======
+    return context!.openProfile(profileName, did, false);
+>>>>>>> 6674b1d2b271f93afcc03cc9f23e6c9a629884b7
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
   }
 
   /**

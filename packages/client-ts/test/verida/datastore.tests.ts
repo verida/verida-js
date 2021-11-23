@@ -5,7 +5,7 @@ import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
 
-const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
+const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
 /**
  * 
@@ -56,7 +56,7 @@ describe('Verida datastore tests', () => {
             const contact = {
                 firstName: 'John',
                 lastName: 'Smith',
-                email: 'john__smith.com'
+                email: 'john@smith.com'
             }
 
             const result2 = await datastore.save(contact)
@@ -84,7 +84,7 @@ describe('Verida datastore tests', () => {
             const contact = {
                 firstName: 'Jane',
                 lastName: 'Doe',
-                email: 'jane__doe.com'
+                email: 'jane@doe.com'
             }
 
             const result = await datastore.save(contact)

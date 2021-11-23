@@ -1,10 +1,19 @@
 const RefParser = require("json-schema-ref-parser");
+<<<<<<< HEAD
 import Ajv from "ajv";
 const resolveAllOf = require("json-schema-resolve-allof");
 const _ = require("lodash");
 import axios from "axios";
 
 const draft6 = require("ajv/lib/refs/json-schema-draft-06.json");
+=======
+import Ajv2020 from "ajv/dist/2020";
+import addFormats from "ajv-formats";
+
+const resolveAllOf = require("json-schema-resolve-allof");
+const _ = require("lodash");
+import axios from "axios";
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 
 // Custom resolver for RefParser
 //const { ono } = require("ono");
@@ -18,11 +27,22 @@ const resolver = {
 
 const jsonCache: any = {};
 
+<<<<<<< HEAD
+=======
+/**
+ * @category
+ * Modules
+ */
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 class Schema {
   public errors: any[];
 
   protected path: string;
+<<<<<<< HEAD
   protected ajv: Ajv;
+=======
+  protected ajv: Ajv2020;
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 
   protected schemaJson?: object;
   protected finalPath?: string;
@@ -47,7 +67,11 @@ class Schema {
 
     options = _.merge(
       {
+<<<<<<< HEAD
         metaSchemas: [draft6],
+=======
+        metaschemas: {},
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
         ajv: {
           loadSchema: Schema.loadJson,
           logger: false,
@@ -57,7 +81,12 @@ class Schema {
       options
     );
 
+<<<<<<< HEAD
     this.ajv = new Ajv(options.ajv);
+=======
+    this.ajv = new Ajv2020(options.ajv);
+    addFormats(this.ajv);
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 
     for (let s in options.metaSchemas) {
       this.ajv.addMetaSchema(options.metaSchemas[s]);
@@ -81,7 +110,11 @@ class Schema {
   }
 
   /**
+<<<<<<< HEAD
    * @todo Deprecate in favour of `getProperties()`
+=======
+   * @todo: Deprecate in favour of `getProperties()`
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
    * Get an object that represents the JSON Schema. Fully resolved.
    * Warning: This can cause issues with very large schemas.
    *
@@ -114,7 +147,11 @@ class Schema {
   public async validate(data: any): Promise<boolean> {
     if (!this.validateFunction) {
       const schemaJson = await this.getSchemaJson();
+<<<<<<< HEAD
       // @todo Fix schemas to have valid definitions and then enable strict compile
+=======
+      // @todo: Fix schemas to have valid definitions and then enable strict compile
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
       this.validateFunction = await this.ajv.compileAsync(schemaJson);
     }
 
@@ -173,9 +210,15 @@ class Schema {
    * Get a rully resolveable path for a URL
    *
    * Handle shortened paths:
+<<<<<<< HEAD
    *  - `health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
    *  - `https://schemas.verida.io/health/activity` -> `https://schemas.verida.io/health/activity/schema.json`
    *  - `/health/activity/test.json` -> `https://schemas.verida.io/health/activity/test.json`
+=======
+   *  - `health/activity` -> `https://common.schemas.verida.io/health/activity/latest/schema.json`
+   *  - `https://common/schemas.verida.io/health/activity/latest` -> `https://common.schemas.verida.io/health/activity/latest/schema.json`
+   *  - `/health/activity/test.json` -> `https://common/schemas.verida.io/health/activity/test.json`
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
    */
   protected async getPath(): Promise<string> {
     if (this.finalPath) {
@@ -238,11 +281,19 @@ class Schema {
       uri = await Schema.resolvePath(uri);
 
       try {
+<<<<<<< HEAD
         const request = await axios.get(uri, {
           responseType: "json",
         }); // @todo: check valid uri
 
         const json = await request.data;
+=======
+        const response = await axios.get(uri, {
+          responseType: "json",
+        }); // @todo: check valid uri
+
+        const json = await response.data;
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
         resolve(json);
       } catch (err) {
         reject(err);

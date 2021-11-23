@@ -2,6 +2,13 @@ import Client from "./client";
 import Context from "./context/context";
 import { NetworkConnectionConfig } from "./interfaces";
 
+<<<<<<< HEAD
+=======
+/**
+ * @category
+ * Modules
+ */
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 class Network {
   /**
    * Opens a new application context to provide encrypted storage and messaging to an application.

@@ -11,6 +11,14 @@ import { Interfaces } from "@verida/storage-link";
  *
  * Can force creating a new storage context for the authenticated account.
  */
+<<<<<<< HEAD
+=======
+
+/**
+ * @category
+ * Modules
+ */
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 class DIDContextManager {
   private didContexts: DIDContextConfigs = {};
 

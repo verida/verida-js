@@ -9,6 +9,7 @@ import Schema from "./schema";
  * @property {array} errors Array of most recent errors.
  * @property {string} schemaName Name of the schema used on this Datastore.
  */
+<<<<<<< HEAD
 class Datastore {
   protected schemaName: string;
   protected schemaPath?: string;
@@ -42,6 +43,46 @@ class Datastore {
     this.context = context;
     this.config = config;
 
+=======
+
+/**
+ * @category
+ * Modules
+ */
+class Datastore {
+  protected schemaName: string;
+  protected schemaPath?: string;
+  protected schema?: any;
+
+  protected context: Context;
+  protected config: DatastoreOpenConfig;
+
+  private db: any;
+
+  /**
+   * A list of the latest database errors.
+   *
+   * Any errors from saving a record will be available on this public object.
+   *
+   * The errors remain until they are replaced by any new errors.
+   */
+  public errors: object = {};
+
+  /**
+   * Create a new Datastore.
+   *
+   * **Do not instantiate directly.**
+   */
+  constructor(
+    schemaName: string,
+    context: Context,
+    config: DatastoreOpenConfig = {}
+  ) {
+    this.schemaName = schemaName;
+    this.context = context;
+    this.config = config;
+
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
     this.db = null;
   }
 
@@ -163,12 +204,21 @@ class Datastore {
     await this.init();
     return this.db.delete(docId);
   }
+<<<<<<< HEAD
 
   public async deleteAll(): Promise<void> {
     await this.init();
     return this.db.deleteAll();
   }
 
+=======
+
+  public async deleteAll(): Promise<void> {
+    await this.init();
+    return this.db.deleteAll();
+  }
+
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
   /**
    * Get the underlying database instance associated with this datastore.
    *
@@ -194,7 +244,11 @@ class Datastore {
   /**
    * Initialize this datastore instance before use.
    *
+<<<<<<< HEAD
    * @todo move this into context.openDatastore???
+=======
+   * @todo: move this into context.openDatastore???
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
    */
   private async init() {
     if (this.db) {
@@ -206,7 +260,11 @@ class Datastore {
     const dbName = this.config.databaseName
       ? this.config.databaseName
       : schemaJson.database.name;
+<<<<<<< HEAD
     this.schemaPath = this.schema.path;
+=======
+    this.schemaPath = schemaJson["$id"];
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
 
     if (this.config.external) {
       this.db = await this.context.openExternalDatabase(
@@ -225,8 +283,13 @@ class Datastore {
   }
 
   /**
+<<<<<<< HEAD
    * @todo Support removing indexes that were deleted from the spec
    * @todo Validate indexes
+=======
+   * @todo: Support removing indexes that were deleted from the spec
+   * @todo: Validate indexes
+>>>>>>> 2d79d5c946e4a5c11f6b3c13f8c8f430a2aa7eac
    *
    * @param indexes
    */
