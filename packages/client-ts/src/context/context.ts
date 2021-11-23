@@ -290,6 +290,10 @@ class Context {
       {
         did,
         signingContext: this,
+        permissions: {
+          read: "users",
+          write: "users"
+        }
       },
       config
     );
