@@ -7,6 +7,8 @@ import { createVerifiableCredentialJwt, createVerifiablePresentationJwt, verifyP
 
 // Note: See @verida/account/src/account.ts
 
+// const keyring = await context.getAccount().keyring('contextname')
+
 /**
  * A bare minimum class implementing the creation and verification of
  * Verifiable Credentials and Verifiable Presentations represented as
