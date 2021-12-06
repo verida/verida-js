@@ -19,6 +19,7 @@
   "dependencies": {
     "@verida/encryption-utils": "^1.1.2",
     "did-jwt": "^5.12.1",
+    "did-jwt-vc": "^2.1.8",
     "tweetnacl-util": "^0.15.1"
   },
   "devDependencies": {

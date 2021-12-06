@@ -3201,6 +3201,14 @@ dezalgo@^1.0.0:
     asap "^2.0.0"
     wrappy "1"
 
+did-jwt-vc@^2.1.8:
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/did-jwt-vc/-/did-jwt-vc-2.1.8.tgz#849b4ce32af8e1985be5ef3399c02cac335135a3"
+  integrity sha512-Xxf4Y+cvdbpHbdgYpRVmsbxscmFOuKiiYK/vWzK5vr+gCMckk/DM1KQEo0JR13K9sNW111qkjnCI+oVGLokksg==
+  dependencies:
+    did-jwt "^5.7.0"
+    did-resolver "^3.1.0"
+
 did-jwt@5.7.0:
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/did-jwt/-/did-jwt-5.7.0.tgz#7c5284daece5c86388db90e1274d0df63bb20f52"
@@ -3217,7 +3225,7 @@ did-jwt@5.7.0:
     js-sha3 "^0.8.0"
     uint8arrays "^3.0.0"
 
-did-jwt@^5.12.1:
+did-jwt@^5.12.1, did-jwt@^5.7.0:
   version "5.12.1"
   resolved "https://registry.yarnpkg.com/did-jwt/-/did-jwt-5.12.1.tgz#87240aef25c83ac17f4315d0ce127f2019798e35"
   integrity sha512-FpOQT9ipiQzU9prWIv8rdC944Gy+fllkSMJ7mRRfHGoyQMNsRfpmClhLvKgWTSNRymMLUizv6cRbltWj6FYu1w==
