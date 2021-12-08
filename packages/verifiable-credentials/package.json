@@ -17,12 +17,16 @@
     "node": "^14.0.0"
   },
   "dependencies": {
+    "@verida/did-resolver": "^0.1.4",
     "@verida/encryption-utils": "^1.1.2",
     "did-jwt": "^5.12.1",
     "did-jwt-vc": "^2.1.8",
-    "tweetnacl-util": "^0.15.1"
+    "lodash": "^4.17.21",
+    "tweetnacl-util": "^0.15.1",
+    "url": "^0.11.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.177",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",

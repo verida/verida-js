@@ -1,160 +1,170 @@
-// https://github.com/decentralized-identity/did-jwt
-import { createJWT, ES256KSigner } from 'did-jwt'
-import { encodeBase64 } from 'tweetnacl-util'
-
-// https://github.com/decentralized-identity/did-jwt-vc
-import { createVerifiableCredentialJwt, createVerifiablePresentationJwt, verifyPresentation, verifyCredential } from 'did-jwt-vc'
-
-// Note: See @verida/account/src/account.ts
-
-// const keyring = await context.getAccount().keyring('contextname')
-
+import Encryption from '@verida/encryption-utils';
+import { encodeBase64 } from 'tweetnacl-util';
+import { ES256KSigner } from 'did-jwt';
+import { Resolver } from 'did-resolver';
+import vdaResolver from '@verida/did-resolver';
+import {
+	createVerifiableCredentialJwt,
+	createVerifiablePresentationJwt,
+	verifyPresentation,
+	verifyCredential,
+	JwtCredentialPayload,
+	Issuer,
+} from 'did-jwt-vc';
+import url from 'url';
+import { Context } from '@verida/client-ts';
+import { PermissionOptionsEnum } from '@verida/client-ts/dist/context/interfaces';
 /**
  * A bare minimum class implementing the creation and verification of
  * Verifiable Credentials and Verifiable Presentations represented as
  * DID-JWT's
  */
+
+const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001';
+
 export default class Credentials {
+	context: Context;
 
-    /**
-     * Create a verifiable credential.
-     * 
-     * Example:
-     * 
-     * ```
-     * credential = {
-     *   "@context": [
-     *       "https://www.w3.org/2018/credentials/v1",
-     *       "https://www.w3.org/2018/credentials/examples/v1"
-     *   ],
-     *   "id": "https://example.com/credentials/1872",
-     *   "type": ["VerifiableCredential", "AlumniCredential"],
-     *   "issuer": "https://example.edu/issuers/565049",
-     *   "issuanceDate": "2010-01-01T19:23:24Z",
-     *   "credentialSubject": {
-     *       "id": "did:example:ebfeb1f712ebc6f1c276e12ec21",
-     *       "alumniOf": "Example University"
-     *   }
-     * };
-     * ```
-     * 
-     * @param {object} credential JSON representing a verifiable credential
-     * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
-     * @return {string} DID-JWT representation of the Verifiable Credential
-     */
-     static async createVerifiableCredential(credential, issuer: @verida/account) {
-        // Create the payload
-        const vcPayload = {
-            sub: issuer.did,
-            vc: credential
-        };
+	constructor(context: Context) {
+		this.context = context;
+	}
+	/**
+	 * Create a verifiable credential.
+	 *
+	 * @param {object} credential JSON representing a verifiable credential
+	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
+	 * @return {string} DID-JWT representation of the Verifiable Credential
+	 */
+	async createVerifiableCredential(
+		credential: any,
+		issuer: any
+	): Promise<string> {
+		// Create the payload
+		const vcPayload: JwtCredentialPayload = {
+			sub: issuer.did,
+			vc: credential,
+		};
+		// Create the verifiable credential
+		return await createVerifiableCredentialJwt(vcPayload, issuer);
+	}
 
-        // Create the verifiable credential
-        return await createVerifiableCredential(vcPayload, issuer);
-    }
+	/**
+	 * Create a verifiable presentation that combines an array of Verifiable
+	 * Credential DID-JWT's
+	 *
+	 * @param {array} vcJwts Array of Verifiable Credential DID-JWT's
+	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
+	 */
+	async createVerifiablePresentation(
+		vcJwts: string[],
+		issuer: any
+	): Promise<string> {
+		const vpPayload = {
+			vp: {
+				'@context': ['https://www.w3.org/2018/credentials/v1'],
+				type: ['VerifiablePresentation'],
+				verifiableCredential: vcJwts,
+			},
+		};
 
-    /**
-     * Create a verifiable presentation that combines an array of Verifiable
-     * Credential DID-JWT's
-     * 
-     * @param {array} vcJwts Array of Verifiable Credential DID-JWT's
-     * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)` 
-     */
-    static async createVerifiablePresentation(vcJwts, issuer) {
-        const vpPayload = {
-            vp: {
-                '@context': ['https://www.w3.org/2018/credentials/v1'],
-                type: ['VerifiablePresentation'],
-                verifiableCredential: vcJwts
-            }
-        };
-          
-        return createPresentation(vpPayload, issuer);
-    }
+		return createVerifiablePresentationJwt(vpPayload, issuer);
+	}
 
-    /**
-     * Verify a Verifiable Presentation DID-JWT
-     * 
-     * @param {string} vpJwt 
-     */
-    static async verifyPresentation(vpJwt) {
-        let resolver = Credentials._getResolver();
-        return verifyPresentation(vpJwt, resolver);
-    }
+	/**
+	 * Verify a Verifiable Presentation DID-JWT
+	 *
+	 * @param {string} vpJwt
+	 */
+	async verifyPresentation(vpJwt: string): Promise<unknown> {
+		const resolver = this.getResolver();
+		return verifyPresentation(vpJwt, resolver);
+	}
 
-    /**
-     * Verify a Verifiable Credential DID-JWT
-     * 
-     * @param {string} vcJwt 
-     */
-    static async verifyCredential(vcJwt) {
-        let resolver = Credentials._getResolver();
-        return verifyCredential(vcJwt, resolver);
-    }
+	/**
+	 * Verify a Verifiable Credential DID-JWT
+	 *
+	 * @param {string} vcJwt
+	 */
+	async verifyCredential(vcJwt: string): Promise<unknown> {
+		const resolver = this.getResolver();
+		console.log(vcJwt);
 
-    /**
-     * Create an Issuer object that can issue Verifiable Credentials
-     * 
-     * @param {object} user A Verida user instance
-     * @return {object} Verifiable Credential Issuer
-     */
-    static async createIssuer(user) {
-        // Get the current user's keyring
-        const appConfig = await user.getAppConfig();
-        let keyring = appConfig.keyring;
+		console.log(resolver);
 
-        let privateKey = encodeBase64(keyring.signKey.privateBytes);
+		return verifyCredential(vcJwt, resolver);
+	}
 
-        let signer = didJWT.NaclSigner(privateKey);
-        const issuer = {
-            did: appConfig.vid,
-            signer,
-            alg: "Ed25519"  // must be this casing due to did-jwt/src/JWT.ts
-        };
+	/**
+	 * Create an Issuer object that can issue Verifiable Credentials
+	 *
+	 * @param {object} user A Verida user instance
+	 * @return {object} Verifiable Credential Issuer
+	 */
 
-        return issuer;
-    }
+	async createIssuer(): Promise<Issuer> {
+		const account = this.context.getAccount();
+		const contextName = this.context.getContextName();
+		const did = await account.did();
 
-    /**
-     * Fetch a credential from a Verida URI
-     * 
-     * @param {string} uri
-     * @return {string} DIDJWT representation of the credential
-     */
-    static async fetch(uri) {
-        let regex = /^verida:\/\/(.*)\/(.*)\/(.*)\?(.*)$/i;
-        let matches = uri.match(regex);
+		const keyring = await account.keyring(contextName);
+		const keys = await keyring.getKeys();
+		const privateKey = encodeBase64(keys.signPrivateKey);
 
-        if (!matches) {
-            throw new Error("Invalid URI");
-        }
+		const signer = ES256KSigner(privateKey);
 
-        const vid = matches[1];
-        const dbName = matches[2];
-        const id = matches[3];
-        const query = url.parse(uri,true).query;
+		const issuer = {
+			did,
+			signer,
+			alg: 'ES256K',
+		} as Issuer;
 
-        const { did, appName } = await Verida.Helpers.vid.convertVid(vid)
+		return issuer;
+	}
 
-        let db = await Verida.openExternalDatabase(dbName, did, {
-            permissions: {
-                read: "public",
-                write: "owner"
-            },
-            appName: appName,
-            readOnly: true
-        });
+	/**
+	 * Fetch a credential from a Verida URI
+	 *
+	 * @param {string} uri
+	 * @return {string} DIDJWT representation of the credential
+	 */
+	async fetchURI(uri: string): Promise<string> {
+		const regex = /^verida:\/\/(.*)\/(.*)\/(.*)\/(.*)\?(.*)$/i;
+		const matches = uri.match(regex);
 
-        const item = await db.get(id);
-        const encrypted = item.content;
-        const key = Buffer.from(query.key, 'hex');
+		if (!matches) {
+			throw new Error('Invalid URI');
+		}
 
-        const decrypted = Verida.Helpers.encryption.symDecrypt(encrypted, key);
-        return decrypted;
-    }
+		const did = matches[1];
+		const contextName = matches[2];
+		const dbName = matches[3];
+		const id = matches[4];
+		const query = url.parse(uri, true).query;
 
-    static _getResolver() {
-        return new Resolver(getResolver());
-    }
+		const db = await this.context.openExternalDatastore(
+			'https://common.schemas.verida.io/credential/public/encrypted/v0.1.0/schema.json',
+			did,
+			{
+				permissions: {
+					read: PermissionOptionsEnum.PUBLIC,
+					write: PermissionOptionsEnum.OWNER,
+				},
+				contextName: contextName,
+				readOnly: true,
+			}
+		);
 
+		const item = await db.get(id, {});
+
+		const key = Buffer.from(query.key as string, 'hex');
+
+		const decrypted = Encryption.symDecrypt(item.content, key);
+
+		return decrypted;
+	}
+
+	getResolver(): any {
+		const resolver = vdaResolver.getResolver(DID_REGISTRY_ENDPOINT);
+		return new Resolver(resolver);
+	}
 }

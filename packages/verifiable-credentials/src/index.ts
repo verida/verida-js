@@ -1,5 +1,4 @@
-import Credentials from './credentials'
+import Credentials from './credentials';
+import SharingCredential from './sharing-credential';
 
-export {
-    Credentials
-}
+export { Credentials, SharingCredential };
