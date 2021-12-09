@@ -1,7 +1,7 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
 import { AutoAccount } from '@verida/account-node';
-import { EnvironmentType, Network } from '@verida/client-ts';
+import { EnvironmentType, Network, Utils } from '@verida/client-ts';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 
@@ -24,7 +24,9 @@ const credentialData = {
 };
 
 const VERIDA_CONTEXT_NAME = 'Verida: Credentials';
-const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/';
+const VERIDA_TESTNET_DEFAULT_SERVER = 'https://db.testnet.verida.io:5002/'
+const VERIDA_EXPECTED_DATABASE = 'credential_public_encrypted'
+
 
 const connect = async () => {
 	const context = await Network.connect({
@@ -67,12 +69,20 @@ describe('Credential tests', function () {
 			const context = await connect();
 
 			const credential = new SharingCredential(context);
-
 			const data = await credential.issueEncryptedCredential(credentialData);
 
 			encryptedData = data;
+			assert.ok(data.result.ok, 'Document was saved correctly');
 
-			assert.ok(data.result.ok, 'Error saving document');
+			console.log(Utils)
+			const expectedUri = Utils.generateObjectUri(
+				WALLET.did,
+				VERIDA_CONTEXT_NAME,
+				VERIDA_EXPECTED_DATABASE,
+				data.result.id
+			)
+			
+			assert.equal(data.uri, expectedUri, 'URI is the expected value')
 		});
 
 		it('Verify a credential', async function () {
@@ -80,11 +90,11 @@ describe('Credential tests', function () {
 
 			const credential = new Credentials(context);
 
-			const jwtURI = await credential.fetchURI(encryptedData.uri);
+			const jwt = await credential.fetchURI(encryptedData.uri);
 
-			const verifiedCredential: any = await credential.verifyCredential(jwtURI);
+			const verifiedCredential: any = await credential.verifyCredential(jwt);
 
-			assert.equal(verifiedCredential.jwt, jwtURI, 'JWT does not match');
+			assert.equal(verifiedCredential.jwt, jwt, 'JWT does not match');
 		});
 	});
 });
