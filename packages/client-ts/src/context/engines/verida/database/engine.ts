@@ -179,10 +179,14 @@ class StorageEngineVerida extends BaseStorageEngine {
     if (!config.isOwner) {
       if (config.permissions!.write == "owner") {
         // Only the owner can write, so set to read only
-        config.readOnly = true
-      } else if (config.permissions!.write == "users" && config.permissions!.writeList && config.permissions!.writeList!.indexOf(config.did!) == -1) {
+        config.readOnly = true;
+      } else if (
+        config.permissions!.write == "users" &&
+        config.permissions!.writeList &&
+        config.permissions!.writeList!.indexOf(config.did!) == -1
+      ) {
         // This user doesn't have explicit write access
-        config.readOnly = true
+        config.readOnly = true;
       }
     }
 

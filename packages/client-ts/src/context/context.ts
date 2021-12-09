@@ -241,9 +241,9 @@ class Context {
       throw new Error(`Unable to open database. No authenticated user.`);
     }
 
-    const accountDid = await this.account!.did()
+    const accountDid = await this.account!.did();
     if (!config.did) {
-      config.did = accountDid
+      config.did = accountDid;
     }
 
     const databaseEngine = await this.getDatabaseEngine(
@@ -292,8 +292,8 @@ class Context {
         signingContext: this,
         permissions: {
           read: "users",
-          write: "users"
-        }
+          write: "users",
+        },
       },
       config
     );

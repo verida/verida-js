@@ -191,3 +191,9 @@ Within an existing typescript web project:
 $ yarn link @verida/client-ts
 $ yarn run serve
 ```
+
+# Generating API docs
+
+```
+yarn generate-api-docs
+```
