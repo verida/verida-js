@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { Buffer } from 'buffer';
-import { Context } from '@verida/client-ts';
+import { Context, Utils } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
 import Credentials from './credentials';
 import { Issuer } from 'did-jwt-vc';
@@ -98,7 +98,13 @@ export default class SharingCredential {
 			options
 		);
 
-		const publicCredentials = await this.context.openDatastore(options.schema, {
+		const schemas = await this.context.getClient().getSchema(options.schema);
+
+		const json: any = await schemas.getSchemaJson();
+
+		const dbName = json.database.name;
+
+		const publicCredentials = await this.context.openDatastore(dbName, {
 			permissions: options.permissions,
 		});
 
@@ -125,25 +131,16 @@ export default class SharingCredential {
 				item: item,
 				result: result,
 				did: did,
-				uri: this.getCredentialUri(did, result.id, contextName, params),
+				uri: Utils.generateObjectUri(
+					did,
+					contextName,
+					dbName,
+					result.id,
+					params
+				),
 			};
 		} catch (err) {
 			console.log(err);
 		}
-	}
-
-	getCredentialUri(
-		did: string,
-		itemId: string,
-		contextName: string,
-		params: { key?: string }
-	): string {
-		let uri = `verida://${did}/${contextName}/${VUE_APP_CREDENTIAL_DB}/${itemId}`;
-		if (params && params.key) {
-			const encryptionKey = Buffer.from(params.key).toString('hex');
-			uri += '?key=' + encryptionKey;
-		}
-
-		return uri;
 	}
 }

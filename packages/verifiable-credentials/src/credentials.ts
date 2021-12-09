@@ -137,18 +137,14 @@ export default class Credentials {
 		const id = matches[4];
 		const query = url.parse(uri, true).query;
 
-		const db = await this.context.openExternalDatastore(
-			'https://common.schemas.verida.io/credential/public/encrypted/v0.1.0/schema.json',
-			did,
-			{
-				permissions: {
-					read: PermissionOptionsEnum.PUBLIC,
-					write: PermissionOptionsEnum.OWNER,
-				},
-				contextName: contextName,
-				readOnly: true,
-			}
-		);
+		const db = await this.context.openExternalDatastore(dbName, did, {
+			permissions: {
+				read: PermissionOptionsEnum.PUBLIC,
+				write: PermissionOptionsEnum.OWNER,
+			},
+			contextName: contextName,
+			readOnly: true,
+		});
 
 		const item = await db.get(id, {});
 
