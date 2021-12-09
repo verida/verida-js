@@ -1,4 +1,3 @@
-import Encryption from '@verida/encryption-utils';
 import { encodeBase64 } from 'tweetnacl-util';
 import { ES256KSigner } from 'did-jwt';
 import { Resolver } from 'did-resolver';
@@ -11,9 +10,8 @@ import {
 	JwtCredentialPayload,
 	Issuer,
 } from 'did-jwt-vc';
-import url from 'url';
 import { Context } from '@verida/client-ts';
-import { PermissionOptionsEnum } from '@verida/client-ts/dist/context/interfaces';
+
 /**
  * A bare minimum class implementing the creation and verification of
  * Verifiable Credentials and Verifiable Presentations represented as
@@ -117,42 +115,31 @@ export default class Credentials {
 		return issuer;
 	}
 
-	/**
-	 * Fetch a credential from a Verida URI
-	 *
-	 * @param {string} uri
-	 * @return {string} DIDJWT representation of the credential
-	 */
-	async fetchURI(uri: string): Promise<string> {
-		const regex = /^verida:\/\/(.*)\/(.*)\/(.*)\/(.*)\?(.*)$/i;
-		const matches = uri.match(regex);
+	async createCredentialJWT(data: any): Promise<string> {
+		const issuer = await this.createIssuer();
+		const account = this.context.getAccount();
+		const did = await account.did();
 
-		if (!matches) {
-			throw new Error('Invalid URI');
-		}
-
-		const did = matches[1];
-		const contextHash = matches[2];
-		const dbName = matches[3];
-		const id = matches[4];
-		const query = url.parse(uri, true).query;
-
-		const db = await this.context.openExternalDatabase(dbName, did, {
-			permissions: {
-				read: PermissionOptionsEnum.PUBLIC,
-				write: PermissionOptionsEnum.OWNER,
+		const credential = {
+			'@context': [
+				'https://www.w3.org/2018/credentials/v1',
+				'https://www.w3.org/2018/credentials/examples/v1',
+			],
+			id: '',
+			type: ['VerifiableCredential'],
+			issuer: did,
+			issuanceDate: new Date().toISOString(),
+			credentialSubject: {
+				...data,
 			},
-			contextHash: contextHash,
-			readOnly: true,
-		});
+			credentialSchema: {
+				id: data.schema,
+				type: 'JsonSchemaValidator2018',
+			},
+		};
+		const didJwtVc = await this.createVerifiableCredential(credential, issuer);
 
-		const item = await db.get(id, {});
-
-		const key = Buffer.from(query.key as string, 'hex');
-
-		const decrypted = Encryption.symDecrypt(item.content, key);
-
-		return decrypted;
+		return didJwtVc;
 	}
 
 	getResolver(): any {

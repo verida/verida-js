@@ -19,7 +19,8 @@ const WALLET = {
 const credentialData = {
 	id: 'did:example:ebfeb1f712ebc6f1c276e12ec21',
 	alumniOf: 'Example University',
-	schema: 'https://common.schemas.verida.io/credential/public/default/v0.1.0/schema.json',
+	schema:
+		'https://common.schemas.verida.io/credential/public/default/v0.1.0/schema.json',
 };
 
 const VERIDA_CONTEXT_NAME = 'Verida: Credentials';
@@ -66,8 +67,12 @@ describe('Credential tests', function () {
 		it('issue encrypted credential', async function () {
 			const context = await connect();
 
-			const credential = new SharingCredential(context);
-			const data = await credential.issueEncryptedCredential(credentialData);
+			const shareCredential = new SharingCredential(context);
+			const credential = new Credentials(context);
+
+			const didJWT = await credential.createCredentialJWT(credentialData);
+
+			const data = await shareCredential.issueEncryptedCredential(didJWT);
 
 			encryptedData = data;
 			assert.ok(data.result.ok, 'Document was saved correctly');
@@ -76,18 +81,20 @@ describe('Credential tests', function () {
 				WALLET.did,
 				VERIDA_CONTEXT_NAME,
 				VERIDA_EXPECTED_DATABASE,
-				data.result.id,
+				data.result.id
 			);
 
-			const uriWithoutKey = data.uri.substring(0, expectedUri.length)
+			const uriWithoutKey = data.uri.substring(0, expectedUri.length);
 			assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value');
 		});
 		it('Verify a credential', async function () {
 			const context = await connect();
 
+			const shareCredential = new SharingCredential(context);
+
 			const credential = new Credentials(context);
 
-			const jwt = await credential.fetchURI(encryptedData.uri);
+			const jwt = await shareCredential.fetchCredentialURI(encryptedData.uri);
 
 			const verifiedCredential: any = await credential.verifyCredential(jwt);
 

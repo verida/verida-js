@@ -1,11 +1,7 @@
 import * as _ from 'lodash';
-import { Buffer } from 'buffer';
 import { Context, Utils } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
-import Credentials from './credentials';
-import { Issuer } from 'did-jwt-vc';
-
-const { VUE_APP_CREDENTIAL_DB } = process.env;
+import { PermissionOptionsEnum } from '@verida/client-ts/dist/context/interfaces';
 
 /**
  *
@@ -20,45 +16,20 @@ interface VCResult {
 
 export default class SharingCredential {
 	context: Context;
-	credentials: Credentials;
-	issuer?: Issuer;
 
 	constructor(context: Context) {
 		this.context = context;
-		this.credentials = new Credentials(context);
 	}
+	/**
+	 * Method to encrypt and issue credential
+	 * @param didJwtVc
+	 * @returns
+	 */
 
-	async issueEncryptedCredential(cred: any): Promise<any> {
-		// Issue a new public, encrypted verida credential
-		const account = await this.context.getAccount();
+	async issueEncryptedCredential(didJwtVc: string): Promise<any> {
+		const account = this.context.getAccount();
 		const did = await account.did();
 		const encryptionKey = new Uint8Array(EncryptionUtils.randomKey(22));
-		const now = new Date();
-
-		this.issuer = await this.credentials.createIssuer();
-
-		const credential = {
-			'@context': [
-				'https://www.w3.org/2018/credentials/v1',
-				'https://www.w3.org/2018/credentials/examples/v1',
-			],
-			id: '',
-			type: ['VerifiableCredential'],
-			issuer: did,
-			issuanceDate: now.toISOString(),
-			credentialSubject: {
-				...cred,
-			},
-			credentialSchema: {
-				id: cred.schema,
-				type: 'JsonSchemaValidator2018',
-			},
-		};
-
-		const didJwtVc = await this.credentials.createVerifiableCredential(
-			credential,
-			this.issuer
-		);
 
 		const item = {
 			didJwtVc: didJwtVc,
@@ -72,6 +43,14 @@ export default class SharingCredential {
 
 		return result;
 	}
+	/**
+	 *  Method for for publishing an encrypted credential data
+	 * @param did
+	 * @param item
+	 * @param contextName
+	 * @param options
+	 * @returns {object}
+	 */
 
 	async issuePublicCredential(
 		did: string,
@@ -125,7 +104,7 @@ export default class SharingCredential {
 		}
 
 		try {
-			const result = (await publicCredentials.save(item)) as any;
+			const result = (await publicCredentials.save(item, {})) as any;
 
 			return {
 				item: item,
@@ -142,5 +121,33 @@ export default class SharingCredential {
 		} catch (err) {
 			console.log(err);
 		}
+	}
+	/**
+	 * Fetch a credential from a Verida URI
+	 *
+	 * @param {string} uri
+	 * @return {string} DIDJWT representation of the credential
+	 */
+
+	async fetchCredentialURI(uri: string): Promise<string> {
+		const url = Utils.fetchURI(uri);
+
+		const db = await this.context.openExternalDatabase(url.dbName, url.did, {
+			permissions: {
+				read: PermissionOptionsEnum.PUBLIC,
+				write: PermissionOptionsEnum.OWNER,
+			},
+			//@ts-ignore
+			contextHash: url.contextHash,
+			readOnly: true,
+		});
+
+		const item = (await db.get(url.id, {})) as any;
+
+		const key = Buffer.from(url.query.key as string, 'hex');
+
+		const decrypted = EncryptionUtils.symDecrypt(item.content, key);
+
+		return decrypted;
 	}
 }
