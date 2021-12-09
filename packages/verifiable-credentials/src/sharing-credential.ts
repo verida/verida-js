@@ -104,7 +104,7 @@ export default class SharingCredential {
 
 		const dbName = json.database.name;
 
-		const publicCredentials = await this.context.openDatastore(dbName, {
+		const publicCredentials = await this.context.openDatabase(dbName, {
 			permissions: options.permissions,
 		});
 

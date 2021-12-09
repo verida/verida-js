@@ -6,21 +6,20 @@ import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 
 const WALLET = {
-	chain: 'ethr',
 	mnemonic:
 		'sunset dry result clarify six vote hero fiscal globe latin shop grief',
 	privateKey:
 		'0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e0af',
 	publicKey:
 		'0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e0af',
-	did: 'did:ethr:0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
+	did: 'did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
 	address: '0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
 };
 
 const credentialData = {
 	id: 'did:example:ebfeb1f712ebc6f1c276e12ec21',
 	alumniOf: 'Example University',
-	schema: 'https://schemas.verida.io/credential/public/default/schema.json',
+	schema: 'https://common.schemas.verida.io/credential/public/default/v0.1.0/schema.json',
 };
 
 const VERIDA_CONTEXT_NAME = 'Verida: Credentials';
@@ -73,17 +72,15 @@ describe('Credential tests', function () {
 			encryptedData = data;
 			assert.ok(data.result.ok, 'Document was saved correctly');
 
-			// const expectedUri = Utils.generateObjectUri(
-			// 	WALLET.did,
-			// 	VERIDA_CONTEXT_NAME,
-			// 	VERIDA_EXPECTED_DATABASE,
-			// 	data.result.id
-			// );
-			// assert.equal(data.uri, expectedUri, 'URI is the expected value');
+			const expectedUri = Utils.generateObjectUri(
+				WALLET.did,
+				VERIDA_CONTEXT_NAME,
+				VERIDA_EXPECTED_DATABASE,
+				data.result.id,
+			);
 
-			/**
-			 * The contextHash generated wont be the same
-			 */
+			const uriWithoutKey = data.uri.substring(0, expectedUri.length)
+			assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value');
 		});
 		it('Verify a credential', async function () {
 			const context = await connect();

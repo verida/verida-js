@@ -132,17 +132,17 @@ export default class Credentials {
 		}
 
 		const did = matches[1];
-		const contextName = matches[2];
+		const contextHash = matches[2];
 		const dbName = matches[3];
 		const id = matches[4];
 		const query = url.parse(uri, true).query;
 
-		const db = await this.context.openExternalDatastore(dbName, did, {
+		const db = await this.context.openExternalDatabase(dbName, did, {
 			permissions: {
 				read: PermissionOptionsEnum.PUBLIC,
 				write: PermissionOptionsEnum.OWNER,
 			},
-			contextName: contextName,
+			contextHash: contextHash,
 			readOnly: true,
 		});
 
