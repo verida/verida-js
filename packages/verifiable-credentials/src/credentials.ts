@@ -21,7 +21,7 @@ import { Context } from '@verida/client-ts';
 const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001';
 
 export default class Credentials {
-	context: Context;
+	private context: Context;
 
 	constructor(context: Context) {
 		this.context = context;
@@ -95,7 +95,7 @@ export default class Credentials {
 	 * @return {object} Verifiable Credential Issuer
 	 */
 
-	async createIssuer(): Promise<Issuer> {
+	private async createIssuer(): Promise<Issuer> {
 		const account = this.context.getAccount();
 		const contextName = this.context.getContextName();
 		const did = await account.did();
@@ -115,7 +115,7 @@ export default class Credentials {
 		return issuer;
 	}
 
-	async createCredentialJWT(data: any): Promise<string> {
+	async createCredentialJWT(data: any): Promise<object> {
 		const issuer = await this.createIssuer();
 		const account = this.context.getAccount();
 		const did = await account.did();
@@ -139,10 +139,14 @@ export default class Credentials {
 		};
 		const didJwtVc = await this.createVerifiableCredential(credential, issuer);
 
-		return didJwtVc;
+		const item = {
+			didJwtVc: didJwtVc,
+		};
+
+		return item;
 	}
 
-	getResolver(): any {
+	private getResolver(): any {
 		const resolver = vdaResolver.getResolver(DID_REGISTRY_ENDPOINT);
 		return new Resolver(resolver);
 	}

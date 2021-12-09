@@ -26,14 +26,10 @@ export default class SharingCredential {
 	 * @returns
 	 */
 
-	async issueEncryptedCredential(didJwtVc: string): Promise<any> {
+	async issueEncryptedCredential(item: any): Promise<any> {
 		const account = this.context.getAccount();
 		const did = await account.did();
 		const encryptionKey = new Uint8Array(EncryptionUtils.randomKey(22));
-
-		const item = {
-			didJwtVc: didJwtVc,
-		};
 
 		const contextName = this.context.getContextName();
 
@@ -121,33 +117,5 @@ export default class SharingCredential {
 		} catch (err) {
 			console.log(err);
 		}
-	}
-	/**
-	 * Fetch a credential from a Verida URI
-	 *
-	 * @param {string} uri
-	 * @return {string} DIDJWT representation of the credential
-	 */
-
-	async fetchCredentialURI(uri: string): Promise<string> {
-		const url = Utils.fetchURI(uri);
-
-		const db = await this.context.openExternalDatabase(url.dbName, url.did, {
-			permissions: {
-				read: PermissionOptionsEnum.PUBLIC,
-				write: PermissionOptionsEnum.OWNER,
-			},
-			//@ts-ignore
-			contextHash: url.contextHash,
-			readOnly: true,
-		});
-
-		const item = (await db.get(url.id, {})) as any;
-
-		const key = Buffer.from(url.query.key as string, 'hex');
-
-		const decrypted = EncryptionUtils.symDecrypt(item.content, key);
-
-		return decrypted;
 	}
 }

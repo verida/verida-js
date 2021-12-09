@@ -67,5 +67,5 @@ export interface FetchURIParams {
 	contextHash: string;
 	dbName: string;
 	id: string;
-	query: object;
+	query: any;
 }

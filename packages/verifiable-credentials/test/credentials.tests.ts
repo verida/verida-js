@@ -70,9 +70,9 @@ describe('Credential tests', function () {
 			const shareCredential = new SharingCredential(context);
 			const credential = new Credentials(context);
 
-			const didJWT = await credential.createCredentialJWT(credentialData);
+			const item = await credential.createCredentialJWT(credentialData);
 
-			const data = await shareCredential.issueEncryptedCredential(didJWT);
+			const data = await shareCredential.issueEncryptedCredential(item);
 
 			encryptedData = data;
 			assert.ok(data.result.ok, 'Document was saved correctly');
@@ -90,11 +90,9 @@ describe('Credential tests', function () {
 		it('Verify a credential', async function () {
 			const context = await connect();
 
-			const shareCredential = new SharingCredential(context);
-
 			const credential = new Credentials(context);
 
-			const jwt = await shareCredential.fetchCredentialURI(encryptedData.uri);
+			const jwt = await Utils.fetchCredentialURI(encryptedData.uri, context);
 
 			const verifiedCredential: any = await credential.verifyCredential(jwt);
 
