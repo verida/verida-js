@@ -50,7 +50,7 @@ export default class SharingCredential {
 				...cred,
 			},
 			credentialSchema: {
-				id: cred['schema'],
+				id: cred.schema,
 				type: 'JsonSchemaValidator2018',
 			},
 		};

@@ -87,10 +87,6 @@ export default class Credentials {
 	 */
 	async verifyCredential(vcJwt: string): Promise<unknown> {
 		const resolver = this.getResolver();
-		console.log(vcJwt);
-
-		console.log(resolver);
-
 		return verifyCredential(vcJwt, resolver);
 	}
 

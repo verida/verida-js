@@ -1,7 +1,7 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
 import { AutoAccount } from '@verida/account-node';
-import { Context, EnvironmentType, Network } from '@verida/client-ts';
+import { EnvironmentType, Network } from '@verida/client-ts';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 
@@ -55,24 +55,36 @@ const connect = async () => {
 };
 
 describe('Credential tests', function () {
-	// let context: any = {};
-	this.beforeAll(function () {
-		//
-	});
-
 	describe('Credential Units', function () {
+		this.timeout(100000);
+		let encryptedData;
+
 		it('Login in user and create context', async function () {
 			const context = await connect();
 			assert.equal(context.getContextName(), VERIDA_CONTEXT_NAME);
 		});
-		it(' issue encrypted credential', async function () {
+		it('issue encrypted credential', async function () {
 			const context = await connect();
 
 			const credential = new SharingCredential(context);
 
-			const result = await credential.issueEncryptedCredential(credentialData);
-			assert.ok(result.ok, 'Error saving document');
-			// done();
+			const data = await credential.issueEncryptedCredential(credentialData);
+
+			encryptedData = data;
+
+			assert.ok(data.result.ok, 'Error saving document');
+		});
+
+		it('Verify a credential', async function () {
+			const context = await connect();
+
+			const credential = new Credentials(context);
+
+			const jwtURI = await credential.fetchURI(encryptedData.uri);
+
+			const verifiedCredential: any = await credential.verifyCredential(jwtURI);
+
+			assert.equal(verifiedCredential.jwt, jwtURI, 'JWT does not match');
 		});
 	});
 });
