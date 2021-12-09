@@ -7,7 +7,7 @@ export function generateObjectUri(
         itemId?: string,
         params?: { key?: string }
     ): string {
-    const contextHash = EncryptionUtils.hash(`${contextName}`)
+    const contextHash = EncryptionUtils.hash(`${did}/${contextName}`)
         let uri = `verida://${did}/${contextHash}`
 
     if (databaseName) {
