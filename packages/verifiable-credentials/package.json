@@ -17,6 +17,7 @@
 		"node": "^14.0.0"
 	},
 	"dependencies": {
+		"@verida/client-ts": "^1.1.9",
 		"@verida/did-resolver": "^0.1.4",
 		"@verida/encryption-utils": "^1.1.2",
 		"did-jwt": "^5.12.1",
