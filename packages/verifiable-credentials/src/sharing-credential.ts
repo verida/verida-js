@@ -1,7 +1,10 @@
 import * as _ from 'lodash';
 import { Context, Utils } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
-import { PermissionOptionsEnum } from '@verida/client-ts/dist/context/interfaces';
+import { ContextInterfaces } from '@verida/client-ts'
+
+const PermissionOptionsEnum = ContextInterfaces.PermissionOptionsEnum
+
 
 /**
  *
