@@ -23,6 +23,11 @@ const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001';
 export default class Credentials {
 	private context: Context;
 
+	/**
+	 * Initialize a new credential issuer and verifier instance
+	 * 
+	 * @param context The context (must have an account connected) that will issue any new credentials
+	 */
 	constructor(context: Context) {
 		this.context = context;
 	}
@@ -115,6 +120,14 @@ export default class Credentials {
 		return issuer;
 	}
 
+	/**
+	 * Create a new credential DID-JWT for a given object.
+	 * 
+	 * A new property `didJwtVc` is added to the data and included in the response
+	 * 
+	 * @param data 
+	 * @returns 
+	 */
 	async createCredentialJWT(data: any): Promise<object> {
 		const issuer = await this.createIssuer();
 		const account = this.context.getAccount();

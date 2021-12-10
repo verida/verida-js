@@ -4,6 +4,16 @@ import { Context } from '.';
 import { PermissionOptionsEnum } from './context/interfaces';
 import { FetchUriParams } from './interfaces';
 
+/**
+ * Build a URI that represents a specific record in a database
+ * 
+ * @param did 
+ * @param contextName 
+ * @param databaseName 
+ * @param itemId 
+ * @param params 
+ * @returns 
+ */
 export function buildVeridaUri(
 	did: string,
 	contextName: string,
@@ -30,6 +40,12 @@ export function buildVeridaUri(
 	return uri;
 }
 
+/**
+ * Explode a Verida URI into it's individual pieces
+ * 
+ * @param uri 
+ * @returns 
+ */
 export function explodeVeridaUri(uri: string): FetchUriParams {
 	const regex = /^verida:\/\/(.*)\/(.*)\/(.*)\/(.*)\?(.*)$/i;
 	const matches = uri.match(regex);
@@ -53,6 +69,13 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 	};
 }
 
+/**
+ * Fetch the data accessible from a Verida URI
+ * 
+ * @param uri Verida URI of the record to access
+ * @param context An existing context used to open the external database
+ * @returns 
+ */
 export async function fetchVeridaUri(
 	uri: string,
 	context: Context
