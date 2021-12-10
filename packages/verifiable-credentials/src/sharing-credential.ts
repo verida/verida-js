@@ -14,6 +14,13 @@ interface VCResult {
 	uri: string;
 }
 
+const SCHEMAs = {
+	encrypted:
+		'https://common.schemas.verida.io/credential/public/encrypted/v0.1.0/schema.json',
+	default:
+		'https://common.schemas.verida.io/credential/public/default/v0.1.0/schema.json',
+};
+
 export default class SharingCredential {
 	context: Context;
 
@@ -58,17 +65,15 @@ export default class SharingCredential {
 			encrypt: true,
 			key: EncryptionUtils.randomKey(32),
 			permissions: {
-				read: 'public',
-				write: 'owner',
+				read: PermissionOptionsEnum.PUBLIC,
+				write: PermissionOptionsEnum.OWNER,
 			},
 		};
 
 		options = _.merge(defaults, options);
 		options = _.merge(
 			{
-				schema: options.encrypt
-					? 'https://common.schemas.verida.io/credential/public/encrypted/v0.1.0/schema.json'
-					: 'https://common.schemas.verida.io/credential/public/default/v0.1.0/schema.json',
+				schema: options.encrypt ? SCHEMAs.encrypted : SCHEMAs.default,
 			},
 			options
 		);
@@ -106,13 +111,7 @@ export default class SharingCredential {
 				item: item,
 				result: result,
 				did: did,
-				uri: Utils.generateObjectUri(
-					did,
-					contextName,
-					dbName,
-					result.id,
-					params
-				),
+				uri: Utils.buildVeridaUri(did, contextName, dbName, result.id, params),
 			};
 		} catch (err) {
 			console.log(err);

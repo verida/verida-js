@@ -2,9 +2,9 @@ import EncryptionUtils from '@verida/encryption-utils';
 import url from 'url';
 import { Context } from '.';
 import { PermissionOptionsEnum } from './context/interfaces';
-import { FetchURIParams } from './interfaces';
+import { FetchUriParams } from './interfaces';
 
-export function generateObjectUri(
+export function buildVeridaUri(
 	did: string,
 	contextName: string,
 	databaseName: string,
@@ -30,7 +30,7 @@ export function generateObjectUri(
 	return uri;
 }
 
-export function getUrlByPath(uri: string): FetchURIParams {
+export function explodeVeridaUri(uri: string): FetchUriParams {
 	const regex = /^verida:\/\/(.*)\/(.*)\/(.*)\/(.*)\?(.*)$/i;
 	const matches = uri.match(regex);
 
@@ -53,11 +53,11 @@ export function getUrlByPath(uri: string): FetchURIParams {
 	};
 }
 
-export async function fetchCredentialURI(
+export async function fetchVeridaUri(
 	uri: string,
 	context: Context
 ): Promise<string> {
-	const url = getUrlByPath(uri);
+	const url = explodeVeridaUri(uri);
 
 	const db = await context.openExternalDatabase(url.dbName, url.did, {
 		permissions: {
@@ -70,6 +70,10 @@ export async function fetchCredentialURI(
 	});
 
 	const item = (await db.get(url.id, {})) as any;
+
+	if (item.error) {
+		throw new Error('document does not exist ');
+	}
 
 	const key = Buffer.from(url.query.key as string, 'hex');
 

@@ -62,7 +62,7 @@ export interface DatabaseEngines {
 	[key: string]: BaseStorageEngine;
 }
 
-export interface FetchURIParams {
+export interface FetchUriParams {
 	did: string;
 	contextHash: string;
 	dbName: string;
