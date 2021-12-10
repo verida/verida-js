@@ -11,6 +11,7 @@ import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
 import DEFAULT_CONFIG from "./config";
+import EncryptionUtils from "@verida/encryption-utils";
 
 /**
  * @category
@@ -255,6 +256,7 @@ class Client {
   public async getSchema(schemaUri: string): Promise<Schema> {
     return Schema.getSchema(schemaUri);
   }
+
 }
 
 export default Client;
