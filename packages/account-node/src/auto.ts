@@ -49,7 +49,7 @@ export default class AutoAccount extends Account {
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
         let storageConfig = await StorageLink.getLink(this.didClient, this.wallet.did, contextName, true)
         
-        if (!storageConfig && forceCreate) {
+        if (!storageConfig || forceCreate) {
             const endpoints: Interfaces.SecureContextServices = {
                 databaseServer: this.accountConfig.defaultDatabaseServer,
                 messageServer: this.accountConfig.defaultMessageServer
@@ -57,6 +57,10 @@ export default class AutoAccount extends Account {
 
             if (this.accountConfig.defaultStorageServer) {
                 endpoints.storageServer = this.accountConfig.defaultStorageServer
+            }
+
+            if (this.accountConfig.defaultNotificationServer) {
+                endpoints.notificationServer = this.accountConfig.defaultNotificationServer
             }
 
             storageConfig = await DIDStorageConfig.generate(this, contextName, endpoints)
