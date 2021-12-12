@@ -5,7 +5,7 @@ import BaseStorageEngine from "./engines/base";
 import { StorageEngineTypes } from "./interfaces";
 import DIDContextManager from "../did-context-manager";
 import { DatabaseEngines } from "../interfaces";
-import { DatabaseOpenConfig, DatastoreOpenConfig } from "./interfaces";
+import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig } from "./interfaces";
 import Database from "./database";
 import Datastore from "./datastore";
 import Messaging from "./messaging";
@@ -21,9 +21,16 @@ const DATABASE_ENGINES: StorageEngineTypes = {
 
 import MessagingEngineVerida from "./engines/verida/messaging/engine";
 import DbRegistry from "./db-registry";
+import Notification from "./notification";
 
 const MESSAGING_ENGINES: StorageEngineTypes = {
   VeridaMessage: MessagingEngineVerida,
+};
+
+import NotificationEngineVerida from './engines/verida/notification/engine'
+
+const NOTIFICATION_ENGINES: StorageEngineTypes = {
+  VeridaNotification: NotificationEngineVerida,
 };
 
 /**
@@ -44,6 +51,7 @@ class Context {
   private client: Client;
   private account?: Account;
   private messagingEngine?: Messaging;
+  private notificationEngine?: Notification
 
   private contextName: string;
   private didContextManager: DIDContextManager;
@@ -167,7 +175,7 @@ class Context {
    *
    * @returns {Messaging} Messaging instance
    */
-  public async getMessaging(): Promise<Messaging> {
+  public async getMessaging(messageConfig: MessagesConfig = {}): Promise<Messaging> {
     if (this.messagingEngine) {
       return this.messagingEngine;
     }
@@ -188,14 +196,50 @@ class Context {
       );
     }
     const engine = MESSAGING_ENGINES[engineType]; // @todo type cast correctly
+    const notificationServer = await this.getNotification()
 
     this.messagingEngine = new engine(
       this,
-      contextConfig.services.messageServer.endpointUri
+      messageConfig,
+      notificationServer
     );
     await this.messagingEngine!.connectAccount(this.account!);
 
     return this.messagingEngine!;
+  }
+
+  public async getNotification(): Promise<Notification | undefined> {
+    if (this.notificationEngine) {
+      return this.notificationEngine
+    }
+
+    if (!this.account) {
+      throw new Error(`Unable to open notification. No authenticated user.`);
+    }
+
+    const did = await this.account!.did();
+
+    const contextConfig = await this.getContextConfig(did, false);
+    if (!contextConfig || !contextConfig.services.notificationServer) {
+      // User doesn't have a notification service
+      return
+    }
+
+    const engineType = contextConfig.services.notificationServer.type;
+
+    if (!NOTIFICATION_ENGINES[engineType]) {
+      throw new Error(
+        `Unsupported messaging engine type specified: ${engineType}`
+      );
+    }
+    const engine = NOTIFICATION_ENGINES[engineType];
+
+    this.notificationEngine = new engine(
+      this,
+      contextConfig.services.notificationServer.endpointUri
+    );
+
+    return this.notificationEngine!;
   }
 
   /**

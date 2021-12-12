@@ -57,6 +57,10 @@ export default class Account {
         throw new Error("Not implemented")
     }
 
+    linkStorageContextService(contextName: string, endpointType: string, serverType: string, endpointUri: string): Promise<boolean> {
+        throw new Error("Not implemented")
+    }
+
     getDidClient() {
         throw new Error("Not implemented")
     }

@@ -62,7 +62,7 @@ export default class StorageLink {
             // Remove existing context if it exists
             const existing = await StorageLink.getLink(didClient, did, storageConfig.id)
             if (existing) {
-                StorageLink.unlink(didClient, storageConfig.id)
+                await StorageLink.unlink(didClient, storageConfig.id)
             }
         }
 
@@ -84,6 +84,27 @@ export default class StorageLink {
         // Add keys
         didDocument.addContextSignKey(contextHash, storageConfig.publicKeys.signKey.publicKeyHex)
         didDocument.addContextAsymKey(contextHash, storageConfig.publicKeys.asymKey.publicKeyHex)
+
+        return await didClient.save(didDocument)
+    }
+
+    static async setContextService(didClient: DIDClient, contextName: string, endpointType: Interfaces.EndpointType, serverType: string, endpointUri: string): Promise<boolean> {
+        const did = didClient.getDid()
+        if (!did) {
+            throw new Error("DID client is not authenticated")
+        }
+
+        // Fetch existing DID document
+        const didDocument = await didClient.get(did)
+        if (!didDocument) {
+            throw new Error(`DID Document doesn't exist for this context`)
+        }
+
+        // Build context hash in the correct format
+        const contextHash = DIDDocument.generateContextHash(did, contextName)
+
+        // Add the context service
+        await didDocument.addContextService(contextHash, endpointType, serverType, endpointUri)
 
         return await didClient.save(didDocument)
     }

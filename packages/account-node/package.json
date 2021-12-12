@@ -19,6 +19,7 @@
   "dependencies": {
     "@verida/account": "^1.1.5",
     "@verida/did-client": "^0.1.4",
+    "@verida/did-document": "^1.0.2",
     "@verida/encryption-utils": "^1.1.2",
     "@verida/keyring": "^1.1.2"
   },

@@ -56,7 +56,7 @@ class VeridaOutbox {
    * @param {string} message Message to show the user describing the inbox message
    * @param {config} config Optional config (TBA). ie: specify `appName` if sending to a specific application
    */
-  async send(
+  public async send(
     did: string,
     type: string,
     data: object,

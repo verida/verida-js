@@ -7,6 +7,7 @@ import { Account } from "@verida/account";
 import DIDContextManager from "../../../../did-context-manager";
 import Context from "../../../context";
 import { MessageSendConfig } from "../../../interfaces";
+import Notification from "../../../notification";
 const EventEmitter = require("events");
 
 /**
@@ -18,6 +19,7 @@ class MessagingEngineVerida implements BaseMessage {
   private contextName: string;
   private maxItems: Number;
   private didContextManager: DIDContextManager;
+  private notificationService?: Notification
 
   private did?: string;
   private keyring?: Keyring;
@@ -25,11 +27,12 @@ class MessagingEngineVerida implements BaseMessage {
   private inbox?: Inbox;
   private outbox?: Outbox;
 
-  constructor(context: Context, config: MessagesConfig = {}) {
+  constructor(context: Context, config: MessagesConfig = {}, notificationService?: Notification) {
     this.context = context;
     this.contextName = this.context.getContextName();
     this.maxItems = config.maxItems ? config.maxItems : 50;
     this.didContextManager = context.getDidContextManager();
+    this.notificationService = notificationService
   }
 
   public async init(): Promise<void> {
@@ -66,7 +69,15 @@ class MessagingEngineVerida implements BaseMessage {
     config?: MessageSendConfig
   ): Promise<object | null> {
     const outbox = await this.getOutbox();
-    return outbox.send(did, type, data, message, config);
+    const response = await outbox.send(did, type, data, message, config);
+
+    // Ping the notification service if it exists
+    // @todo: Make it configurable if the notification service is pinged
+    if (response && this.notificationService) {
+      await this.notificationService.ping()
+    }
+
+    return response
   }
 
   /**
