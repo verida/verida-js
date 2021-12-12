@@ -62,7 +62,7 @@ export default class StorageLink {
             // Remove existing context if it exists
             const existing = await StorageLink.getLink(didClient, did, storageConfig.id)
             if (existing) {
-                StorageLink.unlink(didClient, storageConfig.id)
+                await StorageLink.unlink(didClient, storageConfig.id)
             }
         }
 
