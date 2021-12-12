@@ -6,6 +6,7 @@ import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
 export default class DIDDocument {
 
     private doc: DIDDocumentStruct
+    protected errors: string[] = []
 
     /**
      * Force lower case DID as we can't guarantee the DID will always be provided with checksum
@@ -44,6 +45,10 @@ export default class DIDDocument {
         return this.doc.id
     }
 
+    public getErrors(): string[] {
+        return this.errors
+    }
+
     /**
      * Not used directly, used for testing
      * 
@@ -80,12 +85,14 @@ export default class DIDDocument {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         if (!this.doc.verificationMethod) {
+            this.errors = ['No verification method specified']
             return false
         }
 
         const contextDid = `${this.doc.id}\\?context=${contextHash}`
 
         if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextDid))) {
+            this.errors = ['Unable to locate verification method for this context']
             return false
         }
 
