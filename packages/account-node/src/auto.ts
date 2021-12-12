@@ -5,6 +5,7 @@ import { NodeAccountConfig } from './interfaces'
 
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
+import { Interfaces as DIDDocumentInterfaces } from "@verida/did-document"
 
 /**
  * An Authenticator that automatically signs everything
@@ -86,6 +87,15 @@ export default class AutoAccount extends Account {
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         return await StorageLink.unlink(this.didClient, contextName)
+    }
+
+    /**
+     * Link storage context service endpoint
+     * 
+     * @returns 
+     */
+    public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUri: string) {
+        return await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUri)
     }
 
     public getDidClient() {
