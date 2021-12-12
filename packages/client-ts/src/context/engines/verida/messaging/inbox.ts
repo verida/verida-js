@@ -183,6 +183,9 @@ class VeridaInbox extends EventEmitter {
 
   /**
    * Initialise the inbox manager
+   * 
+   * @todo: (bug) This opens the datastore based on the database endpoint, needs to open the datastore
+   * based on the messaging endpoint (when we support additional types)
    */
   public async init() {
     if (this.initComplete) {
