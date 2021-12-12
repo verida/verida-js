@@ -221,7 +221,7 @@ class Context {
 
     const contextConfig = await this.getContextConfig(did, false);
     if (!contextConfig || !contextConfig.services.notificationServer) {
-      // User doesn't have a notification servide
+      // User doesn't have a notification service
       return
     }
 

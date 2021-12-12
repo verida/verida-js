@@ -8,6 +8,8 @@ export default class NotificationEngineVerida implements BaseNotification {
     protected serverUrl: string
     protected did?: string
 
+    protected errors: string[] = []
+
     constructor(context: Context, serverUrl: string) {
         this.context = context
         this.serverUrl = serverUrl
@@ -18,25 +20,36 @@ export default class NotificationEngineVerida implements BaseNotification {
      *
      * (ie; connect to a notification server)
      */
-     public async init(): Promise<void> {
+    public async init(): Promise<void> {
         this.did = (await this.context.getAccount().did()).toLowerCase()
      }
 
      /**
       * Ping a notification server to fetch new messages
       */
-     public async ping(): Promise<void> {
-         await this.init()
-         const server = await this.getAxios()
+    public async ping(): Promise<boolean> {
+        await this.init()
+        const server = await this.getAxios()
 
-         await server.post(this.serverUrl + 'ping', {
-            data: {
-                did: this.did!
-            }
-        })
+        try {
+            await server.post(this.serverUrl + 'ping', {
+                data: {
+                    did: this.did!
+                }
+            })
+        } catch (err: any) {
+            this.errors.push(err.message)
+            return false
+        }
+
+        return true
      }
 
-     protected async getAxios(): Promise<AxiosInstance> {
+    public getErrors(): string[] {
+        return this.errors
+    }
+
+    protected async getAxios(): Promise<AxiosInstance> {
         const contextName = this.context.getContextName()
         const config: any = {
             headers: {
@@ -52,8 +65,8 @@ export default class NotificationEngineVerida implements BaseNotification {
             username: this.did!.replace(/:/g, "_"),
             password: signature,
         }
-    
+
         return Axios.create(config)
-     }
+    }
 
 }

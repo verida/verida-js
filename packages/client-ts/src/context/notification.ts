@@ -14,6 +14,8 @@ export default interface Notification {
     /**
      * Ping a notification server to fetch new messages
      */
-    ping(): Promise<void>
+    ping(): Promise<boolean>
+
+    getErrors(): string[]
 
 }
