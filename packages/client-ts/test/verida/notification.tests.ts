@@ -62,6 +62,13 @@ describe('Verida notification tests', () => {
         environment: CONFIG.ENVIRONMENT
     })
 
+    const client3 = new Client({
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
+    })
+
+    let VDA_DID, VDA_ACCOUNT
+
     describe('Sending messages', function() {
         this.timeout(30000)
 
@@ -73,6 +80,7 @@ describe('Verida notification tests', () => {
                 environment: CONFIG.ENVIRONMENT
             })
             const did = await account.did()
+            VDA_DID = did
             await client.connect(account)
 
             const context = await client.openContext(CONTEXT_1, true)
@@ -94,6 +102,7 @@ describe('Verida notification tests', () => {
                 didServerUrl: CONFIG.DID_SERVER_URL,
                 environment: CONFIG.ENVIRONMENT
             })
+            VDA_ACCOUNT = account
             const did = await account.did()
             await client2.connect(account)
             const context = await client2.openContext(CONTEXT_1, true)
@@ -108,17 +117,33 @@ describe('Verida notification tests', () => {
             const success1 = await account.linkStorageContextService(CONTEXT_1, DIDDocumentInterfaces.EndpointType.NOTIFICATION, 'VeridaNotification', ENDPOINT_CONFIG.defaultNotificationServer.endpointUri)
             assert.ok(success1, `Link storage context service returned success`)
 
-            await validateDidDocument(account, context, did)
+            // Use a new client (the old context config is cached in the existing client)
+            await client3.connect(account)
+            const context2 = await client3.openContext(CONTEXT_1, false)
 
-            // Delete storage context
-            const success2 = await account.unlinkStorage(CONTEXT_1)
-            assert.equal(success2, true, 'Unlinked storage context from account')
+            const notificationService2 = await context2.getNotification()
+            assert.ok(notificationService2, 'Have a notification service instance')
+
+            await validateDidDocument(account, context2, did)
         })
 
         it('can ping a notification server when sending a message', async () => {
-            const context = await client2.openContext(CONTEXT_1, false)
-            const messagine = await context.getMessaging()
+            const context = await client3.openContext(CONTEXT_1, false)
+            const messaging = await context.getMessaging()
             
+            await validateDidDocument(VDA_ACCOUNT, context, VDA_DID)
+
+            const result = await messaging.send(VDA_DID, 'inbox/type/dataSend', MESSAGE_DATA, 'Test message', {
+                recipientContextName: CONTEXT_1
+            })
+
+            assert.ok(result && result.ok, 'Received a valid message response')
+
+            const notificationService = await context.getNotification()
+            assert.ok(notificationService, 'Have a notification service')
+            
+            const errors = notificationService.getErrors()
+            assert.ok(errors.length == 0, 'No ping errors')
         })
 
         
