@@ -2,6 +2,7 @@ const EventEmitter = require("events");
 import Context from "../context";
 import Datastore from "../datastore";
 import { PermissionOptionsEnum } from "../interfaces";
+const _ = require("lodash");
 
 interface ProfileDocument {
   _id: string;
@@ -123,6 +124,22 @@ export class Profile extends EventEmitter {
     const record = await this.getRecord();
     record[key] = value;
     return await this.saveRecord(record);
+  }
+
+  /**
+   * Set many profile key / values at once
+   * 
+   * @param data 
+   */
+  public async setMany(data: any): Promise<any> {
+    let record = await this.getRecord();
+    if (!record) {
+      record = data
+    } else {
+      record = _.merge({}, record, data)
+    }
+
+    return await this.saveRecord(record)
   }
 
   /**
