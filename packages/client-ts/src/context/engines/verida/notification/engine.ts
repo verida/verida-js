@@ -34,7 +34,8 @@ export default class NotificationEngineVerida implements BaseNotification {
         try {
             await server.post(this.serverUrl + 'ping', {
                 data: {
-                    did: this.did!
+                    did: this.did!,
+                    context: this.context.getContextName()
                 }
             })
         } catch (err: any) {
