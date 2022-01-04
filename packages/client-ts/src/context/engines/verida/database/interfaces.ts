@@ -1,6 +1,6 @@
-import { Context } from "../../../..";
-import { PermissionsConfig } from "../../../interfaces";
-import DatastoreServerClient from "./client";
+import { Context } from '../../../..';
+import { PermissionsConfig } from '../../../interfaces';
+import DatastoreServerClient from './client';
 
 /**
  * Interface for VeridaDatabaseConfig

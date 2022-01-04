@@ -1,2 +1,2 @@
-declare module "qrcode-with-logos"
-declare module "lodash"
+declare module 'qrcode-with-logos';
+declare module 'lodash';

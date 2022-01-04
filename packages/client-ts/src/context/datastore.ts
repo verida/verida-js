@@ -1,7 +1,7 @@
-const _ = require("lodash");
-import { DatastoreOpenConfig } from "./interfaces";
-import Context from "./context";
-import Schema from "./schema";
+const _ = require('lodash');
+import { DatastoreOpenConfig } from './interfaces';
+import Context from './context';
+import Schema from './schema';
 
 /**
  * A datastore wrapper around a given database and schema.
@@ -38,11 +38,7 @@ class Datastore {
    *
    * **Do not instantiate directly.**
    */
-  constructor(
-    schemaName: string,
-    context: Context,
-    config: DatastoreOpenConfig = {}
-  ) {
+  constructor(schemaName: string, context: Context, config: DatastoreOpenConfig = {}) {
     this.schemaName = schemaName;
     this.context = context;
     this.config = config;
@@ -115,10 +111,7 @@ class Datastore {
    * console.log(results);
    * @returns {object[]} An array of database records.
    */
-  public async getMany(
-    customFilter: any = {},
-    options: any = {}
-  ): Promise<object[]> {
+  public async getMany(customFilter: any = {}, options: any = {}): Promise<object[]> {
     await this.init();
 
     let filter = _.merge(
@@ -138,10 +131,7 @@ class Datastore {
    * @param {object} [options] Optional database options that will be passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
    * @returns {object | undefined} A database record
    */
-  public async getOne(
-    customFilter: any = {},
-    options: any = {}
-  ): Promise<object | undefined> {
+  public async getOne(customFilter: any = {}, options: any = {}): Promise<object | undefined> {
     let results = await this.getMany(customFilter, options);
     if (results && results.length) {
       return results[0];
@@ -208,17 +198,11 @@ class Datastore {
 
     this.schema = await Schema.getSchema(this.schemaName);
     const schemaJson = await this.schema.getSchemaJson();
-    const dbName = this.config.databaseName
-      ? this.config.databaseName
-      : schemaJson.database.name;
-    this.schemaPath = schemaJson["$id"];
+    const dbName = this.config.databaseName ? this.config.databaseName : schemaJson.database.name;
+    this.schemaPath = schemaJson['$id'];
 
     if (this.config.external) {
-      this.db = await this.context.openExternalDatabase(
-        dbName,
-        this.config.did!,
-        this.config
-      );
+      this.db = await this.context.openExternalDatabase(dbName, this.config.did!, this.config);
     } else {
       this.db = await this.context.openDatabase(dbName, this.config);
     }
@@ -252,10 +236,7 @@ class Datastore {
    * @param readList {string[]} List of DID's that can read from this datastore.
    * @param writeList {writeList[]} List of DID's that can wrtie to this datastore.
    */
-  public async updateUsers(
-    readList: string[] = [],
-    writeList: string[] = []
-  ): Promise<void> {
+  public async updateUsers(readList: string[] = [], writeList: string[] = []): Promise<void> {
     await this.init();
     await this.db.updateUsers(readList, writeList);
   }

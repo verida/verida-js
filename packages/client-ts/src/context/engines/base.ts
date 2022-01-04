@@ -1,9 +1,9 @@
-import { Account } from "@verida/account";
-import { Keyring } from "@verida/keyring";
-import { DatabaseOpenConfig, DatastoreOpenConfig } from "../interfaces";
-import Database from "../database";
-import Datastore from "../datastore";
-import DbRegistry from "../db-registry";
+import { Account } from '@verida/account';
+import { Keyring } from '@verida/keyring';
+import { DatabaseOpenConfig, DatastoreOpenConfig } from '../interfaces';
+import Database from '../database';
+import Datastore from '../datastore';
+import DbRegistry from '../db-registry';
 
 /**
  * @category
@@ -17,11 +17,7 @@ class BaseStorageEngine {
   protected account?: Account;
   protected keyring?: Keyring;
 
-  constructor(
-    storageContext: string,
-    dbRegistry: DbRegistry,
-    endpointUri: string
-  ) {
+  constructor(storageContext: string, dbRegistry: DbRegistry, endpointUri: string) {
     this.storageContext = storageContext;
     this.dbRegistry = dbRegistry;
     this.endpointUri = endpointUri;
@@ -32,18 +28,12 @@ class BaseStorageEngine {
     this.keyring = await account.keyring(this.storageContext);
   }
 
-  public async openDatabase(
-    databaseName: string,
-    config: DatabaseOpenConfig
-  ): Promise<Database> {
-    throw new Error("Not implemented");
+  public async openDatabase(databaseName: string, config: DatabaseOpenConfig): Promise<Database> {
+    throw new Error('Not implemented');
   }
 
-  public async openDatastore(
-    schemaName: string,
-    config: DatastoreOpenConfig
-  ): Promise<Datastore> {
-    throw new Error("Not implemented");
+  public async openDatastore(schemaName: string, config: DatastoreOpenConfig): Promise<Datastore> {
+    throw new Error('Not implemented');
   }
 
   public logout() {

@@ -1,5 +1,5 @@
-import { Account } from "@verida/account";
-import { MessageSendConfig } from "./interfaces";
+import { Account } from '@verida/account';
+import { MessageSendConfig } from './interfaces';
 
 /**
  * Interface Messaging

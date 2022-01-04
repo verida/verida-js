@@ -1,14 +1,14 @@
-import BaseMessage from "../../../messaging";
-import { MessagesConfig } from "../../../interfaces";
-import Inbox from "./inbox";
-import Outbox from "./outbox";
-import { Keyring } from "@verida/keyring";
-import { Account } from "@verida/account";
-import DIDContextManager from "../../../../did-context-manager";
-import Context from "../../../context";
-import { MessageSendConfig } from "../../../interfaces";
-import Notification from "../../../notification";
-const EventEmitter = require("events");
+import BaseMessage from '../../../messaging';
+import { MessagesConfig } from '../../../interfaces';
+import Inbox from './inbox';
+import Outbox from './outbox';
+import { Keyring } from '@verida/keyring';
+import { Account } from '@verida/account';
+import DIDContextManager from '../../../../did-context-manager';
+import Context from '../../../context';
+import { MessageSendConfig } from '../../../interfaces';
+import Notification from '../../../notification';
+const EventEmitter = require('events');
 
 /**
  * @category
@@ -19,7 +19,7 @@ class MessagingEngineVerida implements BaseMessage {
   private contextName: string;
   private maxItems: Number;
   private didContextManager: DIDContextManager;
-  private notificationService?: Notification
+  private notificationService?: Notification;
 
   private did?: string;
   private keyring?: Keyring;
@@ -32,14 +32,12 @@ class MessagingEngineVerida implements BaseMessage {
     this.contextName = this.context.getContextName();
     this.maxItems = config.maxItems ? config.maxItems : 50;
     this.didContextManager = context.getDidContextManager();
-    this.notificationService = notificationService
+    this.notificationService = notificationService;
   }
 
   public async init(): Promise<void> {
     if (!this.keyring) {
-      throw new Error(
-        "Unable to initialize messaging as no account is connected"
-      );
+      throw new Error('Unable to initialize messaging as no account is connected');
     }
 
     const inbox = await this.getInbox();
@@ -74,10 +72,10 @@ class MessagingEngineVerida implements BaseMessage {
     // Ping the notification service if it exists
     // @todo: Make it configurable if the notification service is pinged
     if (response && this.notificationService) {
-      await this.notificationService.ping()
+      await this.notificationService.ping();
     }
 
-    return response
+    return response;
   }
 
   /**
@@ -87,12 +85,12 @@ class MessagingEngineVerida implements BaseMessage {
    */
   public async onMessage(callback: any): Promise<EventEmitter> {
     const inbox = await this.getInbox();
-    return inbox.on("newMessage", callback);
+    return inbox.on('newMessage', callback);
   }
 
   public async offMessage(callback: any): Promise<void> {
     const inbox = await this.getInbox();
-    inbox.removeListener("newMessage", callback);
+    inbox.removeListener('newMessage', callback);
   }
 
   public async getMessages(filter?: object, options?: any): Promise<any> {
@@ -116,7 +114,7 @@ class MessagingEngineVerida implements BaseMessage {
     }
 
     const outboxDatastore = await this.context.openDatastore(
-      "https://core.schemas.verida.io/outbox/entry/v0.1.0/schema.json"
+      'https://core.schemas.verida.io/outbox/entry/v0.1.0/schema.json'
     );
     this.outbox = new Outbox(
       this.contextName,

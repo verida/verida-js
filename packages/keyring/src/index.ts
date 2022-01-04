@@ -1,5 +1,3 @@
-import Keyring from './keyring'
+import Keyring from './keyring';
 
-export {
-    Keyring
-}
+export { Keyring };

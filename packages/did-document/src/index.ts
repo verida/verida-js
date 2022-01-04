@@ -1,7 +1,4 @@
-import DIDDocument from "./did-document"
-import * as Interfaces from "./interfaces"
+import DIDDocument from './did-document';
+import * as Interfaces from './interfaces';
 
-export {
-    DIDDocument,
-    Interfaces
-}
+export { DIDDocument, Interfaces };

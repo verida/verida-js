@@ -1,19 +1,19 @@
-import { VeridaDatabaseConfig } from "./interfaces";
-import BaseDb from "./base-db";
-import DbRegistry, { DbRegistryEntry } from "../../../db-registry";
-import EncryptionUtils from "@verida/encryption-utils";
+import { VeridaDatabaseConfig } from './interfaces';
+import BaseDb from './base-db';
+import DbRegistry, { DbRegistryEntry } from '../../../db-registry';
+import EncryptionUtils from '@verida/encryption-utils';
 
-import * as PouchDBCryptLib from "pouchdb";
-import * as PouchDBLib from "pouchdb";
+import * as PouchDBCryptLib from 'pouchdb';
+import * as PouchDBLib from 'pouchdb';
 
 // See https://github.com/pouchdb/pouchdb/issues/6862
 const { default: PouchDBCrypt } = PouchDBCryptLib as any;
 const { default: PouchDB } = PouchDBLib as any;
 
-import * as PouchDBFindLib from "pouchdb-find";
+import * as PouchDBFindLib from 'pouchdb-find';
 const { default: PouchDBFind } = PouchDBFindLib as any;
 
-import * as CryptoPouch from "crypto-pouch";
+import * as CryptoPouch from 'crypto-pouch';
 
 PouchDBCrypt.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBFind);
@@ -68,13 +68,11 @@ class EncryptedDatabase extends BaseDb {
     this._localDb = new PouchDBCrypt(this.databaseHash);
 
     // Generate an encryption password from the encryption key
-    const password = (this.password = Buffer.from(this.encryptionKey).toString(
-      "hex"
-    ));
+    const password = (this.password = Buffer.from(this.encryptionKey).toString('hex'));
 
     // Generate a deterministic salt from the password and database hash
     const saltString = EncryptionUtils.hash(`${password}/${this.databaseHash}`);
-    const salt = Buffer.from(saltString, "hex");
+    const salt = Buffer.from(saltString, 'hex');
 
     await this._localDb.crypto({
       password,
@@ -91,12 +89,12 @@ class EncryptedDatabase extends BaseDb {
     try {
       info = await this._remoteDbEncrypted.info();
 
-      if (info.error && info.error == "not_found") {
+      if (info.error && info.error == 'not_found') {
         // Remote dabase wasn't found, so attempt to create it
         await this.createDb();
       }
     } catch (err: any) {
-      if (err.error && err.error == "not_found") {
+      if (err.error && err.error == 'not_found') {
         // Remote database wasn't found, so attempt to create it
         await this.createDb();
       }
@@ -104,7 +102,7 @@ class EncryptedDatabase extends BaseDb {
       throw err;
     }
 
-    if (info && info.error == "forbidden") {
+    if (info && info.error == 'forbidden') {
       throw new Error(`Permission denied to access remote database.`);
     }
 
@@ -118,22 +116,22 @@ class EncryptedDatabase extends BaseDb {
       .from(this._remoteDbEncrypted, {
         // Dont sync design docs
         filter: function (doc: any) {
-          return doc._id.indexOf("_design") !== 0;
+          return doc._id.indexOf('_design') !== 0;
         },
       })
-      .on("error", function (err: any) {
+      .on('error', function (err: any) {
         console.error(
           `Unknown error occurred with replication snapshot from remote database: ${databaseName} (${dsn})`
         );
         console.error(err);
       })
-      .on("denied", function (err: any) {
+      .on('denied', function (err: any) {
         console.error(
           `Permission denied with replication snapshot from remote database: ${databaseName} (${dsn})`
         );
         console.error(err);
       })
-      .on("complete", function (info: any) {
+      .on('complete', function (info: any) {
         // Commence two-way, continuous, retrivable sync
         instance.sync();
       });
@@ -153,7 +151,7 @@ class EncryptedDatabase extends BaseDb {
       // data can't be decrypted
       if (
         err.message == `Unsupported state or unable to authenticate data` ||
-        err.message == "Could not decrypt!"
+        err.message == 'Could not decrypt!'
       ) {
         // Clear the instantiated PouchDb instances and throw a more useful exception
         this._localDb = this._localDbEncrypted = this._remoteDbEncrypted = null;
@@ -188,20 +186,18 @@ class EncryptedDatabase extends BaseDb {
       retry: true,
       // Dont sync design docs
       filter: function (doc: any) {
-        return doc._id.indexOf("_design") !== 0;
+        return doc._id.indexOf('_design') !== 0;
       },
     })
-      .on("error", function (err: any) {
+      .on('error', function (err: any) {
         instance._syncError = err;
         console.error(
           `Unknown error occurred syncing with remote database: ${databaseName} (${dsn})`
         );
         console.error(err);
       })
-      .on("denied", function (err: any) {
-        console.error(
-          `Permission denied to sync with remote database: ${databaseName} (${dsn})`
-        );
+      .on('denied', function (err: any) {
+        console.error(`Permission denied to sync with remote database: ${databaseName} (${dsn})`);
         console.error(err);
       });
 
@@ -225,9 +221,7 @@ class EncryptedDatabase extends BaseDb {
    */
   public onSync(event: string, handler: Function) {
     if (!this._sync) {
-      throw new Error(
-        "Unable to create sync event handler. Syncronization is not enabled."
-      );
+      throw new Error('Unable to create sync event handler. Syncronization is not enabled.');
     }
 
     return this._sync.on(event, handler);
@@ -246,10 +240,7 @@ class EncryptedDatabase extends BaseDb {
     this._syncError = null;
   }
 
-  public async updateUsers(
-    readList: string[] = [],
-    writeList: string[] = []
-  ): Promise<void> {
+  public async updateUsers(readList: string[] = [], writeList: string[] = []): Promise<void> {
     await this.init();
 
     this.permissions!.readList = readList;
@@ -307,8 +298,8 @@ class EncryptedDatabase extends BaseDb {
     }
 
     const info = {
-      type: "VeridaDatabase",
-      privacy: "encrypted",
+      type: 'VeridaDatabase',
+      privacy: 'encrypted',
       did: this.did,
       dsn: this.dsn,
       permissions: this.permissions!,
@@ -328,12 +319,12 @@ class EncryptedDatabase extends BaseDb {
     return {
       dbHash: this.databaseHash,
       dbName: this.databaseName,
-      endpointType: "VeridaDatabase",
+      endpointType: 'VeridaDatabase',
       did: this.did,
       contextName: this.storageContext,
       permissions: this.permissions!,
       encryptionKey: {
-        type: "x25519-xsalsa20-poly1305",
+        type: 'x25519-xsalsa20-poly1305',
         key: this.password!,
       },
     };

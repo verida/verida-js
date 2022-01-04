@@ -1,7 +1,4 @@
-import DIDClient from "./did-client"
-import Wallet from "./wallet"
+import DIDClient from './did-client';
+import Wallet from './wallet';
 
-export {
-    DIDClient,
-    Wallet
-}
+export { DIDClient, Wallet };

@@ -1,7 +1,4 @@
-import AutoAccount from "./auto"
-import LimitedAccount from "./limited"
+import AutoAccount from './auto';
+import LimitedAccount from './limited';
 
-export {
-    AutoAccount,
-    LimitedAccount
-}
+export { AutoAccount, LimitedAccount };

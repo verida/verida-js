@@ -1,10 +1,10 @@
-const RefParser = require("json-schema-ref-parser");
-import Ajv2020 from "ajv/dist/2020";
-import addFormats from "ajv-formats";
+const RefParser = require('json-schema-ref-parser');
+import Ajv2020 from 'ajv/dist/2020';
+import addFormats from 'ajv-formats';
 
-const resolveAllOf = require("json-schema-resolve-allof");
-const _ = require("lodash");
-import axios from "axios";
+const resolveAllOf = require('json-schema-resolve-allof');
+const _ = require('lodash');
+import axios from 'axios';
 
 // Custom resolver for RefParser
 //const { ono } = require("ono");
@@ -141,7 +141,7 @@ class Schema {
 
     const path = await this.getPath();
     const fileData = await axios.get(path, {
-      responseType: "json",
+      responseType: 'json',
     });
 
     this.schemaJson = await fileData.data;
@@ -154,17 +154,17 @@ class Schema {
 
     if (appearance.style && appearance.style.icon) {
       let icon = schemaJson.appearance.style.icon;
-      if (icon.substring(0, 2) == "./") {
+      if (icon.substring(0, 2) == './') {
         // support relative icon path
         const path = await this.getPath();
-        icon = path.replace("schema.json", icon.substring(2));
+        icon = path.replace('schema.json', icon.substring(2));
       }
-      if (icon.substring(0, 1) == "/") {
+      if (icon.substring(0, 1) == '/') {
         // support absolute icon path
         const path = await this.getPath();
         const rootPathParts = path.match(/^(https?:\/\/[^\/]*)/);
         if (rootPathParts) {
-          icon = rootPathParts[0] + "/" + icon.substring(1);
+          icon = rootPathParts[0] + '/' + icon.substring(1);
         }
       }
 
@@ -190,19 +190,19 @@ class Schema {
     let path = this.path;
 
     // If we have a full HTTP path, simply return it
-    if (path.match("http")) {
+    if (path.match('http')) {
       this.finalPath = await Schema.resolvePath(path);
       return this.finalPath;
     }
 
     // Prepend `/` if required (ie: "profile/public")
-    if (path.substring(1) != "/") {
-      path = "/" + path;
+    if (path.substring(1) != '/') {
+      path = '/' + path;
     }
 
     // Append /schema.json if required
-    if (path.substring(path.length - 5) != ".json") {
-      path += "/schema.json";
+    if (path.substring(path.length - 5) != '.json') {
+      path += '/schema.json';
     }
 
     this.finalPath = await Schema.resolvePath(path);
@@ -244,7 +244,7 @@ class Schema {
 
       try {
         const response = await axios.get(uri, {
-          responseType: "json",
+          responseType: 'json',
         }); // @todo: check valid uri
 
         const json = await response.data;

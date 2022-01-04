@@ -1,4 +1,4 @@
-import { Context } from "..";
+import { Context } from '..';
 
 /**
  * Interface for any DatabaseOpenConfig
@@ -104,9 +104,9 @@ export interface PermissionsConfig {
 }
 
 export enum PermissionOptionsEnum {
-  OWNER = "owner",
-  PUBLIC = "public",
-  USERS = "users",
+  OWNER = 'owner',
+  PUBLIC = 'public',
+  USERS = 'users',
 }
 
 /**

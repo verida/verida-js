@@ -1,17 +1,17 @@
-import Encryption from "@verida/encryption-utils";
-const _ = require("lodash");
+import Encryption from '@verida/encryption-utils';
+const _ = require('lodash');
 
-import { Account } from "@verida/account";
-import { Interfaces } from "@verida/storage-link";
-import { Profile } from "./context/profiles/profile";
-import { DIDClient } from "@verida/did-client";
+import { Account } from '@verida/account';
+import { Interfaces } from '@verida/storage-link';
+import { Profile } from './context/profiles/profile';
+import { DIDClient } from '@verida/did-client';
 
-import { ClientConfig } from "./interfaces";
-import Context from "./context/context";
-import DIDContextManager from "./did-context-manager";
-import Schema from "./context/schema";
-import DEFAULT_CONFIG from "./config";
-import EncryptionUtils from "@verida/encryption-utils";
+import { ClientConfig } from './interfaces';
+import Context from './context/context';
+import DIDContextManager from './did-context-manager';
+import Schema from './context/schema';
+import DEFAULT_CONFIG from './config';
+import EncryptionUtils from '@verida/encryption-utils';
 
 /**
  * @category
@@ -39,9 +39,7 @@ class Client {
    * @param userConfig ClientConfig Configuration for establishing a connection to the Verida network
    */
   constructor(userConfig: ClientConfig = {}) {
-    this.environment = userConfig.environment
-      ? userConfig.environment
-      : DEFAULT_CONFIG.environment;
+    this.environment = userConfig.environment ? userConfig.environment : DEFAULT_CONFIG.environment;
 
     const defaultConfig = DEFAULT_CONFIG.environments[this.environment]
       ? DEFAULT_CONFIG.environments[this.environment]
@@ -63,7 +61,7 @@ class Client {
    */
   public async connect(account: Account) {
     if (this.isConnected()) {
-      throw new Error("Account is already connected.");
+      throw new Error('Account is already connected.');
     }
 
     this.account = account;
@@ -77,7 +75,7 @@ class Client {
    * @returns boolean True of an account is connected
    */
   public isConnected() {
-    return typeof this.account != "undefined";
+    return typeof this.account != 'undefined';
   }
 
   /**
@@ -93,9 +91,7 @@ class Client {
   ): Promise<Context | undefined> {
     if (forceCreate) {
       if (!this.account) {
-        throw new Error(
-          "Unable to force create a storage context when not connected"
-        );
+        throw new Error('Unable to force create a storage context when not connected');
       }
     }
 
@@ -103,15 +99,12 @@ class Client {
     if (!this.did) {
       // Attempt to fetch storage config from this account object if no DID specified
       // This is helpful in the account-web-vault that doesn't load the DID until it receives a request from the vault mobile app
-      contextConfig = await this.account!.storageConfig(
-        contextName,
-        forceCreate
-      );
+      contextConfig = await this.account!.storageConfig(contextName, forceCreate);
       this.did = await this.account!.did();
     }
 
     if (!this.did) {
-      throw new Error("No DID specified and no authenticated user");
+      throw new Error('No DID specified and no authenticated user');
     }
 
     if (!contextConfig) {
@@ -124,7 +117,7 @@ class Client {
 
     if (!contextConfig) {
       throw new Error(
-        "Unable to locate requested storage context for requested DID. Force create?"
+        'Unable to locate requested storage context for requested DID. Force create?'
       );
     }
 
@@ -133,15 +126,9 @@ class Client {
   }
 
   public async openExternalContext(contextName: string, did: string) {
-    const contextConfig = await this.didContextManager.getDIDContextConfig(
-      did,
-      contextName,
-      false
-    );
+    const contextConfig = await this.didContextManager.getDIDContextConfig(did, contextName, false);
     if (!contextConfig) {
-      throw new Error(
-        "Unable to locate requested storage context for requested DID."
-      );
+      throw new Error('Unable to locate requested storage context for requested DID.');
     }
 
     // @todo cache the storage contexts
@@ -178,13 +165,11 @@ class Client {
   public async openPublicProfile(
     did: string,
     contextName: string,
-    profileName: string = "basicProfile"
+    profileName: string = 'basicProfile'
   ): Promise<Profile | undefined> {
     const context = await this.openExternalContext(contextName, did);
     if (!context) {
-      throw new Error(
-        `Account does not have a public profile for ${contextName}`
-      );
+      throw new Error(`Account does not have a public profile for ${contextName}`);
     }
 
     return context!.openProfile(profileName, did, false);
@@ -201,18 +186,15 @@ class Client {
    * @param did An optional did to filter the results by
    * @returns string[] Array of DIDs that have validly signed the data
    */
-  public async getValidDataSignatures(
-    data: any,
-    did?: string
-  ): Promise<string[]> {
+  public async getValidDataSignatures(data: any, did?: string): Promise<string[]> {
     if (!data.signatures) {
       // no signatures
       return [];
     }
 
     let _data = _.merge({}, data);
-    delete _data["signatures"];
-    delete _data["_rev"];
+    delete _data['signatures'];
+    delete _data['_rev'];
 
     let validSignatures = [];
     for (let key in data.signatures) {
@@ -256,7 +238,6 @@ class Client {
   public async getSchema(schemaUri: string): Promise<Schema> {
     return Schema.getSchema(schemaUri);
   }
-
 }
 
 export default Client;

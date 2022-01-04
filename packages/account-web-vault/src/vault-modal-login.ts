@@ -1,23 +1,20 @@
-import AuthClient from "./auth-client";
+import AuthClient from './auth-client';
 
 // @ts-ignore
-import Sora from "./assets/fonts/Sora-Regular.ttf";
-import VeridaVaultImage from "./assets/open_verida_vault_dark.png";
+import Sora from './assets/fonts/Sora-Regular.ttf';
+import VeridaVaultImage from './assets/open_verida_vault_dark.png';
 
-import { AuthClientConfig, VaultModalLoginConfig } from "./interfaces";
-const _ = require("lodash");
-const store = require("store");
+import { AuthClientConfig, VaultModalLoginConfig } from './interfaces';
+const _ = require('lodash');
+const store = require('store');
 
-const VERIDA_AUTH_CONTEXT = "_verida_auth_context";
+const VERIDA_AUTH_CONTEXT = '_verida_auth_context';
 
-export default async function (
-  contextName: string,
-  config: VaultModalLoginConfig
-) {
+export default async function (contextName: string, config: VaultModalLoginConfig) {
   const authConfig: AuthClientConfig = _.merge(
     {
-      loginUri: "https://vault.verida.io/request/",
-      canvasId: "verida-auth-client-canvas",
+      loginUri: 'https://vault.verida.io/request/',
+      canvasId: 'verida-auth-client-canvas',
       context: contextName,
     },
     config
@@ -315,31 +312,26 @@ export default async function (
     </style>
   `;
 
-  document.body.insertAdjacentHTML("beforeend", modalHTML);
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-  const modal: HTMLElement | null = document.getElementById("verida-modal");
-  const closeModal: HTMLElement | null =
-    document.getElementById("verida-modal-close");
+  const modal: HTMLElement | null = document.getElementById('verida-modal');
+  const closeModal: HTMLElement | null = document.getElementById('verida-modal-close');
 
   const authContext = store.get(`${VERIDA_AUTH_CONTEXT}/${contextName}`);
 
   const body = document.body;
-  if (
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    )
-  ) {
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
     // true for mobile device
-    body.classList.add("mobile");
+    body.classList.add('mobile');
   } else {
-    body.classList.add("desktop");
+    body.classList.add('desktop');
   }
 
   if (modal && closeModal) {
     closeModal.onclick = () => {
       modal.style.display = 'none';
       authConfig.callbackRejected!();
-    }
+    };
   }
 
   window.onclick = function (event: Event) {
@@ -352,8 +344,8 @@ export default async function (
   new AuthClient(authConfig, modal);
 
   if (authContext && modal) {
-    modal.style.display = "none";
+    modal.style.display = 'none';
   } else {
-    modal && (modal.style.display = "block");
+    modal && (modal.style.display = 'block');
   }
 }

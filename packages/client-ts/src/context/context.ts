@@ -1,33 +1,33 @@
-import { Account } from "@verida/account";
-import { Interfaces } from "@verida/storage-link";
+import { Account } from '@verida/account';
+import { Interfaces } from '@verida/storage-link';
 
-import BaseStorageEngine from "./engines/base";
-import { StorageEngineTypes } from "./interfaces";
-import DIDContextManager from "../did-context-manager";
-import { DatabaseEngines } from "../interfaces";
-import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig } from "./interfaces";
-import Database from "./database";
-import Datastore from "./datastore";
-import Messaging from "./messaging";
-import Client from "../client";
-import { Profile } from "./profiles/profile";
+import BaseStorageEngine from './engines/base';
+import { StorageEngineTypes } from './interfaces';
+import DIDContextManager from '../did-context-manager';
+import { DatabaseEngines } from '../interfaces';
+import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig } from './interfaces';
+import Database from './database';
+import Datastore from './datastore';
+import Messaging from './messaging';
+import Client from '../client';
+import { Profile } from './profiles/profile';
 
-const _ = require("lodash");
+const _ = require('lodash');
 
-import StorageEngineVerida from "./engines/verida/database/engine";
+import StorageEngineVerida from './engines/verida/database/engine';
 const DATABASE_ENGINES: StorageEngineTypes = {
   VeridaDatabase: StorageEngineVerida,
 };
 
-import MessagingEngineVerida from "./engines/verida/messaging/engine";
-import DbRegistry from "./db-registry";
-import Notification from "./notification";
+import MessagingEngineVerida from './engines/verida/messaging/engine';
+import DbRegistry from './db-registry';
+import Notification from './notification';
 
 const MESSAGING_ENGINES: StorageEngineTypes = {
   VeridaMessage: MessagingEngineVerida,
 };
 
-import NotificationEngineVerida from './engines/verida/notification/engine'
+import NotificationEngineVerida from './engines/verida/notification/engine';
 
 const NOTIFICATION_ENGINES: StorageEngineTypes = {
   VeridaNotification: NotificationEngineVerida,
@@ -51,7 +51,7 @@ class Context {
   private client: Client;
   private account?: Account;
   private messagingEngine?: Messaging;
-  private notificationEngine?: Notification
+  private notificationEngine?: Notification;
 
   private contextName: string;
   private didContextManager: DIDContextManager;
@@ -88,7 +88,7 @@ class Context {
   ): Promise<Interfaces.SecureContextConfig> {
     if (!did) {
       if (!this.account) {
-        throw new Error("No DID specified and no authenticated user");
+        throw new Error('No DID specified and no authenticated user');
       }
 
       did = await this.account.did();
@@ -145,9 +145,7 @@ class Context {
     const engineType = contextConfig.services.databaseServer.type;
 
     if (!DATABASE_ENGINES[engineType]) {
-      throw new Error(
-        `Unsupported database engine type specified: ${engineType}`
-      );
+      throw new Error(`Unsupported database engine type specified: ${engineType}`);
     }
     const engine = DATABASE_ENGINES[engineType]; // @todo type cast correctly
     const databaseEngine = new engine(
@@ -191,18 +189,12 @@ class Context {
     const engineType = contextConfig.services.messageServer.type;
 
     if (!MESSAGING_ENGINES[engineType]) {
-      throw new Error(
-        `Unsupported messaging engine type specified: ${engineType}`
-      );
+      throw new Error(`Unsupported messaging engine type specified: ${engineType}`);
     }
     const engine = MESSAGING_ENGINES[engineType]; // @todo type cast correctly
-    const notificationServer = await this.getNotification()
+    const notificationServer = await this.getNotification();
 
-    this.messagingEngine = new engine(
-      this,
-      messageConfig,
-      notificationServer
-    );
+    this.messagingEngine = new engine(this, messageConfig, notificationServer);
     await this.messagingEngine!.connectAccount(this.account!);
 
     return this.messagingEngine!;
@@ -210,7 +202,7 @@ class Context {
 
   public async getNotification(): Promise<Notification | undefined> {
     if (this.notificationEngine) {
-      return this.notificationEngine
+      return this.notificationEngine;
     }
 
     if (!this.account) {
@@ -222,15 +214,13 @@ class Context {
     const contextConfig = await this.getContextConfig(did, false);
     if (!contextConfig || !contextConfig.services.notificationServer) {
       // User doesn't have a notification service
-      return
+      return;
     }
 
     const engineType = contextConfig.services.notificationServer.type;
 
     if (!NOTIFICATION_ENGINES[engineType]) {
-      throw new Error(
-        `Unsupported messaging engine type specified: ${engineType}`
-      );
+      throw new Error(`Unsupported messaging engine type specified: ${engineType}`);
     }
     const engine = NOTIFICATION_ENGINES[engineType];
 
@@ -250,16 +240,14 @@ class Context {
    * @returns {Profile}
    */
   public async openProfile(
-    profileName: string = "basicProfile",
+    profileName: string = 'basicProfile',
     did?: string,
     writeAccess?: boolean
   ): Promise<Profile | undefined> {
     let ownAccount = false;
     if (!did) {
       if (!this.account) {
-        throw new Error(
-          "Unable to get profile. No DID specified and no account connected."
-        );
+        throw new Error('Unable to get profile. No DID specified and no account connected.');
       }
 
       did = await this.account.did();
@@ -290,10 +278,7 @@ class Context {
       config.did = accountDid;
     }
 
-    const databaseEngine = await this.getDatabaseEngine(
-      config.did,
-      config.createContext!
-    );
+    const databaseEngine = await this.getDatabaseEngine(config.did, config.createContext!);
 
     if (!config.signingContext) {
       config.signingContext = this;
@@ -335,8 +320,8 @@ class Context {
         did,
         signingContext: this,
         permissions: {
-          read: "users",
-          write: "users",
+          read: 'users',
+          write: 'users',
         },
       },
       config
@@ -348,10 +333,7 @@ class Context {
       // We are opening a database for a different context.
       // Open the new context
       const client = this.getClient();
-      const context = await client.openExternalContext(
-        config.contextName!,
-        did
-      );
+      const context = await client.openExternalContext(config.contextName!, did);
       config.signingContext = this;
 
       return context!.openDatabase(databaseName, config);

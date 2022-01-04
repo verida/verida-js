@@ -1,8 +1,8 @@
-const EventEmitter = require("events");
-import Context from "../context";
-import Datastore from "../datastore";
-import { PermissionOptionsEnum } from "../interfaces";
-const _ = require("lodash");
+const EventEmitter = require('events');
+import Context from '../context';
+import Datastore from '../datastore';
+import { PermissionOptionsEnum } from '../interfaces';
+const _ = require('lodash');
 
 interface ProfileDocument {
   _id: string;
@@ -73,7 +73,7 @@ export class Profile extends EventEmitter {
     extended: boolean = false
   ): Promise<any | undefined> {
     const record = await this.getRecord();
-    if (record && typeof record[key] !== "undefined") {
+    if (record && typeof record[key] !== 'undefined') {
       return record[key];
     }
   }
@@ -85,7 +85,7 @@ export class Profile extends EventEmitter {
    */
   public async delete(key: string): Promise<boolean> {
     const record = await this.getRecord();
-    if (!record || record[key] == "undefined") {
+    if (!record || record[key] == 'undefined') {
       return false;
     }
 
@@ -128,18 +128,18 @@ export class Profile extends EventEmitter {
 
   /**
    * Set many profile key / values at once
-   * 
-   * @param data 
+   *
+   * @param data
    */
   public async setMany(data: any): Promise<any> {
     let record = await this.getRecord();
     if (!record) {
-      record = data
+      record = data;
     } else {
-      record = _.merge({}, record, data)
+      record = _.merge({}, record, data);
     }
 
-    return await this.saveRecord(record)
+    return await this.saveRecord(record);
   }
 
   /**
@@ -165,7 +165,7 @@ export class Profile extends EventEmitter {
       const record = await this.store!.get(this.profileName);
       return record;
     } catch (err: any) {
-      if (err.reason == "missing") {
+      if (err.reason == 'missing') {
         return {
           _id: this.profileName,
         };
@@ -189,42 +189,34 @@ export class Profile extends EventEmitter {
   private async init() {
     if (!this.store) {
       const permissions = {
-        read: this.isPrivate
-          ? PermissionOptionsEnum.OWNER
-          : PermissionOptionsEnum.PUBLIC,
+        read: this.isPrivate ? PermissionOptionsEnum.OWNER : PermissionOptionsEnum.PUBLIC,
         write: PermissionOptionsEnum.OWNER,
       };
 
       const schemaUri =
-        "https://common.schemas.verida.io/profile/" +
-        this.profileName +
-        "/v0.1.0/schema.json";
+        'https://common.schemas.verida.io/profile/' + this.profileName + '/v0.1.0/schema.json';
 
       if (this.writeAccess) {
         this.store = await this.context.openDatastore(schemaUri, {
           permissions,
         });
       } else {
-        this.store = await this.context.openExternalDatastore(
-          schemaUri,
-          this.did,
-          {
-            permissions,
-            readOnly: true,
-          }
-        );
+        this.store = await this.context.openExternalDatastore(schemaUri, this.did, {
+          permissions,
+          readOnly: true,
+        });
       }
 
       // Attempt to fetch a record to ensure the database is created if it didn't already exist
       try {
-        await this.get("");
+        await this.get('');
       } catch (err: any) {
         if (err.response && err.response.status == 403) {
           throw new Error(`Schema URI not found: ${schemaUri}`);
         }
 
         // The profile may not exist yet
-        if (err.reason != "missing") {
+        if (err.reason != 'missing') {
           throw err;
         }
       }

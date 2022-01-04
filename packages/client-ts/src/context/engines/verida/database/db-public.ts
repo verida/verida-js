@@ -1,7 +1,7 @@
-import BaseDb from "./base-db";
-import { DbRegistryEntry } from "../../../db-registry";
-import * as PouchDBFind from "pouchdb-find";
-import * as PouchDBLib from "pouchdb";
+import BaseDb from './base-db';
+import { DbRegistryEntry } from '../../../db-registry';
+import * as PouchDBFind from 'pouchdb-find';
+import * as PouchDBLib from 'pouchdb';
 
 // See https://github.com/pouchdb/pouchdb/issues/6862
 const { default: PouchDB } = PouchDBLib as any;
@@ -31,7 +31,7 @@ class PublicDatabase extends BaseDb {
 
     try {
       let info = await this._remoteDb.info();
-      if (info.error && info.error == "not_found") {
+      if (info.error && info.error == 'not_found') {
         if (this.isOwner) {
           await this.createDb();
         } else {
@@ -61,8 +61,8 @@ class PublicDatabase extends BaseDb {
     await this.init();
 
     const info = {
-      type: "VeridaDatabase",
-      privacy: "public",
+      type: 'VeridaDatabase',
+      privacy: 'public',
       did: this.did,
       dsn: this.dsn,
       permissions: this.permissions!,
@@ -80,7 +80,7 @@ class PublicDatabase extends BaseDb {
     return {
       dbHash: this.databaseHash,
       dbName: this.databaseName,
-      endpointType: "VeridaDatabase",
+      endpointType: 'VeridaDatabase',
       did: this.did,
       contextName: this.storageContext,
       permissions: this.permissions!,

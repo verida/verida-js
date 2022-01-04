@@ -1,10 +1,5 @@
-import Account from "./account"
-import { AccountConfig, EnvironmentType } from "./interfaces"
-import Config from "./config"
+import Account from './account';
+import { AccountConfig, EnvironmentType } from './interfaces';
+import Config from './config';
 
-export {
-    Account,
-    AccountConfig,
-    EnvironmentType,
-    Config
-}
+export { Account, AccountConfig, EnvironmentType, Config };

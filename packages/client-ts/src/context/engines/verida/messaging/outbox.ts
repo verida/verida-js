@@ -1,14 +1,14 @@
-const _ = require("lodash");
-const didJWT = require("did-jwt");
-import { box } from "tweetnacl";
-import { Keyring } from "@verida/keyring";
-import Datastore from "../../../datastore";
-import { MessageSendConfig, PermissionOptionsEnum } from "../../../interfaces";
-import DIDContextManager from "../../../../did-context-manager";
-import Context from "../../../context";
-import EncryptionUtils from "@verida/encryption-utils";
+const _ = require('lodash');
+const didJWT = require('did-jwt');
+import { box } from 'tweetnacl';
+import { Keyring } from '@verida/keyring';
+import Datastore from '../../../datastore';
+import { MessageSendConfig, PermissionOptionsEnum } from '../../../interfaces';
+import DIDContextManager from '../../../../did-context-manager';
+import Context from '../../../context';
+import EncryptionUtils from '@verida/encryption-utils';
 
-const VAULT_CONTEXT_NAME = "Verida: Vault";
+const VAULT_CONTEXT_NAME = 'Verida: Vault';
 
 /**
  * @category
@@ -63,7 +63,7 @@ class VeridaOutbox {
     message: string,
     config: MessageSendConfig = {}
   ): Promise<object | null> {
-    message = message ? message : "";
+    message = message ? message : '';
     config = config ? config : {};
     did = did.toLowerCase();
 
@@ -88,9 +88,7 @@ class VeridaOutbox {
         false
       );
     } catch (err) {
-      throw new Error(
-        "Unable to send message. Recipient does not have an inbox for that context"
-      );
+      throw new Error('Unable to send message. Recipient does not have an inbox for that context');
     }
 
     const outboxEntry: any = {
@@ -106,12 +104,12 @@ class VeridaOutbox {
 
     if (!response) {
       console.error(outbox.errors);
-      throw new Error("Unable to save to outbox. See error log above.");
+      throw new Error('Unable to save to outbox. See error log above.');
     }
 
     if (response.ok !== true) {
       console.error(outbox.errors);
-      throw new Error("Unable to save to outbox. See error log above.");
+      throw new Error('Unable to save to outbox. See error log above.');
     }
 
     // Include the outbox _id and _rev so the recipient user
@@ -137,15 +135,14 @@ class VeridaOutbox {
         insertedAt: new Date().toISOString(),
       },
       {
-        alg: "ES256K",
+        alg: 'ES256K',
         issuer: this.accountDid,
         signer,
       }
     );
 
     // Encrypt this message using the receipients public key and this apps private key
-    const publicAsymKey =
-      recipientContextConfig.publicKeys.asymKey.publicKeyHex;
+    const publicAsymKey = recipientContextConfig.publicKeys.asymKey.publicKeyHex;
     const publicAsymKeyBytes = EncryptionUtils.hexToBytes(publicAsymKey);
     const sharedKey = box.before(publicAsymKeyBytes, keys.asymPrivateKey);
     const encrypted = await this.keyring.asymEncrypt(jwt, sharedKey);
@@ -158,9 +155,9 @@ class VeridaOutbox {
     // Undo saving of inserted / modified metadata as this DB is public
     const db = await inbox.getDb();
 
-    db.on("beforeInsert", function (data: any) {
-      delete data["insertedAt"];
-      delete data["modifiedAt"];
+    db.on('beforeInsert', function (data: any) {
+      delete data['insertedAt'];
+      delete data['modifiedAt'];
     });
 
     const inboxBody = {
@@ -197,7 +194,7 @@ class VeridaOutbox {
      * Open a database owned by any user
      */
     const inbox = await this.context!.openExternalDatastore(
-      "https://core.schemas.verida.io/inbox/item/v0.1.0/schema.json",
+      'https://core.schemas.verida.io/inbox/item/v0.1.0/schema.json',
       did,
       {
         permissions: {

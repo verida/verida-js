@@ -1,10 +1,10 @@
-import { DIDContextConfigs } from "./interfaces";
-import { Account } from "@verida/account";
-import { StorageLink } from "@verida/storage-link";
+import { DIDContextConfigs } from './interfaces';
+import { Account } from '@verida/account';
+import { StorageLink } from '@verida/storage-link';
 
-import { DIDClient } from "@verida/did-client";
-import { DIDDocument } from "@verida/did-document";
-import { Interfaces } from "@verida/storage-link";
+import { DIDClient } from '@verida/did-client';
+import { DIDDocument } from '@verida/did-document';
+import { Interfaces } from '@verida/storage-link';
 
 /**
  * Manage all the available storage contexts for all the DIDs being requested,
@@ -35,11 +35,7 @@ class DIDContextManager {
     contextName: string,
     forceCreate: boolean = true
   ): Promise<Interfaces.SecureContextEndpoint> {
-    const contextConfig = await this.getDIDContextConfig(
-      did,
-      contextName,
-      forceCreate
-    );
+    const contextConfig = await this.getDIDContextConfig(did, contextName, forceCreate);
     return contextConfig.services.databaseServer;
   }
 
@@ -48,13 +44,9 @@ class DIDContextManager {
     contextName: string,
     forceCreate: boolean = true
   ): Promise<Interfaces.SecureContextEndpoint> {
-    const contextConfig = await this.getDIDContextConfig(
-      did,
-      contextName,
-      forceCreate
-    );
+    const contextConfig = await this.getDIDContextConfig(did, contextName, forceCreate);
     if (!contextConfig.services.storageServer) {
-      throw new Error("Storage server not specified");
+      throw new Error('Storage server not specified');
     }
 
     return contextConfig.services.storageServer;
@@ -65,11 +57,7 @@ class DIDContextManager {
     contextName: string,
     forceCreate: boolean = true
   ): Promise<Interfaces.SecureContextEndpoint> {
-    const contextConfig = await this.getDIDContextConfig(
-      did,
-      contextName,
-      forceCreate
-    );
+    const contextConfig = await this.getDIDContextConfig(did, contextName, forceCreate);
     return contextConfig.services.messageServer;
   }
 
@@ -78,16 +66,9 @@ class DIDContextManager {
       return this.didContexts[contextHash];
     }
 
-    let storageConfig = await StorageLink.getLink(
-      this.didClient,
-      did,
-      contextHash,
-      false
-    );
+    let storageConfig = await StorageLink.getLink(this.didClient, did, contextHash, false);
     if (!storageConfig) {
-      throw new Error(
-        "Unable to locate requested storage context for this user"
-      );
+      throw new Error('Unable to locate requested storage context for this user');
     }
 
     this.didContexts[contextHash] = storageConfig;
@@ -111,10 +92,7 @@ class DIDContextManager {
       const accountDid = await this.account.did();
       if (accountDid == did) {
         try {
-          storageConfig = await this.account.storageConfig(
-            contextName,
-            forceCreate
-          );
+          storageConfig = await this.account.storageConfig(contextName, forceCreate);
         } catch {
           // account may not support context
           // @todo: create error instance for this specific type of error
@@ -123,19 +101,12 @@ class DIDContextManager {
     }
 
     if (!storageConfig) {
-      storageConfig = await StorageLink.getLink(
-        this.didClient,
-        did,
-        contextName,
-        true
-      );
+      storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true);
     }
 
     if (!storageConfig) {
       if (forceCreate) {
-        throw new Error(
-          "Unable to force creation of storage context for this DID"
-        );
+        throw new Error('Unable to force creation of storage context for this DID');
       } else {
         throw new Error(
           `Unable to locate requested storage context (${contextName}) for this DID (${did}) -- Storage context doesn\'t exist (try force create?)`

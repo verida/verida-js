@@ -1,11 +1,11 @@
-import { box } from "tweetnacl";
-const didJWT = require("did-jwt");
-const EventEmitter = require("events");
+import { box } from 'tweetnacl';
+const didJWT = require('did-jwt');
+const EventEmitter = require('events');
 
-import { Keyring } from "@verida/keyring";
-import { PermissionOptionsEnum } from "../../../interfaces";
-import Context from "../../../context";
-import EncryptionUtils from "@verida/encryption-utils";
+import { Keyring } from '@verida/keyring';
+import { PermissionOptionsEnum } from '../../../interfaces';
+import Context from '../../../context';
+import EncryptionUtils from '@verida/encryption-utils';
 
 /**
  * @category
@@ -98,7 +98,7 @@ class VeridaInbox extends EventEmitter {
         return;
       }
 
-      console.error("Unable to save to private inbox");
+      console.error('Unable to save to private inbox');
       console.error(err);
     }
 
@@ -106,12 +106,12 @@ class VeridaInbox extends EventEmitter {
       // delete the inbox/item
       await this.publicInbox.delete(inboxItem);
     } catch (err) {
-      console.error("Unable to delete from public inbox");
+      console.error('Unable to delete from public inbox');
       console.error(err);
       throw err;
     }
 
-    this.emit("newMessage", inboxEntry);
+    this.emit('newMessage', inboxEntry);
     this._gc();
   }
 
@@ -128,10 +128,10 @@ class VeridaInbox extends EventEmitter {
     const dbInstance = await publicDb.getDb();
     dbInstance
       .changes({
-        since: "now",
+        since: 'now',
         live: true,
       })
-      .on("change", async function (info: any) {
+      .on('change', async function (info: any) {
         if (info.deleted) {
           // ignore deleted changes
           return;
@@ -139,16 +139,16 @@ class VeridaInbox extends EventEmitter {
 
         await inbox.processAll();
       })
-      .on("denied", function (err: any) {
-        console.error("Inbox sync denied");
+      .on('denied', function (err: any) {
+        console.error('Inbox sync denied');
         console.error(err);
       })
-      .on("error", function (err: any) {
+      .on('error', function (err: any) {
         //console.log("Error watching for private inbox changes")
         //console.log(err)
         // This often happens when changing networks, so don't log
         setTimeout(() => {
-          console.log("Retrying to establish public inbox connection");
+          console.log('Retrying to establish public inbox connection');
           inbox.watch();
         }, 1000);
       }); // Setup watching for any changes to the local private inbox (ie: marking an item as read)
@@ -162,20 +162,20 @@ class VeridaInbox extends EventEmitter {
     const dbInstance = await privateDb.getDb();
     dbInstance
       .changes({
-        since: "now",
+        since: 'now',
         live: true,
       })
-      .on("change", async function (info: any) {
+      .on('change', async function (info: any) {
         const inboxItem = await privateDb.get(info.id, {
           rev: info.changes[0].rev,
         });
-        inbox.emit("inboxChange", inboxItem);
+        inbox.emit('inboxChange', inboxItem);
       })
-      .on("error", function (err: any) {
-        console.log("Error watching for private inbox changes");
+      .on('error', function (err: any) {
+        console.log('Error watching for private inbox changes');
         console.log(err);
         setTimeout(() => {
-          console.log("Retrying to establish private inbox connection");
+          console.log('Retrying to establish private inbox connection');
           inbox.watchPrivateChanges();
         }, 1000);
       });
@@ -183,7 +183,7 @@ class VeridaInbox extends EventEmitter {
 
   /**
    * Initialise the inbox manager
-   * 
+   *
    * @todo: (bug) This opens the datastore based on the database endpoint, needs to open the datastore
    * based on the messaging endpoint (when we support additional types)
    */
@@ -194,7 +194,7 @@ class VeridaInbox extends EventEmitter {
 
     this.initComplete = true;
     this.publicInbox = await this.context.openDatastore(
-      "https://core.schemas.verida.io/inbox/item/v0.1.0/schema.json",
+      'https://core.schemas.verida.io/inbox/item/v0.1.0/schema.json',
       {
         permissions: {
           read: PermissionOptionsEnum.PUBLIC,
@@ -204,7 +204,7 @@ class VeridaInbox extends EventEmitter {
     );
 
     this.privateInbox = await this.context.openDatastore(
-      "https://core.schemas.verida.io/inbox/entry/v0.1.0/schema.json",
+      'https://core.schemas.verida.io/inbox/entry/v0.1.0/schema.json',
       {
         permissions: {
           read: PermissionOptionsEnum.OWNER,
@@ -236,7 +236,7 @@ class VeridaInbox extends EventEmitter {
       },
       {
         skip: this.maxItems,
-        sort: [{ sentAt: "desc" }], // Delete oldest first
+        sort: [{ sentAt: 'desc' }], // Delete oldest first
       }
     );
 

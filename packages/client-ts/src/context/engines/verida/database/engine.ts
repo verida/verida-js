@@ -1,13 +1,13 @@
-import BaseStorageEngine from "../../base";
-import EncryptedDatabase from "./db-encrypted";
-import Database from "../../../database";
-import { DatabaseOpenConfig } from "../../../interfaces";
-import DatastoreServerClient from "./client";
-import { Account } from "@verida/account";
-import PublicDatabase from "./db-public";
-import DbRegistry from "../../../db-registry";
+import BaseStorageEngine from '../../base';
+import EncryptedDatabase from './db-encrypted';
+import Database from '../../../database';
+import { DatabaseOpenConfig } from '../../../interfaces';
+import DatastoreServerClient from './client';
+import { Account } from '@verida/account';
+import PublicDatabase from './db-public';
+import DbRegistry from '../../../db-registry';
 
-const _ = require("lodash");
+const _ = require('lodash');
 
 /**
  * @category
@@ -22,16 +22,9 @@ class StorageEngineVerida extends BaseStorageEngine {
   private dsn?: string;
 
   // @todo: dbmanager
-  constructor(
-    storageContext: string,
-    dbRegistry: DbRegistry,
-    endpointUri: string
-  ) {
+  constructor(storageContext: string, dbRegistry: DbRegistry, endpointUri: string) {
     super(storageContext, dbRegistry, endpointUri);
-    this.client = new DatastoreServerClient(
-      this.storageContext,
-      this.endpointUri
-    );
+    this.client = new DatastoreServerClient(this.storageContext, this.endpointUri);
   }
 
   public async connectAccount(account: Account) {
@@ -49,14 +42,12 @@ class StorageEngineVerida extends BaseStorageEngine {
         if (
           err.response &&
           err.response.data.data &&
-          err.response.data.data.did == "Invalid DID specified"
+          err.response.data.data.did == 'Invalid DID specified'
         ) {
           // User doesn't exist, so create them
           response = await this.client.createUser();
-        } else if (err.response && err.response.statusText == "Unauthorized") {
-          throw new Error(
-            "Invalid signature or permission to access DID server"
-          );
+        } else if (err.response && err.response.statusText == 'Unauthorized') {
+          throw new Error('Invalid signature or permission to access DID server');
         } else {
           // Unknown error
           throw err;
@@ -98,12 +89,12 @@ class StorageEngineVerida extends BaseStorageEngine {
       if (
         err.response &&
         err.response.data.data &&
-        err.response.data.data.did == "Invalid DID specified"
+        err.response.data.data.did == 'Invalid DID specified'
       ) {
         // User doesn't exist, so create on this endpointUri server
         response = await client.createUser();
-      } else if (err.response && err.response.statusText == "Unauthorized") {
-        throw new Error("Invalid signature or permission to access DID server");
+      } else if (err.response && err.response.statusText == 'Unauthorized') {
+        throw new Error('Invalid signature or permission to access DID server');
       } else {
         // Unknown error
         throw err;
@@ -120,15 +111,12 @@ class StorageEngineVerida extends BaseStorageEngine {
    * @param options
    * @returns {Database}
    */
-  public async openDatabase(
-    databaseName: string,
-    options: DatabaseOpenConfig
-  ): Promise<Database> {
+  public async openDatabase(databaseName: string, options: DatabaseOpenConfig): Promise<Database> {
     const config: DatabaseOpenConfig = _.merge(
       {
         permissions: {
-          read: "owner",
-          write: "owner",
+          read: 'owner',
+          write: 'owner',
         },
         did: this.accountDid,
         readOnly: false,
@@ -143,8 +131,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     // If permissions require "owner" access, connect the current user
     if (
-      (config.permissions!.read == "owner" ||
-        config.permissions!.write == "owner") &&
+      (config.permissions!.read == 'owner' || config.permissions!.write == 'owner') &&
       !config.readOnly
     ) {
       if (!config.readOnly && !this.keyring) {
@@ -159,11 +146,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         );
       }
 
-      if (
-        !config.readOnly &&
-        !config.isOwner &&
-        config.permissions!.read == "owner"
-      ) {
+      if (!config.readOnly && !config.isOwner && config.permissions!.read == 'owner') {
         throw new Error(
           `Unable to open database. Permissions require "owner" access to read, but account is not owner.`
         );
@@ -172,16 +155,16 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     let dsn = config.isOwner ? this.dsn! : config.dsn!;
     if (!dsn) {
-      throw new Error("Unable to determine DSN for this user and this context");
+      throw new Error('Unable to determine DSN for this user and this context');
     }
 
     // force read only access if the current user doesn't have write access
     if (!config.isOwner) {
-      if (config.permissions!.write == "owner") {
+      if (config.permissions!.write == 'owner') {
         // Only the owner can write, so set to read only
         config.readOnly = true;
       } else if (
-        config.permissions!.write == "users" &&
+        config.permissions!.write == 'users' &&
         config.permissions!.writeList &&
         config.permissions!.writeList!.indexOf(config.did!) == -1
       ) {
@@ -190,19 +173,14 @@ class StorageEngineVerida extends BaseStorageEngine {
       }
     }
 
-    if (
-      config.permissions!.read == "owner" &&
-      config.permissions!.write == "owner"
-    ) {
+    if (config.permissions!.read == 'owner' && config.permissions!.write == 'owner') {
       if (!this.keyring) {
         throw new Error(
           `Unable to open database. Permissions require "owner" access, but no account connected.`
         );
       }
 
-      const storageContextKey = await this.keyring!.getStorageContextKey(
-        databaseName
-      );
+      const storageContextKey = await this.keyring!.getStorageContextKey(databaseName);
       const encryptionKey = storageContextKey.secretKey;
       const db = new EncryptedDatabase(
         {
@@ -223,14 +201,14 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       await db.init();
       return db;
-    } else if (config.permissions!.read == "public") {
+    } else if (config.permissions!.read == 'public') {
       // If we aren't the owner of this database use the public credentials
       // to access this database
       if (!config.isOwner) {
         const publicCreds = await this.getPublicCredentials();
         dsn = publicCreds.dsn;
 
-        if (config.permissions!.write != "public") {
+        if (config.permissions!.write != 'public') {
           config.readOnly = true;
         }
       }
@@ -250,20 +228,13 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       await db.init();
       return db;
-    } else if (
-      config.permissions!.read == "users" ||
-      config.permissions!.write == "users"
-    ) {
+    } else if (config.permissions!.read == 'users' || config.permissions!.write == 'users') {
       if (config.isOwner && !this.keyring) {
-        throw new Error(
-          `Unable to open database as the owner. No account connected.`
-        );
+        throw new Error(`Unable to open database as the owner. No account connected.`);
       }
 
       if (!config.isOwner && !config.encryptionKey) {
-        throw new Error(
-          `Unable to open external database. No encryption key in config.`
-        );
+        throw new Error(`Unable to open external database. No encryption key in config.`);
       }
 
       /**
@@ -281,9 +252,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         dsn = await this.buildExternalDsn(config.dsn!);
       }
 
-      const storageContextKey = await this.keyring!.getStorageContextKey(
-        databaseName
-      );
+      const storageContextKey = await this.keyring!.getStorageContextKey(databaseName);
       const encryptionKey = config.encryptionKey
         ? config.encryptionKey
         : storageContextKey.secretKey;
@@ -309,9 +278,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         await db.init();
       } catch (err: any) {
         if (err.status == 401 && err.code == 90) {
-          throw new Error(
-            `Unable to open database. Invalid credentials supplied.`
-          );
+          throw new Error(`Unable to open database. Invalid credentials supplied.`);
         }
 
         throw err;
@@ -319,9 +286,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       return db;
     } else {
-      throw new Error(
-        "Unable to open database. Invalid permissions configuration."
-      );
+      throw new Error('Unable to open database. Invalid permissions configuration.');
     }
 
     // @todo Cache databases so we don't open the same one more than once
@@ -334,10 +299,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
   public logout() {
     super.logout();
-    this.client = new DatastoreServerClient(
-      this.storageContext,
-      this.endpointUri
-    );
+    this.client = new DatastoreServerClient(this.storageContext, this.endpointUri);
   }
 
   private async getPublicCredentials() {

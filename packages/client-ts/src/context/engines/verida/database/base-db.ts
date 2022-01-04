@@ -1,16 +1,16 @@
-const EventEmitter = require("events");
-const _ = require("lodash");
-import { v1 as uuidv1 } from "uuid";
+const EventEmitter = require('events');
+const _ = require('lodash');
+import { v1 as uuidv1 } from 'uuid';
 
-import { VeridaDatabaseConfig } from "./interfaces";
-import Database from "../../../database";
-import { PermissionsConfig } from "../../../interfaces";
-import DatastoreServerClient from "./client";
-import Utils from "./utils";
-import { Context } from "../../../..";
-import { DbRegistryEntry } from "../../../db-registry";
-import EncryptionUtils from "@verida/encryption-utils";
-import { DIDDocument } from "@verida/did-document";
+import { VeridaDatabaseConfig } from './interfaces';
+import Database from '../../../database';
+import { PermissionsConfig } from '../../../interfaces';
+import DatastoreServerClient from './client';
+import Utils from './utils';
+import { Context } from '../../../..';
+import { DbRegistryEntry } from '../../../db-registry';
+import EncryptionUtils from '@verida/encryption-utils';
+import { DIDDocument } from '@verida/did-document';
 
 /**
  * @category
@@ -57,8 +57,8 @@ class BaseDb extends EventEmitter implements Database {
 
     this.permissions = _.merge(
       {
-        read: "owner",
-        write: "owner",
+        read: 'owner',
+        write: 'owner',
         readList: [],
         writeList: [],
       },
@@ -73,16 +73,12 @@ class BaseDb extends EventEmitter implements Database {
 
   // DID + context name + DB Name + readPerm + writePerm
   private buildDatabaseHash() {
-    let text = [
-      this.did.toLowerCase(),
-      this.storageContext,
-      this.databaseName,
-    ].join("/");
+    let text = [this.did.toLowerCase(), this.storageContext, this.databaseName].join('/');
 
     const hash = EncryptionUtils.hash(text).substr(2);
 
     // Database name in CouchDB must start with a letter, so prepend a `v`
-    return "v" + hash;
+    return 'v' + hash;
   }
 
   /**
@@ -110,7 +106,7 @@ class BaseDb extends EventEmitter implements Database {
   public async save(data: any, options: any = {}): Promise<boolean> {
     await this.init();
     if (this.readOnly) {
-      throw new Error("Unable to save. Database is read only.");
+      throw new Error('Unable to save. Database is read only.');
     }
 
     let defaults = {
@@ -129,11 +125,7 @@ class BaseDb extends EventEmitter implements Database {
 
     // If a record exists with the given _id, do an update instead
     // of attempting to insert which will result in a document conflict
-    if (
-      options.forceUpdate &&
-      data._id !== undefined &&
-      data._rev === undefined
-    ) {
+    if (options.forceUpdate && data._id !== undefined && data._rev === undefined) {
       try {
         const existingDoc = await this.get(data._id);
         if (existingDoc) {
@@ -142,7 +134,7 @@ class BaseDb extends EventEmitter implements Database {
         }
       } catch (err: any) {
         // Record may not exist, which is fine
-        if (err.name != "not_found") {
+        if (err.name != 'not_found') {
           throw err;
         }
       }
@@ -157,7 +149,7 @@ class BaseDb extends EventEmitter implements Database {
        * @event Database#beforeInsert
        * @param {object} data Data that was saved
        */
-      this.emit("beforeInsert", data);
+      this.emit('beforeInsert', data);
     } else {
       data = await this._beforeUpdate(data);
 
@@ -167,7 +159,7 @@ class BaseDb extends EventEmitter implements Database {
        * @event Database#beforeUpdate
        * @param {object} data Data that was saved
        */
-      this.emit("beforeUpdate", data);
+      this.emit('beforeUpdate', data);
     }
 
     let response = await this.db.put(data, options);
@@ -181,7 +173,7 @@ class BaseDb extends EventEmitter implements Database {
        * @event Database#afterInsert
        * @param {object} data Data that was saved
        */
-      this.emit("afterInsert", data, response);
+      this.emit('afterInsert', data, response);
     } else {
       this._afterUpdate(data, options);
 
@@ -191,7 +183,7 @@ class BaseDb extends EventEmitter implements Database {
        * @event Database#afterUpdate
        * @param {object} data Data that was saved
        */
-      this.emit("afterUpdate", data, response);
+      this.emit('afterUpdate', data, response);
     }
 
     return response;
@@ -204,10 +196,7 @@ class BaseDb extends EventEmitter implements Database {
    * @param {object} options Options passed to CouchDB find().
    * @param {object} options.raw Returns the raw CouchDB result, otherwise just returns the documents
    */
-  public async getMany(
-    filter: any = {},
-    options: any = {}
-  ): Promise<object[] | undefined> {
+  public async getMany(filter: any = {}, options: any = {}): Promise<object[] | undefined> {
     await this.init();
 
     filter = filter || {};
@@ -219,7 +208,7 @@ class BaseDb extends EventEmitter implements Database {
     filter = this.applySortFix(filter, options.sort || {});
 
     let raw = options.raw || false;
-    delete options["raw"];
+    delete options['raw'];
 
     if (filter) {
       options.selector = _.merge(options.selector, filter);
@@ -235,7 +224,7 @@ class BaseDb extends EventEmitter implements Database {
 
   public async delete(doc: any, options: any = {}) {
     if (this.readOnly) {
-      throw "Unable to delete. Read only.";
+      throw 'Unable to delete. Read only.';
     }
 
     await this.init();
@@ -243,7 +232,7 @@ class BaseDb extends EventEmitter implements Database {
     let defaults = {};
     options = _.merge(defaults, options);
 
-    if (typeof doc === "string") {
+    if (typeof doc === 'string') {
       // Document is a string representing a document ID
       // so fetch the actual document
       doc = await this.get(doc);
@@ -261,7 +250,7 @@ class BaseDb extends EventEmitter implements Database {
 
     let rowId: any;
     for (rowId in rows) {
-      await this.delete(rows![rowId]["_id"]);
+      await this.delete(rows![rowId]['_id']);
     }
 
     await this.deleteAll();
@@ -289,13 +278,13 @@ class BaseDb extends EventEmitter implements Database {
       .changes(
         _.merge(
           {
-            since: "now",
+            since: 'now',
             live: true,
           },
           options
         )
       )
-      .on("change", async function (info: any) {
+      .on('change', async function (info: any) {
         cb(info);
       });
   }
@@ -307,11 +296,11 @@ class BaseDb extends EventEmitter implements Database {
    * Update the users that can access the database
    */
   public async updateUsers(readList: string[] = [], writeList: string[] = []) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   public async registryEntry(): Promise<DbRegistryEntry> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   protected async _beforeInsert(data: any) {
@@ -359,7 +348,7 @@ class BaseDb extends EventEmitter implements Database {
    * @returns {PouchDB}
    */
   public async getDb(): Promise<any> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   /**
@@ -406,14 +395,11 @@ class BaseDb extends EventEmitter implements Database {
       data.signatures = {};
     }
 
-    const signContextHash = DIDDocument.generateContextHash(
-      signDid,
-      this.signContextName
-    );
+    const signContextHash = DIDDocument.generateContextHash(signDid, this.signContextName);
     const signKey = `${signDid}?context=${signContextHash}`;
 
     let _data = _.merge({}, data);
-    delete _data["signatures"];
+    delete _data['signatures'];
 
     data.signatures[signKey] = await keyring.sign(_data);
     return data;
@@ -434,7 +420,7 @@ class BaseDb extends EventEmitter implements Database {
   }
 
   public async info(): Promise<any> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 }
 
