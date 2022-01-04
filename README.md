@@ -66,6 +66,6 @@ Need to build the packages in this order:
 ## Creating a release
 
 ```
-$ npx lerna build
+$ npx lerna run build
 $ npx lerna publish
 ```
