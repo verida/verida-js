@@ -1,5 +1,10 @@
-import { Interfaces } from "@verida/storage-link"
 import { DIDDocument as DD } from 'did-resolver'
+
+export interface SecureContextEndpoint {
+    type: string;
+    endpointUri: string;
+    config?: object;
+}
 
 export interface Proof {
     type: 'EcdsaSecp256k1VerificationKey2019',
@@ -13,10 +18,10 @@ export interface DIDDocumentStruct extends DD {
 }
 
 export interface Endpoints {
-    database: Interfaces.SecureContextEndpoint,
-    messaging: Interfaces.SecureContextEndpoint,
-    storage?: Interfaces.SecureContextEndpoint,
-    notification?: Interfaces.SecureContextEndpoint,
+    database: SecureContextEndpoint,
+    messaging: SecureContextEndpoint,
+    storage?: SecureContextEndpoint,
+    notification?: SecureContextEndpoint,
 }
 
 export enum EndpointType {
