@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-document",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {

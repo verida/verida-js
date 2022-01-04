@@ -1,6 +1,6 @@
 {
   "name": "@verida/account",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@verida/keyring": "^1.1.2",
-    "@verida/storage-link": "^1.1.4",
+    "@verida/storage-link": "^1.1.5",
     "did-jwt": "5.7.0",
     "lodash": "^4.17.21",
     "tweetnacl-util": "^0.15.1"

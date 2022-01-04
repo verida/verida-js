@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,13 +18,13 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/account": "^1.1.5",
-    "@verida/account-node": "^1.1.5",
-    "@verida/did-client": "^0.1.4",
-    "@verida/did-document": "^1.0.2",
+    "@verida/account": "^1.1.6",
+    "@verida/account-node": "^1.1.6",
+    "@verida/did-client": "^0.1.5",
+    "@verida/did-document": "^1.0.3",
     "@verida/encryption-utils": "^1.1.2",
     "@verida/keyring": "^1.1.2",
-    "@verida/storage-link": "^1.1.4",
+    "@verida/storage-link": "^1.1.5",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.2",
