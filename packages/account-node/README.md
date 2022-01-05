@@ -1,2 +1,2 @@
 
-See https://docs.verida.io/
+See https://developers.verida.io/docs/client-sdk/authentication
