@@ -145,7 +145,18 @@ There are unit tests available in the `tests/` folder.
 $ yarn run tests
 $ yarn run tests test/<testname>.ts
 ```
-
+### Running tests
+* Prerequisits
+```bash
+sudo npm install -g mocha
+sudo npm install -g ts-node
+sudo npm install -g ts-mocha 
+```
+* Source it
+* Single Test
+```bash
+mocha --require ts-node/register --require ts-node/register --timeout 10000 --ui bdd test/schema.tests.ts --grep "^Schema tests Basic schema tests can validate a larger schema$"
+```
 ### Setting up test environment
 
 **Verida DID Server (run locally)**
