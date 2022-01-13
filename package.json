@@ -3,6 +3,7 @@
   "private": true,
   "license": "ISC",
   "devDependencies": {
+    "@types/mocha": "^9.0.0",
     "lerna": "^3.22.1"
   },
   "workspaces": [

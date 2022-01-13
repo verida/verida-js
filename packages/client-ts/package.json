@@ -20,6 +20,7 @@
   "dependencies": {
     "@verida/account": "^1.1.6",
     "@verida/account-node": "^1.1.6",
+    "@verida/client-ts": "^1.1.10",
     "@verida/did-client": "^0.1.5",
     "@verida/did-document": "^1.0.3",
     "@verida/encryption-utils": "^1.1.2",
@@ -39,6 +40,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/mocha": "^9.0.0",
     "@types/pouchdb": "^6.4.0",
     "better-docs": "^2.3.2",
     "jsdoc": "^3.6.7",
