@@ -4,6 +4,7 @@ export interface VaultAccountConfig {
     defaultDatabaseServer: Interfaces.SecureContextEndpoint,
     defaultMessageServer: Interfaces.SecureContextEndpoint,
     defaultStorageServer?: Interfaces.SecureContextEndpoint,
+    defaultNotificationServer?: Interfaces.SecureContextEndpoint,
     vaultConfig?: VaultModalLoginConfig
 }
 
