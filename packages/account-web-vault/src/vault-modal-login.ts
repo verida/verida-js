@@ -2,7 +2,6 @@ import AuthClient from "./auth-client";
 
 // @ts-ignore
 import Sora from "./assets/fonts/Sora-Regular.ttf";
-import VeridaVaultImage from "./assets/open_verida_vault_dark.png";
 
 import { AuthClientConfig, VaultModalLoginConfig } from "./interfaces";
 const _ = require("lodash");
@@ -57,7 +56,7 @@ export default async function (
             Connect now
           </h3>
           <p class="verida-body-content">Use the button below to connect with Verida Vault app to login or sign up</p>
-          <a href="#" id="verida-auth-client-deeplink"><img src="${VeridaVaultImage}" alt="Verida Vault App" /></>
+          <a href="#" id="verida-auth-client-deeplink"><img src="https://assets.verida.io/connect_with_verida_dark.png" alt="Verida Vault App" /></>
         </div>
       </div>
     </div>
