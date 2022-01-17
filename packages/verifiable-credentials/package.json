@@ -20,7 +20,7 @@
 		"@verida/client-ts": "^1.1.10",
 		"@verida/did-resolver": "^0.1.5",
 		"@verida/encryption-utils": "^1.1.2",
-		"did-jwt": "^5.12.1",
+		"did-jwt": "^5.7.0",
 		"did-jwt-vc": "^2.1.8",
 		"lodash": "^4.17.21",
 		"tweetnacl-util": "^0.15.1",

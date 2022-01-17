@@ -12,7 +12,8 @@
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha",
     "build": "rm -rf dist; tsc",
-    "generate-api-docs": " rm -rf api-docs && ./node_modules/.bin/jsdoc && jsdoc -c 'jsdoc.json' --readme README.api.md"
+    "generate-api-docs": " rm -rf api-docs && ./node_modules/.bin/jsdoc && jsdoc -c 'jsdoc.json' --readme README.api.md",
+    "fix": "mocha --require ts-node/register --require ts-node/register --timeout 100000 --ui bdd test/schema.tests.ts"
   },
   "engines": {
     "node": "^14.0.0"

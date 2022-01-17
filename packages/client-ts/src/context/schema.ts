@@ -1,4 +1,5 @@
 const RefParser = require("json-schema-ref-parser");
+
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
 
@@ -22,6 +23,7 @@ const jsonCache: any = {};
  * @category
  * Modules
  */
+
 class Schema {
   public errors: any[];
 
@@ -35,6 +37,8 @@ class Schema {
 
   protected static schemaPaths?: string[];
   protected static schemas: any = {};
+
+
 
   /**
    * An object representation of a JSON Schema.
