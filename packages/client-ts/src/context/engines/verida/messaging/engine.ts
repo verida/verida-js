@@ -74,7 +74,7 @@ class MessagingEngineVerida implements BaseMessage {
     // Ping the notification service if it exists
     // @todo: Make it configurable if the notification service is pinged
     if (response && this.notificationService) {
-      await this.notificationService.ping()
+      await this.notificationService.ping(config);
     }
 
     return response

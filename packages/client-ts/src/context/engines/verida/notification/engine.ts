@@ -1,6 +1,7 @@
 import { Context } from '../../../..';
 import BaseNotification from '../../../notification'
 import Axios, { AxiosInstance } from 'axios'
+import { MessageSendConfig } from '../../../interfaces';
 
 export default class NotificationEngineVerida implements BaseNotification {
 
@@ -27,15 +28,17 @@ export default class NotificationEngineVerida implements BaseNotification {
      /**
       * Ping a notification server to fetch new messages
       */
-    public async ping(): Promise<boolean> {
-        await this.init()
-        const server = await this.getAxios()
+    public async ping(config?: MessageSendConfig): Promise<boolean> {
+        await this.init();
+        const server = await this.getAxios();
+        
+        let context = config ?  config.recipientContextName : this.context.getContextName();
 
         try {
             await server.post(this.serverUrl + 'ping', {
                 data: {
                     did: this.did!,
-                    context: this.context.getContextName()
+                    context: context
                 }
             })
         } catch (err: any) {

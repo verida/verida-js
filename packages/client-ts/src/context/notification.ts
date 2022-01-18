@@ -1,3 +1,4 @@
+import { MessageSendConfig } from "./interfaces";
 
 /**
  * Interface for notifications
@@ -14,7 +15,7 @@ export default interface Notification {
     /**
      * Ping a notification server to fetch new messages
      */
-    ping(): Promise<boolean>
+    ping(config?:MessageSendConfig): Promise<boolean>
 
     getErrors(): string[]
 
