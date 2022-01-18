@@ -32,7 +32,7 @@ export default class NotificationEngineVerida implements BaseNotification {
         await this.init();
         const server = await this.getAxios();
         
-        let context = config ?  config.recipientContextName || this.context.getContextName() : this.context.getContextName();
+        let context = config ? config.recipientContextName || this.context.getContextName() : this.context.getContextName();
 
         try {
             await server.post(this.serverUrl + 'ping', {
