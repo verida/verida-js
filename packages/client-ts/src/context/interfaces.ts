@@ -113,6 +113,7 @@ export enum PermissionOptionsEnum {
  * Interface for any MessageSendConfig
  */
 export interface MessageSendConfig {
-  recipientContextName?: string;
+  did?: string,
   expiry?: Number;
+  recipientContextName?: string;
 }
