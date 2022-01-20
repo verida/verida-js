@@ -391,6 +391,9 @@ class BaseDb extends EventEmitter implements Database {
     return filter;
   }
 
+  // TODO: move this to util 
+  // Chekc if already signed 
+  // Use a config variable 
   /**
    * Sign data as the current user
    *
@@ -413,6 +416,7 @@ class BaseDb extends EventEmitter implements Database {
     const signKey = `${signDid}?context=${signContextHash}`;
 
     let _data = _.merge({}, data);
+
     delete _data["signatures"];
 
     data.signatures[signKey] = await keyring.sign(_data);

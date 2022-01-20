@@ -75,7 +75,13 @@ class Datastore {
   public async save(data: any, options: any = {}): Promise<object | boolean> {
     await this.init();
 
+    // *********************
+    // Set and Create a signature 
+    // Schema versionign 
+    // COnfig [do not generate signature]
     data.schema = this.schemaPath;
+
+
     let valid = await this.schema.validate(data);
 
     if (!valid) {
@@ -86,6 +92,37 @@ class Datastore {
     return this.db.save(data, options);
   }
 
+  // ****************************************************************************************
+  /**
+   * 
+   * @param data Creates a signature for a given data
+   * @param options 
+   * @returns 
+   */
+  public async createSignature(data: any, options: any = {}): Promise<string> {
+    return "";
+  }
+
+  /**
+   * Checkes a version specified in schemaName
+   * @param schemaName 
+   * @returns boolean
+   */  
+  public async hashSchemaVersion(schemaName: string): Promise<boolean>{
+    return true
+  }
+
+  /**
+ * Checkes a version specified in schemaName
+ * @param schemaName 
+ * @returns boolean
+ */  
+    public async getVersionlessSchemaName(schemaName: string): Promise<string>{
+    return ""
+  }
+
+  
+    // ****************************************************************************************
   /**
    * Fetch a list of records from this Datastore.
    *
