@@ -73,6 +73,8 @@ class VeridaOutbox {
       recipientContextName: VAULT_CONTEXT_NAME,
       // @todo: set a default expiry that is configurable but defaults to 24 hours?
     };
+    // TODO: This replaces the `did` specified in config
+    // Should refactor this logic
     config = _.merge(defaults, config);
 
     const sendingContextName = this.contextName;

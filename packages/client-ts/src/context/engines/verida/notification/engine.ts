@@ -19,20 +19,20 @@ export default class NotificationEngineVerida implements BaseNotification {
     /**
      * Initialize notifications for the connected user
      *
-     * (ie; connect to a notification server)
+     *    * (ie; connect to a notification server)
      */
     public async init(): Promise<void> {
         this.did = (await this.context.getAccount().did()).toLowerCase()
-     }
+    }
 
-     /**
+    /**
       * Ping a notification server to fetch new messages
       */
     public async ping(config?: MessageSendConfig, did?: any): Promise<boolean> {
         await this.init();
         const server = await this.getAxios();
         
-        console.log("config " + config + "\ndid " + did);
+        console.log("config :" + config + "\ndid :" + did);
 
         let context = config ? config.recipientContextName || this.context.getContextName() : this.context.getContextName();
 
