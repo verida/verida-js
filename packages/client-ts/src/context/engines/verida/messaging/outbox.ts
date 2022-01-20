@@ -68,6 +68,7 @@ class VeridaOutbox {
     did = did.toLowerCase();
 
     const defaults: MessageSendConfig = {
+      did: did,
       // By default send data to the user's official Verida Vault application
       recipientContextName: VAULT_CONTEXT_NAME,
       // @todo: set a default expiry that is configurable but defaults to 24 hours?
