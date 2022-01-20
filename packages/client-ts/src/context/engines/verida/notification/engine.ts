@@ -28,19 +28,19 @@ export default class NotificationEngineVerida implements BaseNotification {
      /**
       * Ping a notification server to fetch new messages
       */
-    public async ping(config?: MessageSendConfig): Promise<boolean> {
+    public async ping(config?: MessageSendConfig, did?: any): Promise<boolean> {
         await this.init();
         const server = await this.getAxios();
         
-        console.log(config);
+        console.log("config " + config + "\ndid " + did);
 
         let context = config ? config.recipientContextName || this.context.getContextName() : this.context.getContextName();
-        let did = config ? config.did || this.did! : this.did!;
+
         try {
             // Returns the client context and the corresponding `DID`
             await server.post(this.serverUrl + 'ping', {
                 data: {
-                    did: did,
+                    did: did ? did : this.did!,
                     context: context
                 }
             })

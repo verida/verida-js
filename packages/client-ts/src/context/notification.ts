@@ -15,7 +15,7 @@ export default interface Notification {
     /**
      * Ping a notification server to fetch new messages
      */
-    ping(config?:MessageSendConfig): Promise<boolean>
+    ping(config?:MessageSendConfig, did?: any): Promise<boolean>
 
     getErrors(): string[]
 
