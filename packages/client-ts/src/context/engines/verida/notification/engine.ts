@@ -32,9 +32,11 @@ export default class NotificationEngineVerida implements BaseNotification {
         await this.init();
         const server = await this.getAxios();
         
-        console.log("config :" + config + "\ndid :" + did);
-
         let context = config ? config.recipientContextName || this.context.getContextName() : this.context.getContextName();
+
+        this.serverUrl = this.serverUrl.endsWith("/") ? this.serverUrl : this.serverUrl + "/";
+
+        console.log(`verida-route:- ping \n config:- ${config} \n did:- ${did} \n context:- ${context}`);
 
         try {
             // Returns the client context and the corresponding `DID`
@@ -50,7 +52,7 @@ export default class NotificationEngineVerida implements BaseNotification {
         }
 
         return true
-     }
+    }
 
     public getErrors(): string[] {
         return this.errors
