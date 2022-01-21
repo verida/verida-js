@@ -2,6 +2,7 @@ const _ = require("lodash");
 import { DatastoreOpenConfig } from "./interfaces";
 import Context from "./context";
 import Schema from "./schema";
+import { DIDDocument } from "@verida/did-document";
 
 /**
  * A datastore wrapper around a given database and schema.
@@ -99,8 +100,27 @@ class Datastore {
    * @param options 
    * @returns 
    */
-  public async createSignature(data: any, options: any = {}): Promise<string> {
-    return "";
+  public async createSignature(data: any, options: any): Promise<any> {
+    const account = options.signContext.getAccount();
+    const signDid = await account.did();
+    const keyring = await account.keyring(options.signContextName);
+
+    if (!data.signatures) {
+      data.signatures = {};
+    }
+
+    const signContextHash = DIDDocument.generateContextHash(
+      signDid,
+      options.signContextName
+    );
+    const signKey = `${signDid}?context=${signContextHash}`;
+
+    let _data = _.merge({}, data);
+
+    delete _data["signatures"];
+
+    data.signatures[signKey] = await keyring.sign(_data);
+    return data;
   }
 
   /**

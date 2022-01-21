@@ -256,6 +256,25 @@ class Schema {
 
     return jsonCache[uri];
   }
+
+
+  /**
+   * Checkes a version specified in schemaName
+   * @param schemaName 
+   * @returns boolean
+   */  
+  public async hashSchemaVersion(schemaName: string): Promise<boolean>{
+    return true
+  }
+
+  /**
+ * Checkes a version specified in schemaName
+ * @param schemaName 
+ * @returns boolean
+ */  
+    public async getVersionlessSchemaName(schemaName: string): Promise<string>{
+    return ""
+  }
 }
 
 export default Schema;
