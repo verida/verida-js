@@ -258,8 +258,11 @@ class Schema {
   }
 
 
+  // ***************************************************
+
   /**
    * Checkes a version specified in schemaName
+   * Schema URL Name :-https://common.schemas.verida.io/social/contact/v0.1.0/schema.json
    * @param schemaName 
    * @returns boolean
    */  
@@ -268,12 +271,19 @@ class Schema {
   }
 
   /**
- * Checkes a version specified in schemaName
- * @param schemaName 
- * @returns boolean
- */  
-    public async getVersionlessSchemaName(schemaName: string): Promise<string>{
-    return ""
+   * Checkes a version specified in schemaName
+   * @param schemaName 
+   * @returns schemaName without the version
+   */  
+  public async getVersionlessSchemaName(schemaName: string): Promise<string> {
+    let url = schemaName.split("//")[0]
+
+    let arr=schemaName.split("/");
+    arr.splice(0, 1);
+
+    arr.splice(arr.length-2, 1)
+
+    return `${url}/${arr.join("/")}`;
   }
 }
 
