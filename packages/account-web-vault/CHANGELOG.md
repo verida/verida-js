@@ -1,3 +1,8 @@
+2022-01-24 (v1.1.8)
+-------------------
+
+- Update @verida/account-web-vault changed verida default image
+- Update @verida/account-web-vault updated README.md
 
 2021-11-13 (v1.1.5)
 -------------------
