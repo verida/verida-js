@@ -262,16 +262,6 @@ class Schema {
 
   /**
    * Checkes a version specified in schemaName
-   * Schema URL Name :-https://common.schemas.verida.io/social/contact/v0.1.0/schema.json
-   * @param schemaName 
-   * @returns boolean
-   */  
-  public async hashSchemaVersion(schemaName: string): Promise<boolean>{
-    return true
-  }
-
-  /**
-   * Checkes a version specified in schemaName
    * @param schemaName 
    * @returns schemaName without the version
    */  

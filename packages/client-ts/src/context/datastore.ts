@@ -101,6 +101,11 @@ class Datastore {
    * @returns 
    */
   public async createSignature(data: any, options: any): Promise<any> {
+
+
+    // pas schemaName from data
+    // get data withtout schema version 
+
     const account = options.signContext.getAccount();
     const signDid = await account.did();
     const keyring = await account.keyring(options.signContextName);
@@ -122,25 +127,6 @@ class Datastore {
     data.signatures[signKey] = await keyring.sign(_data);
     return data;
   }
-
-  /**
-   * Checkes a version specified in schemaName
-   * @param schemaName 
-   * @returns boolean
-   */  
-  public async hashSchemaVersion(schemaName: string): Promise<boolean>{
-    return true
-  }
-
-  /**
- * Checkes a version specified in schemaName
- * @param schemaName 
- * @returns boolean
- */  
-    public async getVersionlessSchemaName(schemaName: string): Promise<string>{
-    return ""
-  }
-
   
     // ****************************************************************************************
   /**
