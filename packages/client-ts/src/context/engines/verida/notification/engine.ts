@@ -36,8 +36,6 @@ export default class NotificationEngineVerida implements BaseNotification {
 
         this.serverUrl = this.serverUrl.endsWith("/") ? this.serverUrl : this.serverUrl + "/";
 
-        console.log(`verida-route:- ping \n config:- ${config} \n did:- ${did} \n context:- ${context}`);
-
         try {
             // Returns the client context and the corresponding `DID`
             await server.post(this.serverUrl + 'ping', {
