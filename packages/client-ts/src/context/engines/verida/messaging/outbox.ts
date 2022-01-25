@@ -72,7 +72,7 @@ class VeridaOutbox {
       // By default send data to the user's official Verida Vault application
       recipientContextName: VAULT_CONTEXT_NAME,
       // @todo: set a default expiry that is configurable but defaults to 24 hours?
-      // Fix in :- https://github.com/verida/verida-js/issues/131
+      // Fix in :- https://github.com/verida/verida-js/issues/131.
     };
     // TODO: This replaces the `did` specified in config
     // Should refactor this logic
