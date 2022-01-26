@@ -262,14 +262,22 @@ class Schema {
 
   /**
    * Checkes a version specified in schemaName
+   * Schemaname example  :-  https://core.schemas.verida.io/base/v0.1.0/schema.json
+   * Schemaname format :- https://{protocol-name}/{base||draft|identifier}/{v}{version}/name.json
    * @param schemaName 
    * @returns schemaName without the version
    */  
   public async getVersionlessSchemaName(schemaName: string): Promise<string> {
     let url = schemaName.split("//")[0]
 
-    let arr=schemaName.split("/");
-    arr.splice(0, 1);
+    let arr = schemaName.split("/");
+    const version = arr.splice(0, 1);
+    const pattern = new RegExp('/[0-9]|[^v]|[latest]/');
+    
+    // If the version is Undefined or does not have a standard version, returns schema name
+    if(version && !pattern.test(version.toString())) {
+      return schemaName;
+    }
 
     arr.splice(arr.length-2, 1)
 
