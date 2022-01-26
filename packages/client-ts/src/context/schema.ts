@@ -257,9 +257,6 @@ class Schema {
     return jsonCache[uri];
   }
 
-
-  // ***************************************************
-
   /**
    * Checkes a version specified in schemaName
    * Schemaname example  :-  https://core.schemas.verida.io/base/v0.1.0/schema.json
@@ -272,16 +269,27 @@ class Schema {
 
     let arr = schemaName.split("/");
     const version = arr.splice(0, 1);
-    const pattern = new RegExp('/[0-9]|[^v]|[latest]/');
+    // const pattern = new RegExp('/[0-9]|[^v]|[latest]/');
     
+    let exists = await this.hasPattern(version.toString());
     // If the version is Undefined or does not have a standard version, returns schema name
-    if(version && !pattern.test(version.toString())) {
-      return schemaName;
-    }
+    // if(version && !pattern.test(version.toString())) {
+    //   return schemaName;
+    // }
 
     arr.splice(arr.length-2, 1)
 
     return `${url}/${arr.join("/")}`;
+  }
+
+  /**
+   * Checks if a given patten in a schemaName
+   * @param version version extracted from the string
+   * @param versionPattern pattern to be matched
+   * @returns boolean true if matched else false
+   */
+  public async hasPattern(version?: string, versionPattern?: string): Promise<boolean> {
+    return version && new RegExp(versionPattern || '/[0-9]|[^v]|[latest]/').test(version.toString()) ? true : false;
   }
 }
 
