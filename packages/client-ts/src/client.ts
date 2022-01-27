@@ -24,6 +24,7 @@ class Client {
    * Defaults to Ceramic testnet. Specify custom URL via `ClientConfig` in the constructor.
    */
   public didClient: DIDClient;
+  public defaultVaultAppName: string;
 
   private didContextManager: DIDContextManager;
 
@@ -47,6 +48,8 @@ class Client {
       ? DEFAULT_CONFIG.environments[this.environment]
       : {};
     const config = _.merge(defaultConfig, userConfig);
+
+    this.defaultVaultAppName = DEFAULT_CONFIG.vaultAppName;
 
     this.didClient = new DIDClient(config.didServerUrl);
     this.didContextManager = new DIDContextManager(this.didClient);

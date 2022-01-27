@@ -28,12 +28,10 @@ export default class NotificationEngineVerida implements BaseNotification {
     /**
       * Ping a notification server to fetch new messages
       */
-    public async ping(config?: MessageSendConfig, did?: any): Promise<boolean> {
+    public async ping(recipientContextName: string, did?: any): Promise<boolean> {
         await this.init();
         const server = await this.getAxios();
-        
-        let context = config ? config.recipientContextName || this.context.getContextName() : this.context.getContextName();
-
+       
         this.serverUrl = this.serverUrl.endsWith("/") ? this.serverUrl : this.serverUrl + "/";
 
         try {
@@ -41,7 +39,7 @@ export default class NotificationEngineVerida implements BaseNotification {
             await server.post(this.serverUrl + 'ping', {
                 data: {
                     did: did ? did : this.did!,
-                    context: context
+                    context: recipientContextName
                 }
             })
         } catch (err: any) {

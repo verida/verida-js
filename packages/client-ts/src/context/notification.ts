@@ -16,8 +16,7 @@ export default interface Notification {
      * Ping a notification server to fetch new messages
      * TODO: Change this 
      */
-    // *********************************
-    ping(recipientContextName:string, did?: any): Promise<boolean>
+    ping(recipientContextName? :string, did?: any): Promise<boolean>
 
     getErrors(): string[]
 
