@@ -116,3 +116,10 @@ export interface MessageSendConfig {
   recipientContextName?: string;
   expiry?: Number;
 }
+
+/**
+ * Generates a Signature for the given data set
+ */
+export interface ISignature {
+  generateSignature(data: any, options?: any) : Promise<string>;
+}
