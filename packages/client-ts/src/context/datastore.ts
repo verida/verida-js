@@ -80,6 +80,17 @@ class Datastore {
     // Set and Create a signature 
     // Schema versionign 
     // COnfig [do not generate signature]
+
+
+    // ************************************************************
+
+
+
+
+    // *************************************************************
+
+
+
     data.schema = this.schemaPath;
 
 
@@ -93,42 +104,6 @@ class Datastore {
     return this.db.save(data, options);
   }
 
-  // ****************************************************************************************
-  /**
-   * 
-   * @param data Creates a signature for a given data
-   * @param options 
-   * @returns 
-   */
-  public async createSignature(data: any, options: any): Promise<any> {
-
-
-    // pas schemaName from data
-    // get data withtout schema version 
-
-    const account = options.signContext.getAccount();
-    const signDid = await account.did();
-    const keyring = await account.keyring(options.signContextName);
-
-    if (!data.signatures) {
-      data.signatures = {};
-    }
-
-    const signContextHash = DIDDocument.generateContextHash(
-      signDid,
-      options.signContextName
-    );
-    const signKey = `${signDid}?context=${signContextHash}`;
-
-    let _data = _.merge({}, data);
-
-    delete _data["signatures"];
-
-    data.signatures[signKey] = await keyring.sign(_data);
-    return data;
-  }
-  
-    // ****************************************************************************************
   /**
    * Fetch a list of records from this Datastore.
    *
