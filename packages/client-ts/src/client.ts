@@ -49,7 +49,7 @@ class Client {
       : {};
     const config = _.merge(defaultConfig, userConfig);
 
-    this.defaultVaultAppName = DEFAULT_CONFIG.vaultAppName;
+    this.defaultVaultAppName = userConfig.vaultAppName ? userConfig.vaultAppName: DEFAULT_CONFIG.vaultAppName;
 
     this.didClient = new DIDClient(config.didServerUrl);
     this.didContextManager = new DIDContextManager(this.didClient);

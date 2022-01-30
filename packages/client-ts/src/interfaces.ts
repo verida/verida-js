@@ -7,6 +7,10 @@ import BaseStorageEngine from './context/engines/base';
  */
 export interface ClientConfig {
 	/**
+	 * Specify client's App name.
+	 */
+	vaultAppName?: string;
+	/**
 	 * Environment to load by default.
 	 *
 	 * Environment configuration can still be overriden by config items.

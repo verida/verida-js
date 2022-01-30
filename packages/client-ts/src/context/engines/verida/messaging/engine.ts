@@ -67,12 +67,12 @@ class MessagingEngineVerida implements BaseMessage {
     type: string,
     data: object,
     message: string,
-    config?: MessageSendConfig
+    config: MessageSendConfig
   ): Promise<object | null> {
     const outbox = await this.getOutbox();
     const response = await outbox.send(did, type, data, message, config);
 
-    let recipientContextName = config ? 
+    let recipientContextName = config.recipientContextName ? 
       config.recipientContextName : this.context.getClient().defaultVaultAppName;
 
     // Ping the notification service if it exists

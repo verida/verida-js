@@ -13,32 +13,24 @@ export default class NotificationEngineVerida implements BaseNotification {
 
     constructor(context: Context, serverUrl: string) {
         this.context = context
-        this.serverUrl = serverUrl
+        this.serverUrl = serverUrl.endsWith("/") ? serverUrl : serverUrl + "/";
+    }
+    
+    init(): Promise<void> {
+        throw new Error('Method not implemented.');
     }
 
     /**
-     * Initialize notifications for the connected user
-     *
-     *    * (ie; connect to a notification server)
-     */
-    public async init(): Promise<void> {
-        this.did = (await this.context.getAccount().did()).toLowerCase()
-    }
-
-    /**
-      * Ping a notification server to fetch new messages
-      */
-    public async ping(recipientContextName: string, did?: any): Promise<boolean> {
-        await this.init();
+    * Ping a notification server to fetch new messages
+    */
+    public async ping(recipientContextName: string, didToNotify: any): Promise<boolean> {
         const server = await this.getAxios();
-       
-        this.serverUrl = this.serverUrl.endsWith("/") ? this.serverUrl : this.serverUrl + "/";
 
         try {
             // Returns the client context and the corresponding `DID`
             await server.post(this.serverUrl + 'ping', {
                 data: {
-                    did: did ? did : this.did!,
+                    did: didToNotify,
                     context: recipientContextName
                 }
             })
