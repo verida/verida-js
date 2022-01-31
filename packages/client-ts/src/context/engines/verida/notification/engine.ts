@@ -16,8 +16,9 @@ export default class NotificationEngineVerida implements BaseNotification {
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl : serverUrl + "/";
     }
     
-    init(): Promise<void> {
-        throw new Error('Method not implemented.');
+    public async init(): Promise<void> {
+        // Do nothing. No initialisation is required for this implementation.
+        return
     }
 
     /**
@@ -52,6 +53,16 @@ export default class NotificationEngineVerida implements BaseNotification {
             headers: {
                 "context-name": contextName,
             },
+        }
+
+        if (!this.did) {
+            const account = this.context.getAccount()
+
+            if (!account) {
+                throw new Error("Unable to locate account in Notification engine.")
+            }
+            
+            this.did = await account.did()
         }
 
         // Authenticate using the DID and a signed consent message
