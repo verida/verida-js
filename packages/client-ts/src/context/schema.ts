@@ -33,7 +33,7 @@ class Schema {
   protected specification?: any;
   protected validateFunction?: any;
 
-  protected static schemaPaths?: string[];
+  protected static schemaPaths?: Record<string, string>;
   protected static schemas: any = {};
 
   /**
@@ -77,11 +77,11 @@ class Schema {
     return Schema.schemas[schemaName];
   }
 
-  public static setSchemaPaths(schemaPaths: string[]): void {
+  public static setSchemaPaths(schemaPaths: Record<string, string>): void {
     Schema.schemaPaths = schemaPaths;
   }
 
-  public static getSchemaPaths(): string[] {
+  public static getSchemaPaths(): Record<string, string> {
     return Schema.schemaPaths!;
   }
 
