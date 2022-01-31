@@ -272,10 +272,10 @@ class Schema {
     // const pattern = new RegExp('/[0-9]|[^v]|[latest]/');
     
     let exists = await this.hasPattern(version.toString());
-    // If the version is Undefined or does not have a standard version, returns schema name
-    // if(version && !pattern.test(version.toString())) {
-    //   return schemaName;
-    // }
+
+    if (exists) {
+      return schemaName;
+    }
 
     arr.splice(arr.length-2, 1)
 
