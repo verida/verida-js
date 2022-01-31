@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { ISignature } from "./interfaces";
 
 /**
@@ -11,17 +12,18 @@ export class Signature implements ISignature {
      * @param options Nullable parameter which holds cryptograhic materials to generate a Signature
      */
     public async generateSignature(data: any, options: any): Promise<any> {
-        const account = this.signContext.getAccount();
+        const signContext = options.signContext;
+        const account = signContext.getAccount();
         const signDid = await account.did();
-        const keyring = await account.keyring(this.signContextName);
+        const keyring = await account.keyring(options.signContextName);
     
         if (!data.signatures) {
           data.signatures = {};
         }
     
-        const signContextHash = DIDDocument.generateContextHash(
+        const signContextHash = options.DIDDocument.generateContextHash(
           signDid,
-          this.signContextName
+          options.signContextName
         );
         const signKey = `${signDid}?context=${signContextHash}`;
     
