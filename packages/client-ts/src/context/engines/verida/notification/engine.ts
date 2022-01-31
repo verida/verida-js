@@ -67,10 +67,12 @@ export default class NotificationEngineVerida implements BaseNotification {
 
         // Authenticate using the DID and a signed consent message
         const keyring = await this.context.getAccount().keyring(contextName)
-        const signature = await keyring.sign(`Access the notification service using context: "${contextName}"?\n\n${this.did!}`)
+        const did = this.did!.toLowerCase()
+        const message = `Access the notification service using context: "${contextName}"?\n\n${did}`
+        const signature = await keyring.sign(message)
 
         config["auth"] = {
-            username: this.did!.replace(/:/g, "_"),
+            username: did.replace(/:/g, "_"),
             password: signature,
         }
 
