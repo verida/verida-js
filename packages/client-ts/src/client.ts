@@ -6,7 +6,7 @@ import { Interfaces } from "@verida/storage-link";
 import { Profile } from "./context/profiles/profile";
 import { DIDClient } from "@verida/did-client";
 
-import { ClientConfig } from "./interfaces";
+import { ClientConfig, DefaultClientConfig } from "./interfaces";
 import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
@@ -24,7 +24,6 @@ class Client {
    * Defaults to Ceramic testnet. Specify custom URL via `ClientConfig` in the constructor.
    */
   public didClient: DIDClient;
-  public defaultVaultAppName: string;
 
   private didContextManager: DIDContextManager;
 
@@ -33,6 +32,8 @@ class Client {
 
   private environment: string;
   private defaultContext?: Context;
+
+  private config: DefaultClientConfig;
 
   /**
    * Create a client connection to the Verida network
@@ -47,13 +48,11 @@ class Client {
     const defaultConfig = DEFAULT_CONFIG.environments[this.environment]
       ? DEFAULT_CONFIG.environments[this.environment]
       : {};
-    const config = _.merge(defaultConfig, userConfig);
+    this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
-    this.defaultVaultAppName = userConfig.vaultAppName ? userConfig.vaultAppName: DEFAULT_CONFIG.vaultAppName;
-
-    this.didClient = new DIDClient(config.didServerUrl);
+    this.didClient = new DIDClient(this.config.didServerUrl!);
     this.didContextManager = new DIDContextManager(this.didClient);
-    Schema.setSchemaPaths(config.schemaPaths);
+    Schema.setSchemaPaths(this.config.schemaPaths!);
   }
 
   /**
@@ -165,6 +164,10 @@ class Client {
     contextName: string
   ): Promise<Interfaces.SecureContextConfig | undefined> {
     return this.didContextManager.getDIDContextConfig(did, contextName, false);
+  }
+
+  public getConfig(): DefaultClientConfig {
+    return this.config
   }
 
   /**

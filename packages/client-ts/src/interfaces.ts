@@ -73,3 +73,16 @@ export interface FetchUriParams {
 	id: string;
 	query: any;
 }
+
+export interface DefaultEnvironmentConfig {
+	didServerUrl?: string,
+	defaultDatabaseServerUrl?: string
+	defaultMessageServerUrl?: string
+	schemaPaths?: Record<string,string>
+}
+
+export interface DefaultClientConfig extends DefaultEnvironmentConfig {
+	environment: string
+	environments: Record<string, DefaultEnvironmentConfig>
+	vaultAppName: string
+}
