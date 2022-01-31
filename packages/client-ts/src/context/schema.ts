@@ -264,7 +264,12 @@ class Schema {
    * @param schemaName 
    * @returns schemaName without the version
    */  
-  public async getVersionlessSchemaName(schemaName: string): Promise<string> {
+  public static async getVersionlessSchemaName(schemaName: string): Promise<string> {
+    // Accepting empty schemas
+    if (!schemaName) {
+      return schemaName;
+    }
+
     let url = schemaName.split("//")[0]
 
     let arr = schemaName.split("/");
@@ -288,7 +293,7 @@ class Schema {
    * @param versionPattern pattern to be matched
    * @returns boolean true if matched else false
    */
-  public async hasPattern(version?: string, versionPattern?: string): Promise<boolean> {
+  public static async hasPattern(version?: string, versionPattern?: string): Promise<boolean> {
     return version && new RegExp(versionPattern || '/[0-9]|[^v]|[latest]/').test(version.toString()) ? true : false;
   }
 }
