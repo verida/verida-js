@@ -28,7 +28,7 @@ export default interface Messaging {
     type: string,
     data: object,
     message: string,
-    config?: MessageSendConfig
+    config: MessageSendConfig
   ): Promise<object | null>;
 
   /**

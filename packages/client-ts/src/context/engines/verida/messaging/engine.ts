@@ -8,6 +8,7 @@ import DIDContextManager from "../../../../did-context-manager";
 import Context from "../../../context";
 import { MessageSendConfig } from "../../../interfaces";
 import Notification from "../../../notification";
+import { Client } from "../../../..";
 const EventEmitter = require("events");
 
 /**
@@ -66,15 +67,18 @@ class MessagingEngineVerida implements BaseMessage {
     type: string,
     data: object,
     message: string,
-    config?: MessageSendConfig
+    config: MessageSendConfig
   ): Promise<object | null> {
     const outbox = await this.getOutbox();
     const response = await outbox.send(did, type, data, message, config);
 
+    let recipientContextName = config.recipientContextName ? 
+      config.recipientContextName : this.context.getClient().getConfig().vaultAppName;
+
     // Ping the notification service if it exists
     // @todo: Make it configurable if the notification service is pinged
     if (response && this.notificationService) {
-      await this.notificationService.ping()
+      await this.notificationService.ping(recipientContextName, did);
     }
 
     return response

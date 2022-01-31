@@ -1,5 +1,6 @@
+import { DefaultClientConfig } from "./interfaces"
 
-const config: any = {
+const config: DefaultClientConfig = {
     environment: process.env.VERIDA_ENVIRONMENT || "testnet",
     environments: {
         local: {

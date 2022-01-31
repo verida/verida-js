@@ -128,13 +128,20 @@ describe('Verida notification tests', () => {
         })
 
         it('can ping a notification server when sending a message', async () => {
+            const account = new AutoAccount(ENDPOINT_CONFIG, {
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
+            });
+            const did = await account.did()
             const context = await client3.openContext(CONTEXT_1, false)
             const messaging = await context.getMessaging()
             
             await validateDidDocument(VDA_ACCOUNT, context, VDA_DID)
 
             const result = await messaging.send(VDA_DID, 'inbox/type/dataSend', MESSAGE_DATA, 'Test message', {
-                recipientContextName: CONTEXT_1
+                recipientContextName: CONTEXT_1,
+                did: did
             })
 
             assert.ok(result && result.ok, 'Received a valid message response')
