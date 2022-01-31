@@ -9,7 +9,7 @@ export class Signature implements ISignature {
     /**
      * Computes and returns the signature
      * @param data Source of data required to generate the Signature
-     * @param options Nullable parameter which holds cryptograhic materials to generate a Signature
+     * @param options required parameter
      */
     public async generateSignature(data: any, options: any): Promise<any> {
         const signContext = options.signContext;
