@@ -19,20 +19,33 @@ import EncryptionUtils from "@verida/encryption-utils";
  */
 class Client {
   /**
-   * Connection URL to the ceramic network.
-   *
-   * Defaults to Ceramic testnet. Specify custom URL via `ClientConfig` in the constructor.
+   * Connection to the Verida DID Registry
    */
   public didClient: DIDClient;
 
+  /**
+   * Helper instance to manage DID contexts
+   */
   private didContextManager: DIDContextManager;
 
+  /**
+   * Connected account instance
+   */
   private account?: Account;
+
+  /**
+   * DID of connected account
+   */
   private did?: string;
 
+  /**
+   * Currently selected environment
+   */
   private environment: string;
-  private defaultContext?: Context;
 
+  /**
+   * Current configuration for this client
+   */
   private config: DefaultClientConfig;
 
   /**
