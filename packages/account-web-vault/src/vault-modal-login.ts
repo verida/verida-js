@@ -1,8 +1,5 @@
 import AuthClient from "./auth-client";
 
-// @ts-ignore
-import Sora from "./assets/fonts/Sora-Regular.ttf";
-
 import { AuthClientConfig, VaultModalLoginConfig } from "./interfaces";
 const _ = require("lodash");
 const store = require("store");
@@ -63,11 +60,10 @@ export default async function (
   </div>
 
     <style>
-    @font-face {
-      font-family: "Sora";
-      src: url(${Sora}) format("truetype");
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@200;300;500;600;700;800&display=swap');
+    body {
+      font-family: 'Sora', sans-serif;
     }
-
      #verida-auth-client-canvas {
       width: 287px !important;
       height: 287px !important;
