@@ -7,6 +7,10 @@ import BaseStorageEngine from './context/engines/base';
  */
 export interface ClientConfig {
 	/**
+	 * Specify client's App name.
+	 */
+	vaultAppName?: string;
+	/**
 	 * Environment to load by default.
 	 *
 	 * Environment configuration can still be overriden by config items.
@@ -68,4 +72,17 @@ export interface FetchUriParams {
 	dbName: string;
 	id: string;
 	query: any;
+}
+
+export interface DefaultEnvironmentConfig {
+	didServerUrl?: string,
+	defaultDatabaseServerUrl?: string
+	defaultMessageServerUrl?: string
+	schemaPaths?: Record<string,string>
+}
+
+export interface DefaultClientConfig extends DefaultEnvironmentConfig {
+	environment: string
+	environments: Record<string, DefaultEnvironmentConfig>
+	vaultAppName: string
 }

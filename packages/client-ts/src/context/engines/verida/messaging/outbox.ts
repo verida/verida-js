@@ -61,17 +61,19 @@ class VeridaOutbox {
     type: string,
     data: object,
     message: string,
-    config: MessageSendConfig = {}
+    config: MessageSendConfig
   ): Promise<object | null> {
     message = message ? message : "";
-    config = config ? config : {};
     did = did.toLowerCase();
 
     const defaults: MessageSendConfig = {
+      did: did,
       // By default send data to the user's official Verida Vault application
       recipientContextName: VAULT_CONTEXT_NAME,
       // @todo: set a default expiry that is configurable but defaults to 24 hours?
+      // Fix in :- https://github.com/verida/verida-js/issues/131.
     };
+    // Should refactor this logic
     config = _.merge(defaults, config);
 
     const sendingContextName = this.contextName;
@@ -153,6 +155,7 @@ class VeridaOutbox {
     // Save the encrypted JWT to the user's inbox
     const inbox = await this.getInboxDatastore(did, {
       recipientContextName: receivingContextName,
+      did: did
     });
 
     // Undo saving of inserted / modified metadata as this DB is public
@@ -187,7 +190,7 @@ class VeridaOutbox {
    * @param {string} did User's public DID
    * @param {object} config Config to be passed to the dataserver
    */
-  private async getInboxDatastore(did: string, config: MessageSendConfig = {}) {
+  private async getInboxDatastore(did: string, config: MessageSendConfig) {
     const cacheKey = did + config.recipientContextName!;
     if (this.inboxes[cacheKey]) {
       return this.inboxes[cacheKey];

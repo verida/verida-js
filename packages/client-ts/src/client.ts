@@ -6,7 +6,7 @@ import { Interfaces } from "@verida/storage-link";
 import { Profile } from "./context/profiles/profile";
 import { DIDClient } from "@verida/did-client";
 
-import { ClientConfig } from "./interfaces";
+import { ClientConfig, DefaultClientConfig } from "./interfaces";
 import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
@@ -19,19 +19,34 @@ import EncryptionUtils from "@verida/encryption-utils";
  */
 class Client {
   /**
-   * Connection URL to the ceramic network.
-   *
-   * Defaults to Ceramic testnet. Specify custom URL via `ClientConfig` in the constructor.
+   * Connection to the Verida DID Registry
    */
   public didClient: DIDClient;
 
+  /**
+   * Helper instance to manage DID contexts
+   */
   private didContextManager: DIDContextManager;
 
+  /**
+   * Connected account instance
+   */
   private account?: Account;
+
+  /**
+   * DID of connected account
+   */
   private did?: string;
 
+  /**
+   * Currently selected environment
+   */
   private environment: string;
-  private defaultContext?: Context;
+
+  /**
+   * Current configuration for this client
+   */
+  private config: DefaultClientConfig;
 
   /**
    * Create a client connection to the Verida network
@@ -46,11 +61,11 @@ class Client {
     const defaultConfig = DEFAULT_CONFIG.environments[this.environment]
       ? DEFAULT_CONFIG.environments[this.environment]
       : {};
-    const config = _.merge(defaultConfig, userConfig);
+    this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
-    this.didClient = new DIDClient(config.didServerUrl);
+    this.didClient = new DIDClient(this.config.didServerUrl!);
     this.didContextManager = new DIDContextManager(this.didClient);
-    Schema.setSchemaPaths(config.schemaPaths);
+    Schema.setSchemaPaths(this.config.schemaPaths!);
   }
 
   /**
@@ -162,6 +177,10 @@ class Client {
     contextName: string
   ): Promise<Interfaces.SecureContextConfig | undefined> {
     return this.didContextManager.getDIDContextConfig(did, contextName, false);
+  }
+
+  public getConfig(): DefaultClientConfig {
+    return this.config
   }
 
   /**
