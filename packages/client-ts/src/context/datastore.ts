@@ -2,6 +2,7 @@ const _ = require("lodash");
 import { DatastoreOpenConfig } from "./interfaces";
 import Context from "./context";
 import Schema from "./schema";
+import { DIDDocument } from "@verida/did-document";
 
 /**
  * A datastore wrapper around a given database and schema.
@@ -74,8 +75,9 @@ class Datastore {
    */
   public async save(data: any, options: any = {}): Promise<object | boolean> {
     await this.init();
-
+    
     data.schema = this.schemaPath;
+
     let valid = await this.schema.validate(data);
 
     if (!valid) {

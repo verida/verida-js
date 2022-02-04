@@ -10,7 +10,7 @@ import Utils from "./utils";
 import { Context } from "../../../..";
 import { DbRegistryEntry } from "../../../db-registry";
 import EncryptionUtils from "@verida/encryption-utils";
-import { DIDDocument } from "@verida/did-document";
+import { RecordSignature } from "../../../utils"
 
 /**
  * @category
@@ -398,25 +398,9 @@ class BaseDb extends EventEmitter implements Database {
    * @todo Think about signing data and versions / insertedAt etc.
    */
   protected async _signData(data: any) {
-    const account = this.signContext.getAccount();
-    const signDid = await account.did();
-    const keyring = await account.keyring(this.signContextName);
-
-    if (!data.signatures) {
-      data.signatures = {};
-    }
-
-    const signContextHash = DIDDocument.generateContextHash(
-      signDid,
-      this.signContextName
-    );
-    const signKey = `${signDid}?context=${signContextHash}`;
-
-    let _data = _.merge({}, data);
-    delete _data["signatures"];
-
-    data.signatures[signKey] = await keyring.sign(_data);
-    return data;
+    return RecordSignature.generateSignature(data, {
+      signContext: this.signContext
+    })
   }
 
   protected async createDb() {
