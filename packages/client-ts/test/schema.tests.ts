@@ -60,6 +60,21 @@ describe('Schema tests', () => {
             assert.ok(appearance, 'Appearance loaded')
             assert.ok(appearance.style, 'Appearance has style metadata')
         })
+
+        it('can generate versionless scheams', async function() {
+            const TESTS = [
+                ['https://common.schemas.verida.io/social/contact/latest/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/social/contact/v0.1.0/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/social/contact/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/Patient/v0.1.0/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/Patient/schema.json'],
+            ]
+
+            for (var testId in TESTS) {
+                const TEST = TESTS[testId]
+                assert.equal(Schema.getVersionlessSchemaName(TEST[0]), TEST[1], `Versionless schema for "${TEST[0]}" is "${TEST[1]}"`)
+            }
+        })
     })
 
 })

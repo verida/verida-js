@@ -75,13 +75,6 @@ class Datastore {
    */
   public async save(data: any, options: any = {}): Promise<object | boolean> {
     await this.init();
-
-    // nullable propery 
-    data.schema = this.schemaPath;
-
-    if (this.schema) {
-      data.schema = Schema.getVersionlessSchemaName(this.schemaPath || "");
-    }
     
     data.schema = this.schemaPath;
 
@@ -91,8 +84,6 @@ class Datastore {
       this.errors = this.schema.errors;
       return false;
     }
-
-    // generate signature
 
     return this.db.save(data, options);
   }

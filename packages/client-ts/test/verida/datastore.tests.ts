@@ -4,6 +4,7 @@ const assert = require('assert')
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
+import { RecordSignature } from '../../src/context/utils'
 
 const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
@@ -105,6 +106,38 @@ describe('Verida datastore tests', () => {
             const data = await datastore.getMany()
 
             assert.ok(data.length, 'Results returned')
+        })
+
+        it(`data signatures correctly drop version information from signatures`, async function() {
+            const TESTS = [
+                ['https://common.schemas.verida.io/social/contact/latest/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/social/contact/v0.1.0/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/Patient/v0.1.0/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/Patient/schema.json'],
+            ]
+
+            for (var testId in TESTS) {
+                const TEST = TESTS[testId]
+                const schemaName = TEST[0]
+                const versionlessSchemaName = TEST[1]
+                const data = {
+                    hello: 'world',
+                    test: 'true',
+                    schema: schemaName
+                }
+
+                const calculatedSig = await RecordSignature.generateSignature(data, {
+                    signContext: context
+                })
+
+                data.schema = versionlessSchemaName
+
+                const versionlessSig = await RecordSignature.generateSignature(data, {
+                    signContext: context
+                })
+
+                assert.equal(Object.values(calculatedSig)[0], Object.values(versionlessSig)[0], `Versionless sig for schema "${schemaName}" matches sig for schema "${versionlessSchemaName}"`)
+            }
         })
     })
 
