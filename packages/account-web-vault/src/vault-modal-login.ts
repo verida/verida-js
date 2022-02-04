@@ -3,7 +3,7 @@ import AuthClient from "./auth-client";
 // @ts-ignore
 import Sora from "./assets/fonts/Sora-Regular.ttf";
 
-import { AuthClientConfig, VaultModalLoginConfig } from "./interfaces";
+import { AuthClientConfig, VaultAccountConfig } from "./interfaces";
 const _ = require("lodash");
 const store = require("store");
 
@@ -11,7 +11,7 @@ const VERIDA_AUTH_CONTEXT = "_verida_auth_context";
 
 export default async function (
   contextName: string,
-  config: VaultModalLoginConfig
+  config: VaultAccountConfig
 ) {
   const authConfig: AuthClientConfig = _.merge(
     {
