@@ -70,15 +70,15 @@ export default class StorageLink {
         const contextHash = DIDDocument.generateContextHash(did, storageConfig.id)
 
         // Add services
-        didDocument.addContextService(contextHash, Interfaces.EndpointType.DATABASE, storageConfig.services.databaseServer.type, storageConfig.services.databaseServer.endpointUri)
-        didDocument.addContextService(contextHash, Interfaces.EndpointType.MESSAGING, storageConfig.services.messageServer.type, storageConfig.services.messageServer.endpointUri)
+        didDocument.addContextService(contextHash, Interfaces.EndpointType.DATABASE, storageConfig.services.databaseServer.type, StorageLink.standardizeUrl(storageConfig.services.databaseServer.endpointUri))
+        didDocument.addContextService(contextHash, Interfaces.EndpointType.MESSAGING, storageConfig.services.messageServer.type, StorageLink.standardizeUrl(storageConfig.services.messageServer.endpointUri))
 
         if (storageConfig.services.storageServer) {
-            didDocument.addContextService(contextHash, Interfaces.EndpointType.STORAGE, storageConfig.services.storageServer!.type, storageConfig.services.storageServer!.endpointUri)
+            didDocument.addContextService(contextHash, Interfaces.EndpointType.STORAGE, storageConfig.services.storageServer!.type, StorageLink.standardizeUrl(storageConfig.services.storageServer!.endpointUri))
         }
 
         if (storageConfig.services.notificationServer) {
-            didDocument.addContextService(contextHash, Interfaces.EndpointType.NOTIFICATION, storageConfig.services.notificationServer!.type, storageConfig.services.notificationServer!.endpointUri)
+            didDocument.addContextService(contextHash, Interfaces.EndpointType.NOTIFICATION, storageConfig.services.notificationServer!.type, StorageLink.standardizeUrl(storageConfig.services.notificationServer!.endpointUri))
         }
 
         // Add keys
@@ -104,7 +104,7 @@ export default class StorageLink {
         const contextHash = DIDDocument.generateContextHash(did, contextName)
 
         // Add the context service
-        await didDocument.addContextService(contextHash, endpointType, serverType, endpointUri)
+        await didDocument.addContextService(contextHash, endpointType, serverType, StorageLink.standardizeUrl(endpointUri))
 
         return await didClient.save(didDocument)
     }
@@ -194,11 +194,11 @@ export default class StorageLink {
                 services: {
                     databaseServer: {
                         type: databaseService!.type,
-                        endpointUri: databaseService!.serviceEndpoint
+                        endpointUri: StorageLink.standardizeUrl(databaseService!.serviceEndpoint)
                     },
                     messageServer: {
                         type: messageService!.type,
-                        endpointUri: messageService!.serviceEndpoint
+                        endpointUri: StorageLink.standardizeUrl(messageService!.serviceEndpoint)
                     }
                 }
             }
@@ -206,14 +206,14 @@ export default class StorageLink {
             if (storageService) {
                 config.services.storageServer = {
                     type: storageService!.type,
-                    endpointUri: storageService!.serviceEndpoint
+                    endpointUri: StorageLink.standardizeUrl(storageService!.serviceEndpoint)
                 }
             }
 
             if (notificationService) {
                 config.services.notificationServer = {
                     type: notificationService!.type,
-                    endpointUri: notificationService!.serviceEndpoint
+                    endpointUri: StorageLink.standardizeUrl(notificationService!.serviceEndpoint)
                 }
             }
 
@@ -221,6 +221,16 @@ export default class StorageLink {
         })
 
         return contexts
+    }
+
+    /**
+     * Ensure the URL has a trailing slash
+     * 
+     * @param url 
+     * @returns 
+     */
+    public static standardizeUrl(url: string) {
+        return url.replace(/\/$/, '') + '/'
     }
 
 }
