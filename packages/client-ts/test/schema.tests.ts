@@ -42,7 +42,7 @@ describe('Schema tests', () => {
             assert.ok(validate1 === false, 'Data correctly marked as invalid')
             assert.ok(schema.errors.length, 'Data correctly has a list of validation errors')
 
-            let contact = {
+            const contact = {
                 firstName: 'John',
                 lastName: 'Smith',
                 email: 'john@smith.com',
@@ -50,7 +50,18 @@ describe('Schema tests', () => {
             }
 
             const validate2 = await schema.validate(contact)
-            assert.ok(validate2 === true, 'Data correctly marked as valid')            
+            assert.ok(validate2 === true, 'Data correctly marked as valid')    
+            
+            const contact2 = {
+                firstName: 'John',
+                lastName: 'Smith',
+                email: 'johnsmith.com',
+                schema: SCHEMA_CONTACTS
+            }
+
+            const validate3 = await schema.validate(contact2)
+            assert.ok(validate3 === false, 'Data correctly marked as invalid')
+            assert.ok(schema.errors.length && schema.errors[0].message == `must match format "email"`, 'Email correctly marked as invalid')
         })
 
         it('can get appearance', async function() {
