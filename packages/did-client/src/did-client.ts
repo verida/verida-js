@@ -11,7 +11,8 @@ export default class DIDClient {
     private wallet?: Wallet
 
     constructor(endpointUrl: string) {
-        this.endpointUrl = endpointUrl
+        // Strip any trailing slash
+        this.endpointUrl = endpointUrl.replace(/\/$/,'')
     }
 
     /**
