@@ -40,6 +40,29 @@ const testConfig: SecureContextConfig = {
         }
     }
 }
+const expectedConfig: SecureContextConfig = {
+    id: CONTEXT_NAME,
+    publicKeys: {
+        signKey: {
+            type: 'EcdsaSecp256k1VerificationKey2019',
+            publicKeyHex: '0x970c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
+        },
+        asymKey: {
+            type: 'Curve25519EncryptionPublicKey',
+            publicKeyHex: '0x270c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
+        }
+    },
+    services: {
+        databaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: 'https://storage.endpoint/'
+        },
+        messageServer: {
+            type: 'VeridaMessage',
+            endpointUri: 'https://message.endpoint/'
+        }
+    }
+}
 const TEST_APP_NAME2 = 'Test App 2'
 
 describe('Storage Link', () => {
@@ -47,17 +70,18 @@ describe('Storage Link', () => {
         this.timeout(100000)
 
         it('can link a DID to a secure storage context', async function() {
-            let storageConfig = Object.assign({}, testConfig)
-            await StorageLink.setLink(didClient, storageConfig)
+            let storageConfig = Object.assign({}, expectedConfig)
+            await StorageLink.setLink(didClient, testConfig)
             const links = await StorageLink.getLinks(didClient, DID)
 
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, testConfig.id)
             storageConfig.id = DIDDocument.generateContextHash(DID, CONTEXT_NAME)
-            assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the submitted storage config')
+
+            assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the expected storage config')
         })
 
         it('can link a DID to multiple secure storage contexts', async function() {
-            let storageConfig = Object.assign({}, testConfig)
+            let storageConfig = Object.assign({}, expectedConfig)
             storageConfig.id = TEST_APP_NAME2
             await StorageLink.setLink(didClient, storageConfig)
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, TEST_APP_NAME2)
