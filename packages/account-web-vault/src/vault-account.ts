@@ -1,17 +1,26 @@
-import CeramicClient from '@ceramicnetwork/http-client'
-import { Account, AccountConfig } from '@verida/account'
-import { Interfaces, StorageLink } from '@verida/storage-link'
+import { Account } from '@verida/account'
+import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
 const _ = require('lodash')
 const store = require('store')
 const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 
-import { VaultAccountConfig, VaultModalLoginConfig } from "./interfaces"
+import { VaultAccountConfig } from "./interfaces"
 
 const CONFIG_DEFAULTS = {
     loginUri: 'https://vault.verida.io/request',
     serverUri: 'wss://auth-server.testnet.verida.io:7002',
+}
+
+export const hasSession = (contextName: string): boolean => {
+    const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+
+    if (!storedSessions || !storedSessions[contextName]) {
+        return false
+    } else {
+        return true
+    }
 }
 
 /**
@@ -23,24 +32,20 @@ export default class VaultAccount extends Account {
     private accountDid?: string
     private contextCache: any = {}
 
-    constructor(config: VaultAccountConfig) {
+    constructor(config: VaultAccountConfig = {}) {
         super()
         this.config = config
-        if (!this.config.vaultConfig) {
-            this.config.vaultConfig = {}
-        }
     }
 
     public async connectContext(contextName: string) {
         const vaultAccount = this
-        const loginConfig = this.config
 
         const contextConfig = await this.loadFromSession(contextName)
         if (contextConfig) {
             return contextConfig
         }
 
-        const promise = new Promise<void>((resolve, reject) => {
+        const promise = new Promise<boolean>((resolve, reject) => {
             const cb = async (response: any, saveSession: boolean) => {
                 if (saveSession) {
                     let storedSessions = store.get(VERIDA_AUTH_CONTEXT)
@@ -54,11 +59,14 @@ export default class VaultAccount extends Account {
 
                 this.setDid(response.did)
                 vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
-                resolve()
+                resolve(true)
             }
 
-            const config: VaultModalLoginConfig = _.merge(CONFIG_DEFAULTS, this.config.vaultConfig, {
-                callback: cb
+            const config: VaultAccountConfig = _.merge(CONFIG_DEFAULTS, this.config, {
+                callback: cb,
+                callbackRejected: function() {
+                    resolve(false)
+                }
             })
 
             VaultModalLogin(contextName, config)
@@ -79,8 +87,8 @@ export default class VaultAccount extends Account {
         this.setDid(response.did)
         this.addContext(response.context, response.contextConfig, new Keyring(response.signature))
 
-        if (typeof(this.config.vaultConfig!.callback) === "function") {
-            this.config.vaultConfig!.callback(response)
+        if (typeof(this.config!.callback) === "function") {
+            this.config!.callback(response)
         }
 
         return response.contextConfig
@@ -129,8 +137,8 @@ export default class VaultAccount extends Account {
 
     /**
      * Link storage to this user
-     * 
-     * @param storageConfig 
+     *
+     * @param storageConfig
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
         throw new Error("Link storage is not supported. Vault needs to have already created the storage.")
@@ -138,15 +146,11 @@ export default class VaultAccount extends Account {
 
      /**
       * Unlink storage for this user
-      * 
-      * @param contextName 
+      *
+      * @param contextName
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         throw new Error("Unlink storage is not supported. Request via the Vault.")
-    }
-
-    public async getCeramic(): Promise<CeramicClient> {
-        throw new Error("Getting ceramic instance is not supported by Account Web Vault.")
     }
 
     public async disconnect(contextName?: string): Promise<void> {

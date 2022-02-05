@@ -1,21 +1,18 @@
 import Encryption from '@verida/encryption-utils'
-import { box, sign } from 'tweetnacl'
-const bs58 = require('bs58')
-import * as jsSHA from "jssha"
+import nacl, { box, sign } from 'tweetnacl'
+import { utils } from 'ethers'
 
 import { KeyringKeyType } from './interfaces'
 
 /**
- * Class that takes a signature (generated from a 3ID consent message) and generates a
+ * Class that takes a signature (generated from a signed consent message) and generates a
  * collection of asymmetric keys, symmetric key and signing key for a given secure storage
  * context.
- * 
- * @todo: Consider replacing encryption-utils to use `digitalbazaar/minimal-cipher` for asym encryption
  */
 export default class Keyring {
 
-    public asymKeyPair?: nacl.BoxKeyPair    // was 'any'
-    public signKeyPair?: nacl.SignKeyPair   // was 'any'
+    public asymKeyPair?: nacl.BoxKeyPair
+    public signKeyPair?: nacl.SignKeyPair
     public symKey?: Uint8Array
 
     private seed: string
@@ -35,16 +32,18 @@ export default class Keyring {
         await this._init()
 
         return {
-            asymPublicKey: this.asymKeyPair?.publicKey,
-            asymPrivateKey: this.asymKeyPair?.secretKey,
-            asymPublicKeyBase58: bs58.encode(this.asymKeyPair?.publicKey),
-            asymPrivateKeyBase58: bs58.encode(this.asymKeyPair?.secretKey),
-            signPublicKey: this.signKeyPair?.publicKey,
-            signPrivateKey: this.signKeyPair?.secretKey,
-            signPublicKeyBase58: bs58.encode(this.signKeyPair?.publicKey),
-            signPrivateKeyBase58: bs58.encode(this.signKeyPair?.secretKey),
+            asymPublicKey: this.asymKeyPair!.publicKey,
+            asymPrivateKey: this.asymKeyPair!.secretKey,
+            asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
+            asymPrivateKeyBase58: utils.base58.encode(this.asymKeyPair!.secretKey),
+            asymPublicKeyHex: utils.hexlify(this.asymKeyPair!.publicKey),
+            signPublicKey: this.signKeyPair!.publicKey,
+            signPrivateKey: this.signKeyPair!.secretKey,
+            signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey),
+            signPrivateKeyBase58: utils.base58.encode(this.signKeyPair!.secretKey),
+            signPublicKeyHex: utils.hexlify(this.signKeyPair!.publicKey),
             symKey: this.symKey!,
-            symKeyBase58: bs58.encode(this.symKey!)
+            symKeyBase58: utils.base58.encode(this.symKey!)
         }
     }
 
@@ -55,8 +54,9 @@ export default class Keyring {
 
         this.asymKeyPair = await this.buildKey(this.seed, KeyringKeyType.ASYM)
         this.signKeyPair = await this.buildKey(this.seed, KeyringKeyType.SIGN)
-        const symKeyPair = await this.buildKey(this.seed, KeyringKeyType.SYM)
-        this.symKey = symKeyPair.secretKey
+
+        const symmetricKey = await this.buildKey(this.seed, KeyringKeyType.SYM)
+        this.symKey = symmetricKey.secretKey
     }
 
     /**
@@ -66,16 +66,20 @@ export default class Keyring {
      * @param keyType 
      * @returns 
      */
-    private async buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair | nacl.SignKeyPair> {
+    private async buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair> {
         const inputMessage = `${seed}-${keyType}`
-
-        const hash = new jsSHA.default('SHA-256', 'TEXT')
-        hash.update(inputMessage)
-        const hashBytes = hash.getHash('UINT8ARRAY')
+        const hashBytes = Encryption.hashBytes(inputMessage)
 
         switch (keyType) {
             case KeyringKeyType.SIGN:
-                return sign.keyPair.fromSeed(hashBytes)
+                const hdnode = utils.HDNode.fromSeed(hashBytes)
+                const secretKey = utils.zeroPad(hdnode.privateKey, 32)
+                const publicKey = utils.zeroPad(hdnode.publicKey, 33)
+
+                return {
+                    secretKey,
+                    publicKey
+                }
             case KeyringKeyType.ASYM:
                 return box.keyPair.fromSecretKey(hashBytes)
             case KeyringKeyType.SYM:
@@ -94,21 +98,23 @@ export default class Keyring {
         await this._init()
         
         return {
-            asymPublicKey: this.asymKeyPair?.publicKey,
-            asymPublicKeyBase58: bs58.encode(this.asymKeyPair?.publicKey),
-            signPublicKey: this.signKeyPair?.publicKey,
-            signPublicKeyBase58: bs58.encode(this.signKeyPair?.publicKey)
+            asymPublicKey: this.asymKeyPair!.publicKey,
+            asymPublicKeyHex: utils.hexlify(this.asymKeyPair!.publicKey),
+            asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
+            signPublicKey: this.signKeyPair!.publicKey,
+            signPublicKeyHex: utils.hexlify(this.signKeyPair!.publicKey),
+            signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey)
         }
     }
 
-    public async sign(data: string): Promise<string> {
+    public async sign(data: any): Promise<string> {
         await this._init()
         return Encryption.signData(data, this.signKeyPair!.secretKey)
     }
 
     public async verifySig(data: string, sig: string): Promise<boolean> {
         await this._init()
-        return Encryption.verifySig(data, sig, this.signKeyPair!.publicKey)
+        return Encryption.verifySig(data, sig, utils.hexlify(this.signKeyPair!.publicKey))
     }
 
     public async symEncrypt(data: string): Promise<string> {

@@ -1,18 +1,9 @@
 'use strict'
 const assert = require('assert')
 
-import { Client } from '../src/index'
 import Schema from "../src/context/schema"
-import CONFIG from './config'
 
-const SCHEMA_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
-
-// Initialize the Verida Network even though it's not used
-// This is becuase doing so will configure the schema paths
-// from the default newtork config
-const network = new Client({
-    ceramicUrl: CONFIG.CERAMIC_URL
-})
+const SCHEMA_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
 /**
  * 
@@ -29,7 +20,7 @@ describe('Schema tests', () => {
 
             const spec = await schema.getSpecification()
             assert.ok(spec, 'Schema spec exists')
-            assert.ok(spec.required.length == 2 && spec.required[0] == 'firstName', 'Schema specification has expected required value')
+            assert.ok(spec.required.length == 3 && spec.required[0] == 'schema', 'Schema specification has expected required value')
         })
 
         it('can fetch a known schema JSON', async function() {
@@ -45,27 +36,21 @@ describe('Schema tests', () => {
             const schema = await Schema.getSchema(SCHEMA_CONTACTS)
             assert.ok(schema, 'Response received')
 
-            const validate1 = await schema.validate({})
+            const validate1 = await schema.validate({
+                schema: SCHEMA_CONTACTS
+            })
             assert.ok(validate1 === false, 'Data correctly marked as invalid')
             assert.ok(schema.errors.length, 'Data correctly has a list of validation errors')
 
             let contact = {
                 firstName: 'John',
                 lastName: 'Smith',
-                email: 'john__smith.com'
+                email: 'john@smith.com',
+                schema: SCHEMA_CONTACTS
             }
 
             const validate2 = await schema.validate(contact)
-            assert.ok(validate2 === false, 'Data correctly marked as invalid')
-
-            contact = {
-                firstName: 'John',
-                lastName: 'Smith',
-                email: 'john@smith.com'
-            }
-
-            const validate3 = await schema.validate(contact)
-            assert.ok(validate3 === true, 'Data correctly marked as valid')
+            assert.ok(validate2 === true, 'Data correctly marked as valid')            
         })
 
         it('can get appearance', async function() {
@@ -75,6 +60,21 @@ describe('Schema tests', () => {
             const appearance = await schema.getAppearance()
             assert.ok(appearance, 'Appearance loaded')
             assert.ok(appearance.style, 'Appearance has style metadata')
+        })
+
+        it('can generate versionless scheams', async function() {
+            const TESTS = [
+                ['https://common.schemas.verida.io/social/contact/latest/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/social/contact/v0.1.0/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/social/contact/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/Patient/v0.1.0/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/Patient/schema.json'],
+            ]
+
+            for (var testId in TESTS) {
+                const TEST = TESTS[testId]
+                assert.equal(Schema.getVersionlessSchemaName(TEST[0]), TEST[1], `Versionless schema for "${TEST[0]}" is "${TEST[1]}"`)
+            }
         })
     })
 

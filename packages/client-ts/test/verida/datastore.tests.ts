@@ -3,11 +3,10 @@ const assert = require('assert')
 
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
-StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
+import { RecordSignature } from '../../src/context/utils'
 
-const DS_CONTACTS = 'https://schemas.verida.io/social/contact/schema.json'
+const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
 /**
  * 
@@ -18,11 +17,13 @@ describe('Verida datastore tests', () => {
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     const network2 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     describe('Manage datastores for the authenticated user', function() {
@@ -31,9 +32,9 @@ describe('Verida datastore tests', () => {
         it('can open a datastore with owner/owner permissions', async function() {
             // Initialize account 1
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did1 = await account1.did()
             await network.connect(account1)
@@ -41,9 +42,9 @@ describe('Verida datastore tests', () => {
 
             // Initialize account 3
             const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY_2,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did2 = await account2.did()
             await network2.connect(account2)
@@ -56,7 +57,7 @@ describe('Verida datastore tests', () => {
             const contact = {
                 firstName: 'John',
                 lastName: 'Smith',
-                email: 'john__smith.com'
+                email: 'john@smith.com'
             }
 
             const result2 = await datastore.save(contact)
@@ -84,7 +85,7 @@ describe('Verida datastore tests', () => {
             const contact = {
                 firstName: 'Jane',
                 lastName: 'Doe',
-                email: 'jane__doe.com'
+                email: 'jane@doe.com'
             }
 
             const result = await datastore.save(contact)
@@ -105,6 +106,38 @@ describe('Verida datastore tests', () => {
             const data = await datastore.getMany()
 
             assert.ok(data.length, 'Results returned')
+        })
+
+        it(`data signatures correctly drop version information from signatures`, async function() {
+            const TESTS = [
+                ['https://common.schemas.verida.io/social/contact/latest/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/social/contact/v0.1.0/schema.json', 'https://common.schemas.verida.io/social/contact/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/schema.json'],
+                ['https://common.schemas.verida.io/health/fhir/4.0.1/Patient/v0.1.0/schema.json', 'https://common.schemas.verida.io/health/fhir/4.0.1/Patient/schema.json'],
+            ]
+
+            for (var testId in TESTS) {
+                const TEST = TESTS[testId]
+                const schemaName = TEST[0]
+                const versionlessSchemaName = TEST[1]
+                const data = {
+                    hello: 'world',
+                    test: 'true',
+                    schema: schemaName
+                }
+
+                const calculatedSig = await RecordSignature.generateSignature(data, {
+                    signContext: context
+                })
+
+                data.schema = versionlessSchemaName
+
+                const versionlessSig = await RecordSignature.generateSignature(data, {
+                    signContext: context
+                })
+
+                assert.equal(Object.values(calculatedSig)[0], Object.values(versionlessSig)[0], `Versionless sig for schema "${schemaName}" matches sig for schema "${versionlessSchemaName}"`)
+            }
         })
     })
 

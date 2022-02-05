@@ -3,16 +3,16 @@ const assert = require('assert')
 
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import CONFIG from '../config'
-StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
 import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
-const DB_NAME_OWNER = 'OwnerTestDb_'
-const DB_NAME_USER = 'UserTestDb_'
-const DB_NAME_PUBLIC = 'PublicTestDb_'
-const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_'
-const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_'
+const DB_NAME_OWNER = 'OwnerTestDb_1'
+const DB_NAME_USER = 'UserTestDb_1'
+const DB_NAME_USER_2 = 'UserTestDb_2'
+const DB_NAME_USER_3 = 'UserTestDb_3'
+const DB_NAME_PUBLIC = 'PublicTestDb_1'
+const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_1'
+const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_1'
 
 /**
  * 
@@ -24,15 +24,18 @@ describe('Verida database tests', () => {
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     const network2 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     const network3 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
 
     describe('Manage databases for the authenticated user', function() {
@@ -41,9 +44,9 @@ describe('Verida database tests', () => {
         it('can open a database with owner/owner permissions', async function() {
             // Initialize account 1
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did1 = await account1.did()
             await network.connect(account1)
@@ -51,9 +54,9 @@ describe('Verida database tests', () => {
 
             // Initialize account 2
             const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY_2,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did2 = await account2.did()
             await network2.connect(account2)
@@ -61,9 +64,9 @@ describe('Verida database tests', () => {
 
             // Initialize account 3
             const account3 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY_3,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY_3,
+                didServerUrl: CONFIG.DID_SERVER_URL,
+                environment: CONFIG.ENVIRONMENT
             })
             did3 = await account3.did()
             await network3.connect(account3)
@@ -78,7 +81,7 @@ describe('Verida database tests', () => {
             assert.ok(data[0].hello == 'world', 'First result has expected value')
         })
 
-        it('can open a database with user permissions', async function() {
+        it('can open an existing database with user permissions', async function() {
             const database = await context.openDatabase(DB_NAME_USER, {
                 permissions: {
                     read: 'users',
@@ -105,6 +108,37 @@ describe('Verida database tests', () => {
             })
 
             await database2.save({'hello': 'world'})
+        })
+
+        it('can create a new database defining initial users', async function() {
+            const database = await context.openDatabase(DB_NAME_USER_2, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did3],
+                    write: 'users',
+                    writeList: [did1, did3]
+                }
+            })
+            const info = await database.info()
+
+            const result = await database.save({'hello': 'world'})
+            const data = await database.get(result.id)
+
+            assert.ok(data.hello == 'world', 'First result has expected value')
+
+            // open the previously created database as an external user
+            const database3 = await context3.openExternalDatabase(DB_NAME_USER_2, did1, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did3],
+                    write: 'users',
+                    writeList: [did1, did3]
+                },
+                encryptionKey: info.encryptionKey
+            })
+
+            const results = await database3.getMany()
+            assert.ok(results.length, 'Results returned')
         })
 
         it('can open a database with public read permissions', async function() {
@@ -318,5 +352,34 @@ describe('Verida database tests', () => {
             const result = await promise
             assert.deepEqual(result, new Error('Invalid encryption key supplied'))
         })
+
+        it(`can't write an external database where a did has read access, but not write access`, async () => {
+            const ownerDatabase = await context.openDatabase(DB_NAME_USER_3, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did2],
+                    write: 'owner'
+                }
+            })
+            const info = await ownerDatabase.info()
+            const encryptionKey = info.encryptionKey
+
+            const did2Database = await context2.openExternalDatabase(DB_NAME_USER_3, did1, {
+                permissions: {
+                    read: 'users',
+                    readList: [did1, did2],
+                    write: 'owner'
+                },
+                encryptionKey: encryptionKey
+            })
+
+            const promise = new Promise((resolve, rejects) => {
+                did2Database.save({'write': 'from valid external user DID'}).then(rejects, resolve)
+            })
+
+            const result = await promise
+            assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
+        })
+
     })
 })

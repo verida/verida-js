@@ -3,13 +3,8 @@
 const assert = require('assert')
 
 import { Client } from '../src/index'
-import { Utils } from '@verida/3id-utils-node'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import CONFIG from './config'
-StorageLink.setSchemaId(CONFIG.STORAGE_LINK_SCHEMA)
-
-const utils = new Utils(CONFIG.CERAMIC_URL)
 
 const DATA = {
     name: "Jane"
@@ -17,12 +12,14 @@ const DATA = {
 
 describe('Profile tests', () => {
     const client1 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
     let did1, context1, profile1
 
     const client2 = new Client({
-        ceramicUrl: CONFIG.CERAMIC_URL
+        didServerUrl: CONFIG.DID_SERVER_URL,
+        environment: CONFIG.ENVIRONMENT
     })
     let did2, context2, profile2
 
@@ -31,9 +28,9 @@ describe('Profile tests', () => {
 
         it('can initialise own profile', async () => {
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                environment: CONFIG.ENVIRONMENT,
+                didServerUrl: CONFIG.DID_SERVER_URL
             })
             did1 = await account1.did()
             await client1.connect(account1)
@@ -45,17 +42,25 @@ describe('Profile tests', () => {
             assert.equal(name, DATA.name, "Can set and get a profile value")
         })
 
+        it('can not set invalid profile values', async () => {
+            context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
+
+            profile1 = await context1.openProfile()
+            const response = await profile1.set("name", "")
+            assert.equal(response, false, "Can not set an invalid profile value")
+        })
+
         it('can access an external profile', async () => {
             const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: CONFIG.ETH_PRIVATE_KEY_2,
-                ceramicUrl: CONFIG.CERAMIC_URL
+                privateKey: CONFIG.VDA_PRIVATE_KEY_2,
+                environment: CONFIG.ENVIRONMENT,
+                didServerUrl: CONFIG.DID_SERVER_URL
             })
             did2 = await account2.did()
             await client2.connect(account2)
             context2 = await client2.openContext(CONFIG.CONTEXT_NAME, true)
 
-            profile2 = await context2.openProfile("public", did1, false)
+            profile2 = await context2.openProfile(undefined, did1, false)
             const name = await profile2.get("name")
             assert.equal(name, DATA.name, "Can get external public profile data")
         })

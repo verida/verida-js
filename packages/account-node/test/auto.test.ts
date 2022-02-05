@@ -2,9 +2,16 @@
 const assert = require('assert')
 import { AutoAccount } from "../src/index"
 import { decodeJWT } from 'did-jwt'
+import { DIDClient } from "@verida/did-client"
 
-const ETH_PRIVATE_KEY = '0xc0da48347b4bcb2cfb08d6b8c26b52b47fd36ca6114974a0104d15fab076f553'
-const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com'
+
+const DID_SERVER_URL = 'http://localhost:5001'
+const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
+
+const didClient = new DIDClient(DID_SERVER_URL)
+didClient.authenticate(MNEMONIC)
+const DID = didClient.getDid()
+
 const APPLICATION_NAME = 'Verida Test: DIDJWT'
 const DEFAULT_ENDPOINTS = {
     defaultDatabaseServer: {
@@ -17,7 +24,6 @@ const DEFAULT_ENDPOINTS = {
     },
 }
 
-
 describe('Auto account tests', () => {
 
     describe('Basic tests', function() {
@@ -25,9 +31,8 @@ describe('Auto account tests', () => {
 
         it('verify did-jwt', async function() {
             const account = new AutoAccount(DEFAULT_ENDPOINTS, {
-                chain: 'ethr',
-                privateKey: ETH_PRIVATE_KEY,
-                ceramicUrl: CERAMIC_URL
+                privateKey: MNEMONIC,
+                didServerUrl: DID_SERVER_URL
             })
             const didJwt = await account.createDidJwt(APPLICATION_NAME, {
                 hello: 'world'
@@ -40,6 +45,23 @@ describe('Auto account tests', () => {
             assert.equal(decoded.payload.iss, did, 'Decoded ISS matches')
             assert.equal(decoded.payload.data.hello, 'world', 'Decoded data matches')
             assert.equal(decoded.payload.context, APPLICATION_NAME, 'Decoded context matches')
+        })
+
+        it('can reopen the same 3id account with the same mnemonic and did', async () => {
+            const account1 = new AutoAccount(DEFAULT_ENDPOINTS, {
+                privateKey: MNEMONIC,
+                didServerUrl: DID_SERVER_URL
+            })
+
+            const did1 = await account1.did()
+
+            const account2 = new AutoAccount(DEFAULT_ENDPOINTS, {
+                privateKey: MNEMONIC,
+                didServerUrl: DID_SERVER_URL
+            })
+
+            const did2 = await account2.did()
+            assert.equal(did1, did2, 'both dids match')
         })
 
     })
