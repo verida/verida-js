@@ -11,16 +11,23 @@ describe('Credential tests', function () {
         this.timeout(100000);
         let encryptedData;
 
-        
+
         let appContext;
         let shareCredential;
         let credential;
 
-        it('Login in user and create  app context', async function () {
+        it('Login in user and create app context', async function () {
+
+            // create instances
+
             appContext = await connect(config.PRIVATE_KEY_1);
-            assert.equal(appContext.getContextName(), config.VERIDA_CONTEXT_NAME);
+
             shareCredential = new SharingCredential(appContext);
+
             credential = new Credentials(appContext);
+
+
+            assert.equal(appContext.getContextName(), config.VERIDA_CONTEXT_NAME);
         });
         it('Verify Credential JWT was created correctly', async function () {
 
