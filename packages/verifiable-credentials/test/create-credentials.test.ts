@@ -7,69 +7,48 @@ import { config, connect } from './config'
 
 
 describe('Credential tests', function () {
+
     describe('Credential Units', function () {
         this.timeout(100000);
-        let encryptedData;
-
-
         let appContext;
         let shareCredential;
         let credential;
 
-        it('Login in user and create app context', async function () {
-
-            // create instances
-
+        beforeEach(async function () {
             appContext = await connect(config.PRIVATE_KEY_1);
 
             shareCredential = new SharingCredential(appContext);
 
-            credential = new Credentials(appContext);
-
-
-            assert.equal(appContext.getContextName(), config.VERIDA_CONTEXT_NAME);
+            credential = new Credentials(appContext)
         });
+
         it('Verify Credential JWT was created correctly', async function () {
 
-            const item: any = await credential.createCredentialJWT(config.CREDENTAIL_DATA);
+            const jwt: any = await credential.createCredentialJWT(config.CREDENTIAL_DATA);
 
-            const testJwt = {
-                didJwtVc: item.didJwtVc
-            }
+            const issuer = await credential.createIssuer();
 
-            assert.deepEqual(item, testJwt, 'Expected credential didJWT was generated');
+            const credentials = await credential.verifyCredential(jwt.didJwtVc)
+
+            delete credentials.verifiableCredential.credentialSubject.id
+
+
+            assert.deepEqual(credentials.verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is not valid');
+
+            assert.deepEqual(issuer.did, credentials.payload.vc.issuer, 'Issuer is not verified');
+
+            assert.deepEqual(jwt.didJwtVc, credentials.jwt, 'Expected credential didJWT was generated');
         });
+        it('Verify if credential data schema is valid', async function () {
+            const schemas = await appContext.getClient().getSchema(config.CREDENTIAL_DATA.schema)
+            const isValid = await schemas.validate(config.CREDENTIAL_DATA);
+
+            assert.equal(true, isValid, 'credential data schema is inValid');
+        });
+
         it('Verify a JWT signature is valid', async function () {
 
-            const item = await credential.createCredentialJWT(config.CREDENTAIL_DATA);
-
-            const data = await shareCredential.issueEncryptedCredential(item);
-
-            encryptedData = data
-
-            const jwt = await Utils.fetchVeridaUri(data.uri, appContext);
-
-            const verifiedCredential: any = await credential.verifyCredential(jwt);
-
-            assert.equal(verifiedCredential.jwt, jwt, 'JWT signature is valid');
-        });
-
-        it('Retrieve Credential data from URI using a different account', async function () {
-            const context = await connect(config.PRIVATE_KEY_2);
-
-            const credential = new Credentials(context);
-
-            const jwt = await Utils.fetchVeridaUri(encryptedData.uri, context);
-
-
-            const verifiedCredential: any = await credential.verifyCredential(jwt);
-
-            assert.equal(verifiedCredential.jwt, jwt, 'JWT signature is valid');
-        });
-
-        it('When  a JWT signature is invalid', async function () {
-
-            const item = await credential.createCredentialJWT(config.CREDENTAIL_DATA);
+            const item = await credential.createCredentialJWT(config.CREDENTIAL_DATA);
 
             const data = await shareCredential.issueEncryptedCredential(item);
 
@@ -77,16 +56,9 @@ describe('Credential tests', function () {
 
             const verifiedCredential: any = await credential.verifyCredential(jwt);
 
-            assert.notEqual(verifiedCredential.jwt, config.INVALID_VC_JWT, 'JWT signature is invalid');
-        });
 
-        it('When Verida uri data does not exist in the database', async function () {
 
-            const fetchVeridaUri = async () => {
-                return await Utils.fetchVeridaUri(config.VERIDA_URI, appContext);
-            };
-
-            assert.rejects(fetchVeridaUri);
+            assert.equal(verifiedCredential.jwt, jwt, 'JWT signature is valid');
         });
     });
 });
