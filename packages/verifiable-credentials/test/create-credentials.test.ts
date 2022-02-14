@@ -11,13 +11,10 @@ describe('Credential tests', function () {
     describe('Credential Units', function () {
         this.timeout(100000);
         let appContext;
-        let shareCredential;
         let credential;
 
         beforeEach(async function () {
             appContext = await connect(config.PRIVATE_KEY_1);
-
-            shareCredential = new SharingCredential(appContext);
 
             credential = new Credentials(appContext)
         });
@@ -35,7 +32,6 @@ describe('Credential tests', function () {
             const payload = decodedCredential.payload
             const vc = payload.vc
 
-            console.log(decodedCredential, payload, vc)
 
             // Verify the "Payload"
             assert.equal(payload.iss, issuer.did, 'Credential issuer matches expected DID')
@@ -56,7 +52,7 @@ describe('Credential tests', function () {
 
             // @todo: confirm vc.issuanceDate was within the last 10 seconds
             // @todo: verify the schema is actually a Verida credential schema type
-            
+
         });
         it('Unable to create credential with invalid schema data', async function () {
             const promise = new Promise((resolve, rejects) => {

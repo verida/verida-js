@@ -9,11 +9,11 @@ import { config, connect } from './config';
 describe('Share Credential tests', function () {
     describe('Share Credential Units', function () {
         this.timeout(100000);
-
-
         let appContext;
         let shareCredential;
         let credential;
+        let createdUri = ''
+
 
         beforeEach(async function () {
             appContext = await connect(config.PRIVATE_KEY_1);
@@ -23,16 +23,16 @@ describe('Share Credential tests', function () {
             credential = new Credentials(appContext)
         });
 
-        let createdUri = ''
-
         it('Issue an encrypted credential', async function () {
 
             const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
-        
+
             const data = await shareCredential.issueEncryptedCredential(item);
+
             createdUri = data.uri
 
             assert.ok(data.result.ok, 'Document was saved correctly');
+
 
             const expectedUri = Utils.buildVeridaUri(
                 config.ISSUER_DID,
@@ -42,9 +42,21 @@ describe('Share Credential tests', function () {
             );
 
             const uriWithoutKey = data.uri.substring(0, expectedUri.length);
+
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
-            assert.equal(expectedUri, data.uri, 'URI is the expected value, with encryption key')
+
+            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+
+            // Decode the credential
+            const decodedCredential = await credential.verifyCredential(jwt)
+
+            // Obtain the payload, that contains the verifiable credential (.vc)
+            const payload = decodedCredential.payload
+
+            const vc = payload.vc
+
+            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
 
             // @todo: Fetch the credential via data.uri, decode the credential and then ensure the vc.credentialSubject matches config.CREDENTIAL_DATA
         });
@@ -70,7 +82,6 @@ describe('Share Credential tests', function () {
             const fetchVeridaUri = async () => {
                 return await Utils.fetchVeridaUri(config.VERIDA_URI, appContext);
             };
-
             assert.rejects(fetchVeridaUri);
         });
     });
