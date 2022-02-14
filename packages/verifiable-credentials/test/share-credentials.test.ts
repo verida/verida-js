@@ -64,9 +64,9 @@ describe('Share Credential tests', function () {
             // @todo: Fetch the credential via data.uri, decode the credential and then ensure the vc.credentialSubject matches config.CREDENTIAL_DATA
             // BUT using config.PRIVATE_KEY_2
 
-            const queries = Utils.explodeVeridaUri(createdUri);
+            const urlParams = Utils.explodeVeridaUri(createdUri);
 
-            const context = await connect(config.PRIVATE_KEY_2, queries.contextHash);
+            const context = await connect(config.PRIVATE_KEY_2, urlParams.contextHash);
 
             const credentialHelper = new Credentials(context);
 
