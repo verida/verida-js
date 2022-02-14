@@ -147,6 +147,12 @@ class Client {
     return new Context(this, contextName, this.didContextManager, this.account);
   }
 
+  /**
+   * 
+   * @param contextName The name of the context OR a context hash (starting with 0x)
+   * @param did 
+   * @returns 
+   */
   public async openExternalContext(contextName: string, did: string) {
     const contextConfig = await this.didContextManager.getDIDContextConfig(
       did,
@@ -169,7 +175,7 @@ class Client {
    * This provides the public details about the database, storage and messaging endpoints stored on Ceramic / IDX for the requested `did`.
    *
    * @param did
-   * @param contextName
+   * @param contextName The name of the context OR a context hash (starting with 0x)
    * @returns SecureContextConfig | undefined
    */
   public async getContextConfig(
