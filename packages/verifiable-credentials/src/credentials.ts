@@ -22,6 +22,7 @@ const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001';
 
 export default class Credentials {
 	private context: Context;
+	private errors: string[] = [];
 
 	/**
 	 * Initialize a new credential issuer and verifier instance
@@ -34,18 +35,17 @@ export default class Credentials {
 	/**
 	 * Create a verifiable credential.
 	 *
-	 * @param {object} credential JSON representing a verifiable credential
+	 * @param {object} vc JSON representing a verifiable credential
 	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
 	 * @return {string} DID-JWT representation of the Verifiable Credential
 	 */
 	async createVerifiableCredential(
-		credential: any,
+		vc: any,
 		issuer: any
 	): Promise<string> {
 		// Create the payload
 		const vcPayload: JwtCredentialPayload = {
-			sub: issuer.did,
-			vc: credential,
+			vc,
 		};
 		// Create the verifiable credential
 		return await createVerifiableCredentialJwt(vcPayload, issuer);
@@ -88,9 +88,26 @@ export default class Credentials {
 	 *
 	 * @param {string} vcJwt
 	 */
-	async verifyCredential(vcJwt: string): Promise<unknown> {
+	async verifyCredential(vcJwt: string): Promise<any> {
 		const resolver = this.getResolver();
-		return verifyCredential(vcJwt, resolver);
+		const decodedCredential = await verifyCredential(vcJwt, resolver);
+
+		if (decodedCredential) {
+			const payload = decodedCredential.payload
+            const vc = payload.vc
+			console.log('checking for expiry', vc)
+
+			if (vc.expirationDate) {
+				// Ensure credential hasn't expired
+				const now = new Date().toISOString()
+				if (vc.expirationDate < now) {
+					this.errors.push('Credential has expired');
+					return false;
+				}
+			}
+		}
+
+		return decodedCredential
 	}
 
 	/**
@@ -128,29 +145,50 @@ export default class Credentials {
 	 * @param data 
 	 * @returns 
 	 */
-	async createCredentialJWT(data: any): Promise<object> {
+	async createCredentialJWT(subjectId: string, data: any, expirationDate?: string): Promise<object> {
+		// Ensure a credential schema has been specified
+		if (!data.schema) {
+			throw new Error('No schema specified')
+		}
+
+		// Ensure data matches specified schema
+		const schema = await this.context.getClient().getSchema(data.schema)
+		const isValid = await schema.validate(data);
+
+		// @todo: Check the schema is a "credential" schema type?
+
+		if (!isValid) {
+			throw new Error('Data does not match specified schema')
+		}
+
 		const issuer = await this.createIssuer();
 		const account = this.context.getAccount();
 		const did = await account.did();
 
-		const credential = {
+		const vcPayload: any = {
 			'@context': [
 				'https://www.w3.org/2018/credentials/v1',
 				'https://www.w3.org/2018/credentials/examples/v1',
 			],
-			id: '',
+			sub: subjectId,
 			type: ['VerifiableCredential'],
 			issuer: did,
 			issuanceDate: new Date().toISOString(),
 			credentialSubject: {
-				...data,
+				...data
 			},
 			credentialSchema: {
 				id: data.schema,
 				type: 'JsonSchemaValidator2018',
 			},
 		};
-		const didJwtVc = await this.createVerifiableCredential(credential, issuer);
+
+		if (expirationDate) {
+			// @todo: verify expiration date is a valid date string
+			vcPayload.expirationDate = expirationDate
+		}
+
+		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
 		const item = {
 			didJwtVc: didJwtVc,
@@ -162,5 +200,9 @@ export default class Credentials {
 	private getResolver(): any {
 		const resolver = vdaResolver.getResolver(DID_REGISTRY_ENDPOINT);
 		return new Resolver(resolver);
+	}
+
+	public getErrors() {
+		return this.errors;
 	}
 }

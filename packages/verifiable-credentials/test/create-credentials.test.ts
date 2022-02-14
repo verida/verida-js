@@ -24,41 +24,76 @@ describe('Credential tests', function () {
 
         it('Verify Credential JWT was created correctly', async function () {
 
-            const jwt: any = await credential.createCredentialJWT(config.CREDENTIAL_DATA);
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
 
             const issuer = await credential.createIssuer();
 
-            const credentials = await credential.verifyCredential(jwt.didJwtVc)
+            // Decode the credential
+            const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
 
-            delete credentials.verifiableCredential.credentialSubject.id
+            // Obtain the payload, that contains the verifiable credential (.vc)
+            const payload = decodedCredential.payload
+            const vc = payload.vc
 
+            console.log(decodedCredential, payload, vc)
 
-            assert.deepEqual(credentials.verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is not valid');
+            // Verify the "Payload"
+            assert.equal(payload.iss, issuer.did, 'Credential issuer matches expected DID')
 
-            assert.deepEqual(issuer.did, credentials.payload.vc.issuer, 'Issuer is not verified');
+            // Verify the "Verifiable Credential"
+            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is valid');
+            assert.deepEqual(issuer.did, vc.issuer, 'Issuer matches expected DID');
+            assert.equal(vc.credentialSchema.id, config.CREDENTIAL_DATA.schema, 'Credential schema is correct')
+            assert.equal(vc.sub, config.SUBJECT_DID, 'Credential subject matches expected DID')
 
-            assert.deepEqual(jwt.didJwtVc, credentials.jwt, 'Expected credential didJWT was generated');
+            // Verify the data matches the schema
+            const record = vc.credentialSubject
+            const schema = await appContext.getClient().getSchema(record.schema)
+            const isValid = await schema.validate(config.CREDENTIAL_DATA);
+            assert.equal(true, isValid, 'Credential subject successfully validates against the schema');
+
+            // Note: Don't need to check the signature, because the did-jwt-vc does this for us
+
+            // @todo: confirm vc.issuanceDate was within the last 10 seconds
+            // @todo: verify the schema is actually a Verida credential schema type
+            
         });
-        it('Verify if credential data schema is valid', async function () {
-            const schemas = await appContext.getClient().getSchema(config.CREDENTIAL_DATA.schema)
-            const isValid = await schemas.validate(config.CREDENTIAL_DATA);
+        it('Unable to create credential with invalid schema data', async function () {
+            const promise = new Promise((resolve, rejects) => {
+                credential.createCredentialJWT(config.SUBJECT_DID, config.INVALID_CREDENTIAL_DATA).then(rejects, resolve)
+            })
+            const result = await promise
 
-            assert.equal(true, isValid, 'credential data schema is inValid');
+            assert.deepEqual(result, new Error('Data does not match specified schema'))
         });
+        it('Unable to create credential if no schema specified', async function () {
+            const promise = new Promise((resolve, rejects) => {
+                credential.createCredentialJWT(config.SUBJECT_DID, {}).then(rejects, resolve)
+            })
+            const result = await promise
 
-        it('Verify a JWT signature is valid', async function () {
-
-            const item = await credential.createCredentialJWT(config.CREDENTIAL_DATA);
-
-            const data = await shareCredential.issueEncryptedCredential(item);
-
-            const jwt = await Utils.fetchVeridaUri(data.uri, appContext);
-
-            const verifiedCredential: any = await credential.verifyCredential(jwt);
-
-
-
-            assert.equal(verifiedCredential.jwt, jwt, 'JWT signature is valid');
+            assert.deepEqual(result, new Error('No schema specified'))
         });
+        it('Ensure expired expiration date is respected', async () => {
+            // Set an expiry date to the past
+            const expirationDate = '2000-02-14T04:27:05.467Z'
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, expirationDate);
+
+            const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
+            assert.equal(decodedCredential, false, 'Credential is not valid')
+            assert.deepEqual(credential.getErrors(), ['Credential has expired'], 'Credential has expected error message')
+        });
+        it('Ensure valid expiration date is respected', async () => {
+            // Set an expiry date to the future
+            const expirationDate = '2060-02-14T04:27:05.467Z'
+
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, expirationDate);
+
+            const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
+            assert.ok(decodedCredential, 'Credential is valid')
+        });
+        /*if ('Handles invalid DID JWT', async () => {
+            // @todo: handle type error
+        })*/
     });
 });

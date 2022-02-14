@@ -4,13 +4,18 @@ import { Context, EnvironmentType, Network } from '@verida/client-ts';
 export const config = {
     PRIVATE_KEY_1: "0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e0af",
     PRIVATE_KEY_2: "0x80d3b996ec98a91536efdffbae40f5eaaf117765a587483c69195c9460165c37",
-    DID_1: 'did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
+    ISSUER_DID: 'did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
+    SUBJECT_DID: 'did:vda:0xC2629982A2585544FD72c99CF3773a9c6baBD55c',
     ADDRESS_1: '0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
     CREDENTIAL_DATA: {
         name: 'Vitalik Buterin',
         firstName: 'Vitalik',
         lastName: 'Buterin',
         email: 'me@vitalik.eth',
+        schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
+    },
+    INVALID_CREDENTIAL_DATA: {
+        email: 'me',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
     },
     VERIDA_CONTEXT_NAME: "Verida: Credentials",
