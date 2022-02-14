@@ -95,7 +95,6 @@ export default class Credentials {
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
             const vc = payload.vc
-			console.log('checking for expiry', vc)
 
 			if (vc.expirationDate) {
 				// Ensure credential hasn't expired
