@@ -100,7 +100,7 @@ class DIDContextManager {
     forceCreate?: boolean
   ): Promise<Interfaces.SecureContextConfig> {
     let contextHash
-    if (contextName.substring(0,2) == '0x') {
+    if (contextName.substring(0, 2) == '0x') {
       contextHash = contextName;
     }
     else {

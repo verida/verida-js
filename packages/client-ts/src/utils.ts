@@ -87,7 +87,7 @@ export async function fetchVeridaUri(
 			read: PermissionOptionsEnum.PUBLIC,
 			write: PermissionOptionsEnum.OWNER,
 		},
-		//@ts-ignore
+		// @ts-ignore
 		contextHash: url.contextHash,
 		readOnly: true,
 	});

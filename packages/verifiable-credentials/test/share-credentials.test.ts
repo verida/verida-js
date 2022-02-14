@@ -64,16 +64,23 @@ describe('Share Credential tests', function () {
             // @todo: Fetch the credential via data.uri, decode the credential and then ensure the vc.credentialSubject matches config.CREDENTIAL_DATA
             // BUT using config.PRIVATE_KEY_2
 
-            const context = await connect(config.PRIVATE_KEY_2);
+            const queries = Utils.explodeVeridaUri(createdUri);
 
-            const credential = new Credentials(context);
+            const context = await connect(config.PRIVATE_KEY_2, queries.contextHash);
+
+            const credentialHelper = new Credentials(context);
 
             const jwt = await Utils.fetchVeridaUri(createdUri, context);
 
 
-            const verifiedCredential: any = await credential.verifyCredential(jwt);
 
-            assert.equal(verifiedCredential.jwt, jwt, 'JWT signature is valid');
+            const decodedCredential: any = await credentialHelper.verifyCredential(jwt);
+
+            const payload = decodedCredential.payload
+
+            const vc = payload.vc
+
+            assert.equal(vc.credentialSubject, config.CREDENTIAL_DATA, 'decoded Credential subject matches original data');
         });
 
 
