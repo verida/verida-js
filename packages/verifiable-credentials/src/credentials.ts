@@ -87,8 +87,9 @@ export default class Credentials {
 	 * Verify a Verifiable Credential DID-JWT
 	 *
 	 * @param {string} vcJwt
+	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string): Promise<any> {
+	async verifyCredential(vcJwt: string, currentDateTime?: string): Promise<any> {
 		const resolver = this.getResolver();
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
 
@@ -96,9 +97,19 @@ export default class Credentials {
 			const payload = decodedCredential.payload
 			const vc = payload.vc
 
+			/**
+			 * The expirationDate property must be a string value of XMLSCHEMA11-2 if provided
+			 * see https://www.w3.org/TR/vc-data-model/#expiration
+			 */
+
 			if (vc.expirationDate) {
 				// Ensure credential hasn't expired
-				const now = new Date().toISOString()
+				let now;
+				if (currentDateTime) {
+					now = currentDateTime
+				} else {
+					now = new Date().toISOString()
+				}
 				if (vc.expirationDate < now) {
 					this.errors.push('Credential has expired');
 					return false;
@@ -144,7 +155,7 @@ export default class Credentials {
 	 * @param data 
 	 * @returns 
 	 */
-	async createCredentialJWT(subjectId: string, data: any, expirationDate?: string): Promise<object> {
+	async createCredentialJWT(subjectId: string, data: any, expirationDate?: string, issuanceDate?: string): Promise<object> {
 		// Ensure a credential schema has been specified
 		if (!data.schema) {
 			throw new Error('No schema specified')
@@ -185,6 +196,12 @@ export default class Credentials {
 		if (expirationDate) {
 			// @todo: verify expiration date is a valid date string
 			vcPayload.expirationDate = expirationDate
+		}
+
+		if (issuanceDate) {
+			vcPayload.issuanceDate = issuanceDate
+		} else {
+			vcPayload.issuanceDate = new Date().toISOString()
 		}
 
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);

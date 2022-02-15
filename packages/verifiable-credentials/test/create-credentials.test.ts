@@ -70,6 +70,16 @@ describe('Credential tests', function () {
             assert.equal(decodedCredential, false, 'Credential is not valid')
             assert.deepEqual(credential.getErrors(), ['Credential has expired'], 'Credential has expected error message')
         });
+        it('Ensure credential is created using external currentDateTime', async () => {
+            // Set an expiry date to the past
+            const expirationDate = '2000-02-14T04:27:05.467Z';
+            const issuanceDate = '2022-02-14T04:27:05.467Z';
+            const currentDateTime = '2024-02-14T04:27:05.467Z';
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, expirationDate, issuanceDate);
+
+            await credential.verifyCredential(jwt.didJwtVc, currentDateTime);
+            assert.deepEqual(credential.getErrors(), ['Credential has expired'], 'currentDateTime is less than expiration date');
+        });
         it('Ensure valid expiration date is respected', async () => {
             // Set an expiry date to the future
             const expirationDate = '2060-02-14T04:27:05.467Z'
