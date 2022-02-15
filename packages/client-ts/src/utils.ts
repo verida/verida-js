@@ -96,8 +96,7 @@ export async function fetchVeridaUri(
 		readOnly: true,
 	});
 
-	const results = await db.getMany({}, {})
-	
+
 	try {
 		const item: any = await db.get(url.id, {})
 		const key = Buffer.from(url.query.key as string, 'hex');
@@ -109,5 +108,5 @@ export async function fetchVeridaUri(
 		}
 
 		throw err;
-	}	
+	}
 }
