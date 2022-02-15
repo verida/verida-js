@@ -1,8 +1,6 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
-import { Utils } from '@verida/client-ts';
 import Credentials from '../src/credentials';
-import SharingCredential from '../src/sharing-credential';
 import { config, connect } from './config'
 
 
@@ -18,7 +16,6 @@ describe('Credential tests', function () {
 
             credential = new Credentials(appContext)
         });
-
         it('Verify Credential JWT was created correctly', async function () {
 
             const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
@@ -47,12 +44,6 @@ describe('Credential tests', function () {
             const schema = await appContext.getClient().getSchema(record.schema)
             const isValid = await schema.validate(config.CREDENTIAL_DATA);
             assert.equal(true, isValid, 'Credential subject successfully validates against the schema');
-
-            // Note: Don't need to check the signature, because the did-jwt-vc does this for us
-
-            // @todo: confirm vc.issuanceDate was within the last 10 seconds
-            // @todo: verify the schema is actually a Verida credential schema type
-
         });
         it('Unable to create credential with invalid schema data', async function () {
             const promise = new Promise((resolve, rejects) => {
@@ -88,8 +79,5 @@ describe('Credential tests', function () {
             const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
             assert.ok(decodedCredential, 'Credential is valid')
         });
-        /*if ('Handles invalid DID JWT', async () => {
-            // @todo: handle type error
-        })*/
     });
 });

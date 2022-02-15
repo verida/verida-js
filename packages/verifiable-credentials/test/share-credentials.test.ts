@@ -14,7 +14,6 @@ describe('Share Credential tests', function () {
         let credential;
         let createdUri = ''
 
-
         beforeEach(async function () {
             appContext = await connect(config.PRIVATE_KEY_1);
 
@@ -33,7 +32,6 @@ describe('Share Credential tests', function () {
 
             assert.ok(data.result.ok, 'Document was saved correctly');
 
-
             const expectedUri = Utils.buildVeridaUri(
                 config.ISSUER_DID,
                 config.VERIDA_CONTEXT_NAME,
@@ -44,7 +42,6 @@ describe('Share Credential tests', function () {
             const uriWithoutKey = data.uri.substring(0, expectedUri.length);
 
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
-
 
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
 
@@ -57,11 +54,8 @@ describe('Share Credential tests', function () {
             const vc = payload.vc
 
             assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
-
-            // @todo: Fetch the credential via data.uri, decode the credential and then ensure the vc.credentialSubject matches config.CREDENTIAL_DATA
         });
         it('Retrieve Credential data from URI using a different account', async function () {
-            // @todo: Fetch the credential via data.uri, decode the credential and then ensure the vc.credentialSubject matches config.CREDENTIAL_DATA
             // BUT using config.PRIVATE_KEY_2
 
             const context = await connect(config.PRIVATE_KEY_2, 'Web credential scanner');
@@ -76,15 +70,12 @@ describe('Share Credential tests', function () {
 
             const vc = payload.vc
 
-
             assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'decoded Credential subject matches original data');
         });
-
-
         it('When Verida uri data does not exist in the database', async function () {
 
             const fetchVeridaUri = async () => {
-                return await Utils.fetchVeridaUri(config.VERIDA_URI, appContext);
+                return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, appContext);
             };
             assert.rejects(fetchVeridaUri);
         });

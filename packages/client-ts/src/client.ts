@@ -172,7 +172,7 @@ class Client {
   /**
    * Get the storage configuration of an application context for a given DID.
    *
-   * This provides the public details about the database, storage and messaging endpoints stored on Ceramic / IDX for the requested `did`.
+   * This provides the public details about the database, storage and messaging endpoints stored on did-client/did-document  for the requested `did`.
    *
    * @param did
    * @param contextName The name of the context OR a context hash (starting with 0x)
