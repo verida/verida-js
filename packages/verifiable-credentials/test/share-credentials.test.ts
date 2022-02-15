@@ -72,15 +72,13 @@ describe('Share Credential tests', function () {
 
             const jwt = await Utils.fetchVeridaUri(createdUri, context);
 
-
-
             const decodedCredential: any = await credentialHelper.verifyCredential(jwt);
 
             const payload = decodedCredential.payload
 
             const vc = payload.vc
 
-            assert.equal(vc.credentialSubject, config.CREDENTIAL_DATA, 'decoded Credential subject matches original data');
+            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'decoded Credential subject matches original data');
         });
 
 

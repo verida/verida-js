@@ -68,7 +68,7 @@ export interface DatabaseEngines {
 
 export interface FetchUriParams {
 	did: string;
-	contextHash: string;
+	contextName: string;
 	dbName: string;
 	id: string;
 	query: any;
