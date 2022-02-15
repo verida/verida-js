@@ -28,11 +28,11 @@ export const config = {
 }
 
 
-export const connect = async (privateKey: string, contextHash?: string): Promise<Context> => {
+export const connect = async (privateKey: string, customContexName?: string): Promise<Context> => {
 
     const context = await Network.connect({
         context: {
-            name: contextHash || config.VERIDA_CONTEXT_NAME,
+            name: customContexName || config.VERIDA_CONTEXT_NAME,
         },
         client: {
             environment: EnvironmentType.TESTNET,

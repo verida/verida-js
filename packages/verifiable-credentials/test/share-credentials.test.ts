@@ -64,9 +64,7 @@ describe('Share Credential tests', function () {
             // @todo: Fetch the credential via data.uri, decode the credential and then ensure the vc.credentialSubject matches config.CREDENTIAL_DATA
             // BUT using config.PRIVATE_KEY_2
 
-            const urlParams = Utils.explodeVeridaUri(createdUri);
-
-            const context = await connect(config.PRIVATE_KEY_2, urlParams.contextHash);
+            const context = await connect(config.PRIVATE_KEY_2, 'Web credential scanner');
 
             const credentialHelper = new Credentials(context);
 
@@ -77,6 +75,7 @@ describe('Share Credential tests', function () {
             const payload = decodedCredential.payload
 
             const vc = payload.vc
+
 
             assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'decoded Credential subject matches original data');
         });
