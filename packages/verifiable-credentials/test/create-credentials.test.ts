@@ -29,7 +29,6 @@ describe('Credential tests', function () {
             const payload = decodedCredential.payload
             const vc = payload.vc
 
-
             // Verify the "Payload"
             assert.equal(payload.iss, issuer.did, 'Credential issuer matches expected DID')
 
@@ -69,6 +68,18 @@ describe('Credential tests', function () {
             const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
             assert.equal(decodedCredential, false, 'Credential is not valid')
             assert.deepEqual(credential.getErrors(), ['Credential has expired'], 'Credential has expected error message')
+        });
+        it('Ensure issuanceDate generated in VC is same in the date options', async () => {
+            const issuanceDate = '2022-02-14T04:27:05.467Z';
+
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, { issuanceDate });
+
+            const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
+
+            const payload = decodedCredential.payload
+            const vc = payload.vc
+
+            assert.deepEqual(vc.issuanceDate, issuanceDate, 'issuanceDate options matches generated VC date ');
         });
         it('Ensure credential is verified using external currentDateTime', async () => {
             // Set an expiry date to the past
