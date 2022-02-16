@@ -11,6 +11,7 @@ import {
 	Issuer,
 } from 'did-jwt-vc';
 import { Context } from '@verida/client-ts';
+import { credentialDateOptions } from './interfaces';
 
 /**
  * A bare minimum class implementing the creation and verification of
@@ -155,7 +156,7 @@ export default class Credentials {
 	 * @param data 
 	 * @returns 
 	 */
-	async createCredentialJWT(subjectId: string, data: any, expirationDate?: string, issuanceDate?: string): Promise<object> {
+	async createCredentialJWT(subjectId: string, data: any, options?: credentialDateOptions): Promise<object> {
 		// Ensure a credential schema has been specified
 		if (!data.schema) {
 			throw new Error('No schema specified')
@@ -193,13 +194,13 @@ export default class Credentials {
 			},
 		};
 
-		if (expirationDate) {
+		if (options && options.expirationDate) {
 			// @todo: verify expiration date is a valid date string
-			vcPayload.expirationDate = expirationDate
+			vcPayload.expirationDate = options.expirationDate
 		}
 
-		if (issuanceDate) {
-			vcPayload.issuanceDate = issuanceDate
+		if (options && options.issuanceDate) {
+			vcPayload.issuanceDate = options.issuanceDate
 		} else {
 			vcPayload.issuanceDate = new Date().toISOString()
 		}

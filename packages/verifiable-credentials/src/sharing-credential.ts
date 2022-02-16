@@ -2,20 +2,10 @@ import * as _ from 'lodash';
 import { Context, Utils } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
 import { ContextInterfaces } from '@verida/client-ts'
+import { VCResult } from './interfaces';
 
 const PermissionOptionsEnum = ContextInterfaces.PermissionOptionsEnum
 
-
-/**
- *
- */
-
-interface VCResult {
-	item: any;
-	result: any;
-	did: string;
-	uri: string;
-}
 
 const SCHEMAs = {
 	encrypted:
