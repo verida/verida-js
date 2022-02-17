@@ -195,7 +195,7 @@ export default class Credentials {
 		};
 
 		if (options && options.expirationDate) {
-			// @todo: verify expiration date is a valid date string
+			// The DID JWT VC library (called by createVerifiableCredential) verifies the string format so we do not need a test for that
 			vcPayload.expirationDate = options.expirationDate
 		}
 
