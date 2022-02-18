@@ -79,5 +79,23 @@ describe('Share Credential tests', function () {
             };
             assert.rejects(fetchVeridaUri);
         });
+
+        it('When Verida uri is issued directly from a data object', async function () {
+            const data = await shareCredential.issueEncryptedCredential(config.RAW_CREDENTIAL_DATA);
+
+            createdUri = data.uri
+
+            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+
+            // Decode the credential
+            const decodedCredential = await credential.verifyCredential(jwt)
+
+            // Obtain the payload, that contains the verifiable credential (.vc)
+            const payload = decodedCredential.payload
+
+            const vc = payload.vc
+
+            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
+        });
     });
 });
