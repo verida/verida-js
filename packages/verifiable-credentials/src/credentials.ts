@@ -11,6 +11,7 @@ import {
 	Issuer,
 } from 'did-jwt-vc';
 import { Context } from '@verida/client-ts';
+import { credentialDateOptions } from './interfaces';
 
 /**
  * A bare minimum class implementing the creation and verification of
@@ -22,6 +23,7 @@ const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001';
 
 export default class Credentials {
 	private context: Context;
+	private errors: string[] = [];
 
 	/**
 	 * Initialize a new credential issuer and verifier instance
@@ -34,18 +36,17 @@ export default class Credentials {
 	/**
 	 * Create a verifiable credential.
 	 *
-	 * @param {object} credential JSON representing a verifiable credential
+	 * @param {object} vc JSON representing a verifiable credential
 	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
 	 * @return {string} DID-JWT representation of the Verifiable Credential
 	 */
 	async createVerifiableCredential(
-		credential: any,
+		vc: any,
 		issuer: any
 	): Promise<string> {
 		// Create the payload
 		const vcPayload: JwtCredentialPayload = {
-			sub: issuer.did,
-			vc: credential,
+			vc,
 		};
 		// Create the verifiable credential
 		return await createVerifiableCredentialJwt(vcPayload, issuer);
@@ -87,10 +88,37 @@ export default class Credentials {
 	 * Verify a Verifiable Credential DID-JWT
 	 *
 	 * @param {string} vcJwt
+	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string): Promise<unknown> {
+	async verifyCredential(vcJwt: string, currentDateTime?: string): Promise<any> {
 		const resolver = this.getResolver();
-		return verifyCredential(vcJwt, resolver);
+		const decodedCredential = await verifyCredential(vcJwt, resolver);
+
+		if (decodedCredential) {
+			const payload = decodedCredential.payload
+			const vc = payload.vc
+
+			/**
+			 * The expirationDate property must be a string value of XMLSCHEMA11-2 if provided
+			 * see https://www.w3.org/TR/vc-data-model/#expiration
+			 */
+
+			if (vc.expirationDate) {
+				// Ensure credential hasn't expired
+				let now;
+				if (currentDateTime) {
+					now = currentDateTime
+				} else {
+					now = new Date().toISOString()
+				}
+				if (vc.expirationDate < now) {
+					this.errors.push('Credential has expired');
+					return false;
+				}
+			}
+		}
+
+		return decodedCredential
 	}
 
 	/**
@@ -128,29 +156,56 @@ export default class Credentials {
 	 * @param data 
 	 * @returns 
 	 */
-	async createCredentialJWT(data: any): Promise<object> {
+	async createCredentialJWT(subjectId: string, data: any, options?: credentialDateOptions): Promise<object> {
+		// Ensure a credential schema has been specified
+		if (!data.schema) {
+			throw new Error('No schema specified')
+		}
+
+		// Ensure data matches specified schema
+		const schema = await this.context.getClient().getSchema(data.schema)
+		const isValid = await schema.validate(data);
+
+		// @todo: Check the schema is a "credential" schema type?
+
+		if (!isValid) {
+			throw new Error('Data does not match specified schema')
+		}
+
 		const issuer = await this.createIssuer();
 		const account = this.context.getAccount();
 		const did = await account.did();
 
-		const credential = {
+		const vcPayload: any = {
 			'@context': [
 				'https://www.w3.org/2018/credentials/v1',
 				'https://www.w3.org/2018/credentials/examples/v1',
 			],
-			id: '',
+			sub: subjectId,
 			type: ['VerifiableCredential'],
 			issuer: did,
 			issuanceDate: new Date().toISOString(),
 			credentialSubject: {
-				...data,
+				...data
 			},
 			credentialSchema: {
 				id: data.schema,
 				type: 'JsonSchemaValidator2018',
 			},
 		};
-		const didJwtVc = await this.createVerifiableCredential(credential, issuer);
+
+		if (options && options.expirationDate) {
+			// The DID JWT VC library (called by createVerifiableCredential) verifies the string format so we do not need a test for that
+			vcPayload.expirationDate = options.expirationDate
+		}
+
+		if (options && options.issuanceDate) {
+			vcPayload.issuanceDate = options.issuanceDate
+		} else {
+			vcPayload.issuanceDate = new Date().toISOString()
+		}
+
+		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
 		const item = {
 			didJwtVc: didJwtVc,
@@ -162,5 +217,9 @@ export default class Credentials {
 	private getResolver(): any {
 		const resolver = vdaResolver.getResolver(DID_REGISTRY_ENDPOINT);
 		return new Resolver(resolver);
+	}
+
+	public getErrors() {
+		return this.errors;
 	}
 }
