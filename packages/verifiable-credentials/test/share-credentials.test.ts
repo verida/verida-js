@@ -3,7 +3,7 @@ const assert = require('assert');
 import { Utils } from '@verida/client-ts';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
-import { config, connect } from './config';
+import { base64Encoded, config, connect } from './config';
 
 
 describe('Share Credential tests', function () {
@@ -28,7 +28,7 @@ describe('Share Credential tests', function () {
 
             const data = await shareCredential.issueEncryptedCredential(item);
 
-            createdUri = data.uri
+            createdUri = data.veridaUri
 
             assert.ok(data.result.ok, 'Document was saved correctly');
 
@@ -39,11 +39,13 @@ describe('Share Credential tests', function () {
                 data.result.id
             );
 
-            const uriWithoutKey = data.uri.substring(0, expectedUri.length);
+            const base64decodedURI = base64Encoded(data.veridaUri)
+
+            const uriWithoutKey = base64decodedURI.substring(0, expectedUri.length);
 
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
-            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            const jwt = await Utils.fetchVeridaUri(base64decodedURI, appContext);
 
             // Decode the credential
             const decodedCredential = await credential.verifyCredential(jwt)
@@ -54,6 +56,7 @@ describe('Share Credential tests', function () {
             const vc = payload.vc
 
             assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
+
         });
         it('Retrieve Credential data from URI using a different account', async function () {
             // BUT using config.PRIVATE_KEY_2
@@ -62,7 +65,9 @@ describe('Share Credential tests', function () {
 
             const credentialHelper = new Credentials(context);
 
-            const jwt = await Utils.fetchVeridaUri(createdUri, context);
+            const base64decodedURI = base64Encoded(createdUri)
+
+            const jwt = await Utils.fetchVeridaUri(base64decodedURI, context);
 
             const decodedCredential: any = await credentialHelper.verifyCredential(jwt);
 
@@ -83,9 +88,11 @@ describe('Share Credential tests', function () {
         it('When Verida uri is issued directly from a data object', async function () {
             const data = await shareCredential.issueEncryptedCredential(config.RAW_CREDENTIAL_DATA);
 
-            createdUri = data.uri
+            createdUri = data.veridaUri
 
-            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            const base64decodedURI = base64Encoded(createdUri)
+
+            const jwt = await Utils.fetchVeridaUri(base64decodedURI, appContext);
 
             // Decode the credential
             const decodedCredential = await credential.verifyCredential(jwt)

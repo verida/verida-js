@@ -1,5 +1,5 @@
-import {AutoAccount} from '@verida/account-node';
-import {Context, EnvironmentType, Network} from '@verida/client-ts';
+import { AutoAccount } from '@verida/account-node';
+import { Context, EnvironmentType, Network } from '@verida/client-ts';
 
 export const config = {
     PRIVATE_KEY_1: "0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e0af",
@@ -37,7 +37,7 @@ export const config = {
         insertedAt: "2022-02-17T06:17:16.152Z",
         modifiedAt: "2022-02-17T06:17:16.152Z",
         signatures: {
-          "did:vda:0x2c32E2341fF3726CE03D897946cAB5Eb268Ee1F0?context=0xe92a609ded204004bb1d128127147b6b3d5890b24434e74e42255c86607fe2ba": "0x6ea7cbed168504fd1dfeb407a76e0f9b57985a7689bd9678…3ae4a33a061297e672e8f0f7ef55acca7b5074c9ddaf8c81b"
+            "did:vda:0x2c32E2341fF3726CE03D897946cAB5Eb268Ee1F0?context=0xe92a609ded204004bb1d128127147b6b3d5890b24434e74e42255c86607fe2ba": "0x6ea7cbed168504fd1dfeb407a76e0f9b57985a7689bd9678…3ae4a33a061297e672e8f0f7ef55acca7b5074c9ddaf8c81b"
         },
         _rev: "1-991fbeef5dc6c91efacb7e8a1732abc4"
     }
@@ -72,3 +72,8 @@ export const connect = async (privateKey: string, customContexName?: string): Pr
     });
     return context;
 };
+
+
+export const base64Encoded = (data: string) => {
+    return Buffer.from(data, 'base64').toString('utf8')
+}
