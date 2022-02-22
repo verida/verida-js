@@ -27,14 +27,14 @@ export default class SharingCredential {
 	 * @returns
 	 */
 
-	async issueEncryptedCredential(item: any): Promise<any> {
+	async issueEncryptedPresentation(item: any): Promise<any> {
 		const account = this.context.getAccount();
 		const did = await account.did();
 		const encryptionKey = new Uint8Array(EncryptionUtils.randomKey(22));
 
 		const contextName = this.context.getContextName();
 
-		const result = (await this.issuePublicCredential(did, item, contextName, {
+		const result = (await this.issuePublicPresentation(did, item, contextName, {
 			key: encryptionKey,
 		})) as VCResult;
 
@@ -49,7 +49,7 @@ export default class SharingCredential {
 	 * @returns {object}
 	 */
 
-	async issuePublicCredential(
+	async issuePublicPresentation(
 		did: string,
 		item: any,
 		contextName: string,

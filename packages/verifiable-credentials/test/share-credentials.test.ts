@@ -24,7 +24,7 @@ describe('Share Credential tests', function () {
 
         it('Issue an encrypted credential', async function () {
             const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
-            const data = await shareCredential.issueEncryptedCredential(item);
+            const data = await shareCredential.issueEncryptedPresentation(item);
 
             createdUri = data.uri
 
