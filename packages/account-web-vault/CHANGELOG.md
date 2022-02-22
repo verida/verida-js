@@ -1,3 +1,8 @@
+2022-02-22 (v1.1.9)
+-------------------
+
+- Simplify the network connection configuration so default endpoints don't need to be specified
+
 2022-01-24 (v1.1.8)
 -------------------
 
