@@ -99,7 +99,13 @@ class DIDContextManager {
     contextName: string,
     forceCreate?: boolean
   ): Promise<Interfaces.SecureContextConfig> {
-    const contextHash = DIDDocument.generateContextHash(did, contextName);
+    let contextHash
+    if (contextName.substring(0, 2) == '0x') {
+      contextHash = contextName;
+    }
+    else {
+      contextHash = DIDDocument.generateContextHash(did, contextName);
+    }
 
     if (this.didContexts[contextHash]) {
       return this.didContexts[contextHash];

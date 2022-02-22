@@ -3,6 +3,7 @@ import url from 'url';
 import { Context } from '.';
 import { PermissionOptionsEnum } from './context/interfaces';
 import { FetchUriParams } from './interfaces';
+const bs58 = require('bs58')
 
 /**
  * Build a URI that represents a specific record in a database
@@ -21,8 +22,9 @@ export function buildVeridaUri(
 	itemId?: string,
 	params?: { key?: string }
 ): string {
-	const contextHash = EncryptionUtils.hash(`${did}/${contextName}`);
-	let uri = `verida://${did}/${contextHash}`;
+	const bytes = Buffer.from(contextName)
+	const encodedContextName = bs58.encode(bytes)
+	let uri = `verida://${did}/${encodedContextName}`;
 
 	if (databaseName) {
 		uri += `/${databaseName}`;
@@ -55,14 +57,16 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 	}
 
 	const did = matches[1] as string;
-	const contextHash = matches[2];
+	const encodedContextName = matches[2];
+	const bytes = bs58.decode(encodedContextName)
+	const contextName = Buffer.from(bytes).toString()
 	const dbName = matches[3];
 	const id = matches[4];
 	const query = url.parse(uri, true).query;
 
 	return {
 		did,
-		contextHash,
+		contextName,
 		dbName,
 		id,
 		query,
@@ -88,19 +92,21 @@ export async function fetchVeridaUri(
 			write: PermissionOptionsEnum.OWNER,
 		},
 		//@ts-ignore
-		contextHash: url.contextHash,
+		contextName: url.contextName,
 		readOnly: true,
 	});
 
-	const item = (await db.get(url.id, {})) as any;
 
-	if (item.error) {
-		throw new Error('document does not exist ');
+	try {
+		const item: any = await db.get(url.id, {})
+		const key = Buffer.from(url.query.key as string, 'hex');
+		const decrypted = EncryptionUtils.symDecrypt(item.content, key);
+		return decrypted;
+	} catch (err: any) {
+		if (err.error == 'not_found') {
+			throw new Error('Document does not exist ');
+		}
+
+		throw err;
 	}
-
-	const key = Buffer.from(url.query.key as string, 'hex');
-
-	const decrypted = EncryptionUtils.symDecrypt(item.content, key);
-
-	return decrypted;
 }

@@ -41,26 +41,24 @@ Unpublished dependencies betwen monorepo packages can be linked by:
 - Manually adding the expected dependency to `package.json` (ie: `@verida/encryption-utils`)
 - Run `npx lerna bootstrap` in the root directory of this project
 
+
 ### Building
 
-General process:
-* `cd package/package-name` (ie, the package names listed below)
+Build everything:
+
+In the root directory:
+
+```
+npx lerna bootstrap
+npx lerna run build
+```
+
+To build a specific package:
+
+* `cd package/package-name`
 * `yarn`
 * `yarn build`
-* `yarn link`
 
-Need to build the packages in this order:
-
-1. encryption-utils 
-2. keyring
-3. did-document
-4. did-client
-5. did-resolver
-6. storage-link
-7. account
-8. account-node
-9. account-web-vault
-10. client-ts
 
 
 ## Creating a release
