@@ -3,6 +3,7 @@ import { encodeBase64 } from 'tweetnacl-util';
 import { Context, Utils, ContextInterfaces } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
 import { VCResult } from './interfaces';
+import { Credentials } from '.';
 
 const PermissionOptionsEnum = ContextInterfaces.PermissionOptionsEnum
 
@@ -26,14 +27,14 @@ export default class SharingCredential {
 	 * @returns
 	 */
 
-	async issueEncryptedCredential(item: any): Promise<any> {
+	async issueEncryptedPresentation(item: any): Promise<any> {
 		const account = this.context.getAccount();
 		const did = await account.did();
 		const encryptionKey = new Uint8Array(EncryptionUtils.randomKey(22));
 
 		const contextName = this.context.getContextName();
 
-		const result = (await this.issuePublicCredential(did, item, contextName, {
+		const result = (await this.issuePublicPresentation(did, item, contextName, {
 			key: encryptionKey,
 		})) as VCResult;
 
@@ -48,7 +49,7 @@ export default class SharingCredential {
 	 * @returns {object}
 	 */
 
-	async issuePublicCredential(
+	async issuePublicPresentation(
 		did: string,
 		item: any,
 		contextName: string,
@@ -85,9 +86,13 @@ export default class SharingCredential {
 
 		let params = {};
 
+		// Generate verifiable presentation
+		const credentials = new Credentials(this.context)
+		const presentation = await credentials.createVerifiablePresentation([item.didJwtVc])
+
 		if (options.encrypt) {
 			const key = new Uint8Array(options.key);
-			const content = EncryptionUtils.symEncrypt(item.didJwtVc, key);
+			const content = EncryptionUtils.symEncrypt(presentation, key);
 			item = {
 				content: content,
 				schema: options.schema,
