@@ -13,6 +13,10 @@ import {
 import { Context } from '@verida/client-ts';
 import { credentialDateOptions } from './interfaces';
 
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
+
 /**
  * A bare minimum class implementing the creation and verification of
  * Verifiable Credentials and Verifiable Presentations represented as
@@ -106,12 +110,14 @@ export default class Credentials {
 			if (vc.expirationDate) {
 				// Ensure credential hasn't expired
 				let now;
+				const expDate = dayjs(vc.expirationDate).utc(true)
 				if (currentDateTime) {
-					now = currentDateTime
+					now = dayjs(currentDateTime).utc(true)
 				} else {
-					now = new Date().toISOString()
+					now = dayjs(new Date().toISOString()).utc(true)
 				}
-				if (vc.expirationDate < now) {
+
+				if (expDate.diff(now) < 0) {
 					this.errors.push('Credential has expired');
 					return false;
 				}
@@ -200,11 +206,20 @@ export default class Credentials {
 		}
 
 		if (options && options.issuanceDate) {
+			// validate ISO UTC date format 
+			const regex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+			if (!regex.test(options.issuanceDate)) {
+				throw new Error('Date format does not match ISO standard')
+			}
+
 			vcPayload.issuanceDate = options.issuanceDate
 		} else {
-			vcPayload.issuanceDate = new Date().toISOString()
-		}
+			const issuanceDate = dayjs(new Date().toISOString()).utc(true).second() - dayjs(vcPayload.issuanceDate).utc(true).second()
 
+			if (issuanceDate > 10) {
+				throw new Error('provided issuance date is greater than 10 seconds from ')
+			}
+		}
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
 		const item = {

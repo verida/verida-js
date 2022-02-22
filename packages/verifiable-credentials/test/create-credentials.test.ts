@@ -1,7 +1,12 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+
 import Credentials from '../src/credentials';
 import { config, connect } from './config'
+
+dayjs.extend(utc)
 
 
 describe('Credential tests', function () {
@@ -81,6 +86,14 @@ describe('Credential tests', function () {
 
             assert.deepEqual(vc.issuanceDate, issuanceDate, 'issuanceDate options matches generated VC date ');
         });
+        it('Ensure issuanceDate generated in VC is within 10secs', async () => {
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
+            const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
+            const payload = decodedCredential.payload
+            const vc = payload.vc
+
+            assert.ok(vc.issuanceDate, 'issuanceDate is within 10secs after creating ');
+        });
         it('Ensure credential is verified using external currentDateTime', async () => {
             // Set an expiry date to the past
             const expirationDate = '2000-02-14T04:27:05.467Z';
@@ -89,6 +102,7 @@ describe('Credential tests', function () {
             const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, { expirationDate, issuanceDate });
 
             await credential.verifyCredential(jwt.didJwtVc, currentDateTime);
+
             assert.deepEqual(credential.getErrors(), ['Credential has expired'], 'currentDateTime is less than expiration date');
         });
         it('Ensure valid expiration date is respected', async () => {
