@@ -23,10 +23,8 @@ describe('Share Credential tests', function () {
         });
 
         it('Issue an encrypted credential', async function () {
-
             const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
-
-            const data = await shareCredential.issueEncryptedCredential(item);
+            const data = await shareCredential.issueEncryptedPresentation(item);
 
             createdUri = data.uri
 
@@ -40,20 +38,16 @@ describe('Share Credential tests', function () {
             );
 
             const uriWithoutKey = data.uri.substring(0, expectedUri.length);
-
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
+            // Fetch and decode the presentation
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Decode the credential
-            const decodedCredential = await credential.verifyCredential(jwt)
+            // Retreive the verifiable credential within the presentation
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            // Obtain the payload, that contains the verifiable credential (.vc)
-            const payload = decodedCredential.payload
-
-            const vc = payload.vc
-
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded dredential data matches the original input');
         });
         it('Retrieve Credential data from URI using a different account', async function () {
             // BUT using config.PRIVATE_KEY_2
@@ -62,40 +56,33 @@ describe('Share Credential tests', function () {
 
             const credentialHelper = new Credentials(context);
 
-            const jwt = await Utils.fetchVeridaUri(createdUri, context);
+            // Fetch and decode the presentation
+            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            const decodedCredential: any = await credentialHelper.verifyCredential(jwt);
+            // Retreive the verifiable credential within the presentation
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            const payload = decodedCredential.payload
-
-            const vc = payload.vc
-
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'decoded Credential subject matches original data');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded dredential data matches the original input');
         });
-        it('When Verida uri data does not exist in the database', async function () {
-
+        it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
                 return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, appContext);
             };
             assert.rejects(fetchVeridaUri);
         });
 
-        it('When Verida uri is issued directly from a data object', async function () {
-            const data = await shareCredential.issueEncryptedCredential(config.RAW_CREDENTIAL_DATA);
+        it('Retrieve credential from an existing URI', async function () {
+            createdUri = config.EXISTING_CREDENTIAL_URI
 
-            createdUri = data.uri
+            // Fetch and decode the presentation
+            const jwt = await Utils.fetchVeridaUri(createdUri, appContext)
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            // Retreive the verifiable credential within the presentation
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            // Decode the credential
-            const decodedCredential = await credential.verifyCredential(jwt)
-
-            // Obtain the payload, that contains the verifiable credential (.vc)
-            const payload = decodedCredential.payload
-
-            const vc = payload.vc
-
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded dredential data matches the original input');
         });
     });
 });

@@ -100,8 +100,14 @@ export async function fetchVeridaUri(
 	try {
 		const item: any = await db.get(url.id, {})
 		const key = Buffer.from(url.query.key as string, 'hex');
-		const decrypted = EncryptionUtils.symDecrypt(item.content, key);
-		return decrypted;
+
+		// Retur encrypted data if provided with an encryption key
+		if (key) {
+			return EncryptionUtils.symDecrypt(item.content, key);
+		}
+	
+		// Otherwise return the actual data
+		return item;
 	} catch (err: any) {
 		if (err.error == 'not_found') {
 			throw new Error('Document does not exist ');
