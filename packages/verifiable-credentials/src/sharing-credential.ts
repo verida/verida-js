@@ -3,6 +3,7 @@ import { Context, Utils } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
 import { ContextInterfaces } from '@verida/client-ts'
 import { VCResult } from './interfaces';
+import { Credentials } from '.';
 
 const PermissionOptionsEnum = ContextInterfaces.PermissionOptionsEnum
 
@@ -85,9 +86,13 @@ export default class SharingCredential {
 
 		let params = {};
 
+		// Generate verifiable presentation
+		const credentials = new Credentials(this.context)
+		const presentation = await credentials.createVerifiablePresentation([item.didJwtVc])
+
 		if (options.encrypt) {
 			const key = new Uint8Array(options.key);
-			const content = EncryptionUtils.symEncrypt(item.didJwtVc, key);
+			const content = EncryptionUtils.symEncrypt(presentation, key);
 			item = {
 				content: content,
 				schema: options.schema,
