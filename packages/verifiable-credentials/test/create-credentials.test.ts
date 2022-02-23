@@ -1,12 +1,8 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
 
 import Credentials from '../src/credentials';
 import { config, connect } from './config'
-
-dayjs.extend(utc)
 
 
 describe('Credential tests', function () {
