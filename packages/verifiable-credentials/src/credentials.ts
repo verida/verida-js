@@ -211,11 +211,9 @@ export default class Credentials {
 
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
-		const item = {
-			didJwtVc: didJwtVc,
-		};
-
-		return item;
+		data['didJwtVc'] = didJwtVc
+		
+		return data
 	}
 
 	private getResolver(): any {
