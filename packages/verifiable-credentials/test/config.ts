@@ -73,8 +73,3 @@ export const connect = async (privateKey: string, customContexName?: string): Pr
     });
     return context;
 };
-
-
-export const base64Encoded = (data: string) => {
-    return Buffer.from(data, 'base64').toString('utf8')
-}
