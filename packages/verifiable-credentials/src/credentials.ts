@@ -66,7 +66,7 @@ export default class Credentials {
 		if (!issuer) {
 			issuer = await this.createIssuer()
 		}
-		
+
 		const vpPayload = {
 			vp: {
 				'@context': ['https://www.w3.org/2018/credentials/v1'],

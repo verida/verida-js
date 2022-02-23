@@ -3,7 +3,7 @@ const assert = require('assert');
 import { Utils } from '@verida/client-ts';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
-import { base64Encoded, config, connect } from './config';
+import { config, connect } from './config';
 
 
 describe('Share Credential tests', function () {
@@ -37,14 +37,13 @@ describe('Share Credential tests', function () {
                 data.result.id
             );
 
-            const base64decodedURI = base64Encoded(data.veridaUri)
 
-            const uriWithoutKey = base64decodedURI.substring(0, expectedUri.length);
+            const uriWithoutKey = data.veridaUri.substring(0, expectedUri.length);
 
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
             // Fetch and decode the presentation
-            const jwt = await Utils.fetchVeridaUri(base64decodedURI, appContext);
+            const jwt = await Utils.fetchVeridaUri(data.veridaUri, appContext);
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
             // Retreive the verifiable credential within the presentation
@@ -59,16 +58,14 @@ describe('Share Credential tests', function () {
 
             const credential: any = new Credentials(context);
 
-            const base64decodedURI = base64Encoded(createdUri)
-
             // Fetch and decode the presentation
-            const jwt = await Utils.fetchVeridaUri(base64decodedURI, appContext);
+            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
             // Retreive the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded dredential data matches the original input');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
@@ -87,7 +84,7 @@ describe('Share Credential tests', function () {
             // Retreive the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded dredential data matches the original input');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
     });
 });

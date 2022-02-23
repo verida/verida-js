@@ -113,7 +113,7 @@ export default class SharingCredential {
 			item: item,
 			result: result,
 			did: did,
-			veridaUri: encodeBase64(uri),
+			veridaUri: uri,
 			publicUri: `https://scan.verida.io/credential?uri=${encodeBase64(uri)}`
 		};
 
