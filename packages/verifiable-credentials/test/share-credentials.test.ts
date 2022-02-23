@@ -87,22 +87,22 @@ describe('Share Credential tests', function () {
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
 
-        it('When Verida uri is issued directly from a data object', async function () {
+        it('Retreiving credential from an existing data object with a DID JWT VC', async function () {
             const data = await shareCredential.issueEncryptedPresentation(config.RAW_CREDENTIAL_DATA);
 
             createdUri = data.veridaUri
 
+            // Fetch and decode the presentation
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Decode the credential
-            const decodedCredential = await credential.verifyPresentation(jwt)
+            // Retreive the verifiable credential within the presentation
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            // Obtain the payload, that contains the verifiable credential (.vc)
-            const payload = decodedCredential.payload
+            // `didJwtVc` data won't be in the generated credential, so remove it froom our test data before deepEqual executes
+            delete config.CREDENTIAL_DATA['didJwtVc']
 
-            const vc = payload.vc
-
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
     });
 });

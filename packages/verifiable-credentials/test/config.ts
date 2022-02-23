@@ -23,24 +23,13 @@ export const config = {
     VERIDA_TESTNET_DEFAULT_SERVER: "https://db.testnet.verida.io:5002/",
     INVALID_VERIDA_URI: `verida://did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c/0x42406d644c8e884be0f76ee05539cfba03eda65baa2bda33ecd364ce4d18047c/credential_public_encrypted/6273bb80-596a-1331ec-ad0d-f3b4d6aec150?key=1f52db207c48b6c54f6692cb182c41bc3bd0805d0efdc9dcb25f15ade8639d5f`,
     EXISTING_CREDENTIAL_URI: `verida://did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c/GpNDePvWU4RQud9jaZJiNwFyAS/credential_public_encrypted/6ccd0700-939c-11ec-9ac4-371a75288755?key=b572983d88023c3adda7a7f3066c817f2f1b404a7cedf4bae3b0dd09b9960c79`,
-    RAW_CREDENTIAL_DATA: {
-        _id: "40dbc870-8fb9-11ec-b8da-4168ed4ebb55",
-        name: "Your Dentist Credential",
-        firstName: "Hien ",
-        lastName: "Developer",
-        regNumber: "SDKSJDPW120120",
-        healthType: "Dentist",
-        regExpDate: "2022-02-11",
-        schema: "https://verida.github.io/demo-credential-issuer/mapay/v0.1.0/schema.json",
-        testTimestamp: "2022-02-17T06:03:14.164Z",
-        summary: "Credential issued at Thu Feb 17 2022",
-        didJwtVc: "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE2NDUwNzc3OTQsImV4cCI6bnVsbCwiYXVkIjoiZGlkOnZkYToweDc1NjZjNTc0NTI4N2E1ZDEyYkY3N2FBMTlEMTREZTRDNUVEMzhlMDQiLCJkYXRhIjp7Im5hbWUiOiJZb3VyIERlbnRpc3QgQ3JlZGVudGlhbCIsImZpcnN0TmFtZSI6IkhpZW4gIiwibGFzdE5hbWUiOiJEZXZlbG9wZXIiLCJyZWdOdW1iZXIiOiJTREtTSkRQVzEyMDEyMCIsImhlYWx0aFR5cGUiOiJEZW50aXN0IiwicmVnRXhwRGF0ZSI6IjIwMjItMDItMTEiLCJzY2hlbWEiOiJodHRwczovL3ZlcmlkYS5naXRodWIuaW8vZGVtby1jcmVkZW50aWFsLWlzc3Vlci9tYXBheS92MC4xLjAvc2NoZW1hLmpzb24iLCJ0ZXN0VGltZXN0YW1wIjoiMjAyMi0wMi0xN1QwNjowMzoxNC4xNjRaIiwic3VtbWFyeSI6IkNyZWRlbnRpYWwgaXNzdWVkIGF0IFRodSBGZWIgMTcgMjAyMiJ9LCJjb250ZXh0IjoiVmVyaWRhOiBWZXJpZmlhYmxlIENyZWRlbnRpYWwgRGVtbyIsImluc2VydGVkQXQiOiIyMDIyLTAyLTE3VDA2OjAzOjE0LjE2NVoiLCJpc3MiOiJkaWQ6dmRhOjB4NzU2NmM1NzQ1Mjg3YTVkMTJiRjc3YUExOUQxNERlNEM1RUQzOGUwNCJ9.WvDxVhKFq40okaWDEO53kat9YKAklVl6qEHAsQkOHw50QYhx61Emh8lA_DldgC0U8thnt4F0pGVnU86fo4ia8g",
-        insertedAt: "2022-02-17T06:17:16.152Z",
-        modifiedAt: "2022-02-17T06:17:16.152Z",
-        signatures: {
-            "did:vda:0x2c32E2341fF3726CE03D897946cAB5Eb268Ee1F0?context=0xe92a609ded204004bb1d128127147b6b3d5890b24434e74e42255c86607fe2ba": "0x6ea7cbed168504fd1dfeb407a76e0f9b57985a7689bd9678…3ae4a33a061297e672e8f0f7ef55acca7b5074c9ddaf8c81b"
-        },
-        _rev: "1-991fbeef5dc6c91efacb7e8a1732abc4"
+    RAW_CREDENTIAL_DATA:   {
+        name: 'Vitalik Buterin',
+        firstName: 'Vitalik',
+        lastName: 'Buterin',
+        email: 'me@vitalik.eth',
+        schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json',
+        didJwtVc: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL2V4YW1wbGVzL3YxIl0sInN1YiI6ImRpZDp2ZGE6MHhDMjYyOTk4MkEyNTg1NTQ0RkQ3MmM5OUNGMzc3M2E5YzZiYUJENTVjIiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCJdLCJpc3N1ZXIiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyIsImlzc3VhbmNlRGF0ZSI6IjIwMjItMDItMjNUMDY6NDE6NTUuMDk3WiIsImNyZWRlbnRpYWxTdWJqZWN0Ijp7Im5hbWUiOiJWaXRhbGlrIEJ1dGVyaW4iLCJmaXJzdE5hbWUiOiJWaXRhbGlrIiwibGFzdE5hbWUiOiJCdXRlcmluIiwiZW1haWwiOiJtZUB2aXRhbGlrLmV0aCIsInNjaGVtYSI6Imh0dHBzOi8vY29tbW9uLnNjaGVtYXMudmVyaWRhLmlvL3NvY2lhbC9jb250YWN0L3YwLjEuMC9zY2hlbWEuanNvbiJ9LCJjcmVkZW50aWFsU2NoZW1hIjp7ImlkIjoiaHR0cHM6Ly9jb21tb24uc2NoZW1hcy52ZXJpZGEuaW8vc29jaWFsL2NvbnRhY3QvdjAuMS4wL3NjaGVtYS5qc29uIiwidHlwZSI6Ikpzb25TY2hlbWFWYWxpZGF0b3IyMDE4In19LCJpc3MiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyJ9.BdokafCkVKavdVM2UgAnCTY4pUlpQ02-7bi5FtKK0Wgvwo2xfpps17qa1iuWa9IsmzgYcB4R8SlBgpybQ5AW_w'
     }
 }
 
