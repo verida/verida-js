@@ -93,12 +93,12 @@ describe('Share Credential tests', function () {
         it('When Verida uri is issued directly from a data object', async function () {
             const data = await shareCredential.issueEncryptedPresentation(config.RAW_CREDENTIAL_DATA);
 
-            createdUri = data.uri
+            createdUri = data.veridaUri
 
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
 
             // Decode the credential
-            const decodedCredential = await credential.verifiablePresentation(jwt)
+            const decodedCredential = await credential.verifyPresentation(jwt)
 
             // Obtain the payload, that contains the verifiable credential (.vc)
             const payload = decodedCredential.payload
