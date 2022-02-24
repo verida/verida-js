@@ -14,6 +14,13 @@ export const config = {
         email: 'me@vitalik.eth',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
     },
+    CREDENTIAL_DATA_2: {
+        name: 'Vitalik Buterin',
+        firstName: 'Vitalik',
+        lastName: 'Buterin',
+        email: 'me@vitalik.eth',
+        schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
+    },
     INVALID_CREDENTIAL_DATA: {
         email: 'me',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
@@ -23,7 +30,7 @@ export const config = {
     VERIDA_TESTNET_DEFAULT_SERVER: "https://db.testnet.verida.io:5002/",
     INVALID_VERIDA_URI: `verida://did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c/0x42406d644c8e884be0f76ee05539cfba03eda65baa2bda33ecd364ce4d18047c/credential_public_encrypted/6273bb80-596a-1331ec-ad0d-f3b4d6aec150?key=1f52db207c48b6c54f6692cb182c41bc3bd0805d0efdc9dcb25f15ade8639d5f`,
     EXISTING_CREDENTIAL_URI: `verida://did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c/GpNDePvWU4RQud9jaZJiNwFyAS/credential_public_encrypted/6ccd0700-939c-11ec-9ac4-371a75288755?key=b572983d88023c3adda7a7f3066c817f2f1b404a7cedf4bae3b0dd09b9960c79`,
-    RAW_CREDENTIAL_DATA:   {
+    RAW_CREDENTIAL_DATA: {
         name: 'Vitalik Buterin',
         firstName: 'Vitalik',
         lastName: 'Buterin',
@@ -62,3 +69,8 @@ export const connect = async (privateKey: string, customContexName?: string): Pr
     });
     return context;
 };
+
+export const deleteDidJwtProperty = () => {
+    delete config.CREDENTIAL_DATA['didJwtVc']
+}
+

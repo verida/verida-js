@@ -3,7 +3,7 @@ const assert = require('assert');
 import { Utils } from '@verida/client-ts';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
-import { config, connect } from './config';
+import { config, connect, deleteDidJwtProperty } from './config';
 
 
 describe('Share Credential tests', function () {
@@ -44,11 +44,15 @@ describe('Share Credential tests', function () {
 
             // Fetch and decode the presentation
             const jwt = await Utils.fetchVeridaUri(data.veridaUri, appContext);
+
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
             // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
+            deleteDidJwtProperty()
+
+            delete verifiableCredential.credentialSubject['didJwtVc'];
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
@@ -64,8 +68,12 @@ describe('Share Credential tests', function () {
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
             // Retrieve the verifiable credential within the presentation
+
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
+            deleteDidJwtProperty()
+
+            delete verifiableCredential.credentialSubject['didJwtVc'];
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
@@ -86,7 +94,7 @@ describe('Share Credential tests', function () {
             // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            delete config.CREDENTIAL_DATA['didJwtVc']
+            deleteDidJwtProperty()
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
@@ -104,7 +112,7 @@ describe('Share Credential tests', function () {
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
             // `didJwtVc` data won't be in the generated credential, so remove it from our test data before deepEqual executes
-            delete config.CREDENTIAL_DATA['didJwtVc']
+            deleteDidJwtProperty()
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
