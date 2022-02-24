@@ -23,6 +23,7 @@ describe('Share Credential tests', function () {
         });
 
         it('Issue an encrypted credential', async function () {
+
             const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
             const data = await shareCredential.issueEncryptedPresentation(item);
 
@@ -37,7 +38,6 @@ describe('Share Credential tests', function () {
                 data.result.id
             );
 
-
             const uriWithoutKey = data.veridaUri.substring(0, expectedUri.length);
 
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
@@ -46,10 +46,11 @@ describe('Share Credential tests', function () {
             const jwt = await Utils.fetchVeridaUri(data.veridaUri, appContext);
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Retreive the verifiable credential within the presentation
+            // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded dredential data matches the original input');
+
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
         it('Retrieve Credential data from URI using a different account', async function () {
             // BUT using config.PRIVATE_KEY_2
@@ -62,8 +63,9 @@ describe('Share Credential tests', function () {
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Retreive the verifiable credential within the presentation
+            // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
+
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
@@ -81,13 +83,15 @@ describe('Share Credential tests', function () {
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext)
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Retreive the verifiable credential within the presentation
+            // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
+
+            delete config.CREDENTIAL_DATA['didJwtVc']
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
 
-        it('Retreiving credential from an existing data object with a DID JWT VC', async function () {
+        it('Retrieving credential from an existing data object with a DID JWT VC', async function () {
             const data = await shareCredential.issueEncryptedPresentation(config.RAW_CREDENTIAL_DATA);
 
             createdUri = data.veridaUri
@@ -96,10 +100,10 @@ describe('Share Credential tests', function () {
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
             const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Retreive the verifiable credential within the presentation
+            // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            // `didJwtVc` data won't be in the generated credential, so remove it froom our test data before deepEqual executes
+            // `didJwtVc` data won't be in the generated credential, so remove it from our test data before deepEqual executes
             delete config.CREDENTIAL_DATA['didJwtVc']
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
