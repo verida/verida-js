@@ -29,9 +29,6 @@ describe('Credential tests', function () {
             const payload = decodedCredential.payload
             const vc = payload.vc
 
-            console.log();
-
-
             // Verify the "Payload"
             assert.equal(payload.iss, issuer.did, 'Credential issuer matches expected DID')
 

@@ -14,13 +14,6 @@ export const config = {
         email: 'me@vitalik.eth',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
     },
-    CREDENTIAL_DATA_2: {
-        name: 'Vitalik Buterin',
-        firstName: 'Vitalik',
-        lastName: 'Buterin',
-        email: 'me@vitalik.eth',
-        schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
-    },
     INVALID_CREDENTIAL_DATA: {
         email: 'me',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
@@ -70,7 +63,4 @@ export const connect = async (privateKey: string, customContexName?: string): Pr
     return context;
 };
 
-export const deleteDidJwtProperty = () => {
-    delete config.CREDENTIAL_DATA['didJwtVc']
-}
 
