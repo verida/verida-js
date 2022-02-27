@@ -8,5 +8,6 @@ export interface VCResult {
     item: any;
     result: any;
     did: string;
-    uri: string;
+    veridaUri: string;
+    publicUri: string;
 }

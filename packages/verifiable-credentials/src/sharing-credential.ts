@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
-import { Context, Utils } from '@verida/client-ts';
+import { encodeBase64 } from 'tweetnacl-util';
+import { Context, Utils, ContextInterfaces } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
-import { ContextInterfaces } from '@verida/client-ts'
 import { VCResult } from './interfaces';
 import { Credentials } from '.';
 
@@ -102,17 +102,20 @@ export default class SharingCredential {
 			};
 		}
 
-		try {
-			const result = (await publicCredentials.save(item, {})) as any;
+		const result = (await publicCredentials.save(item, {})) as any;
 
-			return {
-				item: item,
-				result: result,
-				did: did,
-				uri: Utils.buildVeridaUri(did, contextName, dbName, result.id, params),
-			};
-		} catch (err) {
-			console.log(err);
+		if (!result) {
+			throw new Error('unable to save jwt item to db')
 		}
+		const uri = Utils.buildVeridaUri(did, contextName, dbName, result.id, params) as any
+
+		return {
+			item: item,
+			result: result,
+			did: did,
+			veridaUri: uri,
+			publicUri: `https://scan.verida.io/credential?uri=${encodeBase64(uri)}`
+		};
+
 	}
 }
