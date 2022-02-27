@@ -24,7 +24,7 @@ export default class StorageLink {
 
     /**
      * 
-     * @param ceramic 
+     * @param didClient 
      * @param did 
      * @param contextName 
      * @returns SecureStorageContextConfig | undefined (if not found)
@@ -43,8 +43,7 @@ export default class StorageLink {
 
     /**
      * 
-     * @param ceramic 
-     * @param did 
+     * @param didClient
      * @param storageConfig (Must have .id as the contextName)
      */
     static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig) {
