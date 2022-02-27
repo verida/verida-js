@@ -1,4 +1,4 @@
-2022-02-27 (v0.1.2)
+2022-02-27 (v0.1.3)
 -------------------
 
 - Feature: Add more complete unit tests
