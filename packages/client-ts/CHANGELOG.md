@@ -1,3 +1,13 @@
+2022-02-27 (v1.1.12)
+-------------------
+
+- Fix: Ensure email validation works correctly
+- Fix: Strip trailing slash if it exists on an endpointUrl
+- Fix: Pinging notification server pre-release bugs
+- Feature: Implement versionless schema signatures
+- Feature: Support opening an external context with a context hash OR a context name
+- Fix: Unit test missing permission config
+
 2021-11-22 (v1.1.9)
 -------------------
 

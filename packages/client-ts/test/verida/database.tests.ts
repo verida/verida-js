@@ -242,7 +242,12 @@ describe('Verida database tests', () => {
 
         it(`can't open an external database with owner read and not the owner`, async function() {
             const promise = new Promise((resolve, rejects) => {
-                context2.openExternalDatabase(DB_NAME_OWNER, did1).then(rejects, resolve)
+                context2.openExternalDatabase(DB_NAME_OWNER, did1, {
+                    permissions: {
+                        read: 'owner',
+                        write: 'owner'
+                    }
+                }).then(rejects, resolve)
             })
             const result = await promise
 

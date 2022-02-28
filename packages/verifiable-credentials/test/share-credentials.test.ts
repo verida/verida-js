@@ -20,15 +20,17 @@ describe('Share Credential tests', function () {
             shareCredential = new SharingCredential(appContext);
 
             credential = new Credentials(appContext)
+
+            // `didJwtVc` data won't be in the  test credential data,so remove it from our test data before deepEqual executes
+            delete config.CREDENTIAL_DATA['didJwtVc']
         });
 
         it('Issue an encrypted credential', async function () {
 
             const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
+            const data = await shareCredential.issueEncryptedPresentation(item);
 
-            const data = await shareCredential.issueEncryptedCredential(item);
-
-            createdUri = data.uri
+            createdUri = data.veridaUri
 
             assert.ok(data.result.ok, 'Document was saved correctly');
 
@@ -39,63 +41,72 @@ describe('Share Credential tests', function () {
                 data.result.id
             );
 
-            const uriWithoutKey = data.uri.substring(0, expectedUri.length);
+            const uriWithoutKey = data.veridaUri.substring(0, expectedUri.length);
 
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
-            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            // Fetch and decode the presentation
+            const jwt = await Utils.fetchVeridaUri(data.veridaUri, appContext);
 
-            // Decode the credential
-            const decodedCredential = await credential.verifyCredential(jwt)
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Obtain the payload, that contains the verifiable credential (.vc)
-            const payload = decodedCredential.payload
+            // Retrieve the verifiable credential within the presentation
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            const vc = payload.vc
+            delete config.CREDENTIAL_DATA['didJwtVc']
 
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
         it('Retrieve Credential data from URI using a different account', async function () {
             // BUT using config.PRIVATE_KEY_2
 
             const context = await connect(config.PRIVATE_KEY_2, 'Web credential scanner');
 
-            const credentialHelper = new Credentials(context);
+            const credential: any = new Credentials(context);
 
-            const jwt = await Utils.fetchVeridaUri(createdUri, context);
+            // Fetch and decode the presentation
+            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            const decodedCredential: any = await credentialHelper.verifyCredential(jwt);
+            // Retrieve the verifiable credential within the presentation
 
-            const payload = decodedCredential.payload
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            const vc = payload.vc
-
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'decoded Credential subject matches original data');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
-        it('When Verida uri data does not exist in the database', async function () {
-
+        it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
                 return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, appContext);
             };
             assert.rejects(fetchVeridaUri);
         });
 
-        it('When Verida uri is issued directly from a data object', async function () {
-            const data = await shareCredential.issueEncryptedCredential(config.RAW_CREDENTIAL_DATA);
+        it('Retrieve credential from an existing URI', async function () {
+            createdUri = config.EXISTING_CREDENTIAL_URI
 
-            createdUri = data.uri
+            // Fetch and decode the presentation
+            const jwt = await Utils.fetchVeridaUri(createdUri, appContext)
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
+            // Retrieve the verifiable credential within the presentation
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
+
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
+        });
+
+        it('Retrieving credential from an existing data object with a DID JWT VC', async function () {
+            const data = await shareCredential.issueEncryptedPresentation(config.RAW_CREDENTIAL_DATA);
+
+            createdUri = data.veridaUri
+
+            // Fetch and decode the presentation
             const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
+            const decodedPresentation = await credential.verifyPresentation(jwt)
 
-            // Decode the credential
-            const decodedCredential = await credential.verifyCredential(jwt)
+            // Retrieve the verifiable credential within the presentation
+            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            // Obtain the payload, that contains the verifiable credential (.vc)
-            const payload = decodedCredential.payload
-
-            const vc = payload.vc
-
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Issuer matches expected DID');
+            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
     });
 });

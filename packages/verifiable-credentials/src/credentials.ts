@@ -65,8 +65,12 @@ export default class Credentials {
 	 */
 	async createVerifiablePresentation(
 		vcJwts: string[],
-		issuer: any
+		issuer?: any
 	): Promise<string> {
+		if (!issuer) {
+			issuer = await this.createIssuer()
+		}
+
 		const vpPayload = {
 			vp: {
 				'@context': ['https://www.w3.org/2018/credentials/v1'],
@@ -222,11 +226,9 @@ export default class Credentials {
 		}
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
-		const item = {
-			didJwtVc: didJwtVc,
-		};
-
-		return item;
+		data['didJwtVc'] = didJwtVc
+		
+		return data
 	}
 
 	private getResolver(): any {

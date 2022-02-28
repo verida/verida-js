@@ -50,7 +50,8 @@ export default class AutoAccount extends Account {
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
         let storageConfig = await StorageLink.getLink(this.didClient, this.wallet.did, contextName, true)
         
-        if (!storageConfig || forceCreate) {
+        // Create the storage config if it doesn't exist and force create is specified
+        if (!storageConfig && forceCreate) {
             const endpoints: Interfaces.SecureContextServices = {
                 databaseServer: this.accountConfig.defaultDatabaseServer,
                 messageServer: this.accountConfig.defaultMessageServer

@@ -15,7 +15,7 @@ describe('Credential tests', function () {
         beforeEach(async function () {
             appContext = await connect(config.PRIVATE_KEY_1);
 
-            credential = new Credentials(appContext)
+            credential = new Credentials(appContext);
         });
         it('Verify Credential JWT was created correctly', async function () {
 
@@ -34,6 +34,8 @@ describe('Credential tests', function () {
             assert.equal(payload.iss, issuer.did, 'Credential issuer matches expected DID')
 
             // Verify the "Verifiable Credential"
+            delete config.CREDENTIAL_DATA['didJwtVc']
+
             assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is valid');
             assert.deepEqual(issuer.did, vc.issuer, 'Issuer matches expected DID');
             assert.equal(vc.credentialSchema.id, config.CREDENTIAL_DATA.schema, 'Credential schema is correct')
