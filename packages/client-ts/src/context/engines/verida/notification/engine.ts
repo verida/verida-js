@@ -36,7 +36,6 @@ export default class NotificationEngineVerida implements BaseNotification {
                 }
             })
         } catch (err: any) {
-            console.log(err)
             this.errors.push(err.message)
             return false
         }
