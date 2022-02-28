@@ -93,7 +93,6 @@ export default class AutoAccount extends Account {
     /**
      * Link storage context service endpoint
      * 
-     * @returns 
      */
     public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUri: string) {
         return await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUri)

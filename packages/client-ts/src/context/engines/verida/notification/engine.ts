@@ -14,6 +14,8 @@ export default class NotificationEngineVerida implements BaseNotification {
     constructor(context: Context, serverUrl: string) {
         this.context = context
         this.serverUrl = serverUrl.endsWith("/") ? serverUrl : serverUrl + "/";
+
+        console.log("NotificationEngineVerida constructed with " + serverUrl)
     }
     
     public async init(): Promise<void> {
@@ -28,6 +30,7 @@ export default class NotificationEngineVerida implements BaseNotification {
         const server = await this.getAxios();
 
         try {
+            console.log("notifying " + didToNotify + " in context" + recipientContextName)
             // Returns the client context and the corresponding `DID`
             await server.post(this.serverUrl + 'ping', {
                 data: {
@@ -35,7 +38,9 @@ export default class NotificationEngineVerida implements BaseNotification {
                     context: recipientContextName
                 }
             })
+            console.log("notificatoin posted successfully")
         } catch (err: any) {
+            console.log(err)
             this.errors.push(err.message)
             return false
         }

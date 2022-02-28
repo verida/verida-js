@@ -2,3 +2,5 @@ backup
 coverage
 ipfs
 node_modules
+.DS_Store
+*.log

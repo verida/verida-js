@@ -198,7 +198,7 @@ class Client {
    *
    * @param did
    * @param contextName
-   * @returns <Profile | undefined>
+   * @returns `<Profile | undefined>`
    */
   public async openPublicProfile(
     did: string,
