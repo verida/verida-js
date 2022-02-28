@@ -175,8 +175,14 @@ export default class Credentials {
 		// Ensure data matches specified schema
 		const schema = await this.context.getClient().getSchema(data.schema)
 		const isValid = await schema.validate(data);
+		const schemaJson = await schema.getSpecification();
+		const databaseName = schemaJson['database']['name']
 
-		// @todo: Check the schema is a "credential" schema type?
+		if (schemaJson && databaseName === 'credential') {
+			if (!data.didJwtVc) {
+				throw new Error('please provide the didJwtVc property for credential schema type')
+			}
+		}
 
 		if (!isValid) {
 			throw new Error('Data does not match specified schema')
@@ -227,7 +233,7 @@ export default class Credentials {
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
 		data['didJwtVc'] = didJwtVc
-		
+
 		return data
 	}
 
