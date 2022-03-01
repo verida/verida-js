@@ -18,7 +18,7 @@ describe('Credential tests', function () {
         });
         it('Verify Credential JWT was created correctly', async function () {
 
-            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD);
 
             const issuer = await credential.createIssuer();
 
