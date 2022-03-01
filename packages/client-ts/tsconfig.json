@@ -5,6 +5,7 @@
       "declaration": true,
       "skipLibCheck": true, // disable TS checking of dependencies
       "outDir": "./dist",
+      "sourceMap": true,
       "strict": true,
       "lib": [
         "es5",
