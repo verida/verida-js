@@ -101,7 +101,6 @@ export default class Credentials {
 	async verifyCredential(vcJwt: string, currentDateTime?: string): Promise<any> {
 		const resolver = this.getResolver();
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
-
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
 			const vc = payload.vc
@@ -176,10 +175,11 @@ export default class Credentials {
 		const schema = await this.context.getClient().getSchema(data.schema)
 		const isValid = await schema.validate(data);
 		const schemaJson = await schema.getSpecification();
+
 		const databaseName = schemaJson['database']['name']
 
 		if (schemaJson && databaseName === 'credential') {
-			if (!data.didJwtVc) {
+			if (!schemaJson.properties.didJwtVc) {
 				throw new Error('please provide the didJwtVc property for credential schema type')
 			}
 		}
@@ -210,23 +210,31 @@ export default class Credentials {
 			},
 		};
 
+
+
+
 		if (options && options.expirationDate) {
 			// The DID JWT VC library (called by createVerifiableCredential) verifies the string format so we do not need a test for that
+			const dateFormat = dayjs(options.expirationDate).utc(true)
+			if (dateFormat.$d.toString() === 'Invalid Date') {
+				throw new Error('Date format does not match ISO standard')
+			}
 			vcPayload.expirationDate = options.expirationDate
 		}
 
 		if (options && options.issuanceDate) {
-			// validate ISO UTC date format 
-			const regex = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
-			if (!regex.test(options.issuanceDate)) {
+			const dateFormat = dayjs(options.issuanceDate).utc(true)
+			if (dateFormat.$d.toString() === 'Invalid Date') {
 				throw new Error('Date format does not match ISO standard')
 			}
 
-			vcPayload.issuanceDate = options.issuanceDate
+			vcPayload.issuanceDate = dateFormat.$d
 		} else {
-			const issuanceDate = dayjs(new Date().toISOString()).utc(true).second() - dayjs(vcPayload.issuanceDate).utc(true).second()
+			const currentTime = dayjs(new Date().toISOString()).utc(true).second();
+			const createdVcTime = dayjs(vcPayload.issuanceDate).utc(true).second()
+			const MAX_DURATION_IN_SECONDS = 5
 
-			if (issuanceDate > 10) {
+			if ((currentTime - createdVcTime) > MAX_DURATION_IN_SECONDS) {
 				throw new Error('provided issuance date is greater than 10 seconds from ')
 			}
 		}

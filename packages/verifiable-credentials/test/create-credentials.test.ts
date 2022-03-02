@@ -3,6 +3,10 @@ const assert = require('assert');
 
 import Credentials from '../src/credentials';
 import { config, connect } from './config'
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
+
 
 
 describe('Credential tests', function () {
@@ -40,13 +44,28 @@ describe('Credential tests', function () {
             assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is valid');
             assert.deepEqual(issuer.did, vc.issuer, 'Issuer matches expected DID');
             assert.equal(vc.credentialSchema.id, config.CREDENTIAL_DATA.schema, 'Credential schema is correct')
-            assert.equal(vc.sub, config.SUBJECT_DID, 'Credential subject matches expected DID')
+            assert.equal(vc.sub, config.SUBJECT_DID, 'Crekdential subject matches expected DID')
 
             // Verify the data matches the schema
             const record = vc.credentialSubject
             const schema = await appContext.getClient().getSchema(record.schema)
             const isValid = await schema.validate(config.CREDENTIAL_DATA);
             assert.equal(true, isValid, 'Credential subject successfully validates against the schema');
+        });
+        it('Check the schema is a credential schema type', async function () {
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.DATA_WITH_CREDENTIAL_SCHEMA);
+            // Decode the credential
+            const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
+
+            // Obtain the payload, that contains the verifiable credential (.vc)
+            const payload = decodedCredential.payload
+            const vc = payload.vc
+
+            // Verify the data matches the schema
+            const record = vc.credentialSubject
+            const schema = await appContext.getClient().getSchema(record.schema)
+            const schemaJson = await schema.getSpecification();
+            assert.ok(schemaJson.properties.didJwtVc, 'schemaJson has the didJwtVc attribute');
         });
         it('Unable to create credential with invalid schema data', async function () {
             const promise = new Promise((resolve, rejects) => {
@@ -83,7 +102,11 @@ describe('Credential tests', function () {
             const payload = decodedCredential.payload
             const vc = payload.vc
 
-            assert.deepEqual(vc.issuanceDate, issuanceDate, 'issuanceDate options matches generated VC date ');
+            //format date to UTC
+            const formattedIssuanceDate = dayjs(issuanceDate).utc(true).format()
+            const formattedIssuanceVCDate = dayjs(vc.issuanceDate).utc().format()
+
+            assert.deepEqual(formattedIssuanceVCDate, formattedIssuanceDate, 'issuanceDate options matches generated VC date ');
         });
         it('Ensure issuanceDate generated in VC is within 10secs', async () => {
             const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
@@ -91,10 +114,15 @@ describe('Credential tests', function () {
             const payload = decodedCredential.payload
             const vc = payload.vc
 
-            assert.ok(vc.issuanceDate, 'issuanceDate is within 10secs after creating ');
+            const currentTime = dayjs(new Date().toISOString()).utc(true).second();
+            const createdVcTime = dayjs(vc.issuanceDate).utc(true).second()
+
+            const issuanceDate = currentTime - createdVcTime;
+
+            assert.ok(issuanceDate < 5, 'issuanceDate is within 10secs after creating ');
         });
         it('Ensure credential is verified using external currentDateTime', async () => {
-            // Set an expiry date to the past
+            // Set an expiry date to the pastÛ
             const expirationDate = '2000-02-14T04:27:05.467Z';
             const issuanceDate = '2022-02-14T04:27:05.467Z';
             const currentDateTime = '2024-02-14T04:27:05.467Z';
