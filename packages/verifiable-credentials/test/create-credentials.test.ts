@@ -21,7 +21,7 @@ describe('Credential tests', function () {
 
             credential = new Credentials(appContext);
         });
-        it.only('Verify Credential JWT was created correctly', async function () {
+        it('Verify Credential JWT was created correctly', async function () {
 
             const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD);
 
