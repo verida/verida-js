@@ -21,7 +21,7 @@ describe('Credential tests', function () {
 
             credential = new Credentials(appContext);
         });
-        it('Verify Credential JWT was created correctly', async function () {
+        it.only('Verify Credential JWT was created correctly', async function () {
 
             const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD);
 
@@ -118,7 +118,7 @@ describe('Credential tests', function () {
 
             const issuanceDate = currentTime - createdVcTime;
 
-            assert.ok(issuanceDate < 5, 'issuanceDate is within 10secs after creating ');
+            assert.ok(issuanceDate < 10, 'issuanceDate is within 10secs after creating ');
         });
         it('Ensure credential is verified using external currentDateTime', async () => {
             // Set an expiry date to the pastÛ

@@ -187,7 +187,7 @@ export default class Credentials {
 
 		if (schemaJson && databaseName === 'credential') {
 			if (!schemaJson.properties.didJwtVc) {
-				throw new Error('please provide the didJwtVc property for credential schema type')
+				throw new Error('Schema is not a valid credential schema')
 			}
 		}
 
@@ -237,14 +237,6 @@ export default class Credentials {
 			}
 
 			vcPayload.issuanceDate = dateFormat.$d
-		} else {
-			const currentTime = dayjs(new Date().toISOString()).utc(true).second();
-			const createdVcTime = dayjs(vcPayload.issuanceDate).utc(true).second()
-			const MAX_DURATION_IN_SECONDS = 5
-
-			if ((currentTime - createdVcTime) > MAX_DURATION_IN_SECONDS) {
-				throw new Error('provided issuance date is greater than 10 seconds from current time')
-			}
 		}
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
