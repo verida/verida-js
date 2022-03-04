@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import { encodeBase64 } from 'tweetnacl-util';
 import { Context, Utils, ContextInterfaces } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
 import { VCResult } from './interfaces';
@@ -114,7 +113,7 @@ export default class SharingCredential {
 			result: result,
 			did: did,
 			veridaUri: uri,
-			publicUri: `https://scan.verida.io/credential?uri=${encodeBase64(uri)}`
+			publicUri: `https://scan.verida.io/credential?uri=${Buffer.from(uri, 'utf8').toString('base64')}`
 		};
 
 	}

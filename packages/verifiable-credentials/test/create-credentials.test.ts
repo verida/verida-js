@@ -23,8 +23,7 @@ describe('Credential tests', function () {
         });
         it('Verify Credential JWT was created correctly', async function () {
 
-
-            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD);
 
             const issuer = await credential.createIssuer();
 
@@ -38,22 +37,22 @@ describe('Credential tests', function () {
             // Verify the "Payload"
             assert.equal(payload.iss, issuer.did, 'Credential issuer matches expected DID')
 
-            // Verify the "Verifiable Credential"
-            delete config.CREDENTIAL_DATA['didJwtVc']
-
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is valid');
-            assert.deepEqual(issuer.did, vc.issuer, 'Issuer matches expected DID');
-            assert.equal(vc.credentialSchema.id, config.CREDENTIAL_DATA.schema, 'Credential schema is correct')
-            assert.equal(vc.sub, config.SUBJECT_DID, 'Crekdential subject matches expected DID')
-
             // Verify the data matches the schema
             const record = vc.credentialSubject
             const schema = await appContext.getClient().getSchema(record.schema)
-            const isValid = await schema.validate(config.CREDENTIAL_DATA);
+            const isValid = await schema.validate(config.CREDENTIAL_DATA_PAYLOAD);
             assert.equal(true, isValid, 'Credential subject successfully validates against the schema');
+
+            // Verify the "Verifiable Credential"
+            delete config.CREDENTIAL_DATA_PAYLOAD['didJwtVc']
+
+            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA_PAYLOAD, 'Credential data is valid');
+            assert.deepEqual(issuer.did, vc.issuer, 'Issuer matches expected DID');
+            assert.equal(vc.credentialSchema.id, config.CREDENTIAL_DATA_PAYLOAD.schema, 'Credential schema is correct')
+            assert.equal(vc.sub, config.SUBJECT_DID, 'Credential subject matches expected DID')
         });
         it('Check the schema is a credential schema type', async function () {
-            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.DATA_WITH_CREDENTIAL_SCHEMA);
+            const jwt: any = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD);
             // Decode the credential
             const decodedCredential = await credential.verifyCredential(jwt.didJwtVc)
 

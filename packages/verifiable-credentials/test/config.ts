@@ -31,18 +31,16 @@ export const config = {
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json',
         didJwtVc: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL2V4YW1wbGVzL3YxIl0sInN1YiI6ImRpZDp2ZGE6MHhDMjYyOTk4MkEyNTg1NTQ0RkQ3MmM5OUNGMzc3M2E5YzZiYUJENTVjIiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCJdLCJpc3N1ZXIiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyIsImlzc3VhbmNlRGF0ZSI6IjIwMjItMDItMjNUMDY6NDE6NTUuMDk3WiIsImNyZWRlbnRpYWxTdWJqZWN0Ijp7Im5hbWUiOiJWaXRhbGlrIEJ1dGVyaW4iLCJmaXJzdE5hbWUiOiJWaXRhbGlrIiwibGFzdE5hbWUiOiJCdXRlcmluIiwiZW1haWwiOiJtZUB2aXRhbGlrLmV0aCIsInNjaGVtYSI6Imh0dHBzOi8vY29tbW9uLnNjaGVtYXMudmVyaWRhLmlvL3NvY2lhbC9jb250YWN0L3YwLjEuMC9zY2hlbWEuanNvbiJ9LCJjcmVkZW50aWFsU2NoZW1hIjp7ImlkIjoiaHR0cHM6Ly9jb21tb24uc2NoZW1hcy52ZXJpZGEuaW8vc29jaWFsL2NvbnRhY3QvdjAuMS4wL3NjaGVtYS5qc29uIiwidHlwZSI6Ikpzb25TY2hlbWFWYWxpZGF0b3IyMDE4In19LCJpc3MiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyJ9.BdokafCkVKavdVM2UgAnCTY4pUlpQ02-7bi5FtKK0Wgvwo2xfpps17qa1iuWa9IsmzgYcB4R8SlBgpybQ5AW_w'
     },
-    DATA_WITH_CREDENTIAL_SCHEMA: {
-        "name": "Your Dentist Credential",
-        "firstName": "Hien ",
-        "lastName": "Verida",
-        "regNumber": "KSSKJSKWPO2202",
-        "healthType": "Dentist",
-        "regExpDate": "2022-02-02",
-        "schema": "https://verida.github.io/demo-credential-issuer/mapay/v0.1.0/schema.json",
-        "testTimestamp": "2022-02-17T05:54:48.834Z",
-        "summary": "Credential issued at Thu Feb 17 2022",
-        "didJwtVc": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE2NDUwNzcyODgsImV4cCI6bnVsbCwiYXVkIjoiZGlkOnZkYToweDc1NjZjNTc0NTI4N2E1ZDEyYkY3N2FBMTlEMTREZTRDNUVEMzhlMDQiLCJkYXRhIjp7Im5hbWUiOiJZb3VyIERlbnRpc3QgQ3JlZGVudGlhbCIsImZpcnN0TmFtZSI6IkhpZW4gIiwibGFzdE5hbWUiOiJWZXJpZGEiLCJyZWdOdW1iZXIiOiJLU1NLSlNLV1BPMjIwMiIsImhlYWx0aFR5cGUiOiJEZW50aXN0IiwicmVnRXhwRGF0ZSI6IjIwMjItMDItMDIiLCJzY2hlbWEiOiJodHRwczovL3ZlcmlkYS5naXRodWIuaW8vZGVtby1jcmVkZW50aWFsLWlzc3Vlci9tYXBheS92MC4xLjAvc2NoZW1hLmpzb24iLCJ0ZXN0VGltZXN0YW1wIjoiMjAyMi0wMi0xN1QwNTo1NDo0OC44MzRaIiwic3VtbWFyeSI6IkNyZWRlbnRpYWwgaXNzdWVkIGF0IFRodSBGZWIgMTcgMjAyMiJ9LCJjb250ZXh0IjoiVmVyaWRhOiBWZXJpZmlhYmxlIENyZWRlbnRpYWwgRGVtbyIsImluc2VydGVkQXQiOiIyMDIyLTAyLTE3VDA1OjU0OjQ4LjgzNFoiLCJpc3MiOiJkaWQ6dmRhOjB4NzU2NmM1NzQ1Mjg3YTVkMTJiRjc3YUExOUQxNERlNEM1RUQzOGUwNCJ9.6iRmoJIkHVv8Sp3n04KoL5SeTrOELOvgupm-eZ5Chfx9XPchT2nYBiRSzXhz7Xr7wlNvVCdsML0HjV7Js4YaMw"
-
+    CREDENTIAL_DATA_PAYLOAD: {
+        firstName: "Hien",
+        healthType: "Dentist",
+        lastName: "Phung",
+        name: "Your Dentist Credential",
+        regExpDate: "2022-03-31",
+        regNumber: "12131",
+        schema: "https://verida.github.io/demo-credential-issuer/mapay/v0.1.0/schema.json",
+        summary: "Credential issued at Tue Mar 01 2022",
+        testTimestamp: "2022-03-01T10:30:05.435Z"
     }
 }
 

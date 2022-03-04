@@ -173,10 +173,17 @@ export default class Credentials {
 
 		// Ensure data matches specified schema
 		const schema = await this.context.getClient().getSchema(data.schema)
-		const isValid = await schema.validate(data);
 		const schemaJson = await schema.getSpecification();
 
 		const databaseName = schemaJson['database']['name']
+
+		// Before validating, we need to ensure there is a `didJwtVc` attribute on the data
+		// `didJwtVc` is a required field, but will only be set upon completion of this
+		// creation process.
+		// @see https://github.com/verida/verida-js/pull/163
+		const dataClone = Object.assign({}, data);
+		dataClone['didJwtVc'] = 'ABC'
+		const isValid = await schema.validate(dataClone);
 
 		if (schemaJson && databaseName === 'credential') {
 			if (!schemaJson.properties.didJwtVc) {
@@ -185,6 +192,7 @@ export default class Credentials {
 		}
 
 		if (!isValid) {
+			this.errors = schema.errors
 			throw new Error('Data does not match specified schema')
 		}
 
@@ -235,7 +243,7 @@ export default class Credentials {
 			const MAX_DURATION_IN_SECONDS = 5
 
 			if ((currentTime - createdVcTime) > MAX_DURATION_IN_SECONDS) {
-				throw new Error('provided issuance date is greater than 10 seconds from ')
+				throw new Error('provided issuance date is greater than 10 seconds from current time')
 			}
 		}
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
