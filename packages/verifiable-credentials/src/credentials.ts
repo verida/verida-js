@@ -13,6 +13,10 @@ import {
 import { Context } from '@verida/client-ts';
 import { credentialDateOptions } from './interfaces';
 
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+dayjs.extend(utc)
+
 /**
  * A bare minimum class implementing the creation and verification of
  * Verifiable Credentials and Verifiable Presentations represented as
@@ -97,7 +101,6 @@ export default class Credentials {
 	async verifyCredential(vcJwt: string, currentDateTime?: string): Promise<any> {
 		const resolver = this.getResolver();
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
-
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
 			const vc = payload.vc
@@ -110,12 +113,14 @@ export default class Credentials {
 			if (vc.expirationDate) {
 				// Ensure credential hasn't expired
 				let now;
+				const expDate = dayjs(vc.expirationDate).utc(true)
 				if (currentDateTime) {
-					now = currentDateTime
+					now = dayjs(currentDateTime).utc(true)
 				} else {
-					now = new Date().toISOString()
+					now = dayjs(new Date().toISOString()).utc(true)
 				}
-				if (vc.expirationDate < now) {
+
+				if (expDate.diff(now) < 0) {
 					this.errors.push('Credential has expired');
 					return false;
 				}
@@ -168,6 +173,9 @@ export default class Credentials {
 
 		// Ensure data matches specified schema
 		const schema = await this.context.getClient().getSchema(data.schema)
+		const schemaJson = await schema.getSpecification();
+
+		const databaseName = schemaJson['database']['name']
 
 		// Before validating, we need to ensure there is a `didJwtVc` attribute on the data
 		// `didJwtVc` is a required field, but will only be set upon completion of this
@@ -177,7 +185,11 @@ export default class Credentials {
 		dataClone['didJwtVc'] = 'ABC'
 		const isValid = await schema.validate(dataClone);
 
-		// @todo: Check the schema is a "credential" schema type?
+		if (schemaJson && databaseName === 'credential') {
+			if (!schemaJson.properties.didJwtVc) {
+				throw new Error('Schema is not a valid credential schema')
+			}
+		}
 
 		if (!isValid) {
 			this.errors = schema.errors
@@ -206,21 +218,30 @@ export default class Credentials {
 			},
 		};
 
+
+
+
 		if (options && options.expirationDate) {
 			// The DID JWT VC library (called by createVerifiableCredential) verifies the string format so we do not need a test for that
+			const dateFormat = dayjs(options.expirationDate).utc(true)
+			if (dateFormat.$d.toString() === 'Invalid Date') {
+				throw new Error('Date format does not match ISO standard')
+			}
 			vcPayload.expirationDate = options.expirationDate
 		}
 
 		if (options && options.issuanceDate) {
-			vcPayload.issuanceDate = options.issuanceDate
-		} else {
-			vcPayload.issuanceDate = new Date().toISOString()
-		}
+			const dateFormat = dayjs(options.issuanceDate).utc(true)
+			if (dateFormat.$d.toString() === 'Invalid Date') {
+				throw new Error('Date format does not match ISO standard')
+			}
 
+			vcPayload.issuanceDate = dateFormat.$d
+		}
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
 		data['didJwtVc'] = didJwtVc
-		
+
 		return data
 	}
 
