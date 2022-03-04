@@ -168,11 +168,19 @@ export default class Credentials {
 
 		// Ensure data matches specified schema
 		const schema = await this.context.getClient().getSchema(data.schema)
-		const isValid = await schema.validate(data);
+
+		// Before validating, we need to ensure there is a `didJwtVc` attribute on the data
+		// `didJwtVc` is a required field, but will only be set upon completion of this
+		// creation process.
+		// @see https://github.com/verida/verida-js/pull/163
+		const dataClone = Object.assign({}, data);
+		dataClone['didJwtVc'] = 'ABC'
+		const isValid = await schema.validate(dataClone);
 
 		// @todo: Check the schema is a "credential" schema type?
 
 		if (!isValid) {
+			this.errors = schema.errors
 			throw new Error('Data does not match specified schema')
 		}
 
