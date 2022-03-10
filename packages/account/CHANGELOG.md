@@ -1,4 +1,9 @@
 
+2022-03-10 (v1.1.9)
+-------------------
+
+- Changes to support documentation generation
+
 2021-11-13 (v1.1.4)
 -------------------
 
