@@ -32,15 +32,12 @@ export const config = {
         didJwtVc: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL2V4YW1wbGVzL3YxIl0sInN1YiI6ImRpZDp2ZGE6MHhDMjYyOTk4MkEyNTg1NTQ0RkQ3MmM5OUNGMzc3M2E5YzZiYUJENTVjIiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCJdLCJpc3N1ZXIiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyIsImlzc3VhbmNlRGF0ZSI6IjIwMjItMDItMjNUMDY6NDE6NTUuMDk3WiIsImNyZWRlbnRpYWxTdWJqZWN0Ijp7Im5hbWUiOiJWaXRhbGlrIEJ1dGVyaW4iLCJmaXJzdE5hbWUiOiJWaXRhbGlrIiwibGFzdE5hbWUiOiJCdXRlcmluIiwiZW1haWwiOiJtZUB2aXRhbGlrLmV0aCIsInNjaGVtYSI6Imh0dHBzOi8vY29tbW9uLnNjaGVtYXMudmVyaWRhLmlvL3NvY2lhbC9jb250YWN0L3YwLjEuMC9zY2hlbWEuanNvbiJ9LCJjcmVkZW50aWFsU2NoZW1hIjp7ImlkIjoiaHR0cHM6Ly9jb21tb24uc2NoZW1hcy52ZXJpZGEuaW8vc29jaWFsL2NvbnRhY3QvdjAuMS4wL3NjaGVtYS5qc29uIiwidHlwZSI6Ikpzb25TY2hlbWFWYWxpZGF0b3IyMDE4In19LCJpc3MiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyJ9.BdokafCkVKavdVM2UgAnCTY4pUlpQ02-7bi5FtKK0Wgvwo2xfpps17qa1iuWa9IsmzgYcB4R8SlBgpybQ5AW_w'
     },
     CREDENTIAL_DATA_PAYLOAD: {
-        firstName: "Hien",
-        healthType: "Dentist",
-        lastName: "Phung",
-        name: "Your Dentist Credential",
-        regExpDate: "2022-03-31",
-        regNumber: "12131",
-        schema: "https://verida.github.io/demo-credential-issuer/mapay/v0.1.0/schema.json",
-        summary: "Credential issued at Tue Mar 01 2022",
-        testTimestamp: "2022-03-01T10:30:05.435Z"
+        fullName: "Jane Doe",
+        dateOfBirth: "1992-07-03",
+        patientId: "ABC123",
+        testTimestamp: "2022-03-01T10:30:05.435Z",
+        result: "Negative",
+        schema: "https://common.schemas.verida.io/health/pathology/tests/covid19/pcr/v0.1.0/schema.json"
     }
 }
 
