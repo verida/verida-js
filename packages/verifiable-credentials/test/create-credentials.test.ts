@@ -18,7 +18,7 @@ describe('Credential tests', function () {
 
         beforeEach(async function () {
             appContext = await connect(config.PRIVATE_KEY_1);
-            credentialSdk = new Credentials(appContext);
+            credentialSdk = new Credentials();
         });
         it('Verify Credential JWT was created correctly', async function () {
 

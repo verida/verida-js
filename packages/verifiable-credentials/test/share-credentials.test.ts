@@ -19,7 +19,7 @@ describe('Share Credential tests', function () {
 
             shareCredential = new SharingCredential(appContext);
 
-            credential = new Credentials(appContext)
+            credential = new Credentials()
 
             // `didJwtVc` data won't be in the  test credential data,so remove it from our test data before deepEqual executes
             delete config.CREDENTIAL_DATA['didJwtVc']
@@ -57,16 +57,17 @@ describe('Share Credential tests', function () {
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
-        it('Retrieve Credential data from URI using a different account', async function () {
+        it.only('Retrieve Credential data from URI using a different account', async function () {
             // BUT using config.PRIVATE_KEY_2
 
             const context = await connect(config.PRIVATE_KEY_2, 'Web credential scanner');
 
-            const credential: any = new Credentials(context);
+            const credential: any = new Credentials();
 
             // Fetch and decode the presentation
-            const jwt = await Utils.fetchVeridaUri(createdUri, appContext);
-            const decodedPresentation = await credential.verifyPresentation(jwt)
+            const jwt = await Utils.fetchVeridaUri(config.EXISTING_CREDENTIAL_URI, context);
+
+            const decodedPresentation = await Credentials.verifyPresentation(jwt)
 
             // Retrieve the verifiable credential within the presentation
 

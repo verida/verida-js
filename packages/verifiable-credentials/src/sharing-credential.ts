@@ -86,8 +86,8 @@ export default class SharingCredential {
 		let params = {};
 
 		// Generate verifiable presentation
-		const credentials = new Credentials(this.context)
-		const presentation = await credentials.createVerifiablePresentation([item.didJwtVc])
+		const credentials = new Credentials()
+		const presentation = await credentials.createVerifiablePresentation([item.didJwtVc], this.context)
 
 		if (options.encrypt) {
 			const key = new Uint8Array(options.key);

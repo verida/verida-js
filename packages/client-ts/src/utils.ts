@@ -105,7 +105,7 @@ export async function fetchVeridaUri(
 		if (key) {
 			return EncryptionUtils.symDecrypt(item.content, key);
 		}
-	
+
 		// Otherwise return the actual data
 		return item;
 	} catch (err: any) {
