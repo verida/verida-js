@@ -3,6 +3,8 @@ import url from 'url';
 import { Context } from '.';
 import { PermissionOptionsEnum } from './context/interfaces';
 import { FetchUriParams } from './interfaces';
+import Client from './client';
+import { EnvironmentType } from '@verida/account';
 const bs58 = require('bs58')
 
 /**
@@ -82,9 +84,18 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
  */
 export async function fetchVeridaUri(
 	uri: string,
-	context: Context
+	contextName: string,
+	did: string
 ): Promise<string> {
 	const url = explodeVeridaUri(uri);
+	const TESTNET_DEFAULT_DID_SERVER = 'https://dids.testnet.verida.io:5001';
+
+	const clientConfig = {
+		environment: EnvironmentType.TESTNET,
+		didServerUrl: TESTNET_DEFAULT_DID_SERVER,
+	};
+
+	const context = await new Client(clientConfig).openExternalContext(contextName, did)
 
 	const db = await context.openExternalDatabase(url.dbName, url.did, {
 		permissions: {
@@ -101,7 +112,7 @@ export async function fetchVeridaUri(
 		const item: any = await db.get(url.id, {})
 		const key = Buffer.from(url.query.key as string, 'hex');
 
-		// Retur encrypted data if provided with an encryption key
+		// Return encrypted data if provided with an encryption key
 		if (key) {
 			return EncryptionUtils.symDecrypt(item.content, key);
 		}

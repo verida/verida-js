@@ -85,7 +85,7 @@ export default class Credentials {
 	 *
 	 * @param {string} vpJwt
 	 */
-	static async verifyPresentation(vpJwt: string): Promise<unknown> {
+	static async verifyPresentation(vpJwt: string): Promise<any> {
 		const resolver = Credentials.getResolver();
 		return verifyPresentation(vpJwt, resolver);
 	}
@@ -135,7 +135,7 @@ export default class Credentials {
 	 * @return {object} Verifiable Credential Issuer
 	 */
 
-	private async createIssuer(context: Context): Promise<Issuer> {
+	public async createIssuer(context: Context): Promise<Issuer> {
 		const account = context.getAccount();
 		const contextName = context.getContextName();
 		const did = await account.did();
@@ -176,7 +176,7 @@ export default class Credentials {
 		const databaseName = schemaJson['database']['name']
 
 		// Before validating, we need to ensure there is a `didJwtVc` attribute on the data
-		// `didJwtVc` is a required field, but will only be set upon completion of this
+		// `didJwtVc` is a required field, but will only be set upon completion  of this
 		// creation process.
 		// @see https://github.com/verida/verida-js/pull/163
 		const dataClone = Object.assign({}, data);
