@@ -5,7 +5,6 @@ export interface VaultAccountConfig {
     loginUri?: string,       // Login URI (page where the user will be sent to login using the app; ie: vault.verida.io)
     canvasId?: string        // DOM id where the QR code canvas will be injected
     schemeUri?: string,
-    logoUrl?: string,
     deeplinkId?: string,
     request?: object,        // Authorization request object that matches https://vault.schemas.verida.io/auth/loginRequest/latest/schema.json
     callback?(response: AuthResponse): void        // callback function (called when auth response received)
