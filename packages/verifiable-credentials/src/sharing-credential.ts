@@ -113,7 +113,7 @@ export default class SharingCredential {
 			result: result,
 			did: did,
 			veridaUri: uri,
-			publicUri: `https://scan.verida.io/credential?uri=${Buffer.from(uri, 'utf8').toString('base64')}`
+			publicUri: `https://verida.network/credential?uri=${Buffer.from(uri, 'utf8').toString('base64')}`
 		};
 
 	}
