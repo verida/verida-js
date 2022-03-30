@@ -13,7 +13,6 @@ describe('Share Credential tests', function () {
         let shareCredential: SharingCredential;
         let credential: Credentials;
         let createdUri = ''
-        let accountDiD: string
 
         beforeEach(async function () {
             appContext = await connect(config.PRIVATE_KEY_1);
@@ -21,8 +20,6 @@ describe('Share Credential tests', function () {
             shareCredential = new SharingCredential(appContext);
 
             credential = new Credentials()
-
-            accountDiD = await appContext.getAccount().did()
 
             // `didJwtVc` data won't be in the  test credential data,so remove it from our test data before deepEqual executes
             delete config.CREDENTIAL_DATA['didJwtVc']
@@ -49,7 +46,7 @@ describe('Share Credential tests', function () {
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
             // Fetch and decode the presentation
-            const jwt = await Utils.fetchVeridaUri(data.veridaUri, config.VERIDA_CONTEXT_NAME, accountDiD);
+            const jwt = await Utils.fetchVeridaUri(data.veridaUri);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt)
 
@@ -64,7 +61,7 @@ describe('Share Credential tests', function () {
             // BUT using config.PRIVATE_KEY_2
 
             // Fetch and decode the presentation
-            const jwt = await Utils.fetchVeridaUri(createdUri, 'Web credential scanner', config.SUBJECT_DID);
+            const jwt = await Utils.fetchVeridaUri(createdUri);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt)
 
@@ -76,7 +73,7 @@ describe('Share Credential tests', function () {
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
-                return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, config.VERIDA_CONTEXT_NAME, accountDiD);
+                return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI);
             };
             assert.rejects(fetchVeridaUri);
         });
@@ -85,7 +82,7 @@ describe('Share Credential tests', function () {
             createdUri = config.EXISTING_CREDENTIAL_URI
 
             // Fetch and decode the presentation
-            const jwt = await Utils.fetchVeridaUri(createdUri, config.VERIDA_CONTEXT_NAME, accountDiD)
+            const jwt = await Utils.fetchVeridaUri(createdUri)
             const decodedPresentation = await Credentials.verifyPresentation(jwt)
 
             // Retrieve the verifiable credential within the presentation
@@ -100,7 +97,7 @@ describe('Share Credential tests', function () {
             createdUri = data.veridaUri
 
             // Fetch and decode the presentation
-            const jwt = await Utils.fetchVeridaUri(createdUri, config.VERIDA_CONTEXT_NAME, accountDiD);
+            const jwt = await Utils.fetchVeridaUri(createdUri);
             const decodedPresentation = await Credentials.verifyPresentation(jwt)
 
             // Retrieve the verifiable credential within the presentation
