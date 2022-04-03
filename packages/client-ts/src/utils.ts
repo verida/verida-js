@@ -1,21 +1,20 @@
 import EncryptionUtils from '@verida/encryption-utils';
 import url from 'url';
-import { Context } from '.';
 import { PermissionOptionsEnum } from './context/interfaces';
 import { FetchUriParams } from './interfaces';
 import Client from './client';
 import { EnvironmentType } from '@verida/account';
-const bs58 = require('bs58')
+const bs58 = require('bs58');
 
 /**
  * Build a URI that represents a specific record in a database
- * 
- * @param did 
- * @param contextName 
- * @param databaseName 
- * @param itemId 
- * @param params 
- * @returns 
+ *
+ * @param did
+ * @param contextName
+ * @param databaseName
+ * @param itemId
+ * @param params
+ * @returns
  */
 export function buildVeridaUri(
 	did: string,
@@ -24,8 +23,8 @@ export function buildVeridaUri(
 	itemId?: string,
 	params?: { key?: string }
 ): string {
-	const bytes = Buffer.from(contextName)
-	const encodedContextName = bs58.encode(bytes)
+	const bytes = Buffer.from(contextName);
+	const encodedContextName = bs58.encode(bytes);
 	let uri = `verida://${did}/${encodedContextName}`;
 
 	if (databaseName) {
@@ -46,9 +45,9 @@ export function buildVeridaUri(
 
 /**
  * Explode a Verida URI into it's individual pieces
- * 
- * @param uri 
- * @returns 
+ *
+ * @param uri
+ * @returns
  */
 export function explodeVeridaUri(uri: string): FetchUriParams {
 	const regex = /^verida:\/\/(.*)\/(.*)\/(.*)\/(.*)\?(.*)$/i;
@@ -60,8 +59,8 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 
 	const did = matches[1] as string;
 	const encodedContextName = matches[2];
-	const bytes = bs58.decode(encodedContextName)
-	const contextName = Buffer.from(bytes).toString()
+	const bytes = bs58.decode(encodedContextName);
+	const contextName = Buffer.from(bytes).toString();
 	const dbName = matches[3];
 	const id = matches[4];
 	const query = url.parse(uri, true).query;
@@ -77,16 +76,12 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 
 /**
  * Fetch the data accessible from a Verida URI
- * 
+ *
  * @param uri Verida URI of the record to access
  * @param context An existing context used to open the external database
- * @returns 
+ * @returns
  */
-export async function fetchVeridaUri(
-	uri: string,
-	contextName: string,
-	did: string
-): Promise<string> {
+export async function fetchVeridaUri(uri: string): Promise<string> {
 	const url = explodeVeridaUri(uri);
 	const TESTNET_DEFAULT_DID_SERVER = 'https://dids.testnet.verida.io:5001';
 
@@ -95,7 +90,10 @@ export async function fetchVeridaUri(
 		didServerUrl: TESTNET_DEFAULT_DID_SERVER,
 	};
 
-	const context = await new Client(clientConfig).openExternalContext(contextName, did)
+	const context = await new Client(clientConfig).openExternalContext(
+		url.contextName,
+		url.did
+	);
 
 	const db = await context.openExternalDatabase(url.dbName, url.did, {
 		permissions: {
@@ -107,9 +105,8 @@ export async function fetchVeridaUri(
 		readOnly: true,
 	});
 
-
 	try {
-		const item: any = await db.get(url.id, {})
+		const item: any = await db.get(url.id, {});
 		const key = Buffer.from(url.query.key as string, 'hex');
 
 		// Return encrypted data if provided with an encryption key
