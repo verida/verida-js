@@ -149,6 +149,7 @@ class Context {
         `Unsupported database engine type specified: ${engineType}`
       );
     }
+
     const engine = DATABASE_ENGINES[engineType]; // @todo type cast correctly
     const databaseEngine = new engine(
       this.contextName,
@@ -342,8 +343,9 @@ class Context {
       config
     );
 
-    config.saveDatabase = false;
+    config.isOwner = false;
 
+    config.saveDatabase = false;
     if (config.contextName && config.contextName != this.contextName) {
       // We are opening a database for a different context.
       // Open the new context
@@ -358,7 +360,6 @@ class Context {
     }
 
     const databaseEngine = await this.getDatabaseEngine(did);
-
     return databaseEngine.openDatabase(databaseName, config);
   }
 

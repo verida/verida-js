@@ -35,42 +35,44 @@ class StorageEngineVerida extends BaseStorageEngine {
   }
 
   public async connectAccount(account: Account) {
+    //try {
     try {
       await super.connectAccount(account);
 
       await this.client.setAccount(account);
       this.accountDid = await this.account!.did();
-
-      // Fetch user details from server
-      let response;
-      try {
-        response = await this.client.getUser(this.accountDid!);
-      } catch (err: any) {
-        if (
-          err.response &&
-          err.response.data.data &&
-          err.response.data.data.did == "Invalid DID specified"
-        ) {
-          // User doesn't exist, so create them
-          response = await this.client.createUser();
-        } else if (err.response && err.response.statusText == "Unauthorized") {
-          throw new Error(
-            "Invalid signature or permission to access DID server"
-          );
-        } else {
-          // Unknown error
-          throw err;
-        }
+    } catch (err: any) {
+      if (err.name == "ContextNotFoundError") {
+        return
       }
 
-      const user = response.data.user;
-      this.dsn = user.dsn;
-    } catch (err: any) {
-      //console.log(err)
-      // Connecting the account may fail.
-      // For example, the user is connect via `account-web-vault` and doesn't have
-      // a keyring for the context associated with this storage engine
+      throw err
     }
+
+    // Fetch user details from server
+    let response;
+    try {
+      response = await this.client.getUser(this.accountDid!);
+    } catch (err: any) {
+      if (
+        err.response &&
+        err.response.data.data &&
+        err.response.data.data.did == "Invalid DID specified"
+      ) {
+        // User doesn't exist, so create them
+        response = await this.client.createUser();
+      } else if (err.response && err.response.statusText == "Unauthorized") {
+        throw new Error(
+          "Invalid signature or permission to access DID server"
+        );
+      } else {
+        // Unknown error
+        throw err;
+      }
+    }
+
+    const user = response.data.user;
+    this.dsn = user.dsn;
   }
 
   /**
@@ -89,6 +91,10 @@ class StorageEngineVerida extends BaseStorageEngine {
    * @returns {string}
    */
   protected async buildExternalDsn(endpointUri: string): Promise<string> {
+    if (!this.account) {
+      throw new Error('Unable to connect to external storage node. No account connected.')
+    }
+
     const client = new DatastoreServerClient(this.storageContext, endpointUri);
     await client.setAccount(this.account!);
     let response;
@@ -137,7 +143,10 @@ class StorageEngineVerida extends BaseStorageEngine {
     );
 
     // Default to user's account did if not specified
-    config.isOwner = config.did == this.accountDid;
+    if (typeof(config.isOwner) == 'undefined') {
+      config.isOwner = config.did == this.accountDid;
+    }
+
     config.saveDatabase = config.isOwner; // always save this database to registry if user is the owner
     let did = config.did!.toLowerCase();
 
@@ -172,7 +181,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     let dsn = config.isOwner ? this.dsn! : config.dsn!;
     if (!dsn) {
-      throw new Error("Unable to determine DSN for this user and this context");
+      throw new Error(`Unable to determine DSN for this user (${did}) and this context (${this.storageContext})`);
     }
 
     // force read only access if the current user doesn't have write access
@@ -276,7 +285,7 @@ class StorageEngineVerida extends BaseStorageEngine {
        *  - Need to talk to the db hash for the did that owns the database
        */
 
-      if (!config.isOwner) {
+      if (!config.isOwner && this.account) {
         // need to build a complete dsn
         dsn = await this.buildExternalDsn(config.dsn!);
       }

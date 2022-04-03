@@ -27,12 +27,14 @@ class DatastoreServerClient {
 
   public async setAccount(account: Account) {
     this.account = account;
-    const did = await account.did();
-    const keyring = await account.keyring(this.storageContext);
+    let did = await account.did();
+    did = did.toLowerCase()
+
+    const signature = await account.sign(`Do you wish to authenticate this storage context: "${this.storageContext}"?\n\n${did}`)
 
     this.authentication = {
-      username: did.toLowerCase(),
-      signature: keyring.getSeed(),
+      username: did,
+      signature: signature
     };
   }
 

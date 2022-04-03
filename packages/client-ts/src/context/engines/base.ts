@@ -4,6 +4,7 @@ import { DatabaseOpenConfig, DatastoreOpenConfig } from "../interfaces";
 import Database from "../database";
 import Datastore from "../datastore";
 import DbRegistry from "../db-registry";
+import ContextNotFoundError from "./ContextNotFoundError";
 
 /**
  * @category
@@ -28,8 +29,13 @@ class BaseStorageEngine {
   }
 
   public async connectAccount(account: Account) {
-    this.account = account;
-    this.keyring = await account.keyring(this.storageContext);
+    try {
+      this.account = account;
+      this.keyring = await account.keyring(this.storageContext);
+    } catch (err: any) {
+      this.account = undefined
+      throw new ContextNotFoundError("Unable to generate Keyring")
+    }
   }
 
   public async openDatabase(
