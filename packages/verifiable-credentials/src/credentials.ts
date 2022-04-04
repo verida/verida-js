@@ -84,9 +84,10 @@ export default class Credentials {
 	 * Verify a Verifiable Presentation DID-JWT
 	 *
 	 * @param {string} vpJwt
+	 * @param {string} didRegistryEndpoint
 	 */
-	static async verifyPresentation(vpJwt: string): Promise<any> {
-		const resolver = Credentials.getResolver();
+	static async verifyPresentation(vpJwt: string, didRegistryEndpoint: string): Promise<any> {
+		const resolver = Credentials.getResolver(didRegistryEndpoint);
 		return verifyPresentation(vpJwt, resolver);
 	}
 
@@ -94,10 +95,11 @@ export default class Credentials {
 	 * Verify a Verifiable Credential DID-JWT
 	 *
 	 * @param {string} vcJwt
+	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string, currentDateTime?: string): Promise<any> {
-		const resolver = Credentials.getResolver();
+	async verifyCredential(vcJwt: string, didRegistryEndpoint: string, currentDateTime?: string): Promise<any> {
+		const resolver = Credentials.getResolver(didRegistryEndpoint);
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
@@ -243,8 +245,8 @@ export default class Credentials {
 		return data
 	}
 
-	private static getResolver(): any {
-		const resolver = vdaResolver.getResolver(DID_REGISTRY_ENDPOINT);
+	private static getResolver(didRegistryEndpoint: string): any {
+		const resolver = vdaResolver.getResolver(didRegistryEndpoint);
 		return new Resolver(resolver);
 	}
 

@@ -3,7 +3,6 @@ import url from 'url';
 import { PermissionOptionsEnum } from './context/interfaces';
 import { FetchUriParams } from './interfaces';
 import Client from './client';
-import { EnvironmentType } from '@verida/account';
 const bs58 = require('bs58');
 
 /**
@@ -81,19 +80,8 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
  * @param context An existing context used to open the external database
  * @returns
  */
-export async function fetchVeridaUri(uri: string): Promise<string> {
+export async function fetchVeridaUri(uri: string, context: any): Promise<string> {
 	const url = explodeVeridaUri(uri);
-	const TESTNET_DEFAULT_DID_SERVER = 'https://dids.testnet.verida.io:5001';
-
-	const clientConfig = {
-		environment: EnvironmentType.TESTNET,
-		didServerUrl: TESTNET_DEFAULT_DID_SERVER,
-	};
-
-	const context = await new Client(clientConfig).openExternalContext(
-		url.contextName,
-		url.did
-	);
 
 	const db = await context.openExternalDatabase(url.dbName, url.did, {
 		permissions: {
