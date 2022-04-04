@@ -1,7 +1,7 @@
 import { encodeBase64 } from 'tweetnacl-util';
 import { ES256KSigner } from 'did-jwt';
 import { Resolver } from 'did-resolver';
-import vdaResolver from '@verida/did-resolver';
+import vdaResolver from '../../did-resolver/src/index';
 import {
 	createVerifiableCredentialJwt,
 	createVerifiablePresentationJwt,
@@ -10,7 +10,7 @@ import {
 	JwtCredentialPayload,
 	Issuer,
 } from 'did-jwt-vc';
-import { Context } from '@verida/client-ts';
+import { Context, EnvironmentType } from '@verida/client-ts';
 import { credentialDateOptions } from './interfaces';
 
 const dayjs = require('dayjs')
@@ -23,7 +23,6 @@ dayjs.extend(utc)
  * DID-JWT's
  */
 
-const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001';
 
 export default class Credentials {
 	private errors: string[] = [];
@@ -86,8 +85,8 @@ export default class Credentials {
 	 * @param {string} vpJwt
 	 * @param {string} didRegistryEndpoint
 	 */
-	static async verifyPresentation(vpJwt: string, didRegistryEndpoint: string): Promise<any> {
-		const resolver = Credentials.getResolver(didRegistryEndpoint);
+	static async verifyPresentation(vpJwt: string, environment: EnvironmentType): Promise<any> {
+		const resolver = Credentials.getResolver(environment);
 		return verifyPresentation(vpJwt, resolver);
 	}
 
@@ -98,8 +97,8 @@ export default class Credentials {
 	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string, didRegistryEndpoint: string, currentDateTime?: string): Promise<any> {
-		const resolver = Credentials.getResolver(didRegistryEndpoint);
+	async verifyCredential(vcJwt: string, environment: EnvironmentType, currentDateTime?: string): Promise<any> {
+		const resolver = Credentials.getResolver(environment);
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
@@ -217,10 +216,6 @@ export default class Credentials {
 				type: 'JsonSchemaValidator2018',
 			},
 		};
-
-
-
-
 		if (options && options.expirationDate) {
 			// The DID JWT VC library (called by createVerifiableCredential) verifies the string format so we do not need a test for that
 			const dateFormat = dayjs(options.expirationDate).utc(true)
@@ -245,8 +240,8 @@ export default class Credentials {
 		return data
 	}
 
-	private static getResolver(didRegistryEndpoint: string): any {
-		const resolver = vdaResolver.getResolver(didRegistryEndpoint);
+	private static getResolver(environment: EnvironmentType): any {
+		const resolver = vdaResolver.getResolver(environment);
 		return new Resolver(resolver);
 	}
 

@@ -2,6 +2,7 @@
 const assert = require('assert');
 
 import Credentials from '../src/credentials';
+import { EnvironmentType } from '@verida/client-ts';
 import { config, connect } from './config'
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
@@ -25,7 +26,7 @@ describe('Credential tests', function () {
             const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD, appContext);
 
             // Decode the credentialSdk
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, config.DID_REGISTRY_ENDPOINT)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
             const payload = decodedCredential.payload
@@ -53,7 +54,7 @@ describe('Credential tests', function () {
             const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD, appContext);
 
             // Decode the credentialSdk
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, config.DID_REGISTRY_ENDPOINT)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
             const payload = decodedCredential.payload
@@ -86,7 +87,7 @@ describe('Credential tests', function () {
             const expirationDate = '2000-02-14T04:27:05.467Z'
             const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext, { expirationDate });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, config.DID_REGISTRY_ENDPOINT)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
             assert.equal(decodedCredential, false, 'Credential is not valid')
             assert.deepEqual(credentialSdk.getErrors(), ['Credential has expired'], 'Credential has expected error message')
         });
@@ -95,7 +96,7 @@ describe('Credential tests', function () {
 
             const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext, { issuanceDate });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, config.DID_REGISTRY_ENDPOINT)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
 
             const payload = decodedCredential.payload
             const vc = payload.vc
@@ -108,7 +109,7 @@ describe('Credential tests', function () {
         });
         it('Ensure issuanceDate generated in VC is within 10secs', async () => {
             const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext);
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, config.DID_REGISTRY_ENDPOINT)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
             const payload = decodedCredential.payload
             const vc = payload.vc
 
@@ -126,7 +127,7 @@ describe('Credential tests', function () {
             const currentDateTime = '2024-02-14T04:27:05.467Z';
             const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext, { expirationDate, issuanceDate });
 
-            await credentialSdk.verifyCredential(credential.didJwtVc, config.DID_REGISTRY_ENDPOINT, currentDateTime);
+            await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET, currentDateTime);
 
             assert.deepEqual(credentialSdk.getErrors(), ['Credential has expired'], 'currentDateTime is less than expiration date');
         });
@@ -138,7 +139,7 @@ describe('Credential tests', function () {
                 expirationDate
             });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, config.DID_REGISTRY_ENDPOINT)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
             assert.ok(decodedCredential, 'Credential is valid')
         });
     });
