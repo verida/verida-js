@@ -2,10 +2,10 @@
 const assert = require('assert');
 
 import Credentials from '../src/credentials';
-import { EnvironmentType } from '@verida/client-ts';
-import { config, connect } from './config'
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
+import { config } from './config';
+import { Utils, EnvironmentType } from '@verida/client-ts/src/';
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
 dayjs.extend(utc)
 
 
@@ -18,7 +18,9 @@ describe('Credential tests', function () {
         let credentialSdk: Credentials;
 
         beforeEach(async function () {
-            appContext = await connect(config.PRIVATE_KEY_1);
+
+            appContext = await Utils.connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+
             credentialSdk = new Credentials();
         });
         it('Verify Credential JWT was created correctly', async function () {

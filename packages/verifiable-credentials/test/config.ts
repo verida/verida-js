@@ -1,6 +1,3 @@
-import { AutoAccount } from '@verida/account-node';
-import { Client, Context, EnvironmentType, Network } from '@verida/client-ts';
-import { explodeVeridaUri } from '@verida/client-ts/src/utils';
 
 export const config = {
     PRIVATE_KEY_1: "0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e0af",
@@ -41,51 +38,4 @@ export const config = {
         result: "Negative",
         schema: "https://common.schemas.verida.io/health/pathology/tests/covid19/pcr/v0.1.0/schema.json"
     },
-    CLIENT_CONFIG: {
-        environment: EnvironmentType.TESTNET,
-        didServerUrl: 'https://dids.testnet.verida.io:5001',
-    }
-}
-
-
-export const connect = async (privateKey: string, customContexName?: string): Promise<Context> => {
-
-    const context = await Network.connect({
-        context: {
-            name: customContexName || config.VERIDA_CONTEXT_NAME,
-        },
-        client: {
-            environment: EnvironmentType.TESTNET,
-        },
-        account: new AutoAccount(
-            {
-                defaultDatabaseServer: {
-                    type: 'VeridaDatabase',
-                    endpointUri: config.VERIDA_TESTNET_DEFAULT_SERVER,
-                },
-                defaultMessageServer: {
-                    type: 'VeridaMessage',
-                    endpointUri: config.VERIDA_TESTNET_DEFAULT_SERVER,
-                },
-            },
-            {
-                privateKey: privateKey,
-                environment: EnvironmentType.TESTNET,
-            }
-        ),
-    });
-    return context;
-};
-
-
-export const getClientContext = async (uri: string): Promise<Context> => {
-
-    const url = explodeVeridaUri(uri)
-
-    const context = await new Client(config.CLIENT_CONFIG).openExternalContext(
-        url.contextName,
-        url.did
-    );
-
-    return context
 }

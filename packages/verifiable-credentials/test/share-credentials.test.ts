@@ -1,10 +1,9 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
-import { Utils, Context } from '../../client-ts/src/';
-import { EnvironmentType } from '@verida/client-ts';
+import { EnvironmentType, Context, Utils } from '@verida/client-ts/src';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
-import { config, connect, getClientContext } from './config';
+import { config } from './config';
 
 
 describe('Share Credential tests', function () {
@@ -16,7 +15,7 @@ describe('Share Credential tests', function () {
         let createdUri = ''
 
         beforeEach(async function () {
-            appContext = await connect(config.PRIVATE_KEY_1);
+            appContext = await Utils.connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
 
             shareCredential = new SharingCredential(appContext);
 
@@ -47,7 +46,7 @@ describe('Share Credential tests', function () {
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
             // Fetch and decode the presentation
-            const context = await getClientContext(createdUri)
+            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await Utils.fetchVeridaUri(data.veridaUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
@@ -63,7 +62,7 @@ describe('Share Credential tests', function () {
             // BUT using config.PRIVATE_KEY_2
 
             // Fetch and decode the presentation
-            const context = await getClientContext(createdUri)
+            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await Utils.fetchVeridaUri(createdUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
@@ -76,7 +75,7 @@ describe('Share Credential tests', function () {
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
-                const context = await getClientContext(createdUri)
+                const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
                 return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
             };
             assert.rejects(fetchVeridaUri);
@@ -86,7 +85,7 @@ describe('Share Credential tests', function () {
             createdUri = config.EXISTING_CREDENTIAL_URI
 
             // Fetch and decode the presentation
-            const context = await getClientContext(createdUri)
+            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await Utils.fetchVeridaUri(createdUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
@@ -99,7 +98,7 @@ describe('Share Credential tests', function () {
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
-                const context = await getClientContext(createdUri)
+                const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
                 return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
             };
             assert.rejects(fetchVeridaUri);
@@ -110,7 +109,7 @@ describe('Share Credential tests', function () {
             createdUri = data.veridaUri
 
             // Fetch and decode the presentation
-            const context = await getClientContext(createdUri)
+            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await Utils.fetchVeridaUri(createdUri, context);
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
 
