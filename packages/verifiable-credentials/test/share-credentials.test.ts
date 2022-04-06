@@ -1,6 +1,7 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
-import { EnvironmentType, Context, Utils } from '@verida/client-ts/src';
+import { EnvironmentType, Context, Utils as clientUtils } from '@verida/client-ts/src';
+import { Utils } from '../src';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 import { config } from './config';
@@ -34,7 +35,7 @@ describe('Share Credential tests', function () {
 
             assert.ok(data.result.ok, 'Document was saved correctly');
 
-            const expectedUri = Utils.buildVeridaUri(
+            const expectedUri = clientUtils.buildVeridaUri(
                 config.ISSUER_DID,
                 config.VERIDA_CONTEXT_NAME,
                 config.VERIDA_EXPECTED_DATABASE,
@@ -47,7 +48,7 @@ describe('Share Credential tests', function () {
 
             // Fetch and decode the presentation
             const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await Utils.fetchVeridaUri(data.veridaUri, context);
+            const jwt = await clientUtils.fetchVeridaUri(data.veridaUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
 
@@ -63,7 +64,7 @@ describe('Share Credential tests', function () {
 
             // Fetch and decode the presentation
             const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await Utils.fetchVeridaUri(createdUri, context);
+            const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
 
@@ -76,7 +77,7 @@ describe('Share Credential tests', function () {
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
                 const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
-                return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
+                return await clientUtils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
             };
             assert.rejects(fetchVeridaUri);
         });
@@ -86,7 +87,7 @@ describe('Share Credential tests', function () {
 
             // Fetch and decode the presentation
             const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await Utils.fetchVeridaUri(createdUri, context);
+            const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
 
@@ -99,7 +100,7 @@ describe('Share Credential tests', function () {
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
                 const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
-                return await Utils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
+                return await clientUtils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
             };
             assert.rejects(fetchVeridaUri);
         });
@@ -110,7 +111,7 @@ describe('Share Credential tests', function () {
 
             // Fetch and decode the presentation
             const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await Utils.fetchVeridaUri(createdUri, context);
+            const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
 
             // Retrieve the verifiable credential within the presentation

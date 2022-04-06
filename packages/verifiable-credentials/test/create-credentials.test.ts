@@ -3,7 +3,8 @@ const assert = require('assert');
 
 import Credentials from '../src/credentials';
 import { config } from './config';
-import { Utils, EnvironmentType } from '@verida/client-ts/src/';
+import { Utils } from '../src';
+import { EnvironmentType } from '@verida/account';
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 dayjs.extend(utc)
