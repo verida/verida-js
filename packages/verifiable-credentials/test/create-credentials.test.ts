@@ -3,7 +3,7 @@ const assert = require('assert');
 
 import Credentials from '../src/credentials';
 import { config } from './config';
-import { Utils } from '../src';
+import { connectAccount } from '../src/utils';
 import { EnvironmentType } from '@verida/account';
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
@@ -20,7 +20,7 @@ describe('Credential tests', function () {
 
         beforeEach(async function () {
 
-            appContext = await Utils.connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+            appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
 
             credentialSdk = new Credentials();
         });

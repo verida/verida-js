@@ -38,7 +38,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/crypto-pouch": "^4.0.1",
     "@types/pouchdb": "^6.4.0",
+    "@types/uuid": "^8.3.4",
     "dependency-cruiser": "^11.3.0",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",

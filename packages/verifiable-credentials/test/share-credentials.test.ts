@@ -1,7 +1,7 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
 import { EnvironmentType, Context, Utils as clientUtils } from '@verida/client-ts/src';
-import { Utils } from '../src';
+import { connectAccount, getClientContext } from '../src/utils';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 import { config } from './config';
@@ -16,7 +16,7 @@ describe('Share Credential tests', function () {
         let createdUri = ''
 
         beforeEach(async function () {
-            appContext = await Utils.connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+            appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
 
             shareCredential = new SharingCredential(appContext);
 
@@ -47,7 +47,7 @@ describe('Share Credential tests', function () {
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
             // Fetch and decode the presentation
-            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
+            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(data.veridaUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
@@ -63,7 +63,7 @@ describe('Share Credential tests', function () {
             // BUT using config.PRIVATE_KEY_2
 
             // Fetch and decode the presentation
-            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
+            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
@@ -76,7 +76,7 @@ describe('Share Credential tests', function () {
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
-                const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
+                const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
                 return await clientUtils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
             };
             assert.rejects(fetchVeridaUri);
@@ -86,7 +86,7 @@ describe('Share Credential tests', function () {
             createdUri = config.EXISTING_CREDENTIAL_URI
 
             // Fetch and decode the presentation
-            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
+            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
@@ -99,7 +99,7 @@ describe('Share Credential tests', function () {
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
-                const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
+                const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
                 return await clientUtils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
             };
             assert.rejects(fetchVeridaUri);
@@ -110,7 +110,7 @@ describe('Share Credential tests', function () {
             createdUri = data.veridaUri
 
             // Fetch and decode the presentation
-            const context = await Utils.getClientContext(createdUri, EnvironmentType.TESTNET)
+            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
             const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
 
