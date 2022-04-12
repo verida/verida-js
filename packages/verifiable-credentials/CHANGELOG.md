@@ -1,4 +1,11 @@
 
+2022-04-12 (v0.1.5)
+-------------------
+
+- Support verifying a credential without logging in
+- Expand and improve unit tests
+- Use updated DID resolver
+
 2022-03-10 (v0.1.4)
 -------------------
 
