@@ -1398,6 +1398,13 @@
     "@stablelib/wipe" "^1.0.1"
     "@stablelib/xchacha20" "^1.0.1"
 
+"@types/crypto-pouch@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@types/crypto-pouch/-/crypto-pouch-4.0.1.tgz#b14446755d801d577f619bce9298a6993f4a2e22"
+  integrity sha512-hy+4lSlxJddNkxD6THnU8xplVX5br8Oty31VD+axcCCn35/eOoMxnCw72QiRHQ4B3kJMCPWAH9R6TiGzc+9z3Q==
+  dependencies:
+    "@types/pouchdb" "*"
+
 "@types/debug@*":
   version "4.1.7"
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.7.tgz#7cc0ea761509124709b8b2d1090d8f6c17aadb82"
@@ -1578,7 +1585,7 @@
     "@types/pouchdb-core" "*"
     "@types/pouchdb-find" "*"
 
-"@types/pouchdb@^6.4.0":
+"@types/pouchdb@*", "@types/pouchdb@^6.4.0":
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/@types/pouchdb/-/pouchdb-6.4.0.tgz#f9c41ca64b23029f9bf2eb4bf6956e6431cb79f8"
   integrity sha512-eGCpX+NXhd5VLJuJMzwe3L79fa9+IDTrAG3CPaf4s/31PD56hOrhDJTSmRELSXuiqXr6+OHzzP0PldSaWsFt7w==
@@ -1598,6 +1605,11 @@
     "@types/pouchdb-mapreduce" "*"
     "@types/pouchdb-node" "*"
     "@types/pouchdb-replication" "*"
+
+"@types/uuid@^8.3.4":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
+  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
 
 "@ungap/promise-all-settled@1.1.2":
   version "1.1.2"

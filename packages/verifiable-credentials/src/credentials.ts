@@ -10,7 +10,7 @@ import {
 	JwtCredentialPayload,
 	Issuer,
 } from 'did-jwt-vc';
-import { Context } from '@verida/client-ts';
+import { Context, EnvironmentType } from '@verida/client-ts';
 import { credentialDateOptions } from './interfaces';
 
 const dayjs = require('dayjs')
@@ -23,10 +23,8 @@ dayjs.extend(utc)
  * DID-JWT's
  */
 
-const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001';
 
 export default class Credentials {
-	private context: Context;
 	private errors: string[] = [];
 
 	/**
@@ -34,9 +32,7 @@ export default class Credentials {
 	 * 
 	 * @param context The context (must have an account connected) that will issue any new credentials
 	 */
-	constructor(context: Context) {
-		this.context = context;
-	}
+
 	/**
 	 * Create a verifiable credential.
 	 *
@@ -65,10 +61,11 @@ export default class Credentials {
 	 */
 	async createVerifiablePresentation(
 		vcJwts: string[],
-		issuer?: any
+		context: Context,
+		issuer?: any,
 	): Promise<string> {
 		if (!issuer) {
-			issuer = await this.createIssuer()
+			issuer = await this.createIssuer(context)
 		}
 
 		const vpPayload = {
@@ -86,9 +83,10 @@ export default class Credentials {
 	 * Verify a Verifiable Presentation DID-JWT
 	 *
 	 * @param {string} vpJwt
+	 * @param {string} didRegistryEndpoint
 	 */
-	async verifyPresentation(vpJwt: string): Promise<unknown> {
-		const resolver = this.getResolver();
+	static async verifyPresentation(vpJwt: string, environment: EnvironmentType): Promise<any> {
+		const resolver = Credentials.getResolver(environment);
 		return verifyPresentation(vpJwt, resolver);
 	}
 
@@ -96,10 +94,11 @@ export default class Credentials {
 	 * Verify a Verifiable Credential DID-JWT
 	 *
 	 * @param {string} vcJwt
+	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string, currentDateTime?: string): Promise<any> {
-		const resolver = this.getResolver();
+	async verifyCredential(vcJwt: string, environment: EnvironmentType, currentDateTime?: string): Promise<any> {
+		const resolver = Credentials.getResolver(environment);
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
@@ -137,9 +136,9 @@ export default class Credentials {
 	 * @return {object} Verifiable Credential Issuer
 	 */
 
-	private async createIssuer(): Promise<Issuer> {
-		const account = this.context.getAccount();
-		const contextName = this.context.getContextName();
+	public async createIssuer(context: Context): Promise<Issuer> {
+		const account = context.getAccount();
+		const contextName = context.getContextName();
 		const did = await account.did();
 
 		const keyring = await account.keyring(contextName);
@@ -165,20 +164,20 @@ export default class Credentials {
 	 * @param data 
 	 * @returns 
 	 */
-	async createCredentialJWT(subjectId: string, data: any, options?: credentialDateOptions): Promise<object> {
+	async createCredentialJWT(subjectId: string, data: any, context: Context, options?: credentialDateOptions): Promise<object> {
 		// Ensure a credential schema has been specified
 		if (!data.schema) {
 			throw new Error('No schema specified')
 		}
 
 		// Ensure data matches specified schema
-		const schema = await this.context.getClient().getSchema(data.schema)
+		const schema = await context.getClient().getSchema(data.schema)
 		const schemaJson = await schema.getSpecification();
 
 		const databaseName = schemaJson['database']['name']
 
 		// Before validating, we need to ensure there is a `didJwtVc` attribute on the data
-		// `didJwtVc` is a required field, but will only be set upon completion of this
+		// `didJwtVc` is a required field, but will only be set upon completion  of this
 		// creation process.
 		// @see https://github.com/verida/verida-js/pull/163
 		const dataClone = Object.assign({}, data);
@@ -196,8 +195,8 @@ export default class Credentials {
 			throw new Error('Data does not match specified schema')
 		}
 
-		const issuer = await this.createIssuer();
-		const account = this.context.getAccount();
+		const issuer = await this.createIssuer(context);
+		const account = context.getAccount();
 		const did = await account.did();
 
 		const vcPayload: any = {
@@ -217,10 +216,6 @@ export default class Credentials {
 				type: 'JsonSchemaValidator2018',
 			},
 		};
-
-
-
-
 		if (options && options.expirationDate) {
 			// The DID JWT VC library (called by createVerifiableCredential) verifies the string format so we do not need a test for that
 			const dateFormat = dayjs(options.expirationDate).utc(true)
@@ -245,8 +240,8 @@ export default class Credentials {
 		return data
 	}
 
-	private getResolver(): any {
-		const resolver = vdaResolver.getResolver(DID_REGISTRY_ENDPOINT);
+	private static getResolver(environment: EnvironmentType): any {
+		const resolver = vdaResolver.getResolver(environment);
 		return new Resolver(resolver);
 	}
 
