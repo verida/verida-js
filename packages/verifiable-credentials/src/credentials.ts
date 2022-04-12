@@ -1,7 +1,7 @@
 import { encodeBase64 } from 'tweetnacl-util';
 import { ES256KSigner } from 'did-jwt';
 import { Resolver } from 'did-resolver';
-import vdaResolver from '../../did-resolver/src/index';
+import vdaResolver from '@verida/did-resolver';
 import {
 	createVerifiableCredentialJwt,
 	createVerifiablePresentationJwt,
