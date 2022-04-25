@@ -16,7 +16,7 @@ describe('Share Credential tests', function () {
         let createdUri = ''
 
         beforeEach(async function () {
-            appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+            appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET, config.ISSUER_NAME);
 
             shareCredential = new SharingCredential(appContext);
 
@@ -26,7 +26,7 @@ describe('Share Credential tests', function () {
             delete config.CREDENTIAL_DATA['didJwtVc']
         });
 
-        it('Issue an encrypted credential', async function () {
+        it.only('Issue an encrypted credential', async function () {
 
             const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext);
             const data = await shareCredential.issueEncryptedPresentation(item);
