@@ -28,8 +28,10 @@ describe('Credential tests', function () {
 
             const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD, appContext);
 
+
             // Decode the credentialSdk
             const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
+
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
             const payload = decodedCredential.payload

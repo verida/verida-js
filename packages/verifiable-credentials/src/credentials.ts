@@ -207,6 +207,7 @@ export default class Credentials {
 			sub: subjectId,
 			type: ['VerifiableCredential'],
 			issuer: did,
+			veridaContextName: context.getContextName(),
 			issuanceDate: new Date().toISOString(),
 			credentialSubject: {
 				...data

@@ -72,6 +72,7 @@ describe('Share Credential tests', function () {
 
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
+
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
         it('Attempt retrieval of invalid URI', async function () {
