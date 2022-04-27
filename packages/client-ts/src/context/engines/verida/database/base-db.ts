@@ -20,6 +20,7 @@ class BaseDb extends EventEmitter implements Database {
   protected databaseName: string;
   protected did: string;
   protected dsn: string;
+  protected token?: string;
   protected storageContext: string;
 
   protected permissions?: PermissionsConfig;
@@ -42,6 +43,7 @@ class BaseDb extends EventEmitter implements Database {
     this.databaseName = config.databaseName;
     this.did = config.did.toLowerCase();
     this.dsn = config.dsn;
+    this.token = config.token;
     this.storageContext = config.storageContext;
 
     this.isOwner = config.isOwner;

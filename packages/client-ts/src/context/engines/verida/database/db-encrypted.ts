@@ -28,6 +28,7 @@ PouchDBCrypt.plugin(CryptoPouch);
 class EncryptedDatabase extends BaseDb {
   protected encryptionKey: Buffer;
   protected password?: string;
+  protected token: string
 
   private dbRegistry: DbRegistry;
   private _sync: any;
@@ -52,6 +53,7 @@ class EncryptedDatabase extends BaseDb {
 
     this.dbRegistry = dbRegistry;
     this.encryptionKey = config.encryptionKey!;
+    this.token = config.token!;
 
     // PouchDB sync object
     this._sync = null;
@@ -83,8 +85,13 @@ class EncryptedDatabase extends BaseDb {
       // Setting to 1,000 -- Any higher and it takes too long on mobile devices
     });
 
+    const authToken = this.token
     this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
       skip_setup: true,
+      fetch: function(url: string, opts: any) {
+          opts.headers.set('Authorization', `Bearer ${authToken}`)
+          return PouchDB.fetch(url, opts)
+      }
     });
 
     let info;

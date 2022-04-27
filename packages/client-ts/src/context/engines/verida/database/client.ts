@@ -9,11 +9,17 @@ interface RemoteClientAuthentication {
   signature: string;
 }
 
+export interface CouchDbAuthentication {
+  host: string;
+  token: string;
+  username: string;
+}
+
 /**
  * @category
  * Modules
  */
-class DatastoreServerClient {
+export class DatastoreServerClient {
   private serverUrl: string;
 
   private storageContext: string;
@@ -38,8 +44,27 @@ class DatastoreServerClient {
     };
   }
 
-  public async getUser(did: string) {
-    return this.getAxios(true).get(this.serverUrl + "user/get?did=" + did);
+  public async getUser(did: string): Promise<CouchDbAuthentication> {
+    let response
+    try {
+      response = await this.getAxios(true).get(this.serverUrl + "user/get?did=" + did);
+    } catch (err: any) {
+      if (
+        err.response &&
+        err.response.data.data &&
+        err.response.data.data.did == "Invalid DID specified"
+      ) {
+        // User doesn't exist, so create on this endpointUri server
+        response = await this.createUser();
+      } else if (err.response && err.response.statusText == "Unauthorized") {
+        throw new Error("Invalid signature or permission to access DID server");
+      } else {
+        // Unknown error
+        throw err;
+      }
+    }
+
+    return response.data.user
   }
 
   public async getPublicUser() {

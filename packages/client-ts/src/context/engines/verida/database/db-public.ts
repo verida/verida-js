@@ -13,7 +13,6 @@ PouchDB.plugin(PouchDBFind);
  * Modules
  */
 class PublicDatabase extends BaseDb {
-  //constructor(dbHumanName: string, dbName: string, dataserver: any, did: string, permissions: PermissionsConfig, isOwner: boolean) {
   private _remoteDb: any;
 
   public async init() {
@@ -24,9 +23,27 @@ class PublicDatabase extends BaseDb {
     await super.init();
 
     const databaseName = this.databaseName;
-
-    this._remoteDb = new PouchDB(this.dsn + this.databaseHash, {
+    const dbConfig: any = {
       skip_setup: true,
+    }
+
+    if (this.token) {
+      const authToken = this.token
+      dbConfig['fetch'] = function(url: string, opts: any) {
+        opts.headers.set('Authorization', `Bearer ${authToken}`)
+        return PouchDB.fetch(url, opts)
+      }
+    }
+
+    this._remoteDb = new PouchDB(`${this.dsn}/${this.databaseHash}`, dbConfig);
+
+    const authToken = this.token
+    this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
+      skip_setup: true,
+      fetch: function(url: string, opts: any) {
+          opts.headers.set('Authorization', `Bearer ${authToken}`)
+          return PouchDB.fetch(url, opts)
+      }
     });
 
     try {

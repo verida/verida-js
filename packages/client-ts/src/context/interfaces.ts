@@ -17,9 +17,14 @@ export interface DatabaseOpenConfig {
   did?: string;
 
   /**
-   * Specify a specific database connection string to use when opening the database.
+   * Specify a database connection string to use when opening the database.
    */
   dsn?: string;
+
+  /**
+   * Specify a JWT token to use when opening the database.
+   */
+  token?: string;
 
   /**
    * Save this database into the user's master list of opened databases.
