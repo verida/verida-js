@@ -255,6 +255,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         // need to build a complete dsn
         const auth = await this.buildExternalAuth(config.dsn!);
         dsn = auth.host
+        token = auth.token
       }
 
       const storageContextKey = await this.keyring!.getStorageContextKey(
