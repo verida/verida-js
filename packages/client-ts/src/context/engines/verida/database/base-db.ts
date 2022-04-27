@@ -420,6 +420,10 @@ class BaseDb extends EventEmitter implements Database {
   public async info(): Promise<any> {
     throw new Error("Not implemented");
   }
+
+  protected async destroyDb() {
+    throw new Error('destroyDb() not implemented')
+  }
 }
 
 export default BaseDb;

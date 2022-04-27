@@ -338,6 +338,14 @@ class EncryptedDatabase extends BaseDb {
       },
     };
   }
+
+  protected async destroyDb() {
+    await this._localDbEncrypted.destroy()
+
+    // This won't work as only server admins in couchdb can celete databases
+    // Need to support submitting a delete message to the storage node
+    //await this._remoteDbEncrypted.destroy()
+  }
 }
 
 export default EncryptedDatabase;

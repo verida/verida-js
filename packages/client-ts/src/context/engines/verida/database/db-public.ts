@@ -86,6 +86,12 @@ class PublicDatabase extends BaseDb {
       permissions: this.permissions!,
     };
   }
+
+  protected async destroyDb() {
+    // This won't work as only server admins in couchdb can celete databases
+    // Need to support submitting a delete message to the storage node
+    //await this._remoteDb.destroy()
+  }
 }
 
 export default PublicDatabase;
