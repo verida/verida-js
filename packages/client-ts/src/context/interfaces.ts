@@ -43,7 +43,7 @@ export interface DatabaseOpenConfig {
    *
    * This encryption key will not apply if the database is marked as `public`.
    */
-  encryptionKey?: string;
+  encryptionKey?: Buffer;
 
   /**
    * Create an application context if it doesn't already exist for the connected account.

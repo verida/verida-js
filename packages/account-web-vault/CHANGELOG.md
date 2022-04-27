@@ -1,4 +1,9 @@
 
+2022-04-12 (v1.1.11)
+-------------------
+
+- Make clear how logoUrl is configured via the `VaultAccountRequest` definition
+
 2022-03-10 (v1.1.10)
 -------------------
 

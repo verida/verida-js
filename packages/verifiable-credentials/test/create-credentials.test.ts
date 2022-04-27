@@ -2,9 +2,11 @@
 const assert = require('assert');
 
 import Credentials from '../src/credentials';
-import { config, connect } from './config'
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
+import { config } from './config';
+import { connectAccount } from '../src/utils';
+import { EnvironmentType } from '@verida/account';
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
 dayjs.extend(utc)
 
 
@@ -14,25 +16,27 @@ describe('Credential tests', function () {
     describe('Credential Units', function () {
         this.timeout(100000);
         let appContext;
-        let credentialSdk;
+        let credentialSdk: Credentials;
 
         beforeEach(async function () {
-            appContext = await connect(config.PRIVATE_KEY_1);
-            credentialSdk = new Credentials(appContext);
+
+            appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+
+            credentialSdk = new Credentials();
         });
         it('Verify Credential JWT was created correctly', async function () {
 
-            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD);
+            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD, appContext);
 
             // Decode the credentialSdk
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
             const payload = decodedCredential.payload
             const vc = payload.vc
 
             // Verify the "Payload"
-            const issuer = await credentialSdk.createIssuer();
+            const issuer = await credentialSdk.createIssuer(appContext);
             assert.equal(payload.iss, issuer.did, 'Credential issuer matches expected DID')
 
             // Verify the data matches the schema
@@ -50,10 +54,10 @@ describe('Credential tests', function () {
             assert.equal(vc.sub, config.SUBJECT_DID, 'Credential subject matches expected DID')
         });
         it('Check the schema is a credential schema type', async function () {
-            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD);
+            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA_PAYLOAD, appContext);
 
             // Decode the credentialSdk
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
             const payload = decodedCredential.payload
@@ -67,7 +71,7 @@ describe('Credential tests', function () {
         });
         it('Unable to create credential with invalid schema data', async function () {
             const promise = new Promise((resolve, rejects) => {
-                credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.INVALID_CREDENTIAL_DATA).then(rejects, resolve)
+                credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.INVALID_CREDENTIAL_DATA, appContext).then(rejects, resolve)
             })
             const result = await promise
 
@@ -75,7 +79,7 @@ describe('Credential tests', function () {
         });
         it('Unable to create credential if no schema specified', async function () {
             const promise = new Promise((resolve, rejects) => {
-                credentialSdk.createCredentialJWT(config.SUBJECT_DID, {}).then(rejects, resolve)
+                credentialSdk.createCredentialJWT(config.SUBJECT_DID, {}, appContext).then(rejects, resolve)
             })
             const result = await promise
 
@@ -84,18 +88,18 @@ describe('Credential tests', function () {
         it('Ensure expired expiration date is respected', async () => {
             // Set an expiry date to the past
             const expirationDate = '2000-02-14T04:27:05.467Z'
-            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, { expirationDate });
+            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext, { expirationDate });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
             assert.equal(decodedCredential, false, 'Credential is not valid')
             assert.deepEqual(credentialSdk.getErrors(), ['Credential has expired'], 'Credential has expected error message')
         });
         it('Ensure issuanceDate generated in VC is same in the date options', async () => {
             const issuanceDate = '2022-02-14T04:27:05.467Z';
 
-            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, { issuanceDate });
+            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext, { issuanceDate });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
 
             const payload = decodedCredential.payload
             const vc = payload.vc
@@ -107,8 +111,8 @@ describe('Credential tests', function () {
             assert.deepEqual(formattedIssuanceVCDate, formattedIssuanceDate, 'issuanceDate options matches generated VC date ');
         });
         it('Ensure issuanceDate generated in VC is within 10secs', async () => {
-            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA);
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc)
+            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext);
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
             const payload = decodedCredential.payload
             const vc = payload.vc
 
@@ -124,9 +128,9 @@ describe('Credential tests', function () {
             const expirationDate = '2000-02-14T04:27:05.467Z';
             const issuanceDate = '2022-02-14T04:27:05.467Z';
             const currentDateTime = '2024-02-14T04:27:05.467Z';
-            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, { expirationDate, issuanceDate });
+            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext, { expirationDate, issuanceDate });
 
-            await credentialSdk.verifyCredential(credential.didJwtVc, currentDateTime);
+            await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET, currentDateTime);
 
             assert.deepEqual(credentialSdk.getErrors(), ['Credential has expired'], 'currentDateTime is less than expiration date');
         });
@@ -134,11 +138,11 @@ describe('Credential tests', function () {
             // Set an expiry date to the future
             const expirationDate = '2060-02-14T04:27:05.467Z'
 
-            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, {
+            const credential: any = await credentialSdk.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext, {
                 expirationDate
             });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
             assert.ok(decodedCredential, 'Credential is valid')
         });
     });
