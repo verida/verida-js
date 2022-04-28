@@ -26,12 +26,20 @@ describe('Share Credential tests', function () {
             delete config.CREDENTIAL_DATA['didJwtVc']
         });
 
-        it.only('Issue an encrypted credential', async function () {
+        it('Issue an encrypted credential', async function () {
 
-            const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext);
+            const item = await credential.createCredentialJWT({
+                subjectId: config.SUBJECT_DID,
+                data: config.CREDENTIAL_DATA,
+                context: appContext,
+                veridaContextName: config.VERIDA_CONTEXT_NAME
+            });
             const data = await shareCredential.issueEncryptedPresentation(item);
 
             createdUri = data.veridaUri
+
+            console.log(data);
+
 
             assert.ok(data.result.ok, 'Document was saved correctly');
 
@@ -71,7 +79,6 @@ describe('Share Credential tests', function () {
             // Retrieve the verifiable credential within the presentation
 
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
-
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });

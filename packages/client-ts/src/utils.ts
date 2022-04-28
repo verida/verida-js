@@ -79,7 +79,7 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
  * @param context An existing context used to open the external database
  * @returns
  */
-export async function fetchVeridaUri(uri: string, context: any): Promise<object> {
+export async function fetchVeridaUri(uri: string, context: any): Promise<string> {
 	const url = explodeVeridaUri(uri);
 
 	const db = await context.openExternalDatabase(url.dbName, url.did, {
