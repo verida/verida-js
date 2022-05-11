@@ -164,7 +164,7 @@ export default class Credentials {
 	 * @param data 
 	 * @returns 
 	 */
-	async createCredentialJWT({ subjectId, data, context, options, veridaContextName }: CreateCredentialJWT): Promise<object> {
+	async createCredentialJWT({ subjectId, data, context, options }: CreateCredentialJWT): Promise<object> {
 		// Ensure a credential schema has been specified
 		if (!data.schema) {
 			throw new Error('No schema specified')
@@ -207,7 +207,7 @@ export default class Credentials {
 			sub: subjectId,
 			type: ['VerifiableCredential'],
 			issuer: did,
-			veridaContextName: veridaContextName,
+			veridaContextName: context.getContextName(),
 			issuanceDate: new Date().toISOString(),
 			credentialSubject: {
 				...data

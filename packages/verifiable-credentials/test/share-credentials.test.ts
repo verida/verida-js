@@ -31,14 +31,11 @@ describe('Share Credential tests', function () {
             const item = await credential.createCredentialJWT({
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
-                context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME
+                context: appContext
             });
             const data = await shareCredential.issueEncryptedPresentation(item);
 
             createdUri = data.veridaUri
-
-            console.log(data);
 
 
             assert.ok(data.result.ok, 'Document was saved correctly');

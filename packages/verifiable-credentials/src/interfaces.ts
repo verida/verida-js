@@ -18,6 +18,5 @@ export interface CreateCredentialJWT {
     subjectId: string;
     data: any;
     context: Context;
-    veridaContextName: string
 }
 

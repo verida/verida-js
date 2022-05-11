@@ -29,8 +29,7 @@ describe('Credential tests', function () {
             const credential: any = await credentialSdk.createCredentialJWT({
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA_PAYLOAD,
-                context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME
+                context: appContext
             });
 
 
@@ -64,8 +63,7 @@ describe('Credential tests', function () {
             const credential: any = await credentialSdk.createCredentialJWT({
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA_PAYLOAD,
-                context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME
+                context: appContext
             });
 
             // Decode the credentialSdk
@@ -87,7 +85,6 @@ describe('Credential tests', function () {
                     subjectId: config.SUBJECT_DID,
                     data: config.INVALID_CREDENTIAL_DATA,
                     context: appContext,
-                    veridaContextName: config.VERIDA_CONTEXT_NAME
                 }).then(rejects, resolve)
             })
             const result = await promise
@@ -100,7 +97,6 @@ describe('Credential tests', function () {
                     subjectId: config.SUBJECT_DID,
                     data: {},
                     context: appContext,
-                    veridaContextName: config.VERIDA_CONTEXT_NAME
                 }).then(rejects, resolve)
             })
             const result = await promise
@@ -114,7 +110,6 @@ describe('Credential tests', function () {
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
                 context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME,
                 options: { expirationDate }
             });
 
@@ -129,7 +124,6 @@ describe('Credential tests', function () {
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
                 context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME,
                 options: { issuanceDate }
             });
 
@@ -149,7 +143,6 @@ describe('Credential tests', function () {
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
                 context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME,
             });
 
             const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
@@ -172,7 +165,6 @@ describe('Credential tests', function () {
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
                 context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME,
                 options: { issuanceDate, expirationDate }
             });
 
@@ -187,7 +179,6 @@ describe('Credential tests', function () {
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
                 context: appContext,
-                veridaContextName: config.VERIDA_CONTEXT_NAME,
                 options: {
                     expirationDate
                 }
