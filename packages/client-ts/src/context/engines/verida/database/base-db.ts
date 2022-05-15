@@ -230,7 +230,8 @@ class BaseDb extends EventEmitter implements Database {
       return raw ? docs : docs.docs;
     }
 
-    return;
+    // CouchDb returned something falsey
+    return [];
   }
 
   public async delete(doc: any, options: any = {}) {

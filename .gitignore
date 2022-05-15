@@ -4,3 +4,4 @@ ipfs
 node_modules
 .DS_Store
 *.log
+api-docs
