@@ -208,7 +208,7 @@ class Client {
   ): Promise<Profile | undefined> {
     let context: Context | undefined;
     try {
-      context = await this.openContext(contextName, false);
+      context = await this.openExternalContext(contextName, did);
     } catch (error) {
       if (fallbackContext) {
         return await this.openPublicProfile(did, fallbackContext, profileName, undefined);
