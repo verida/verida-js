@@ -203,9 +203,29 @@ class Client {
   public async openPublicProfile(
     did: string,
     contextName: string,
-    profileName: string = "basicProfile"
+    profileName: string = "basicProfile",
+    fallbackContext: string = "Verida: Vault"
   ): Promise<Profile | undefined> {
-    const context = await this.openExternalContext(contextName, did);
+    const maxRetry = 2;
+    let context: Context | undefined = undefined;
+    let retryNumber = contextName === fallbackContext ? 1 : maxRetry;
+    let ctxName = contextName;
+
+    do {
+      try {
+        if (retryNumber === 1) {
+          ctxName = fallbackContext;
+        }
+        context = await this.openExternalContext(ctxName, did);
+      } catch (error: any) {
+        if (retryNumber === 1) {
+          const newErr = new Error(`Wrong context - ${contextName}`);
+          newErr.stack = error.stack;
+          throw newErr;
+        }
+      }
+    } while (!context && retryNumber-- > 1);
+
     if (!context) {
       throw new Error(
         `Account does not have a public profile for ${contextName}`
@@ -281,7 +301,6 @@ class Client {
   public async getSchema(schemaUri: string): Promise<Schema> {
     return Schema.getSchema(schemaUri);
   }
-
 }
 
 export default Client;
