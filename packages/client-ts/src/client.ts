@@ -204,27 +204,16 @@ class Client {
     did: string,
     contextName: string,
     profileName: string = "basicProfile",
-    fallbackContext: string = "Verida: Vault"
+    fallbackContext: string | undefined = "Verida: Vault"
   ): Promise<Profile | undefined> {
-    const maxRetry = 2;
-    let context: Context | undefined = undefined;
-    let retryNumber = contextName === fallbackContext ? 1 : maxRetry;
-    let ctxName = contextName;
-
-    do {
-      try {
-        if (retryNumber === 1) {
-          ctxName = fallbackContext;
-        }
-        context = await this.openExternalContext(ctxName, did);
-      } catch (error: any) {
-        if (retryNumber === 1) {
-          const newErr = new Error(`Wrong context - ${contextName}`);
-          newErr.stack = error.stack;
-          throw newErr;
-        }
+    let context: Context | undefined;
+    try {
+      context = await this.openContext(contextName, false);
+    } catch (error) {
+      if (fallbackContext) {
+        return await this.openPublicProfile(did, fallbackContext, profileName, undefined);
       }
-    } while (!context && retryNumber-- > 1);
+    }
 
     if (!context) {
       throw new Error(

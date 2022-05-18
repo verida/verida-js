@@ -99,8 +99,8 @@ describe('Profile tests', () => {
                         null
                     );
                 }, {
-                    message: `Wrong context - ${wrongContextName}`
-                })
+                    message: `Account does not have a public profile for ${wrongContextName}`
+                }, 'can not open public profile')
             });
         });
     })
