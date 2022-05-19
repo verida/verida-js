@@ -67,6 +67,7 @@ describe('Profile tests', () => {
 
         describe("Using Client to open public profiles", function () {
             const wrongContextName = "Context: Wrong Name";
+            const wrongFallbackContextName = "Context: Wrong Name 2";
 
             it('can use fallbackContext="Verida: Vault" to open public profile', async () => {
                 const profile = await client1.openPublicProfile(
@@ -90,7 +91,7 @@ describe('Profile tests', () => {
                 assert.equal(name, DATA.name, "Can get a profile value");
             });
 
-            it("can not open a public profile using the wrong context and without fallbackContext option", async () => {
+            it("can not open a public profile using the wrong context and without fallbackContext", async () => {
                 await assert.rejects(async () => {
                     await client1.openPublicProfile(
                         did1,
@@ -100,7 +101,20 @@ describe('Profile tests', () => {
                     );
                 }, {
                     message: `Account does not have a public profile for ${wrongContextName}`
-                }, 'can not open public profile')
+                })
+            });
+
+            it("can not open a public profile using both the wrong context and wrong fallbackContext", async () => {
+                await assert.rejects(async () => {
+                    await client1.openPublicProfile(
+                        did1,
+                        wrongContextName,
+                        "basicProfile",
+                        wrongFallbackContextName
+                    );
+                }, {
+                    message: `Account does not have a public profile for ${wrongFallbackContextName}`
+                })
             });
         });
     })
