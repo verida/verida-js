@@ -2,9 +2,11 @@ import { Account } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
+const querystring = require('querystring')
 const _ = require('lodash')
 const store = require('store')
 const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
+const VERIDA_AUTH_TOKEN_QUERY_KEY = '_verida_auth'
 
 import { VaultAccountConfig } from "./interfaces"
 
@@ -13,7 +15,39 @@ const CONFIG_DEFAULTS = {
     serverUri: 'wss://auth-server.testnet.verida.io:7002',
 }
 
+/**
+ * Get an auth token from query params
+ * 
+ * @returns 
+ */
+const getAuthTokenFromQueryParams = () => {
+    // Attempt to load session from query params
+    const params = querystring.parse(window.location.search.substring(1,))
+    if (typeof(params[VERIDA_AUTH_TOKEN_QUERY_KEY]) != 'undefined') {
+        const encodedToken = params[VERIDA_AUTH_TOKEN_QUERY_KEY]
+        const jsonToken = Buffer.from(encodedToken, 'base64').toString('utf8')
+        try {
+            const token = JSON.parse(jsonToken)
+            return token
+        } catch (err) {
+            // Invalid token, unable to parse
+            console.warn("Invalid auth token in query params")
+            return
+        }
+    }
+
+    return false
+}
+
 export const hasSession = (contextName: string): boolean => {
+    // Check if an auth token is in the query params
+    // If so, it will be correctly loaded later
+    const token = getAuthTokenFromQueryParams()
+    if (token && token.context == contextName) {
+        return true
+    }
+
+    // Attempt to load session from local storage
     const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
 
     if (!storedSessions || !storedSessions[contextName]) {
@@ -76,6 +110,28 @@ export default class VaultAccount extends Account {
     }
 
     public async loadFromSession(contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
+        // First, attempt to Load from query parameters if specified
+        const token = getAuthTokenFromQueryParams()
+        if (token && token.context == contextName) {
+            this.addContext(token.context, token.contextConfig, new Keyring(token.signature))
+            this.setDid(token.did)
+
+            if (typeof(this.config!.callback) === "function") {
+                this.config!.callback(token)
+            }
+
+            // Store the session from the query params so future page loads will be authenticated
+            let storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+            if (!storedSessions) {
+                storedSessions = {}
+            }
+
+            storedSessions[contextName] = token
+            store.set(VERIDA_AUTH_CONTEXT, storedSessions)
+            
+            return token.contextConfig
+        }
+
         const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
 
         if (!storedSessions || !storedSessions[contextName]) {
