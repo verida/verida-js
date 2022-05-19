@@ -11,7 +11,7 @@ import config from './config';
  * @returns  an application {context} of the connected account
  */
 
-export async function connectAccount(privateKey: string, contextName: string, environment: EnvironmentType, issuerName: string): Promise<Context> {
+export async function connectAccount(privateKey: string, contextName: string, environment: EnvironmentType): Promise<Context> {
 
     const context = await Network.connect({
         context: {
@@ -37,12 +37,6 @@ export async function connectAccount(privateKey: string, contextName: string, en
             }
         ),
     });
-    if (context) {
-        const profileContext = await context.openProfile('basicProfile');
-        if (profileContext) {
-            await profileContext.set('name', issuerName);
-        }
-    }
 
     return context as Context;
 };
