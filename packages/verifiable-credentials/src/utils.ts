@@ -37,6 +37,7 @@ export async function connectAccount(privateKey: string, contextName: string, en
             }
         ),
     });
+
     return context as Context;
 };
 

@@ -75,7 +75,7 @@ class Datastore {
    */
   public async save(data: any, options: any = {}): Promise<object | boolean> {
     await this.init();
-    
+
     data.schema = this.schemaPath;
 
     let valid = await this.schema.validate(data);
@@ -219,10 +219,10 @@ class Datastore {
       this.db = await this.context.openExternalDatabase(
         dbName,
         this.config.did!,
-        this.config
+        this.config as any
       );
     } else {
-      this.db = await this.context.openDatabase(dbName, this.config);
+      this.db = await this.context.openDatabase(dbName, this.config as any);
     }
     let indexes = schemaJson.database.indexes;
 

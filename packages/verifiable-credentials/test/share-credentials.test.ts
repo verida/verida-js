@@ -28,10 +28,15 @@ describe('Share Credential tests', function () {
 
         it('Issue an encrypted credential', async function () {
 
-            const item = await credential.createCredentialJWT(config.SUBJECT_DID, config.CREDENTIAL_DATA, appContext);
+            const item = await credential.createCredentialJWT({
+                subjectId: config.SUBJECT_DID,
+                data: config.CREDENTIAL_DATA,
+                context: appContext
+            });
             const data = await shareCredential.issueEncryptedPresentation(item);
 
             createdUri = data.veridaUri
+
 
             assert.ok(data.result.ok, 'Document was saved correctly');
 
