@@ -73,7 +73,7 @@ class VeridaInbox extends EventEmitter {
 
     // TODO: Verify the DID-JWT with a custom VID resolver
 
-    let inboxEntry = {
+    let inboxEntry: any = {
       _id: inboxItem._id, // Use the same _id to avoid duplicates
       message: item.data.message,
       type: item.data.type,
@@ -86,6 +86,10 @@ class VeridaInbox extends EventEmitter {
       insertedAt: new Date().toISOString(),
       read: false,
     };
+
+    if (inboxItem.openUrl) {
+      inboxEntry.openUrl = inboxItem.openUrl
+    }
 
     // Save a new inbox entry into the user's private inbox
     try {
