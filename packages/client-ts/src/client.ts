@@ -204,14 +204,14 @@ class Client {
     did: string,
     contextName: string,
     profileName: string = "basicProfile",
-    fallbackContext: string | undefined = "Verida: Vault"
+    fallbackContext: string | null = "Verida: Vault"
   ): Promise<Profile | undefined> {
     let context: Context | undefined;
     try {
       context = await this.openExternalContext(contextName, did);
     } catch (error) {
       if (fallbackContext) {
-        return await this.openPublicProfile(did, fallbackContext, profileName, undefined);
+        return await this.openPublicProfile(did, fallbackContext, profileName, null);
       }
     }
 
