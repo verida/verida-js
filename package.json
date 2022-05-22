@@ -5,12 +5,13 @@
   "devDependencies": {
     "lerna": "^3.22.1",
     "typedoc": "^0.22.12",
-    "typedoc-plugin-markdown": "^3.11.14"
+    "typedoc-plugin-markdown": "^3.11.14",
+    "typedoc-plugin-missing-exports": "^0.22.6"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
-    "doc": "typedoc --entryPointStrategy packages . --plugin typedoc-plugin-markdown --out api-docs src/index.ts"
+    "doc": "typedoc --entryPointStrategy packages . --plugin typedoc-plugin-missing-exports --plugin typedoc-plugin-markdown --out api-docs src/index.ts"
   },
   "workspaces": [
     "packages/*"
