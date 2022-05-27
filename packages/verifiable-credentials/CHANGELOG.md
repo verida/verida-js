@@ -1,4 +1,9 @@
 
+2022-05-27 (v0.1.6)
+-------------------
+
+- Update createCredentialJWT method to include `veridaContextName` property in the VC (#185)
+
 2022-04-12 (v0.1.5)
 -------------------
 
