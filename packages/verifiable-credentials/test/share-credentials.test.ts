@@ -1,7 +1,7 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
 import { EnvironmentType, Context, Utils as clientUtils } from '@verida/client-ts/src';
-import { connectAccount, getClientContext } from '../src/utils';
+import { getClientContext, connectAccount } from '../src/utils';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 import { config } from './config';
