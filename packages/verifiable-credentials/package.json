@@ -1,6 +1,6 @@
 {
 	"name": "@verida/verifiable-credentials",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"main": "dist/index.js",
 	"license": "ISC",
 	"directories": {
@@ -17,7 +17,7 @@
 		"node": "^14.0.0"
 	},
 	"dependencies": {
-		"@verida/client-ts": "^1.1.14",
+		"@verida/client-ts": "^1.1.15",
 		"@verida/did-resolver": "^0.1.9",
 		"@verida/encryption-utils": "^1.1.3",
 		"dayjs": "^1.10.7",
