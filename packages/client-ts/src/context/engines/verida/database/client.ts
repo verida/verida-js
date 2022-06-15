@@ -5,14 +5,15 @@ import { Account } from "@verida/account";
  * Interface for RemoteClientAuthentication
  */
 interface RemoteClientAuthentication {
-  username: string;
-  signature: string;
+  refreshToken: string;
+  accessToken: string;
+  host: string;
 }
 
 export interface CouchDbAuthentication {
-  host: string;
-  token: string;
-  username: string;
+  host: string;   // host name
+  token: string;  // access token
+  //username: string; // is this needed?
 }
 
 /**
@@ -36,18 +37,43 @@ export class DatastoreServerClient {
     let did = await account.did();
     did = did.toLowerCase()
 
+    /*
     const signature = await account.sign(`Do you wish to authenticate this storage context: "${this.storageContext}"?\n\n${did}`)
 
     this.authentication = {
       username: did,
       signature: signature
-    };
+    };*/
   }
 
   public async getUser(did: string): Promise<CouchDbAuthentication> {
+    if (this.authentication) {
+      return <CouchDbAuthentication> {
+        host: this.authentication.host,
+        token: this.authentication.accessToken
+      }
+    }
+
+    if (!this.account) {
+      throw new Error("Unable to connect. No account set.")
+    }
+
+    const contextAuth = await this.account!.getContextAuth(this.storageContext)
+
+    if (!contextAuth) {
+      throw new Error("Unable to connect. Unable to authenticate.")
+    }
+
+    // @todo: test if connection is valid?
+    // @todo: get a new access token if invalid
+    // @todo: get a new refresh token if getting close to expiring, save to cache (account.updateContextAuth()?)
+    // @todo: how are invalid access tokens going to produce an error? how to catch and then regenerate?
+    //  - expired token stored in session when loading the app
+    //  - token expires while using the app
+
     let response
     try {
-      response = await this.getAxios(true).get(this.serverUrl + "user/get?did=" + did);
+      response = await this.getAxios(true).get(this.serverUrl + "auth/connect?did=" + did);
     } catch (err: any) {
       if (
         err.response &&
@@ -67,11 +93,17 @@ export class DatastoreServerClient {
     return response.data.user
   }
 
+  private async authenticate() {
+    // throw error if no account
+
+  }
+
   public async getPublicUser() {
     return this.getAxios(false).get(this.serverUrl + "user/public");
   }
 
   public async createUser() {
+    throw new Error('create user is no longer supported due to refresh token refactor')
     if (!this.account) {
       throw new Error(
         "Unable to create storage account. No Verida account connected."

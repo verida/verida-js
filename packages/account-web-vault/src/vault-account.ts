@@ -58,7 +58,7 @@ export default class VaultAccount extends Account {
                 }
 
                 this.setDid(response.did)
-                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
+                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature), response.contextAuth)
                 resolve(true)
             }
 
@@ -85,7 +85,7 @@ export default class VaultAccount extends Account {
         const response = storedSessions[contextName]
 
         this.setDid(response.did)
-        this.addContext(response.context, response.contextConfig, new Keyring(response.signature))
+        this.addContext(response.context, response.contextConfig, new Keyring(response.signature), response.contextAuth)
 
         if (typeof(this.config!.callback) === "function") {
             this.config!.callback(response)
@@ -102,10 +102,20 @@ export default class VaultAccount extends Account {
         return this.contextCache[contextName].keyring
     }
 
-    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring) {
+    // @todo: need this to be in the interface for all account instances?
+    public async getContextAuth(contextName: string) {
+        if (typeof(this.contextCache[contextName]) == 'undefined') {
+            throw new Error(`Unable to connect to requested context: ${contextName}`)
+        }
+
+        return this.contextCache[contextName].contextAuth
+    }
+
+    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring, contextAuth: any) {
         this.contextCache[contextName] = {
             keyring,
-            contextConfig
+            contextConfig,
+            contextAuth
         }
     }
 
