@@ -12,7 +12,10 @@ describe('Network initialization tests', () => {
 
         it('can create a network instance', async function() {
             const network = new Client({
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                web3Config: {
+                    connectionType: 'gasless'
+                }
             })
 
             assert.ok(network)
