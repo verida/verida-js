@@ -63,7 +63,11 @@ class Client {
       : {};
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
-    this.didClient = new DIDClient(this.config.didServerUrl!);
+    this.didClient = new DIDClient({
+      environment: this.environment,
+      connectionType: this.config.web3Config.connectionType
+    });
+
     this.didContextManager = new DIDContextManager(this.didClient);
     Schema.setSchemaPaths(this.config.schemaPaths!);
   }

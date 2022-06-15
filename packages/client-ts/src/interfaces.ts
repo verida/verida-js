@@ -20,12 +20,17 @@ export interface ClientConfig {
 	/**
 	 * URL of Verida DID Server node to use.
 	 */
-	didServerUrl?: string;
+	web3Config: Web3Config;
 
 	/**
 	 * Specify custom schema paths (typicaly for local development).
 	 */
 	schemaPaths?: object;
+}
+
+export interface Web3Config {
+	connectionType: 'gasless' | 'web3'
+	// @todo: other config options?
 }
 
 /**

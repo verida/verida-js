@@ -16,8 +16,6 @@ const address = wallet.address.toLowerCase()
 const did = `did:vda:${address}`
 
 const CONTEXT_NAME = 'Verida: Test DID Context'
-//const DID_REGISTRY_ENDPOINT = 'http://localhost:5001'
-const DID_REGISTRY_ENDPOINT = 'https://dids.testnet.verida.io:5001'
 
 const keyring = new Keyring(wallet.mnemonic.phrase)
 
@@ -32,7 +30,10 @@ const endpoints: Endpoints = {
     }
 }
 
-const didClient = new DIDClient(DID_REGISTRY_ENDPOINT)
+const didClient = new DIDClient({
+    environment: 'testnet',
+    connectionType: 'gasless'
+})
 
 /**
  * 
