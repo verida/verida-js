@@ -26,10 +26,10 @@ const DEFAULT_ENDPOINTS = {
 
 describe('Auto account tests', () => {
 
-    describe('Basic tests', function() {
+    describe('Basic tests', function () {
         this.timeout(100000)
 
-        it('verify did-jwt', async function() {
+        it('verify did-jwt', async function () {
             const account = new AutoAccount(DEFAULT_ENDPOINTS, {
                 privateKey: MNEMONIC,
                 didServerUrl: DID_SERVER_URL
@@ -47,7 +47,7 @@ describe('Auto account tests', () => {
             assert.equal(decoded.payload.context, APPLICATION_NAME, 'Decoded context matches')
         })
 
-        it('can reopen the same 3id account with the same mnemonic and did', async () => {
+        it('can reopen the same did account with the same mnemonic and did', async () => {
             const account1 = new AutoAccount(DEFAULT_ENDPOINTS, {
                 privateKey: MNEMONIC,
                 didServerUrl: DID_SERVER_URL
