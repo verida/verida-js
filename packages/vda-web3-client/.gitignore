@@ -1,0 +1,9 @@
+#Ignore all files starting with "."
+.*
+!/.gitignore
+
+# node_modules in all sub directories
+**node_modules
+
+# build
+build/
