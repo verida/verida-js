@@ -1,0 +1,35 @@
+{
+  "extends": [
+    "config:base",
+    "group:allNonMajor"
+  ],
+  "labels": [
+    "maintenance"
+  ],
+  "automergeType": "branch",
+  "automerge": true,
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "did"
+      ],
+      "matchUpdateTypes": [
+        "bump",
+        "patch",
+        "minor",
+        "major"
+      ],
+      "groupName": "did-dependencies",
+      "commitMessagePrefix": "fix(deps):"
+    },
+    {
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "groupName": "devDeps",
+      "schedule": [
+        "before 5am on Monday"
+      ]
+    }
+  ]
+}
