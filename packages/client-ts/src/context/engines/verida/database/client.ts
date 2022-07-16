@@ -58,13 +58,15 @@ export class DatastoreServerClient {
       throw new Error("Unable to connect. No account set.")
     }
 
-    const contextAuth = await this.account!.getContextAuth(this.storageContext)
+    // Fetch context auth details and force creation of a new account if required
+    const contextAuth = await this.account!.getContextAuth(this.storageContext, true)
 
     if (!contextAuth) {
       throw new Error("Unable to connect. Unable to authenticate.")
     }
 
     // @todo: test if connection is valid?
+
     // @todo: get a new access token if invalid
     // @todo: get a new refresh token if getting close to expiring, save to cache (account.updateContextAuth()?)
     // @todo: how are invalid access tokens going to produce an error? how to catch and then regenerate?

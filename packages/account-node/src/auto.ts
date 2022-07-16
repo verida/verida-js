@@ -98,6 +98,10 @@ export default class AutoAccount extends Account {
         return await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUri)
     }
 
+    public async getContextAuth(contextName: string) {
+        //@todo
+    }
+
     public getDidClient() {
         return this.didClient
     }

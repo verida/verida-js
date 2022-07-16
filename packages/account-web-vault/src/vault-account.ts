@@ -52,7 +52,7 @@ export default class VaultAccount extends Account {
                     if (!storedSessions) {
                         storedSessions = {}
                     }
-
+ 
                     storedSessions[contextName] = response
                     store.set(VERIDA_AUTH_CONTEXT, storedSessions)
                 }
@@ -103,8 +103,13 @@ export default class VaultAccount extends Account {
     }
 
     // @todo: need this to be in the interface for all account instances?
-    public async getContextAuth(contextName: string) {
+    public async getContextAuth(contextName: string, forceCreate: boolean = false) {
         if (typeof(this.contextCache[contextName]) == 'undefined') {
+            if (forceCreate) {
+                await this.connectContext(contextName)
+                return this.getContextAuth(contextName, false)
+            }
+
             throw new Error(`Unable to connect to requested context: ${contextName}`)
         }
 
