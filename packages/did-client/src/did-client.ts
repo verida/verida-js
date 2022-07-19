@@ -5,8 +5,8 @@ import { DIDDocument } from 'did-resolver'
 import Wallet from "./wallet"
 
 // @todo: Link this in package.json
-import { VdaDID } from 'vda-did'
-import { getResolver, verificationMethodTypes } from 'vda-did-resolver'
+import { VdaDID, BulkDelegateParam, BulkAttributeParam, DelegateTypes } from 'vda-did'
+import { getResolver, verificationMethodTypes, interpretIdentifier } from 'vda-did-resolver'
 import { CallType, VeridaContract, VeridaMetaTransactionConfig } from '@verida/web3'
 
 import { Provider } from '@ethersproject/providers'
@@ -16,6 +16,8 @@ import { Signer } from 'ethers'
 
 import { DIDDocument as VeridaDocument } from '@verida/did-document'
 // import { VeridaMetaTransactionConfig } from '@verida/web3/build/src/config'
+
+import {isObject, removeCommonItems, getUpdateListFromDocument} from './helpers'
 
 const CONTRACT_ADDRESSES: any = {
     'testnet': '0x2862BC860f55D389bFBd1A37477651bc1642A20B'
@@ -80,15 +82,15 @@ export interface DIDClient {
 }
 
 /**
- * Create instance of DIDClient interface.
- * 
+ * Create instance of DIDClient interface. And load DIDDocument from chain
+ *  * 
  * @param config : cofiguration for DIDClientImpl class
  * @returns DIDClient 
  */
 export async function createDIDClient(config:DIDClientConfig) : Promise<DIDClient> {
     const didClient = new DIDClientImpl(config)
 
-    await didClient.getDocument()
+    await didClient.loadDIDDocument()
 
     return didClient
 }
@@ -147,7 +149,10 @@ class DIDClientImpl implements DIDClient {
         })
     }
 
-    async generateDIDDocument() {
+    /**
+     * Load DIDDocument from chain. Should be called after DIDClientImpl created
+     */
+    async loadDIDDocument() {
         const resolutionResult = await this.didResolver.resolve(this.identifier)
         if (resolutionResult.didDocument !== null) {
             this.didDoc = <DIDDocument>resolutionResult.didDocument
@@ -166,140 +171,51 @@ class DIDClientImpl implements DIDClient {
         return this.veridaWallet.publicKey
     }
 
-    // Functions to compare objects
-    private deepEqual(object1: any, object2:any) {
-        const keys1 = Object.keys(object1);
-        const keys2 = Object.keys(object2);
-        if (keys1.length !== keys2.length) {
-            return false;
-        }
-        for (const key of keys1) {
-            const val1 = object1[key];
-            const val2 = object2[key];
-            const areObjects = this.isObject(val1) && this.isObject(val2);
-            if (
-            areObjects && !this.deepEqual(val1, val2) ||
-            !areObjects && val1 !== val2
-            ) {
-            return false;
-            }
-        }
-        return true;
-    }
-
-    private isObject(object: any) {
-        return object != null && typeof object === 'object';
-    }
-
-    private compareKeys(a: Object, b: Object) {
-        const aKeys = Object.keys(a).sort()
-        const bKeys = Object.keys(b).sort()
-
-        return JSON.stringify(aKeys) === JSON.stringify(bKeys)
-    }
-
+    /**
+     * Save DIDDocument to the chain
+     * 
+     * @param document Updated DIDDocuent
+     * @returns true if success.
+     */
     public async saveDocument(document: DIDDocument | undefined): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            // check ID first
+            if (!this.didDoc) 
+                reject("No original document")
 
-        // Compare input document & original document and save changes only
-        // check ID first
-        if (!this.didDoc) 
-            throw new Error("No original document")
-
-        if (document === undefined) {
-            // To-do: Deactivate doc by set controller to null
-
-        }
-
-        const orgDoc = this.didDoc;
-
-        // Remove common itesm first
-        // orgDoc.verificationMethod?.forEach((item, index, arr) => {
-        //     const docIndex = document?.verificationMethod?.findIndex(t => this.deepEqual(item, t))
-        //     if (docIndex && docIndex !== -1 ) {
-        //         // Found same object. Delete on both objects.
-        //         arr.splice(index, 1)
-        //         document?.verificationMethod?.splice(docIndex, 1)
-        //     }
-        // })
-        const keys = Object.keys(orgDoc);
-        keys.forEach(key => {
-            if (key in <DIDDocument>document && this.isObject((orgDoc as any)[key])) {
-                (orgDoc as any)[key].array.forEach((item : any, index: number, arr: any) => {
-                    const docIndex = ((document as any)[key].findIndex((t: any) => this.deepEqual(item, t)))
-                    if(docIndex && docIndex !== -1) {
-                        arr.splice(index, 1)
-                        ((document as any)[key]).splice(docIndex, 1)
-                    }
-                });
+            if (document === undefined) {
+                // To-do: Deactivate doc by set controller to null
+                reject("Empty document")
             }
-        });
 
-        // Process updated elements from original document
-        // To-do implements Verification Methods
-        orgDoc?.verificationMethod?.forEach(item => {
-            // DIDDelegateChanged for veriKey
-            // or Controller
-            if ('blockchainAccountId' in item) {
-                if (item.id.endsWith('#controller')) {
-                    //Controller --> publicKey
+            const orgDoc = this.didDoc;
 
-                } else {
-                    // DIDDelegate Changed --> pks
+            // Compare input document & original document and save changes only
+            removeCommonItems(orgDoc!, document!)
 
-                }
-                // Call revokeDelegate and addDelegate to update
-            } else {
-                // Meaning AttributeChanged of 'pub' type --> pk
-                
-                if (orgDoc.authentication?.find(authItem => authItem === item.id)) {
-                    // meaning sigAuth attribute
-                } else if (orgDoc.keyAgreement?.find(keyrefItem => keyrefItem === item.id)) {
-                    // meaning enc attribute
-                }
+            // Revoke deleted items in original document
+            const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(orgDoc!)
+            this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList)
+            .then(() => {
+                // Add new items in updated document
+                const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(document!)
 
-                // call revokeAttribute & setAttribute for updates
-            }
-        })
-        // To-do implemnts Attribute changed - service
-        orgDoc?.service?.forEach(serviceItem => {
-            // call revokeAttribute & setAttribute for service updates
-        })
+                this.vdaDid.bulkAdd(addDelegateList, addAttributeList).then(() => resolve(true))
+                .catch(() => reject('Failed to add new updates'))
+            })
+            .catch(() => reject('Failed to revoke deleted items'))
 
-        // Process nely created elements in update document
-        orgDoc?.verificationMethod?.forEach(item => {
-            // DIDDelegateChanged for veriKey
-            // or Controller
-            if ('blockchainAccountId' in item) {
-                if (item.id.endsWith('#controller')) {
-                    //Controller --> publicKey
-
-                } else {
-                    // DIDDelegate Changed --> pks
-
-                }
-                // Call addDelegate
-            } else {
-                // Meaning AttributeChanged of 'pub' type --> pk
-                
-                if (orgDoc.authentication?.find(authItem => authItem === item.id)) {
-                    // meaning sigAuth attribute
-                } else if (orgDoc.keyAgreement?.find(keyrefItem => keyrefItem === item.id)) {
-                    // meaning enc attribute
-                }
-
-                // call setAttribute for updates
-            }
-        })
-        // To-do implemnts Attribute changed - service
-        orgDoc?.service?.forEach(serviceItem => {
-            // call setAttribute for service updates
-        })
-        
-
-        return new Promise<boolean>((resolve) => {
-            resolve(true)
+            // Promise.all([this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList), 
+            // this.vdaDid.bulkAdd(addDelegateList, addAttributeList)])
+            // .then(() => resolve(true))
+            // .catch(() => reject(false))
         })
     }
+
+    /**
+     * 
+     * @returns Get original document loaded from blockchain
+     */
     public getDocument(): Promise<DIDDocument> {
         return new Promise<DIDDocument>((resolve, reject) => {
             if (!this.didDoc)
@@ -308,25 +224,4 @@ class DIDClientImpl implements DIDClient {
             resolve(Object.assign({}, this.didDoc!))
         })
     }
-
-    
-}
-
-interface DelegateOrController {
-    id: string
-    type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020
-    controllr: string
-    blockchainAccountId: string   
-}
-
-interface AttributePub {
-    id: string
-    type: verificationMethodTypes
-    controllr: string
-
-    publicKeyBase58?: string
-    publicKeyBase64?: string
-    publicKeyHex?: string
-    publicKeyPem?: string
-    value?: string
 }
