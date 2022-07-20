@@ -1,7 +1,7 @@
 {
   "name": "vda-did",
   "version": "0.1.1",
-  "description": "Create, manage and use did:ethr identifiers",
+  "description": "Create, manage and use did:vda identifiers",
   "source": "src/index.ts",
   "main": "lib/index.js",
   "module": "lib/index.module.js",
