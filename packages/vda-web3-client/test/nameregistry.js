@@ -1,8 +1,10 @@
-import {VeridaContractInstance} from '@verida/web3'
+import {getVeridaContract} from '@verida/web3'
 import { createRequire } from "module";
+import { JsonRpcProvider } from '@ethersproject/providers'
+import { Wallet } from '@ethersproject/wallet'
+
 const require = createRequire(import.meta.url);
 require('dotenv').config()
-const HDWalletProvider = require("@truffle/hdwallet-provider");
 
 const args = process.argv.slice(2);
 const testMode = (args.length > 0 && args[0] === 'direct' )? args[0] : "gasless"
@@ -33,13 +35,12 @@ const testSignature = "0x67de2d20880a7d27b71cdcb38817ba95800ca82dff557cedd91b96a
 const badSignature = "0xf157fd349172fa8bb84710d871724091947289182373198723918cabcc888ef888ff8876956050565d5757a57d868b8676876e7678687686f95419238191488923"
 
 // Create SDK Instance in direct mode
-const hdWalletProvider = new HDWalletProvider(
-    process.env.PRIVATE_KEY, 
-    process.env.RPC_URL_BSC_TESTNET
-)
+const provider = new JsonRpcProvider(process.env.RPC_URL_BSC_TESTNET);
+const txSigner = new Wallet(process.env.PRIVATE_KEY, provider)
+
 const nameRegistryABI = require('./abi/NameRegistry.json')
 const nameRegistry = testMode === 'gasless' ?
-    VeridaContractInstance(
+    getVeridaContract(
         'gasless', 
         {
             veridaKey: testSignature,
@@ -57,13 +58,14 @@ const nameRegistry = testMode === 'gasless' ?
             }
         }
     ) : 
-    VeridaContractInstance(
+    getVeridaContract(
         'web3', 
         {
-            provider: hdWalletProvider,
             abi: nameRegistryABI,
             address: process.env.CONTRACT_ADDRESS_RPC_URL_BSC_TESTNET_NameRegistry,
-            account: hdWalletProvider.addresses[0],
+
+            provider: provider,
+            signer: txSigner
         }
     )
 // console.log('Class = ', nameRegistry)
@@ -126,8 +128,6 @@ async function testAll() {
     await sleep(2000)
 
     await unregisterTest();
-
-    hdWalletProvider.engine.stop()
 }
 
 testAll()

@@ -1,4 +1,4 @@
-import {VeridaContractInstance} from '@verida/web3'
+import {getVeridaContract} from '@verida/web3'
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
@@ -30,7 +30,7 @@ function sleep(ms) {
 
 const didRegistryABI = require('./abi/VeridaDIDRegistry.json')
 
-const didRegistry = VeridaContractInstance(
+const didRegistry = getVeridaContract(
     'gasless', 
     {
         veridaKey: testSignature,

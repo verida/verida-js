@@ -4,17 +4,13 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract, ContractFactory } from '@ethersproject/contracts'
 import { JsonRpcProvider, Provider } from '@ethersproject/providers'
-import { ethers } from 'ethers'
 
-// linked package
-// import DidRegistryContract from 'vda-did-registry'
-import { DEFAULT_REGISTRY_ADDRESS, knownNetworks } from './helpers'
-
-const DidRegistryContract = require('./contract/VeridaDIDRegistry.json')
+import { knownNetworks } from './constants'
 
 /** Web3 SDK running mode */
 export type CallType = 'web3' | 'gasless'
 
+/** Contract Info. Used for 'web3' mode */
 export interface ContractInfo {
     abi: any
     address: string
@@ -26,9 +22,11 @@ export interface ContractInfo {
  * signer - optional - a Signer that sign the blockchain transactions. If a 'signer' is not provided, then 'contract' with an attached signer need to be used to make transactions
  * provider - optional - a web3 provider. At least one of `signer`,`provider`, or `rpcUrl` is required
  * rpcUrl - optinal - a JSON-RPC URL that can be used to connect to an ethereum network. At least one of `signer`, `provider`, or `rpcUrl` is required
+ * web3 - optional - Can use provider or web.currentProvider as a provider.
  */
 export interface VeridaSelfTransactionConfig {
     signer?: Signer
+    privateKey?: string
     provider?: Provider
     rpcUrl?: string
     web3?: any
@@ -61,21 +59,6 @@ export interface VeridaGaslessPostConfig {
     [key: string] : any
 }
 
-// /** Configuration for creating axios server in gasless mode */
-// export const gaslessDefaultServerConfig = {
-//     headers: {
-//         'context-name': 'Verida Test'
-//     }
-// };
-
-// /** Configuration for post in gasless mode */
-// export const gaslessDefaultPostConfig = {
-//     headers: {
-//         'user-agent': 'Verida-Vault',
-//     }
-// };
-
-
 /**
  * A configuration entry for an ethereum network
  * It should contain at least one of `name` or `chainId` AND one of `provider`, `web3`, or `rpcUrl`
@@ -91,7 +74,6 @@ export interface VeridaGaslessPostConfig {
     // name?: string
     provider?: Provider
     rpcUrl?: string
-    registry?: string
     chainId?: string | number
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     web3?: any
@@ -99,7 +81,14 @@ export interface VeridaGaslessPostConfig {
     [index: string]: any
 }
 
-export function getContractForNetwork(conf: ProviderConfiguration): Contract {
+/**
+ * Returns Contract class instance of ethers library
+ * This is used in web3 mode only - self transaction mode.
+ *
+ * @param conf Provider configuration to
+ * @returns Contract instance
+ */
+export function getContractForNetwork(conf: ProviderConfiguration & ContractInfo): Contract {
     let provider: Provider = conf.provider || conf.web3?.currentProvider
     if (!provider) {
         if (conf.rpcUrl) {
@@ -111,9 +100,9 @@ export function getContractForNetwork(conf: ProviderConfiguration): Contract {
         }
     }
 
-    const contract: Contract = ContractFactory.fromSolidity(DidRegistryContract)
-        .attach(conf.registry || DEFAULT_REGISTRY_ADDRESS)
+    const contract: Contract = ContractFactory.fromSolidity(conf.abi)
+        .attach(conf.registry)
         .connect(provider)
-    // const contract = new ethers.Contract(conf.registry || DEFAULT_REGISTRY_ADDRESS, DidRegistryContract.abi, provider)
+
     return contract
 }
