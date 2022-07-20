@@ -82,6 +82,6 @@
     "@ethersproject/transactions": "^5.5.0",
     "@ethersproject/wallet": "^5.5.0",
     "did-jwt": "^5.12.3",
-    "vda-did-resolver": "../vda-did-resolver/lib/"
+    "@verida/vda-did-resolver": "../vda-did-resolver/lib/"
   }
 }
