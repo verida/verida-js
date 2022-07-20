@@ -4,3 +4,6 @@ ipfs
 node_modules
 .DS_Store
 *.log
+#Ignore all files starting with "."
+.*
+!/.gitignore
