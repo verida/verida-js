@@ -1,4 +1,4 @@
-import {VeridaContractInstance} from '@verida/web3'
+import {getVeridaContract} from '@verida/web3'
 import { formatBytes32String } from 'ethers/lib/utils.js'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
@@ -35,7 +35,7 @@ const provider = new JsonRpcProvider(process.env.RPC_URL_BSC_TESTNET);
 const txSigner = new Wallet(process.env.PRIVATE_KEY, provider)
 
 const didRegistryABI = require('./abi/VeridaDIDRegistry.json')
-const didRegistry = VeridaContractInstance(
+const didRegistry = getVeridaContract(
     'web3', 
     {
         abi: didRegistryABI,

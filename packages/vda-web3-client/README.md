@@ -13,7 +13,7 @@ npm i @verida/web3
 ## Creating Verida Contract instance
 Developer can create instance in 2 modes of 'web3' or 'gasless'.
 ```
-const instance = VeridaContractInstance('web3'/'gasless', {/*Configuration*/})
+const instance = getVeridaContract('web3'/'gasless', {/*Configuration*/})
 ```
 Configurations are a bit different for both modes:
 ### Configuration for 'web3' mode

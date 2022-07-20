@@ -8,7 +8,7 @@ import { VeridaContract } from './VeridaContractBase'
  * @param config - Configuration to create Verida-web3-sdk instance
  * @returns VeridaContract instance
  */
-export function VeridaContractInstance(type: CallType, config: VeridaWeb3Config) {
+export function getVeridaContract(type: CallType, config: VeridaWeb3Config) {
     return new VeridaContract(
         type,
         config

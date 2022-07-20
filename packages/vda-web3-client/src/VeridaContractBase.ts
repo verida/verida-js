@@ -12,7 +12,7 @@ import { VeridaGaslessPostConfig, VeridaGaslessRequestConfig } from './config'
 // import { gaslessDefaultServerConfig, gaslessDefaultPostConfig } from './config'
 
 import { BigNumber } from '@ethersproject/bignumber'
-import { ethers } from 'ethers';
+import { Wallet } from 'ethers';
 
 require('dotenv').config();
 
@@ -57,13 +57,6 @@ interface ParameterType {
 
 export type address = string
 export type uint256 = BigNumber
-export interface ERC1056Event {
-    identity: address
-    previousChange: uint256
-    validTo?: uint256
-    _eventName: string
-    blockNumber: number
-  }
 export type BlockTag = string | number;
 
 /**
@@ -108,11 +101,13 @@ export class VeridaContract {
                 throw new Error('Input configuration parameters');
             }
 
-            console.log('Creating Web3 SDK in web3 Mode', config)
+            // console.log('Creating Web3 SDK in web3 Mode', config)
 
             const web3Config = <VeridaSelfTransactionConfig>config;
             if (web3Config.provider || web3Config.signer?.provider || web3Config.rpcUrl) {
                 this.contract = getContractForNetwork({
+                    abi: config.abi,
+                    address: config.address,
                     provider: web3Config.provider,
                     registry: config.address,
                     rpcUrl: web3Config.rpcUrl,
@@ -122,7 +117,12 @@ export class VeridaContract {
                 throw new Error('either provider or rpcUrl is required to initialize')
             }
             this.signer = web3Config.signer
-
+            if (this.signer === undefined) {
+                if ( web3Config.privateKey )
+                    this.signer = new Wallet(web3Config.privateKey, this.contract.provider)
+                else
+                    throw new Error('either Signer or privateKey is required to initialize')
+            }
 
             // this.web3 = new Web3((<VeridaSelfTransactionConfig>config).provider)
             // this.contract = new this.web3.eth.Contract(
@@ -251,14 +251,9 @@ export class VeridaContract {
      */
     protected callMethod = async (methodName: string, methodType: string, params: any ) => {
         if (this.type === 'web3') {
-            // const callType = this.isViewFunction(methodName) ? 'call' : 'send'
-
-            // const callType = methodType === 'view' ? 'call' : 'send'
-            // const response = eval(`await this.contract!.methods.${methodName}(...(Object.values(params))).${callType}()`)
-
             let ret;
 
-            console.log('Calling function : ', methodName, params)
+            // console.log('Calling function : ', methodName, params)
 
             const contract = await this.attachContract()
 
@@ -281,10 +276,10 @@ export class VeridaContract {
                     })
 
                     const transaction = await this.signer!.sendTransaction(unsignedTx)
-                    console.log('Transaction = ', transaction)
+                    // console.log('Transaction = ', transaction)
 
                     const transactionRecipt = await transaction.wait()
-                    console.log('Transaction Receipt = ', transactionRecipt)
+                    // console.log('Transaction Receipt = ', transactionRecipt)
 
                     ret = transactionRecipt
 
@@ -332,33 +327,4 @@ export class VeridaContract {
         }
     }
 
-    /**
-     * @notice Get the time of last change in DID-registry-contract
-     * @param identity DID of a user
-     */
-    protected async didPreviousChange(identity: string) {
-        const response = await this.callMethod('changed', 'view', {
-            '': identity
-        })
-
-        if (response.success === true) {
-            return BigNumber.from(response.data)
-        }
-        return null
-    }
-
-    // protected addGetEventsToDIDRegistry(
-
-    // ) {
-    //     // To-do [Alex] implement this method
-    //     this['getEvents'] = async(identity: string) => {
-    //         let previousChange : BigNumber | null = this.didPreviousChange(identity)
-    //         while (previousChange) {
-    //             const blockNumber = previousChange
-    //             const fromBlock = previousChange.toHexString() !== '0x00' ? previousChange.sub(1).toHexString() : previousChange.toHexString()
-    //             const logs = await 
-    //         }
-
-    //     }
-    // }
 }
