@@ -19,6 +19,7 @@ require('dotenv').config()
  * { name: 'goerli', chainId: 5, provider: new InfuraProvider('goerli') }
  * { name: 'rinkeby', provider: new AlchemyProvider('rinkeby') }
  * { name: 'rsk:testnet', chainId: '0x1f', rpcUrl: 'https://public-node.testnet.rsk.co' }
+ * { name: 'polygon', chainId: 137, web3: new Web3('https://polygon-rpc.com')}
  * ```
  */
 export interface ProviderConfiguration {

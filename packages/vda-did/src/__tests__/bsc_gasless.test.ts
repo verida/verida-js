@@ -2,7 +2,7 @@
 import { Resolver, Resolvable } from 'did-resolver'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
-import { getResolver } from 'vda-did-resolver'
+import { getResolver } from '@verida/vda-did-resolver'
 
 import { VdaDID, DelegateTypes, KeyPair } from '../index'
 import { verifyJWT } from 'did-jwt'

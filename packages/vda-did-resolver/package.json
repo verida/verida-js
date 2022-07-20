@@ -1,5 +1,5 @@
 {
-  "name": "vda-did-resolver",
+  "name": "@verida/vda-did-resolver",
   "version": "0.1.1",
   "description": "Resolve DID documents for ethereum addresses and public keys",
   "source": "src/index.ts",
@@ -10,19 +10,20 @@
   "umd:main": "lib/index.umd.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:decentralized-identity/ethr-did-resolver.git"
+    "url": "git@https://github.com/verida/verida-js/tree/main/packages/vda-did-resolver"
   },
   "files": [
     "lib",
     "src",
     "LICENSE"
   ],
-  "author": "Pelle Braendgaard",
+  "author": "Alex J",
   "contributors": [
     "Mircea Nistor <mircea.nistor@mesh.xyz>"
   ],
   "license": "Apache-2.0",
   "keywords": [
+    "did:vda",
     "did:ethr",
     "DID",
     "DID document",
@@ -30,6 +31,7 @@
     "resolver",
     "Verifiable Credential",
     "W3C",
+    "verida",
     "ethereum",
     "ethereumAddress",
     "blockchainAccountId",
