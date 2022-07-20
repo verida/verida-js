@@ -9,10 +9,10 @@ import * as base64 from '@ethersproject/base64'
 import { hexlify, hexValue, isBytes } from '@ethersproject/bytes'
 import { Base58 } from '@ethersproject/basex'
 import { toUtf8Bytes } from '@ethersproject/strings'
-import { interpretIdentifier, REGISTRY, VdaDidController } from 'vda-did-resolver'
+import { interpretIdentifier, REGISTRY, VdaDidController } from '@verida/vda-did-resolver'
 import { Resolvable } from 'did-resolver'
 
-import { CallType, VeridaWeb3ConfigurationOption } from 'vda-did-resolver'
+import { CallType, VeridaWeb3ConfigurationOption } from '@verida/vda-did-resolver'
 
 export enum DelegateTypes {
   veriKey = 'veriKey',

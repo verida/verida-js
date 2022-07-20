@@ -8,7 +8,7 @@ import { getContractInfoForNetwork } from './configuration'
 import { address, DEFAULT_REGISTRY_ADDRESS, interpretIdentifier, stringToBytes32 } from './helpers'
 
 import { CallType, ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from '@verida/web3'
-import { VeridaContractInstance, VeridaContract } from '@verida/web3'
+import { getVeridaContract, VeridaContract } from '@verida/web3'
 import { VeridaWeb3ConfigurationOption } from './configuration'
 
 const testSignature =
@@ -44,7 +44,7 @@ export class VdaDidController {
     // initialize contract connection
     const contractInfo = getContractInfoForNetwork(net)
 
-    this.didContract = VeridaContractInstance(callType, {
+    this.didContract = getVeridaContract(callType, {
       ...contractInfo,
       ...options,
     })
