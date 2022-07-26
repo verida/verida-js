@@ -20,7 +20,6 @@ export default class Keyring {
 
     /**
      * A string used as a seed for this keyring.
-     * The seed should be a hex signature obtained by 3ID signed consent message.
      * 
      * @param seed 
      */
@@ -96,7 +95,7 @@ export default class Keyring {
      */
     public async publicKeys() {
         await this._init()
-        
+
         return {
             asymPublicKey: this.asymKeyPair!.publicKey,
             asymPublicKeyHex: utils.hexlify(this.asymKeyPair!.publicKey),
@@ -159,7 +158,7 @@ export default class Keyring {
         // Sign a consent message using the current db signing key
         const consent = `Authorized to own database: ${databaseName}`
         const signature = await this.sign(consent);
-        
+
         // Create a deterministic symmetric key for this database
         this.storageContextKeys[databaseName] = await this.buildKey(signature, KeyringKeyType.SYM)
 
