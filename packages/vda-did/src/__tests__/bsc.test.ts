@@ -5,18 +5,23 @@ import { Wallet } from '@ethersproject/wallet'
 import { getResolver } from '@verida/vda-did-resolver'
 
 import { VdaDID, DelegateTypes, KeyPair } from '../index'
-import DidRegistryContract from 'ethr-did-registry'
 import { verifyJWT } from 'did-jwt'
 
 import { privateKey } from '/mnt/Work/Sec/test.json'
 
 // const rpcUrl = 'https://speedy-nodes-nyc.moralis.io/bd1c39d7c8ee1229b16b4a97/bsc/testnet'
 const rpcUrl = 'https://speedy-nodes-nyc.moralis.io/20cea78632b2835b730fdcf4/bsc/testnet'
-
 // Paid BSC RPC
 // https://speedy-nodes-nyc.moralis.io/24036fe0cb35ad4bdc12155f/bsc/mainnet
 // https://speedy-nodes-nyc.moralis.io/20cea78632b2835b730fdcf4/bsc/testnet
-const registry = '0x2862BC860f55D389bFBd1A37477651bc1642A20B'
+
+
+const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TARGET_NET : 'RPC_URL_POLYGON_MAINNET'
+const registry = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
+// const registry = '0x17dFd83eFDD2D0c430E2cA4b01d1df93cDa9960b'
+if (registry === undefined) {
+  throw new Error("Registry address not defined in env")
+}
 
 const identity = '0x599b3912A63c98dC774eF3E60282fBdf14cda748'.toLowerCase()
 const owner = identity;
@@ -35,6 +40,8 @@ const vdaDid = new VdaDID({
     signer: txSigner
   }
 })
+
+let didResolver
 
 
 jest.setTimeout(600000)
@@ -65,14 +72,14 @@ describe('VdaDID', () => {
         chainId : 97,
       }
       const vdaDidResolver = getResolver(providerConfig)
-      const didResolver = new Resolver(vdaDidResolver)
+      didResolver = new Resolver(vdaDidResolver)
 
       doc = await didResolver.resolve(vdaDid.did)
 
       console.log("###################Resolved Doc###########", doc)
-      console.log("###################Verification###########", doc.didDocument.verificationMethod)
-      console.log("###################Authentication###########", doc.didDocument.authentication)
-      console.log("###################Service###########", doc.didDocument.service)
+      // console.log("###################Verification###########", doc.didDocument.verificationMethod)
+      // console.log("###################Authentication###########", doc.didDocument.authentication)
+      // console.log("###################Service###########", doc.didDocument.service)
     })
 
     it ('Add verification method - Delegate', async () => {
@@ -85,6 +92,11 @@ describe('VdaDID', () => {
         }));
 
       console.log('TxHash -- ', txHash)
+
+      doc = await didResolver.resolve(vdaDid.did)
+
+      console.log("AssertionMethod : ", doc.didDocument.assertionMethod)
+      console.log("Authentication : ", doc.didDocument.authentication)
       
       // await provider.waitForTransaction(txHash)
     })
