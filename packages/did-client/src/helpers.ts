@@ -1,7 +1,7 @@
 // Functions to compare objects
 import { DIDDocument } from 'did-resolver'
-import { BulkDelegateParam, BulkAttributeParam, DelegateTypes } from 'vda-did'
-import { verificationMethodTypes, interpretIdentifier } from 'vda-did-resolver'
+import { BulkDelegateParam, BulkAttributeParam, DelegateTypes } from '@verida/vda-did'
+import { verificationMethodTypes, interpretIdentifier } from '@verida/vda-did-resolver'
 
 export function deepEqual(object1: any, object2:any) {
     const keys1 = Object.keys(object1);
@@ -48,7 +48,7 @@ export function removeCommonItems(orgDoc: DIDDocument, document: DIDDocument) {
     keys.forEach(key => {
         if (key in <DIDDocument>document && isObject((orgDoc as any)[key])) {
             (orgDoc as any)[key].array.forEach((item : any, index: number, arr: any) => {
-                const docIndex = ((document as any)[key].findIndex((t: any) => this.deepEqual(item, t)))
+                const docIndex = ((document as any)[key].findIndex((t: any) => deepEqual(item, t)))
                 if(docIndex && docIndex !== -1) {
                     arr.splice(index, 1)
                     ((document as any)[key]).splice(docIndex, 1)
