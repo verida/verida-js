@@ -2,11 +2,12 @@ import Axios from 'axios'
 // import { DIDDocument, Interfaces } from "@verida/did-document"
 import { DIDDocument } from 'did-resolver'
 
-import Wallet from "./wallet"
+import { default as VeridaWallet } from "./wallet"
+import { Wallet } from '@ethersproject/wallet'
 
 // @todo: Link this in package.json
-import { VdaDID, BulkDelegateParam, BulkAttributeParam, DelegateTypes } from 'vda-did'
-import { getResolver, verificationMethodTypes, interpretIdentifier } from 'vda-did-resolver'
+import { VdaDID, BulkDelegateParam, BulkAttributeParam, DelegateTypes } from '@verida/vda-did'
+import { getResolver, verificationMethodTypes, interpretIdentifier } from '@verida/vda-did-resolver'
 import { CallType, VeridaContract, VeridaMetaTransactionConfig } from '@verida/web3'
 
 import { Provider } from '@ethersproject/providers'
@@ -102,7 +103,7 @@ class DIDClientImpl implements DIDClient {
 
     // Verida Wallet Info
     private veridaPrivateKey: Uint8Array
-    private veridaWallet: Wallet
+    private veridaWallet: VeridaWallet
 
     // private did?: string
     
@@ -119,7 +120,7 @@ class DIDClientImpl implements DIDClient {
 
         this.identifier = config.identifier
 
-        this.veridaWallet = new Wallet(config.veridaPrivateKey)
+        this.veridaWallet = new VeridaWallet(config.veridaPrivateKey)
         this.veridaPrivateKey = this.veridaWallet.privateKeyBuffer
 
         const vdaDidResolver = getResolver({
@@ -130,6 +131,7 @@ class DIDClientImpl implements DIDClient {
             chainId: config.chainId,
             web3: config.web3
         })
+        
         this.didResolver = new Resolver(vdaDidResolver)
 
         const web3Config = config.callType === 'gasless' ?
@@ -153,7 +155,7 @@ class DIDClientImpl implements DIDClient {
      * Load DIDDocument from chain. Should be called after DIDClientImpl created
      */
     async loadDIDDocument() {
-        const resolutionResult = await this.didResolver.resolve(this.identifier)
+        const resolutionResult = await this.didResolver.resolve(this.vdaDid.did)
         if (resolutionResult.didDocument !== null) {
             this.didDoc = <DIDDocument>resolutionResult.didDocument
         }
