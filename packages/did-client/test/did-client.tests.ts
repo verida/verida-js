@@ -6,6 +6,7 @@ const { privateKey } = require('/mnt/Work/Sec/test.json')
 
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
+import { VdaDID } from '@verida/vda-did'
 
 import { DIDClient, createDIDClient } from "../src/index"
 
@@ -24,10 +25,12 @@ const identity = '0x599b3912A63c98dC774eF3E60282fBdf14cda748'.toLowerCase()
 const provider = new JsonRpcProvider(rpcUrl);
 const txSigner = new Wallet(privateKey, provider)
 
+
 describe('DID Document tests', () => {
     let didClient
 
-    it('Creating DID-Client',async () => {
+    before(async () => {
+        console.log('Creating DIDClient for test')
         didClient = await createDIDClient({
             veridaPrivateKey,
         
@@ -50,106 +53,101 @@ describe('DID Document tests', () => {
                 signer: txSigner
             }
         })
+        console.log('DIDClient created successfully')
+    })
 
+    it('Creating DID-Client',async () => {
         const document = await didClient.getDocument()
 
         console.log('TAG', document)
     })
+
+    /*
+    it('add SignKey test',async () => {
+        const document = await didClient.getDocument()
+        console.log('******** Original DIDDocument**********')
+        console.log(document?.verificationMethod)
+
+        const context = '0x888888eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
+        const pubKey = '0x999999b792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
+        document!.verificationMethod!.push({
+            id:`${didClient.getDid()}?context=${context}`,
+            type: 'EcdsaSecp256k1VerificationKey2019',
+            controller: `${didClient.getDid()}`,
+            publicKeyHex: `${pubKey}`
+        })
+
+        // keyPurpose of this attribute will be 'veriKey'
+        await didClient.saveDocument(document!)
+
+        // LoadDocument again
+        const newDoc = await didClient.reloadDIDDocument()
+
+        console.log('********* Updtated DIDDocument**********')
+        console.log(newDoc?.verificationMethod)
+    })
+    */
+
+    /*
+    it('add AsymKey test', async () => {
+        const document = await didClient.getDocument()
+        console.log('******** Original DIDDocument**********')
+        console.log(document?.verificationMethod)
+        console.log(document?.keyAgreement)
+
+        const context = '0x888888eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
+        const pubKey = '0x999999b792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
+        const id = `${didClient.getDid()}?context=${context}`
+        document!.verificationMethod!.push({
+            id,
+            type: 'X25519KeyAgreementKey2019',
+            controller: `${didClient.getDid()}`,
+            publicKeyHex: `${pubKey}`
+        })
+
+        if (!(document!.keyAgreement)) {
+            document!.keyAgreement = []
+        }
+        document!.keyAgreement.push(id)
+
+        // keyPurpose of this attribute will be 'enc'
+        await didClient.saveDocument(document!)
+
+        // LoadDocument again
+        const newDoc = await didClient.reloadDIDDocument()
+
+        console.log('********* Updtated DIDDocument**********')
+        console.log(newDoc?.verificationMethod)
+        console.log(document?.keyAgreement)
+    })
+    */
+
+    it('add Service Test', async () => {
+        const document = await didClient.getDocument()
+        console.log('******** Original DIDDocument**********')
+        console.log(document?.service)
+
+        if (!(document!.service)) {
+            document!.service = []
+        }
+
+        const context = '0x777777eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00002'
+        const id = `${didClient.getDid()}?context=${context}&type=message`
+        document!.service!.push({
+            id,
+            type: 'VeridaMessage',
+            serviceEndpoint: 'https://db.testnet.verida.io:5002'
+        })
+
+        // keyPurpose of this attribute will be 'enc'
+        await didClient.saveDocument(document!)
+
+        // console.log("Reloading document to check updates")
+
+        // LoadDocument again
+        const newDoc = await didClient.reloadDIDDocument()
+
+        console.log('********* Updtated DIDDocument**********')
+        console.log(newDoc?.service)
+    })
 })
-
-/**
- * 
- */
-// describe('DID document tests', () => {
-
-//     describe('Document creation', function() {
-//         it('can create an empty document', async function() {
-//             const doc = new DIDDocument(did, wallet.publicKey)
-//             didClient.authenticate(wallet.privateKey)
-//             const saved = await didClient.save(doc)
-
-//             assert.ok(saved)
-//         })
-
-//         it('can fetch an existing document', async function() {
-//             const doc = await didClient.get(did)
-//             assert.ok(doc)
-
-//             assert.equal(doc.id, did, 'Retreived document has matching DID')
-//         })
-
-//         it('can add a context to an existing DID and verify', async function() {
-//             const initialDoc = new DIDDocument(did, wallet.publicKey)
-//             await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
-//             didClient.authenticate(wallet.privateKey)
-//             const saved = await didClient.save(initialDoc)
-
-//             assert.ok(saved)
-
-//             const doc = await didClient.get(did)
-//             const data = doc.export()
-
-//             const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
-
-//             // Validate service endpoints
-//             assert.equal(data.service.length, 2, "Have two service entries")
-//             function validateServiceEndpoint(type, endpointUri, actual: ServiceEndpoint) {
-//                 assert.ok(actual)
-//                 assert.equal(actual.id, `${did}?context=${contextHash}#${type}`, "Endpoint ID matches hard coded value")
-//                 assert.equal(actual.type, type, "Type has expected value")
-//                 assert.equal(actual.serviceEndpoint, endpointUri, "Endpoint has expected value")
-//             }
-
-//             const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
-//             validateServiceEndpoint(endpoints.database.type, endpoints.database.endpointUri, endpoint1)
-
-//             const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.MESSAGING)
-//             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
-
-//             // @todo: validate verification method
-//             assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
-//         })
-
-//         it('can handle invalid DIDs', async function() {
-//             const doc1 = await didClient.get(`did:vda:0xabcd`)
-//             assert.ok(!doc1, 'Document not returned')
-
-//             const doc2 = await didClient.get(`did:vda`)
-//             assert.ok(!doc2, 'Document not returned')
-
-//             let success = true
-//             try {
-//                 const doc3 = await didClient.get("")
-//                 success = false
-//             } catch(err) {
-//                 if (err.message == `No DID specified`) {
-//                     success = true
-//                 } else {
-//                     success = false
-//                 }
-                
-//             }
-
-//             assert.ok(success, 'Error is thrown with empty DID request')
-//         })
-
-//         it('can replace an existing context, not add again', async function() {
-//             const doc = new DIDDocument(did, wallet.publicKey)
-//             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-//             didClient.authenticate(wallet.privateKey)
-//             let saved = await didClient.save(doc)
-//             assert.ok(saved)
-
-//             // Add the same context and save a second time
-//             await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-//             saved = await didClient.save(doc)
-//             assert.ok(saved)
-
-//             const data = doc.export()
-//             assert.equal(data.verificationMethod.length, 3, 'Have three verification methods')
-//             assert.equal(data.assertionMethod.length, 2, 'Have two assertionMethods')
-//             assert.equal(data.keyAgreement.length, 1, 'Have one keyAgreement')
-//         })
-//     })
-
-// })
