@@ -1,6 +1,7 @@
 import Axios from 'axios'
 // import { DIDDocument, Interfaces } from "@verida/did-document"
 import { DIDDocument } from 'did-resolver'
+const deepcopy = require('deepcopy')
 
 import { default as VeridaWallet } from "./wallet"
 import { Wallet } from '@ethersproject/wallet'
@@ -155,10 +156,61 @@ class DIDClientImpl implements DIDClient {
      * Load DIDDocument from chain. Should be called after DIDClientImpl created
      */
     async loadDIDDocument() {
+        // Real code
         const resolutionResult = await this.didResolver.resolve(this.vdaDid.did)
         if (resolutionResult.didDocument !== null) {
             this.didDoc = <DIDDocument>resolutionResult.didDocument
         }
+
+        // Test code
+        // this.didDoc = {
+        //     '@context': [
+        //       'https://www.w3.org/ns/did/v1',
+        //       'https://w3id.org/security/suites/secp256k1recovery-2020/v2'
+        //     ],
+        //     id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+        //     verificationMethod: [
+        //         {
+        //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+        //           type: 'EcdsaSecp256k1RecoveryMethod2020',
+        //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+        //           blockchainAccountId: '0x599b3912A63c98dC774eF3E60282fBdf14cda748@eip155:97'
+        //         },
+        //         {
+        //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
+        //           type: 'EcdsaSecp256k1VerificationKey2019',
+        //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+        //           publicKeyHex: '12345bb792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
+        //         },
+        //         {
+        //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003',
+        //           type: 'Ed25519VerificationKey2018',
+        //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+        //           publicKeyBase58: '2E4cfzc9Kf2nvScMZ2bJwGKPn19TJYvPE98D8RCguqL6'
+        //         }
+        //     ],
+        //     assertionMethod: [
+        //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+        //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
+        //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003'
+        //     ],
+        //     authentication: [
+        //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+        //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
+        //     ],
+        //     service: [
+        //         {
+        //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x84e5fb4eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca4698fd4&type=message',
+        //             type: 'VeridaMessage',
+        //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
+        //         },
+        //         {
+        //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0xcfbf4621af64386c92c0badd0aa3ae3877a6ea6e298dfa54aa6b1ebe00769b28&type=database',
+        //             type: 'VeridaDatabase',
+        //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
+        //         }
+        //     ]
+        //   }
     }
 
     public authenticate(privateKey: string) {
@@ -180,38 +232,65 @@ class DIDClientImpl implements DIDClient {
      * @returns true if success.
      */
     public async saveDocument(document: DIDDocument | undefined): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            // check ID first
-            if (!this.didDoc) 
-                reject("No original document")
+        if (!this.didDoc) {
+            return Promise.reject("No original document")
+        }
 
-            if (document === undefined) {
-                // To-do: Deactivate doc by set controller to null
-                reject("Empty document")
-            }
+        if (document === undefined) {
+            return Promise.reject("Empty document")
+        }
 
-            const orgDoc = this.didDoc;
+        const orgDoc = this.didDoc;
 
-            // Compare input document & original document and save changes only
-            removeCommonItems(orgDoc!, document!)
+        // Compare input document & original document and save changes only
+        removeCommonItems(orgDoc!, document!)
 
-            // Revoke deleted items in original document
-            const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(orgDoc!)
-            this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList)
-            .then(() => {
-                // Add new items in updated document
-                const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(document!)
+        // // TestCode
+        const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(document!)
+        const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(orgDoc!)
 
-                this.vdaDid.bulkAdd(addDelegateList, addAttributeList).then(() => resolve(true))
-                .catch(() => reject('Failed to add new updates'))
-            })
-            .catch(() => reject('Failed to revoke deleted items'))
+        console.log('RevokeList', revokeDelegateList, revokeAttributeList)
+        console.log('AddList', addDelegateList, addAttributeList)
 
-            // Promise.all([this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList), 
-            // this.vdaDid.bulkAdd(addDelegateList, addAttributeList)])
-            // .then(() => resolve(true))
-            // .catch(() => reject(false))
+        if (revokeDelegateList.length > 0 || revokeAttributeList.length > 0) {
+            console.log('Revoke deleted items', revokeDelegateList, revokeAttributeList)
+            await this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList)
+        }
+
+        if (addDelegateList.length > 0 || addAttributeList.length > 0) {
+            console.log('Add new items', addDelegateList, addAttributeList)
+            await this.vdaDid.bulkAdd(addDelegateList, addAttributeList)
+        }
+
+        console.log('saveDocument - returning result')
+        return Promise.resolve(true)
+
+        /*
+        // Revoke deleted items in original document
+        const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(orgDoc!)
+        this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList)
+        .then(() => {
+            // Add new items in updated document
+            const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(document!)
+
+            this.vdaDid.bulkAdd(addDelegateList, addAttributeList).then(() => resolve(true))
+            .catch(() => reject('Failed to add new updates'))
         })
+        .catch(() => reject('Failed to revoke deleted items'))
+
+        // Promise.all([this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList), 
+        // this.vdaDid.bulkAdd(addDelegateList, addAttributeList)])
+        // .then(() => resolve(true))
+        // .catch(() => reject(false))
+        */
+    }
+
+    public async reloadDIDDocument() {
+        const resolutionResult = await this.didResolver.resolve(this.vdaDid.did)
+        if (resolutionResult.didDocument !== null) {
+            this.didDoc = <DIDDocument>resolutionResult.didDocument
+        }
+        return this.didDoc
     }
 
     /**
@@ -221,9 +300,13 @@ class DIDClientImpl implements DIDClient {
     public getDocument(): Promise<DIDDocument> {
         return new Promise<DIDDocument>((resolve, reject) => {
             if (!this.didDoc)
-                reject("DIDDocument not generated")
-            
-            resolve(Object.assign({}, this.didDoc!))
+                this.loadDIDDocument().then(() => {
+                    resolve(deepcopy(this.didDoc!))
+                }).catch(() => {
+                    reject("DIDDocument not generated")
+                })
+                
+            resolve(deepcopy(this.didDoc!))
         })
     }
 }
