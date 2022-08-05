@@ -21,12 +21,6 @@ import { DIDDocument as VeridaDocument } from '@verida/did-document'
 
 import {isObject, removeCommonItems, getUpdateListFromDocument} from './helpers'
 
-const CONTRACT_ADDRESSES: any = {
-    'testnet': '0x2862BC860f55D389bFBd1A37477651bc1642A20B'
-}
-
-const didRegistryABI = require('./VDADIDRegistry.abi.json')
-
 // Part of VeridaSelfTransactionConfig
 interface VeridaSelfTransactionConfigPart  {
     signer?: Signer
