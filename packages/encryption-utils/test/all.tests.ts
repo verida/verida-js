@@ -12,11 +12,6 @@ const signingKey = {
     privateKey: new Uint8Array(Buffer.from(wallet.privateKey.substr(2),'hex'))
 }
 
-console.log('Priv = ', wallet.privateKey)
-console.log('Pub = ', wallet.publicKey)
-console.log('SignKey = ', signingKey)
-
-
 const sender = {
     publicKey: new Uint8Array([
         250, 121, 196, 219,  20,  87,   6,  49,
