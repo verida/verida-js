@@ -12,6 +12,11 @@ const signingKey = {
     privateKey: new Uint8Array(Buffer.from(wallet.privateKey.substr(2),'hex'))
 }
 
+console.log('Priv = ', wallet.privateKey)
+console.log('Pub = ', wallet.publicKey)
+console.log('SignKey = ', signingKey)
+
+
 const sender = {
     publicKey: new Uint8Array([
         250, 121, 196, 219,  20,  87,   6,  49,
@@ -73,7 +78,8 @@ describe('Encryption tests', () => {
         })
 
         it('can create and verify signatures of a string input', async () => {
-            const input = 'hello world'
+            // const input = 'hello world'
+            const input = '0x1234'
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
 
             const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
@@ -84,6 +90,14 @@ describe('Encryption tests', () => {
             const input = {
                 hello: 'world'
             }
+
+            const signature = EncryptionUtils.signData(input, signingKey.privateKey)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
+        })
+
+        it('can create and verify signatures of byte array', async () => {
+            const input = [0x1, 0x2, 0x3]
 
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
             const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)

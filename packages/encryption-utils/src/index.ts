@@ -12,6 +12,20 @@ const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
 const newKey = (length: number) => randomBytes(length ? length : secretbox.keyLength);
 
+function isArrayLike(item : any) {
+    return (
+        Array.isArray(item) || 
+        (!!item &&
+          typeof item === "object" &&
+          typeof (item.length) === "number" && 
+          (item.length === 0 ||
+             (item.length > 0 && 
+             (item.length - 1) in item)
+          )
+        )
+    );
+}
+
 /**
  * Utilizes `tweetnacl` for symmetric and asymmetric encryption.
  * 
@@ -137,11 +151,11 @@ export default class EncryptionUtils {
     }
 
     static hash(data: any) {
-        if (typeof(data) != 'string') {
-            data = JSON.stringify(data)
+        if (typeof(data) != 'string' && !isArrayLike(data)) {
+            data = utils.toUtf8Bytes(JSON.stringify(data))
         }
 
-        return utils.keccak256(utils.toUtf8Bytes(data))
+        return utils.keccak256(data)
     }
 
     static hashBytes(data: any) {
