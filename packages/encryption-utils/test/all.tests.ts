@@ -73,7 +73,15 @@ describe('Encryption tests', () => {
         })
 
         it('can create and verify signatures of a string input', async () => {
-            // const input = 'hello world'
+            const input = 'hello world'
+            // const input = '0x1234'
+            const signature = EncryptionUtils.signData(input, signingKey.privateKey)
+
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
+        })
+
+        it('can create and verify signatures of a hex string input', async () => {
             const input = '0x1234'
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
 

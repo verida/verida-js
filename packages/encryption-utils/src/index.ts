@@ -151,13 +151,12 @@ export default class EncryptionUtils {
         return encodeBase64(data)
     }
 
-    static hash(data: any) {
-        
+    static hash(data: any) {    
         if (typeof(data) === 'string') {
             if (!isHexString(data)) {
                 data = utils.toUtf8Bytes(data)
             }
-        } else if (!isArrayLike(data)) {
+        } else {
             data = utils.toUtf8Bytes(JSON.stringify(data))
         }
 
