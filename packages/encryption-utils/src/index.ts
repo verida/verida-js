@@ -7,6 +7,7 @@ import {
 } from "tweetnacl-util";
 import { ethers, utils } from 'ethers'
 import util = require("tweetnacl-util");
+import { isHexString } from "ethers/lib/utils";
 
 const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
@@ -151,7 +152,12 @@ export default class EncryptionUtils {
     }
 
     static hash(data: any) {
-        if (typeof(data) != 'string' && !isArrayLike(data)) {
+        
+        if (typeof(data) === 'string') {
+            if (!isHexString(data)) {
+                data = utils.toUtf8Bytes(data)
+            }
+        } else if (!isArrayLike(data)) {
             data = utils.toUtf8Bytes(JSON.stringify(data))
         }
 
