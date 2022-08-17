@@ -13,20 +13,6 @@ const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
 const newKey = (length: number) => randomBytes(length ? length : secretbox.keyLength);
 
-function isArrayLike(item : any) {
-    return (
-        Array.isArray(item) || 
-        (!!item &&
-          typeof item === "object" &&
-          typeof (item.length) === "number" && 
-          (item.length === 0 ||
-             (item.length > 0 && 
-             (item.length - 1) in item)
-          )
-        )
-    );
-}
-
 /**
  * Utilizes `tweetnacl` for symmetric and asymmetric encryption.
  * 
