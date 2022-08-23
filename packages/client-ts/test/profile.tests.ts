@@ -64,6 +64,59 @@ describe('Profile tests', () => {
             const name = await profile2.get("name")
             assert.equal(name, DATA.name, "Can get external public profile data")
         })
+
+        describe("Using Client to open public profiles", function () {
+            const wrongContextName = "Context: Wrong Name";
+            const wrongFallbackContextName = "Context: Wrong Name 2";
+
+            it('can use fallbackContext="Verida: Vault" to open public profile', async () => {
+                const profile = await client1.openPublicProfile(
+                    did1,
+                    wrongContextName
+                );
+                const name = await profile.get("name");
+
+                assert.equal(name, DATA.name, "Can get a profile value");
+            });
+
+            it("can disable fallbackContext on open public profile", async () => {
+                const profile = await client1.openPublicProfile(
+                    did1,
+                    CONFIG.CONTEXT_NAME,
+                    "basicProfile",
+                    null
+                );
+                const name = await profile.get("name");
+
+                assert.equal(name, DATA.name, "Can get a profile value");
+            });
+
+            it("can not open a public profile using the wrong context and without fallbackContext", async () => {
+                await assert.rejects(async () => {
+                    await client1.openPublicProfile(
+                        did1,
+                        wrongContextName,
+                        "basicProfile",
+                        null
+                    );
+                }, {
+                    message: `Account does not have a public profile for ${wrongContextName}`
+                })
+            });
+
+            it("can not open a public profile using both the wrong context and wrong fallbackContext", async () => {
+                await assert.rejects(async () => {
+                    await client1.openPublicProfile(
+                        did1,
+                        wrongContextName,
+                        "basicProfile",
+                        wrongFallbackContextName
+                    );
+                }, {
+                    message: `Account does not have a public profile for ${wrongFallbackContextName}`
+                })
+            });
+        });
     })
 
     // @todo: add tests for private profiles

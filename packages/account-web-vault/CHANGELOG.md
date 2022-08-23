@@ -1,4 +1,9 @@
 
+2022-05-27 (v1.1.12)
+-------------------
+
+- Support auto-login from URL parameters to support URL redirection from the Vault (#199)
+
 2022-04-12 (v1.1.11)
 -------------------
 

@@ -75,7 +75,7 @@ class Datastore {
    */
   public async save(data: any, options: any = {}): Promise<object | boolean> {
     await this.init();
-    
+
     data.schema = this.schemaPath;
 
     let valid = await this.schema.validate(data);

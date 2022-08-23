@@ -103,6 +103,10 @@ class VeridaOutbox {
       sent: false,
     };
 
+    if (config.openUrl) {
+      outboxEntry.openUrl = config.openUrl
+    }
+
     const outbox = this.outboxDatastore;
     const response: any = await outbox.save(outboxEntry);
 

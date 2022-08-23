@@ -121,4 +121,5 @@ export interface MessageSendConfig {
   did: string,
   expiry?: Number;
   recipientContextName?: string;
+  openUrl?: string
 }

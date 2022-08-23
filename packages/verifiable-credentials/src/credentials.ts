@@ -11,7 +11,7 @@ import {
 	Issuer,
 } from 'did-jwt-vc';
 import { Context, EnvironmentType } from '@verida/client-ts';
-import { credentialDateOptions } from './interfaces';
+import { CreateCredentialJWT } from './interfaces';
 
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
@@ -164,7 +164,7 @@ export default class Credentials {
 	 * @param data 
 	 * @returns 
 	 */
-	async createCredentialJWT(subjectId: string, data: any, context: Context, options?: credentialDateOptions): Promise<object> {
+	async createCredentialJWT({ subjectId, data, context, options }: CreateCredentialJWT): Promise<object> {
 		// Ensure a credential schema has been specified
 		if (!data.schema) {
 			throw new Error('No schema specified')
@@ -207,6 +207,7 @@ export default class Credentials {
 			sub: subjectId,
 			type: ['VerifiableCredential'],
 			issuer: did,
+			veridaContextName: context.getContextName(),
 			issuanceDate: new Date().toISOString(),
 			credentialSubject: {
 				...data
