@@ -101,6 +101,8 @@ class StorageEngineVerida extends BaseStorageEngine {
       options
     );
 
+    const contextName = config.contextName ? config.contextName : this.storageContext
+
     // Default to user's account did if not specified
     if (typeof(config.isOwner) == 'undefined') {
       config.isOwner = config.did == this.accountDid;
@@ -140,12 +142,12 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     let dsn = config.isOwner ? this.auth!.host! : config.dsn!;
     if (!dsn) {
-      throw new Error(`Unable to determine DSN for this user (${did}) and this context (${this.storageContext})`);
+      throw new Error(`Unable to determine DSN for this user (${did}) and this context (${contextName})`);
     }
 
     let token = config.isOwner ? this.auth!.accessToken : config.token!;
     if (!dsn) {
-      throw new Error(`Unable to determine DSN for this user (${did}) and this context (${this.storageContext})`);
+      throw new Error(`Unable to determine DSN for this user (${did}) and this context (${contextName})`);
     }
 
     // force read only access if the current user doesn't have write access
@@ -181,7 +183,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         {
           databaseName,
           did,
-          storageContext: this.storageContext,
+          storageContext: contextName,
           signContext: options.signingContext!,
           dsn,
           token,
@@ -214,7 +216,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         did,
         dsn,
         token,
-        storageContext: this.storageContext,
+        storageContext: contextName,
         signContext: options.signingContext!,
         permissions: config.permissions,
         readOnly: config.readOnly,
@@ -269,7 +271,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         {
           databaseName,
           did,
-          storageContext: this.storageContext,
+          storageContext: contextName,
           signContext: options.signingContext!,
           dsn,
           token,
