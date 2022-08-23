@@ -37,15 +37,6 @@ class PublicDatabase extends BaseDb {
 
     this._remoteDb = new PouchDB(`${this.dsn}/${this.databaseHash}`, dbConfig);
 
-    const authToken = this.token
-    this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
-      skip_setup: true,
-      fetch: function(url: string, opts: any) {
-          opts.headers.set('Authorization', `Bearer ${authToken}`)
-          return PouchDB.fetch(url, opts)
-      }
-    });
-
     try {
       let info = await this._remoteDb.info();
       if (info.error && info.error == "not_found") {

@@ -4,16 +4,10 @@ import { Account } from "@verida/account";
 /**
  * Interface for RemoteClientAuthentication
  */
-interface RemoteClientAuthentication {
+export interface ContextAuth {
   refreshToken: string;
   accessToken: string;
   host: string;
-}
-
-export interface CouchDbAuthentication {
-  host: string;   // host name
-  token: string;  // access token
-  //username: string; // is this needed?
 }
 
 /**
@@ -24,98 +18,126 @@ export class DatastoreServerClient {
   private serverUrl: string;
 
   private storageContext: string;
-  private authentication?: RemoteClientAuthentication;
+  private contextAuth?: ContextAuth;
   private account?: Account;
+  private deviceId: string
 
-  constructor(storageContext: string, serverUrl: string) {
+  constructor(storageContext: string, serverUrl: string, deviceId: string="Test device") {
     this.storageContext = storageContext;
     this.serverUrl = serverUrl;
+    this.deviceId = deviceId;
   }
 
   public async setAccount(account: Account) {
     this.account = account;
     let did = await account.did();
     did = did.toLowerCase()
-
-    /*
-    const signature = await account.sign(`Do you wish to authenticate this storage context: "${this.storageContext}"?\n\n${did}`)
-
-    this.authentication = {
-      username: did,
-      signature: signature
-    };*/
   }
 
-  public async getUser(did: string): Promise<CouchDbAuthentication> {
-    if (this.authentication) {
-      return <CouchDbAuthentication> {
-        host: this.authentication.host,
-        token: this.authentication.accessToken
-      }
-    }
-
+  public async getContextAuth(forceAccessToken=false): Promise<ContextAuth> {
     if (!this.account) {
       throw new Error("Unable to connect. No account set.")
     }
 
-    // Fetch context auth details and force creation of a new account if required
-    const contextAuth = await this.account!.getContextAuth(this.storageContext, true)
-
-    if (!contextAuth) {
-      throw new Error("Unable to connect. Unable to authenticate.")
-    }
-
-    // @todo: test if connection is valid?
-
-    // @todo: get a new access token if invalid
-    // @todo: get a new refresh token if getting close to expiring, save to cache (account.updateContextAuth()?)
     // @todo: how are invalid access tokens going to produce an error? how to catch and then regenerate?
     //  - expired token stored in session when loading the app
     //  - token expires while using the app
 
-    let response
-    try {
-      response = await this.getAxios(true).get(this.serverUrl + "auth/connect?did=" + did);
-    } catch (err: any) {
-      if (
-        err.response &&
-        err.response.data.data &&
-        err.response.data.data.did == "Invalid DID specified"
-      ) {
-        // User doesn't exist, so create on this endpointUri server
-        response = await this.createUser();
-      } else if (err.response && err.response.statusText == "Unauthorized") {
-        throw new Error("Invalid signature or permission to access DID server");
-      } else {
-        // Unknown error
-        throw err;
-      }
+    // -------------------------
+
+    // We already have a context auth object, so reuse it unless
+    // requested to force create access token.
+    // This can happen if the access token has expired when being
+    // used and it can automatically be re-requested.
+    if (this.contextAuth && !forceAccessToken) {
+      return this.contextAuth
     }
 
-    return response.data.user
-  }
+    const did = await this.account!.did()
 
-  private async authenticate() {
-    // throw error if no account
+    // No context auth or no refresh token, so generate it by signing a consent message
+    if (!this.contextAuth || !this.contextAuth.refreshToken) {
+      // @todo: get a new refresh token if getting close to expiring?
 
+      let authJwt
+      try {
+        // Generate an auth token to start auth process
+        const authJwtResponse = await this.getAxios().post(this.serverUrl + "auth/generateAuthJwt",{
+          did,
+          contextName: this.storageContext
+        });
+
+        // @todo: handle connection error
+
+        //console.log("generateAuthJwt response", authJwtResponse.data)
+        authJwt = authJwtResponse.data.authJwt
+      } catch (err: any) {
+        throw new Error(`Context Authentication Error. ${err.message}`)
+      }
+
+      let refreshResponse
+      try {
+        // Generate a refresh token by authenticating
+        const consentMessage = `Authenticate this application context: "${this.storageContext}"?\n\n${did.toLowerCase()}\n${authJwt.authRequestId}`
+        const signature = await this.account!.sign(consentMessage)
+
+        refreshResponse = await this.getAxios().post(this.serverUrl + "auth/authenticate",{
+          authJwt: authJwt.authJwt,
+          did,
+          contextName: this.storageContext,
+          signature,
+          deviceId: this.deviceId
+        });
+
+        // @todo: handle auth error (refreshResponse.data.status != 'success')
+      } catch (err: any) {
+        // @todo: handle connection error
+        console.log(err)
+        throw new Error(`Context Authentication Error. ${err.message}`)
+      }
+
+      //console.log("authenticate response", refreshResponse.data)
+
+      const refreshToken = refreshResponse.data.refreshToken
+      const host = refreshResponse.data.host
+      const accessToken = refreshResponse.data.accessToken
+
+      this.contextAuth = {
+        refreshToken,
+        accessToken,
+        host
+      }
+
+      //console.log(this.contextAuth!)
+
+      return this.contextAuth
+    }
+
+    // No access token, but have a refresh token, so generate access token
+    if (this.contextAuth && !this.contextAuth.accessToken) {
+      const accessResponse = await this.getAxios().post(this.serverUrl + "auth/connect",{
+        refreshToken: this.contextAuth.refreshToken,
+        did,
+        contextName: this.storageContext
+      });
+
+      // @todo: handle connect error
+      // @todo: handle connect error (accessResponse.data.status != 'success')
+
+      //console.log("connect response", accessResponse.data)
+
+      const accessToken = accessResponse.data.accessToken
+      this.contextAuth.accessToken = accessToken
+      return this.contextAuth
+    }
+
+    // @todo: test if connection is valid?
+
+    return this.contextAuth!
   }
 
   public async getPublicUser() {
-    return this.getAxios(false).get(this.serverUrl + "user/public");
-  }
-
-  public async createUser() {
-    throw new Error('create user is no longer supported due to refresh token refactor')
-    if (!this.account) {
-      throw new Error(
-        "Unable to create storage account. No Verida account connected."
-      );
-    }
-
-    const did = await this.account!.did();
-    return this.getAxios(true).post(this.serverUrl + "user/create", {
-      did: did,
-    });
+    return this.getAxios().get(this.serverUrl + "auth/public");
   }
 
   public async createDatabase(
@@ -123,7 +145,9 @@ export class DatastoreServerClient {
     databaseName: string,
     config: any = {}
   ) {
-    return this.getAxios(true).post(this.serverUrl + "user/createDatabase", {
+    const contextAuth = await this.getContextAuth()
+
+    return this.getAxios(contextAuth.accessToken).post(this.serverUrl + "user/createDatabase", {
       did: did,
       databaseName: databaseName,
       options: config,
@@ -135,14 +159,16 @@ export class DatastoreServerClient {
     databaseName: string,
     config: any = {}
   ) {
-    return this.getAxios(true).post(this.serverUrl + "user/updateDatabase", {
+    const contextAuth = await this.getContextAuth()
+
+    return this.getAxios(contextAuth.accessToken).post(this.serverUrl + "user/updateDatabase", {
       did: did,
       databaseName: databaseName,
       options: config,
     });
   }
 
-  private getAxios(includeAuth: boolean) {
+  private getAxios(accessToken?: string) {
     let config: any = {
       headers: {
         // @todo: Application-Name needs to become Storage-Context
@@ -150,17 +176,8 @@ export class DatastoreServerClient {
       },
     };
 
-    if (includeAuth) {
-      if (!this.authentication) {
-        throw new Error(
-          "Unable to authenticate as there is no authentication defined"
-        );
-      }
-
-      config["auth"] = {
-        username: this.authentication.username.replace(/:/g, "_"),
-        password: this.authentication.signature,
-      };
+    if (accessToken) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`
     }
 
     return Axios.create(config);

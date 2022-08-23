@@ -86,7 +86,7 @@ class EncryptedDatabase extends BaseDb {
     });
 
     const authToken = this.token
-    this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
+    this._remoteDbEncrypted = new PouchDB(`${this.dsn}/${this.databaseHash}`, {
       skip_setup: true,
       fetch: function(url: string, opts: any) {
           opts.headers.set('Authorization', `Bearer ${authToken}`)
@@ -267,7 +267,7 @@ class EncryptedDatabase extends BaseDb {
     };
 
     try {
-      this.client.updateDatabase(this.did, this.databaseHash, options);
+      this.client.updateDatabase(this.did, this.databaseName, options);
 
       if (this.config.saveDatabase !== false) {
         await this.dbRegistry.saveDb(this);

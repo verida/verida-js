@@ -411,7 +411,7 @@ class BaseDb extends EventEmitter implements Database {
     };
 
     try {
-      await this.client.createDatabase(this.did, this.databaseHash, options);
+      await this.client.createDatabase(this.did, this.databaseName, options);
       // There's an odd timing issue that needs a deeper investigation
       await Utils.sleep(1000);
     } catch (err) {

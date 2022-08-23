@@ -2,7 +2,7 @@ import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
 import Database from "../../../database";
 import { DatabaseOpenConfig } from "../../../interfaces";
-import { DatastoreServerClient, CouchDbAuthentication } from "./client";
+import { DatastoreServerClient, ContextAuth } from "./client";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
@@ -19,7 +19,7 @@ class StorageEngineVerida extends BaseStorageEngine {
   private publicCredentials: any; // @todo
 
   private accountDid?: string;
-  private auth?: CouchDbAuthentication
+  private auth?: ContextAuth
 
   // @todo: dbmanager
   constructor(
@@ -48,7 +48,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       throw err
     }
 
-    this.auth = await this.client.getUser(this.accountDid!);
+    this.auth = await this.client.getContextAuth();
   }
 
   /**
@@ -66,7 +66,7 @@ class StorageEngineVerida extends BaseStorageEngine {
    * @param did
    * @returns {string}
    */
-  protected async buildExternalAuth(endpointUri: string): Promise<CouchDbAuthentication> {
+  protected async buildExternalAuth(endpointUri: string): Promise<ContextAuth> {
     if (!this.account) {
       throw new Error('Unable to connect to external storage node. No account connected.')
     }
@@ -74,7 +74,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     const client = new DatastoreServerClient(this.storageContext, endpointUri);
     await client.setAccount(this.account!);
 
-    const auth = await client.getUser(this.accountDid!);
+    const auth = await client.getContextAuth();
     return auth
   }
 
@@ -143,7 +143,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       throw new Error(`Unable to determine DSN for this user (${did}) and this context (${this.storageContext})`);
     }
 
-    let token = config.isOwner ? this.auth!.token : config.token!;
+    let token = config.isOwner ? this.auth!.accessToken : config.token!;
     if (!dsn) {
       throw new Error(`Unable to determine DSN for this user (${did}) and this context (${this.storageContext})`);
     }
@@ -255,7 +255,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         // need to build a complete dsn
         const auth = await this.buildExternalAuth(config.dsn!);
         dsn = auth.host
-        token = auth.token
+        token = auth.accessToken
       }
 
       const storageContextKey = await this.keyring!.getStorageContextKey(
