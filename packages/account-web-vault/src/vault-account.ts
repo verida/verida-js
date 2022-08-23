@@ -102,20 +102,6 @@ export default class VaultAccount extends Account {
         return this.contextCache[contextName].keyring
     }
 
-    // @todo: need this to be in the interface for all account instances?
-    public async getContextAuth(contextName: string, forceCreate: boolean = false) {
-        if (typeof(this.contextCache[contextName]) == 'undefined') {
-            if (forceCreate) {
-                await this.connectContext(contextName)
-                return this.getContextAuth(contextName, false)
-            }
-
-            throw new Error(`Unable to connect to requested context: ${contextName}`)
-        }
-
-        return this.contextCache[contextName].contextAuth
-    }
-
     public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring, contextAuth: any) {
         this.contextCache[contextName] = {
             keyring,
