@@ -1,11 +1,12 @@
 import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { Account, AccountConfig, Config } from '@verida/account'
+import { Account, AccountConfig, Config, VeridaDatabaseAuthTypeConfig, AuthContext, AuthTypeConfig } from '@verida/account'
 import { NodeAccountConfig } from './interfaces'
 
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import { Interfaces as DIDDocumentInterfaces } from "@verida/did-document"
+import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
 
 /**
  * An Authenticator that automatically signs everything
@@ -100,6 +101,18 @@ export default class AutoAccount extends Account {
 
     public getDidClient() {
         return this.didClient
+    }
+
+    public async getAuthContext(contextName: string, authConfig: AuthTypeConfig, authType: string = "VeridaDatabase"): Promise<AuthContext> {
+        if (authType == "VeridaDatabase") {
+            // @todo: Do we need to keep a cache of all previous auth contexts to handle refreshing
+            // and avoid re-authenticating every time?
+
+            const auth = new VeridaDatabaseAuthType()
+            return auth.getAuthContext(this, contextName, <VeridaDatabaseAuthTypeConfig> authConfig)
+        }
+
+        throw new Error(`Unknown auth context type (${authType}`)
     }
 
 }

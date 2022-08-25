@@ -154,7 +154,7 @@ class Context {
     const databaseEngine = new engine(
       this.contextName,
       this.dbRegistry,
-      contextConfig.services.databaseServer.endpointUri
+      contextConfig
     );
 
     /**

@@ -6,6 +6,7 @@ import { DatastoreServerClient, ContextAuth } from "./client";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
+import { Interfaces } from "@verida/storage-link";
 
 const _ = require("lodash");
 
@@ -25,12 +26,13 @@ class StorageEngineVerida extends BaseStorageEngine {
   constructor(
     storageContext: string,
     dbRegistry: DbRegistry,
-    endpointUri: string
+    contextConfig: Interfaces.SecureContextConfig,
   ) {
-    super(storageContext, dbRegistry, endpointUri);
+    super(storageContext, dbRegistry, contextConfig);
     this.client = new DatastoreServerClient(
       this.storageContext,
-      this.endpointUri
+      this.endpointUri,
+      contextConfig.publicKeys.signKey.publicKeyHex
     );
   }
 
@@ -71,7 +73,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       throw new Error('Unable to connect to external storage node. No account connected.')
     }
 
-    const client = new DatastoreServerClient(this.storageContext, endpointUri);
+    const client = new DatastoreServerClient(this.storageContext, endpointUri, this.contextConfig.publicKeys.signKey.publicKeyHex);
     await client.setAccount(this.account!);
 
     const auth = await client.getContextAuth();
@@ -316,7 +318,8 @@ class StorageEngineVerida extends BaseStorageEngine {
     super.logout();
     this.client = new DatastoreServerClient(
       this.storageContext,
-      this.endpointUri
+      this.endpointUri,
+      this.contextConfig.publicKeys.signKey.publicKeyHex
     );
   }
 

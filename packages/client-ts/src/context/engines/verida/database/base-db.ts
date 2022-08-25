@@ -423,6 +423,10 @@ class BaseDb extends EventEmitter implements Database {
   public async info(): Promise<any> {
     throw new Error("Not implemented");
   }
+
+  public async disconnectDevice(deviceId: string="Test device"): Promise<boolean> {
+    return await this.client.disconnectDevice(deviceId)
+  }
 }
 
 export default BaseDb;
