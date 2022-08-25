@@ -15,28 +15,42 @@ export enum EnvironmentType {
 }
 
 export interface AuthContext {
-    publicSigningKey: string
+    publicSigningKey: Interfaces.SecureContextPublicKey
 }
 
 export interface AuthTypeConfig {
 }
 
-export interface AuthType {
-    getAuthContext(account: Account, contextName: string, config: AuthTypeConfig): Promise<AuthContext>
-}
+export class AuthType {
 
+    protected contextAuth?: AuthContext
+    protected account: Account
+    protected contextName: string
+    protected serviceEndpoint: Interfaces.SecureContextEndpoint
+    protected signKey: Interfaces.SecureContextPublicKey
+
+    public constructor(account: Account, contextName: string, serviceEndpoint: Interfaces.SecureContextEndpoint, signKey: Interfaces.SecureContextPublicKey) {
+        this.account = account
+        this.contextName = contextName
+        this.serviceEndpoint = serviceEndpoint
+        this.signKey = signKey
+    }
+
+    getAuthContext(config: AuthTypeConfig): Promise<AuthContext> {
+        throw new Error("Not implemented")
+    }
+}
 
 //// VeridaDatabase Authentication Interfaces
 
 export interface VeridaDatabaseAuthContext extends AuthContext {
-    refreshToken: string,
-    accessToken: string,
+    refreshToken?: string,
+    accessToken?: string,
     host: string
 }
 
 export interface VeridaDatabaseAuthTypeConfig extends AuthTypeConfig {
-  serverUrl: string,
-  deviceId: string,
-  forceAccessToken: boolean
-  publicSigningKey: string
+  deviceId?: string,
+  endpointUri?: string,
+  forceAccessToken?: boolean
 }

@@ -425,7 +425,11 @@ class BaseDb extends EventEmitter implements Database {
   }
 
   public async disconnectDevice(deviceId: string="Test device"): Promise<boolean> {
-    return await this.client.disconnectDevice(deviceId)
+    if (!this.account) {
+      throw new Error("Unable to disconnect device. No account connected.")
+    }
+
+    return await this.account.disconnectDevice(deviceId)
   }
 }
 

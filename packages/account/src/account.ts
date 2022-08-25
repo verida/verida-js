@@ -106,7 +106,7 @@ export default class Account {
         throw new Error("Not implemented.")
     }
 
-    public async getAuthContext(contextName: string, authConfig: AuthTypeConfig, authType: string = "VeridaDatabase"): Promise<AuthContext> {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig?: AuthTypeConfig, authType: string = "database"): Promise<AuthContext> {
         throw new Error("Not implemented.")
     }
 

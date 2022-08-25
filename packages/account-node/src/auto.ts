@@ -104,17 +104,23 @@ export default class AutoAccount extends Account {
         return this.didClient
     }
 
-    public async getAuthContext(contextName: string, authConfig: AuthTypeConfig, authType: string = "VeridaDatabase"): Promise<AuthContext> {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig?: AuthTypeConfig, authType = "database"): Promise<AuthContext> {
+        // Use existing context auth instance if it exists
         if (this.contextAuths[contextName]) {
-            return this.contextAuths[contextName].getAuthContext(this, contextName, <VeridaDatabaseAuthTypeConfig> authConfig)
+            return this.contextAuths[contextName].getAuthContext(<VeridaDatabaseAuthTypeConfig> authConfig)
         }
 
-        if (authType == "VeridaDatabase") {
-            this.contextAuths[contextName] = new VeridaDatabaseAuthType()
-            return this.contextAuths[contextName].getAuthContext(this, contextName, <VeridaDatabaseAuthTypeConfig> authConfig)
+        const signKey = contextConfig.publicKeys.signKey
+        
+        // @todo: Currently hard code database server, need to support other service types in the future
+        const serviceEndpoint = contextConfig.services.databaseServer
+
+        if (serviceEndpoint.type == "VeridaDatabase") {
+            this.contextAuths[contextName] = new VeridaDatabaseAuthType(this, contextName, serviceEndpoint, signKey)
+            return this.contextAuths[contextName].getAuthContext(<VeridaDatabaseAuthTypeConfig> authConfig)
         }
 
-        throw new Error(`Unknown auth context type (${authType}`)
+        throw new Error(`Unknown auth context type (${authType})`)
     }
 
 }

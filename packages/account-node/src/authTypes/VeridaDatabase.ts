@@ -1,18 +1,27 @@
 import Axios from "axios";
 import AutoAccount from "../auto";
-import { Account, VeridaDatabaseAuthContext, AuthType, VeridaDatabaseAuthTypeConfig } from "@verida/account";
+import { Interfaces } from '@verida/storage-link'
+import { Account, VeridaDatabaseAuthContext, AuthType, AuthTypeConfig, VeridaDatabaseAuthTypeConfig } from "@verida/account";
 
+export default class VeridaDatabaseAuthType extends AuthType {
 
+  protected contextAuth?: VeridaDatabaseAuthContext
+  protected account: AutoAccount
 
-export default class VeridaDatabaseAuthType implements AuthType {
+  public constructor(account: Account, contextName: string, serviceEndpoint: Interfaces.SecureContextEndpoint, signKey: Interfaces.SecureContextPublicKey) {
+    super(account, contextName, serviceEndpoint, signKey)
+    this.account = <AutoAccount> account
+  }
 
-  private contextAuth?: VeridaDatabaseAuthContext
+  public async getAuthContext(config?: VeridaDatabaseAuthTypeConfig): Promise<VeridaDatabaseAuthContext> {
+    const serverUrl = config && config.endpointUri ? config.endpointUri : this.serviceEndpoint.endpointUri
+    const deviceId = config && config.deviceId ? config.deviceId : "Test Device"
 
-  public async getAuthContext<AutoAccount extends Account>(account: AutoAccount, contextName: string, config: VeridaDatabaseAuthTypeConfig): Promise<VeridaDatabaseAuthContext> {
-    const serverUrl = config.serverUrl
-    const deviceId = config.serverUrl
-    const forceAccessToken = config.forceAccessToken
-    const publicSigningKey = config.publicSigningKey
+    let forceAccessToken = false
+
+    if (config) {
+      forceAccessToken = config.forceAccessToken ? config.forceAccessToken : true
+    }
 
     // @todo: how are invalid access tokens going to produce an error? how to catch and then regenerate?
     //  - expired token stored in session when loading the app
@@ -25,11 +34,10 @@ export default class VeridaDatabaseAuthType implements AuthType {
     // This can happen if the access token has expired when being
     // used and it can automatically be re-requested.
     if (this.contextAuth && !forceAccessToken) {
-      //console.log('getContextAuth(): exists, returning')
       return this.contextAuth
     }
 
-    const did = await account!.did()
+    const did = await this.account!.did()
 
     // No context auth or no refresh token, so generate it by signing a consent message
     if (!this.contextAuth || !this.contextAuth.refreshToken) {
@@ -39,9 +47,9 @@ export default class VeridaDatabaseAuthType implements AuthType {
       let authJwt
       try {
         // Generate an auth token to start auth process
-        const authJwtResponse = await this.getAxios(contextName).post(serverUrl + "auth/generateAuthJwt",{
+        const authJwtResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/generateAuthJwt",{
           did,
-          contextName
+          contextName: this.contextName
         })
 
         authJwt = authJwtResponse.data.authJwt
@@ -52,13 +60,13 @@ export default class VeridaDatabaseAuthType implements AuthType {
       let refreshResponse
       try {
         // Generate a refresh token by authenticating
-        const consentMessage = `Authenticate this application context: "${contextName}"?\n\n${did.toLowerCase()}\n${authJwt.authRequestId}`
-        const signature = await account!.sign(consentMessage)
+        const consentMessage = `Authenticate this application context: "${this.contextName}"?\n\n${did.toLowerCase()}\n${authJwt.authRequestId}`
+        const signature = await this.account.sign(consentMessage)
 
-        refreshResponse = await this.getAxios(contextName).post(serverUrl + "auth/authenticate",{
+        refreshResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/authenticate",{
           authJwt: authJwt.authJwt,
           did,
-          contextName,
+          contextName: this.contextName,
           signature,
           deviceId: deviceId
         });
@@ -78,7 +86,7 @@ export default class VeridaDatabaseAuthType implements AuthType {
         refreshToken,
         accessToken,
         host,
-        publicSigningKey
+        publicSigningKey: this.signKey
       }
 
       //console.log(this.contextAuth!)
@@ -90,10 +98,10 @@ export default class VeridaDatabaseAuthType implements AuthType {
     if (this.contextAuth && !this.contextAuth.accessToken) {
       //console.log('getContextAuth(): no access token, but refresh token, so generating access token')
 
-      const accessResponse = await this.getAxios(contextName).post(serverUrl + "auth/connect",{
+      const accessResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/connect",{
         refreshToken: this.contextAuth.refreshToken,
         did,
-        contextName: contextName
+        contextName: this.contextName
       });
 
       // @todo: handle connect error
@@ -109,6 +117,33 @@ export default class VeridaDatabaseAuthType implements AuthType {
     // @todo: test if connection is valid?
 
     return this.contextAuth!
+  }
+
+  public async disconnectDevice(deviceId: string): Promise<boolean> {
+    const contextAuth = await this.getAuthContext()
+
+    const did = await this.account.did();
+
+    const consentMessage = `Invalidate device for this application context: "${this.contextName}"?\n\n${did.toLowerCase()}\n${deviceId}`
+    const signature = await this.account.sign(consentMessage)
+    
+    try {
+      const response = await this.getAxios(this.contextName).post(`${contextAuth.host}auth/invalidateDeviceId`, {
+          did,
+          contextName: this.contextName,
+          deviceId: deviceId,
+          signature
+      });
+
+      return response.data.status == 'success'
+    } catch (err: any) {
+      if (err.response && err.response.data) {
+        throw new Error(`Unable to disconnect device: ${JSON.stringify(err.response.data.data)}`)
+      }
+      else {
+        throw new Error(`Unable to disconnect device: ${err.message}`)
+      }
+    }
   }
 
   private getAxios(storageContext: string, accessToken?: string) {

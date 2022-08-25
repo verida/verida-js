@@ -2,11 +2,12 @@ import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
 import Database from "../../../database";
 import { DatabaseOpenConfig } from "../../../interfaces";
-import { DatastoreServerClient, ContextAuth } from "./client";
+import { DatastoreServerClient } from "./client";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
 import { Interfaces } from "@verida/storage-link";
+import { VeridaDatabaseAuthContext } from "@verida/account"
 
 const _ = require("lodash");
 
@@ -17,12 +18,11 @@ const _ = require("lodash");
 class StorageEngineVerida extends BaseStorageEngine {
   private client: DatastoreServerClient;
 
-  private publicCredentials: any; // @todo
-
+  private publicCredentials: any; // @todo fix typing
   private accountDid?: string;
-  private auth?: ContextAuth
+  private auth?: VeridaDatabaseAuthContext
 
-  // @todo: dbmanager
+  // @todo: specify device id // deviceId: string="Test device"
   constructor(
     storageContext: string,
     dbRegistry: DbRegistry,
@@ -31,8 +31,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     super(storageContext, dbRegistry, contextConfig);
     this.client = new DatastoreServerClient(
       this.storageContext,
-      this.endpointUri,
-      contextConfig.publicKeys.signKey.publicKeyHex
+      contextConfig.services.databaseServer.endpointUri
     );
   }
 
@@ -40,7 +39,10 @@ class StorageEngineVerida extends BaseStorageEngine {
     try {
       await super.connectAccount(account);
 
-      await this.client.setAccount(account);
+      const auth = await account.getAuthContext(this.storageContext, this.contextConfig)
+      this.auth = <VeridaDatabaseAuthContext> auth
+      await this.client.setAuthContext(this.auth)
+
       this.accountDid = await this.account!.did();
     } catch (err: any) {
       if (err.name == "ContextNotFoundError") {
@@ -49,8 +51,6 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       throw err
     }
-
-    this.auth = await this.client.getContextAuth();
   }
 
   /**
@@ -68,16 +68,22 @@ class StorageEngineVerida extends BaseStorageEngine {
    * @param did
    * @returns {string}
    */
-  protected async buildExternalAuth(endpointUri: string): Promise<ContextAuth> {
+  protected async buildExternalAuth(endpointUri: string): Promise<VeridaDatabaseAuthContext> {
     if (!this.account) {
       throw new Error('Unable to connect to external storage node. No account connected.')
     }
 
-    const client = new DatastoreServerClient(this.storageContext, endpointUri, this.contextConfig.publicKeys.signKey.publicKeyHex);
+    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, {
+      endpointUri
+    })
+
+    return <VeridaDatabaseAuthContext> auth
+
+    /*const client = new DatastoreServerClient(this.storageContext, this.contextConfig);
     await client.setAccount(this.account!);
 
     const auth = await client.getContextAuth();
-    return auth
+    return auth*/
   }
 
   /**
@@ -258,8 +264,8 @@ class StorageEngineVerida extends BaseStorageEngine {
       if (!config.isOwner && this.account) {
         // need to build a complete dsn
         const auth = await this.buildExternalAuth(config.dsn!);
-        dsn = auth.host
-        token = auth.accessToken
+        dsn = auth.host;
+        token = auth.accessToken;
       }
 
       const storageContextKey = await this.keyring!.getStorageContextKey(
@@ -318,8 +324,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     super.logout();
     this.client = new DatastoreServerClient(
       this.storageContext,
-      this.endpointUri,
-      this.contextConfig.publicKeys.signKey.publicKeyHex
+      this.contextConfig.services.databaseServer.endpointUri
     );
   }
 
