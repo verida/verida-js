@@ -215,4 +215,16 @@ export default class VaultAccount extends Account {
         store.remove(VERIDA_AUTH_CONTEXT)
     }
 
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
+        force: false
+    }, authType: string = "database"): Promise<AuthContext> {
+        if (this.contextCache[contextName]) {
+            return this.contextCache[contextName].contextAuth
+        }
+
+        // @todo: Do we only do this with force = true?
+        // force intent was "force to get a new accessToken", not "force if no context"
+        await this.connectContext(contextName)
+    }
+
 }
