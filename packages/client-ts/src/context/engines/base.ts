@@ -41,6 +41,10 @@ class BaseStorageEngine {
     }
   }
 
+  public getDbRegistry() {
+    return this.dbRegistry
+  }
+
   public async openDatabase(
     databaseName: string,
     config: DatabaseOpenConfig

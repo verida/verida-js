@@ -8,6 +8,7 @@ import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
 import { Interfaces } from "@verida/storage-link";
 import { VeridaDatabaseAuthContext } from "@verida/account"
+import BaseDb from "./base-db";
 
 const _ = require("lodash");
 
@@ -109,6 +110,8 @@ class StorageEngineVerida extends BaseStorageEngine {
       options
     );
 
+    const instance = this
+
     const contextName = config.contextName ? config.contextName : this.storageContext
 
     // Default to user's account did if not specified
@@ -202,7 +205,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
-        this.dbRegistry
+        this
       );
 
       await db.init();
@@ -231,7 +234,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         client: this.client,
         isOwner: config.isOwner,
         saveDatabase: config.saveDatabase,
-      });
+      }, this);
 
       await db.init();
       return db;
@@ -290,7 +293,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
-        this.dbRegistry
+        this
       );
 
       try {
@@ -318,6 +321,26 @@ class StorageEngineVerida extends BaseStorageEngine {
     /*if (config.saveDatabase && db._originalDb && this.dbManager) {
             this.dbManager.saveDb(dbName, did, this.appName, config.permissions, db._originalDb.encryptionKey);
         }*/
+  }
+
+
+  /**
+   * Re-authenticate this storage engine and update the credentials
+   * for the database.
+   */
+  public async reAuth(db: BaseDb) {
+    if (!this.account) {
+      // No account connected, so can't reconnect database
+      const info = await db.info()
+      throw new Error(`No account connected. Access token expired, but unable to regenerate for database ${info.databaseName}`)
+    }
+
+    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, {
+      invalidAccessToken: true
+    })
+    this.auth = <VeridaDatabaseAuthContext> auth
+    await this.client.setAuthContext(this.auth)
+    await db.setAccessToken(this.auth.accessToken)
   }
 
   public logout() {

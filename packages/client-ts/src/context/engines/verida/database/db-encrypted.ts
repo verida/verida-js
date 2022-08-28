@@ -1,6 +1,7 @@
 import { VeridaDatabaseConfig } from "./interfaces";
 import BaseDb from "./base-db";
-import DbRegistry, { DbRegistryEntry } from "../../../db-registry";
+import { DbRegistryEntry } from "../../../db-registry";
+import StorageEngineVerida from "./engine"
 import EncryptionUtils from "@verida/encryption-utils";
 
 import * as PouchDBCryptLib from "pouchdb";
@@ -28,9 +29,7 @@ PouchDBCrypt.plugin(CryptoPouch);
 class EncryptedDatabase extends BaseDb {
   protected encryptionKey: Buffer;
   protected password?: string;
-  protected token: string
 
-  private dbRegistry: DbRegistry;
   private _sync: any;
   private _localDbEncrypted: any;
   private _localDb: any;
@@ -48,10 +47,9 @@ class EncryptedDatabase extends BaseDb {
    * @param {*} permissions
    */
   //constructor(dbHumanName: string, dbName: string, dataserver: any, encryptionKey: string | Buffer, remoteDsn: string, did: string, permissions: PermissionsConfig) {
-  constructor(config: VeridaDatabaseConfig, dbRegistry: DbRegistry) {
-    super(config);
+  constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
+    super(config, engine);
 
-    this.dbRegistry = dbRegistry;
     this.encryptionKey = config.encryptionKey!;
     this.token = config.token!;
 
@@ -85,12 +83,30 @@ class EncryptedDatabase extends BaseDb {
       // Setting to 1,000 -- Any higher and it takes too long on mobile devices
     });
 
-    const authToken = this.token
+    const instance = this
     this._remoteDbEncrypted = new PouchDB(`${this.dsn}/${this.databaseHash}`, {
       skip_setup: true,
-      fetch: function(url: string, opts: any) {
-          opts.headers.set('Authorization', `Bearer ${authToken}`)
-          return PouchDB.fetch(url, opts)
+      fetch: async function(url: string, opts: any) {
+        opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
+        const result = await PouchDB.fetch(url, opts)
+        if (result.status == 401) {
+          // Unauthorized, most likely due to an invalid access token
+          // Fetch new credentials and try again
+          await instance.getEngine().reAuth(instance)
+
+          opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
+          const result = await PouchDB.fetch(url, opts)
+
+          if (result.status == 401) {
+            throw new Error(`Permission denied to access server: ${this.dsn}`)
+          }
+
+          // Return an authorized result
+          return result
+        }
+
+        // Return an authorized result
+        return result
       }
     });
 
@@ -270,7 +286,7 @@ class EncryptedDatabase extends BaseDb {
       this.client.updateDatabase(this.did, this.databaseName, options);
 
       if (this.config.saveDatabase !== false) {
-        await this.dbRegistry.saveDb(this);
+        await this.engine.getDbRegistry().saveDb(this);
       }
     } catch (err: any) {
       throw new Error("User doesn't exist or unable to create user database");

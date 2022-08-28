@@ -28,10 +28,28 @@ class PublicDatabase extends BaseDb {
     }
 
     if (this.token) {
-      const authToken = this.token
-      dbConfig['fetch'] = function(url: string, opts: any) {
-        opts.headers.set('Authorization', `Bearer ${authToken}`)
-        return PouchDB.fetch(url, opts)
+      const instance = this
+      dbConfig['fetch'] = async function(url: string, opts: any) {
+        opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
+        const result = await PouchDB.fetch(url, opts)
+        if (result.status == 401) {
+          // Unauthorized, most likely due to an invalid access token
+          // Fetch new credentials and try again
+          await instance.getEngine().reAuth(instance)
+
+          opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
+          const result = await PouchDB.fetch(url, opts)
+
+          if (result.status == 401) {
+            throw new Error(`Permission denied to access server: ${this.dsn}`)
+          }
+
+          // Return an authorized result
+          return result
+        }
+
+        // Return an authorized result
+        return result
       }
     }
 

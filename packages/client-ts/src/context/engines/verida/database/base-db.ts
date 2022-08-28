@@ -11,6 +11,7 @@ import { Context } from "../../../..";
 import { DbRegistryEntry } from "../../../db-registry";
 import EncryptionUtils from "@verida/encryption-utils";
 import { RecordSignature } from "../../../utils"
+import StorageEngineVerida from "./engine"
 
 /**
  * @category
@@ -22,6 +23,7 @@ class BaseDb extends EventEmitter implements Database {
   protected dsn: string;
   protected token?: string;
   protected storageContext: string;
+  protected engine: StorageEngineVerida
 
   protected permissions?: PermissionsConfig;
   protected isOwner?: boolean;
@@ -37,7 +39,7 @@ class BaseDb extends EventEmitter implements Database {
   // PouchDb instance for this database
   protected db?: any;
 
-  constructor(config: VeridaDatabaseConfig) {
+  constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
     super();
     this.client = config.client;
     this.databaseName = config.databaseName;
@@ -45,6 +47,7 @@ class BaseDb extends EventEmitter implements Database {
     this.dsn = config.dsn;
     this.token = config.token;
     this.storageContext = config.storageContext;
+    this.engine = engine
 
     this.isOwner = config.isOwner;
     this.signContext = config.signContext;
@@ -71,6 +74,10 @@ class BaseDb extends EventEmitter implements Database {
 
     this.databaseHash = this.buildDatabaseHash();
     this.db = null;
+  }
+
+  public getEngine() {
+    return this.engine
   }
 
   // DID + context name + DB Name + readPerm + writePerm
@@ -420,17 +427,18 @@ class BaseDb extends EventEmitter implements Database {
     }
   }
 
+  public getAccessToken() {
+    return this.token
+  }
+
+  public async setAccessToken(token: string): Promise<void> {
+    this.token = token
+  }
+
   public async info(): Promise<any> {
     throw new Error("Not implemented");
   }
-
-  public async disconnectDevice(deviceId: string="Test device"): Promise<boolean> {
-    if (!this.account) {
-      throw new Error("Unable to disconnect device. No account connected.")
-    }
-
-    return await this.account.disconnectDevice(deviceId)
-  }
+  
 }
 
 export default BaseDb;
