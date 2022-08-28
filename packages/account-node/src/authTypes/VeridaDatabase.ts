@@ -13,27 +13,22 @@ export default class VeridaDatabaseAuthType extends AuthType {
     this.account = <AutoAccount> account
   }
 
-  public async getAuthContext(config?: VeridaDatabaseAuthTypeConfig): Promise<VeridaDatabaseAuthContext> {
+  public async getAuthContext(config: VeridaDatabaseAuthTypeConfig = {
+    deviceId: "Test device",
+    force: false
+  }): Promise<VeridaDatabaseAuthContext> {
     const serverUrl = config && config.endpointUri ? config.endpointUri : this.serviceEndpoint.endpointUri
-    const deviceId = config && config.deviceId ? config.deviceId : "Test Device"
 
-    let forceAccessToken = false
-
-    if (config) {
-      forceAccessToken = config.forceAccessToken ? config.forceAccessToken : true
+    // If we have an invalid access token, clear it
+    if (this.contextAuth && config.invalidAccessToken) {
+      this.contextAuth.accessToken = undefined
     }
 
-    // @todo: how are invalid access tokens going to produce an error? how to catch and then regenerate?
-    //  - expired token stored in session when loading the app
-    //  - token expires while using the app
-
-    // -------------------------
-
     // We already have a context auth object, so reuse it unless
-    // requested to force create access token.
+    // requested to force create or have a missing access token.
     // This can happen if the access token has expired when being
     // used and it can automatically be re-requested.
-    if (this.contextAuth && !forceAccessToken) {
+    if (this.contextAuth && !config.force && this.contextAuth.accessToken) {
       return this.contextAuth
     }
 
@@ -68,7 +63,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
           did,
           contextName: this.contextName,
           signature,
-          deviceId: deviceId
+          deviceId: config.deviceId
         });
 
         //console.log('refresh response', refreshResponse.data)
@@ -86,6 +81,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
         refreshToken,
         accessToken,
         host,
+        endpointUri: serverUrl,
         publicSigningKey: this.signKey
       }
 
@@ -119,7 +115,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
     return this.contextAuth!
   }
 
-  public async disconnectDevice(deviceId: string): Promise<boolean> {
+  public async disconnectDevice(deviceId: string="Test device"): Promise<boolean> {
     const contextAuth = await this.getAuthContext()
 
     const did = await this.account.did();
@@ -128,7 +124,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
     const signature = await this.account.sign(consentMessage)
     
     try {
-      const response = await this.getAxios(this.contextName).post(`${contextAuth.host}auth/invalidateDeviceId`, {
+      const response = await this.getAxios(this.contextName).post(`${contextAuth.endpointUri}auth/invalidateDeviceId`, {
           did,
           contextName: this.contextName,
           deviceId: deviceId,

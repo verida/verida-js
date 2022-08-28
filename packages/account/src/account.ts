@@ -106,7 +106,13 @@ export default class Account {
         throw new Error("Not implemented.")
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig?: AuthTypeConfig, authType: string = "database"): Promise<AuthContext> {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
+        force: false
+    }, authType: string = "database"): Promise<AuthContext> {
+        throw new Error("Not implemented.")
+    }
+
+    public async disconnectDevice(contextName: string, deviceId: string="Test device"): Promise<boolean> {
         throw new Error("Not implemented.")
     }
 

@@ -104,10 +104,12 @@ export default class AutoAccount extends Account {
         return this.didClient
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig?: AuthTypeConfig, authType = "database"): Promise<AuthContext> {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig = {
+        force: false
+    }, authType = "database"): Promise<AuthContext> {
         // Use existing context auth instance if it exists
-        if (this.contextAuths[contextName]) {
-            return this.contextAuths[contextName].getAuthContext(<VeridaDatabaseAuthTypeConfig> authConfig)
+        if (this.contextAuths[contextName] && !authConfig.force) {
+            return this.contextAuths[contextName].getAuthContext(authConfig)
         }
 
         const signKey = contextConfig.publicKeys.signKey
@@ -117,10 +119,18 @@ export default class AutoAccount extends Account {
 
         if (serviceEndpoint.type == "VeridaDatabase") {
             this.contextAuths[contextName] = new VeridaDatabaseAuthType(this, contextName, serviceEndpoint, signKey)
-            return this.contextAuths[contextName].getAuthContext(<VeridaDatabaseAuthTypeConfig> authConfig)
+            return this.contextAuths[contextName].getAuthContext(authConfig)
         }
 
         throw new Error(`Unknown auth context type (${authType})`)
+    }
+
+    public async disconnectDevice(contextName: string, deviceId: string="Test device"): Promise<boolean> {
+        if (!this.contextAuths[contextName]) {
+            throw new Error(`Context not connected ${contextName}`)
+        }
+
+        return this.contextAuths[contextName].disconnectDevice(deviceId)
     }
 
 }

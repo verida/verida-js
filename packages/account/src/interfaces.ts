@@ -19,6 +19,7 @@ export interface AuthContext {
 }
 
 export interface AuthTypeConfig {
+    force: boolean
 }
 
 export class AuthType {
@@ -39,6 +40,14 @@ export class AuthType {
     getAuthContext(config: AuthTypeConfig): Promise<AuthContext> {
         throw new Error("Not implemented")
     }
+
+    setAuthContext(contextAuth: AuthContext) {
+        this.contextAuth = contextAuth
+    }
+
+    disconnectDevice(deviceId: string="Test device"): Promise<boolean> {
+        throw new Error("Not implemented")
+    }
 }
 
 //// VeridaDatabase Authentication Interfaces
@@ -46,11 +55,12 @@ export class AuthType {
 export interface VeridaDatabaseAuthContext extends AuthContext {
     refreshToken?: string,
     accessToken?: string,
+    endpointUri: string,
     host: string
 }
 
 export interface VeridaDatabaseAuthTypeConfig extends AuthTypeConfig {
   deviceId?: string,
   endpointUri?: string,
-  forceAccessToken?: boolean
+  invalidAccessToken?: boolean
 }
