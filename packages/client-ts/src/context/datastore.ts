@@ -2,7 +2,6 @@ const _ = require("lodash");
 import { DatabaseOpenConfig, DatastoreOpenConfig } from "./interfaces";
 import Context from "./context";
 import Schema from "./schema";
-import { DIDDocument } from "@verida/did-document";
 
 /**
  * A datastore wrapper around a given database and schema.

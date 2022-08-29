@@ -7,7 +7,7 @@ import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
 import { Interfaces } from "@verida/storage-link";
-import { VeridaDatabaseAuthContext } from "@verida/account"
+import { VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from "@verida/account"
 import BaseDb from "./base-db";
 
 const _ = require("lodash");
@@ -74,7 +74,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       throw new Error('Unable to connect to external storage node. No account connected.')
     }
 
-    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, {
+    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
       endpointUri
     })
 
@@ -335,12 +335,12 @@ class StorageEngineVerida extends BaseStorageEngine {
       throw new Error(`No account connected. Access token expired, but unable to regenerate for database ${info.databaseName}`)
     }
 
-    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, {
+    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
       invalidAccessToken: true
     })
     this.auth = <VeridaDatabaseAuthContext> auth
     await this.client.setAuthContext(this.auth)
-    await db.setAccessToken(this.auth.accessToken)
+    await db.setAccessToken(this.auth!.accessToken!)
   }
 
   public logout() {

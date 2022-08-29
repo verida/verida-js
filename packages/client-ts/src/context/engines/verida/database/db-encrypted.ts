@@ -20,8 +20,6 @@ PouchDBCrypt.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBFind);
 PouchDBCrypt.plugin(CryptoPouch);
 
-//db = new EncryptedDatabase(databaseName, did, this.dsn!, encryptionKey, config.permissions)
-
 /**
  * @category
  * Modules
@@ -46,7 +44,6 @@ class EncryptedDatabase extends BaseDb {
    * @param {*} did
    * @param {*} permissions
    */
-  //constructor(dbHumanName: string, dbName: string, dataserver: any, encryptionKey: string | Buffer, remoteDsn: string, did: string, permissions: PermissionsConfig) {
   constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
     super(config, engine);
 
@@ -83,6 +80,7 @@ class EncryptedDatabase extends BaseDb {
       // Setting to 1,000 -- Any higher and it takes too long on mobile devices
     });
 
+    /* @ts-ignore */
     const instance = this
     this._remoteDbEncrypted = new PouchDB(`${this.dsn}/${this.databaseHash}`, {
       skip_setup: true,
@@ -133,6 +131,7 @@ class EncryptedDatabase extends BaseDb {
 
     const databaseName = this.databaseName;
     const dsn = this.dsn;
+    /* @ts-ignore */
     const instance = this;
 
     // Do a once off sync to ensure the local database pulls all data from remote server

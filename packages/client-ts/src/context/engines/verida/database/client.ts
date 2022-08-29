@@ -18,7 +18,7 @@ export class DatastoreServerClient {
 
   private authContext?: VeridaDatabaseAuthContext
   private storageContext: string;
-  private serviceEndpoint: Account;
+  private serviceEndpoint: string;
 
   constructor(storageContext: string, serviceEndpoint: string, authContext?: VeridaDatabaseAuthContext) {
     this.authContext = authContext
@@ -39,7 +39,7 @@ export class DatastoreServerClient {
     databaseName: string,
     config: any = {}
   ) {
-    return this.getAxios(this.authContext.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
+    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
       did: did,
       databaseName: databaseName,
       options: config,
@@ -51,7 +51,7 @@ export class DatastoreServerClient {
     databaseName: string,
     config: any = {}
   ) {
-    return this.getAxios(this.authContext.accessToken).post(this.serviceEndpoint + "user/updateDatabase", {
+    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/updateDatabase", {
       did: did,
       databaseName: databaseName,
       options: config,
