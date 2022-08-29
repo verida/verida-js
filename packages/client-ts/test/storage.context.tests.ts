@@ -8,6 +8,8 @@ import { DIDDocument } from '@verida/did-document'
 import CONFIG from './config'
 
 const TEST_DB_NAME = 'TestDb_1'
+const TEST_DB_NAME_2 = 'TestDb_2'
+const TEST_DB_NAME_3 = 'TestDb_3'
 
 /**
  * 
@@ -56,6 +58,26 @@ describe('Storage context tests', () => {
             assert.ok(data, 'Data returned')
             assert.ok(data.length && data.length > 0, 'Array returned with at least one row')
             assert.ok(data[0].hello == 'world', 'First result has expected value')
+        })
+
+        it('can open same database at once and both return the same cache entry', async () => {
+            const database1 = context.openDatabase(TEST_DB_NAME_2)
+            const database2 = context.openDatabase(TEST_DB_NAME_2)
+
+            await Promise.all([database1, database2]).then(([db1, db2]) => {
+                assert.ok(db1 === db2, 'Returned databases are the same')
+            })
+        })
+
+        it('can respect ignore cache when opening a database', async () => {
+            const database1 = context.openDatabase(TEST_DB_NAME_3)
+            const database2 = context.openDatabase(TEST_DB_NAME_3, {
+                ignoreCache: true
+            })
+
+            await Promise.all([database1, database2]).then(([db1, db2]) => {
+                assert.ok(db1 !== db2, 'Returned databases are not the same')
+            })
         })
         
     })

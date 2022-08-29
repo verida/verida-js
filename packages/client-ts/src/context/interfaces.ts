@@ -64,6 +64,11 @@ export interface DatabaseOpenConfig {
    * Optionally specify the context used to sign data
    */
   signingContext?: Context;
+
+  /**
+   * Ignore any cached instance already created
+   */
+  ignoreCache?: boolean
 }
 
 // @todo: Same as DatabaseOpenConfig

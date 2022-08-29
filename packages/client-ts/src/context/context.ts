@@ -58,6 +58,8 @@ class Context {
   private databaseEngines: DatabaseEngines = {};
   private dbRegistry: DbRegistry;
 
+  private databaseCache: Record<string, Database | Promise<Database>> = {}
+
   /**
    * Instantiate a new context.
    *
@@ -291,21 +293,33 @@ class Context {
       config.did = accountDid;
     }
 
-    const databaseEngine = await this.getDatabaseEngine(
-      config.did,
-      config.createContext!
-    );
+    const cacheKey = `${config.did}/${databaseName}`
 
-    if (!config.signingContext) {
-      config.signingContext = this;
+    if (this.databaseCache[cacheKey] && !config.ignoreCache) {
+      return this.databaseCache[cacheKey]
     }
 
-    const database = await databaseEngine.openDatabase(databaseName, config);
-    if (config.saveDatabase !== false) {
-      await this.dbRegistry.saveDb(database, false);
-    }
+    const instance = this
+    this.databaseCache[cacheKey] = new Promise(async (resolve, rejects) => {
+      const databaseEngine = await instance.getDatabaseEngine(
+        config.did!,
+        config.createContext!
+      );
+  
+      if (!config.signingContext) {
+        config.signingContext = instance;
+      }
+  
+      const database = await databaseEngine.openDatabase(databaseName, config);
+      if (config.saveDatabase !== false) {
+        await instance.dbRegistry.saveDb(database, false);
+      }
+  
+      instance.databaseCache[cacheKey] = database;
+      resolve(database);
+    })
 
-    return database;
+    return this.databaseCache[cacheKey]
   }
 
   /**
