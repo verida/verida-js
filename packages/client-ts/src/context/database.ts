@@ -16,5 +16,6 @@ import { DbRegistryEntry } from "./db-registry";
     init(): Promise<void>
     info(): Promise<any>
     registryEntry(): Promise<DbRegistryEntry>
+    close(): Promise<void>
 
 }

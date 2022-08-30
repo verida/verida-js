@@ -1,7 +1,9 @@
-import { Account } from '@verida/account'
+import { Account, VeridaDatabaseAuthContext, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
+import Axios from "axios";
+
 const querystring = require('querystring')
 const _ = require('lodash')
 const store = require('store')
@@ -71,12 +73,14 @@ export default class VaultAccount extends Account {
         this.config = config
     }
 
-    public async connectContext(contextName: string) {
+    public async connectContext(contextName: string, ignoreSession: boolean = false) {
         const vaultAccount = this
 
-        const contextConfig = await this.loadFromSession(contextName)
-        if (contextConfig) {
-            return contextConfig
+        if (!ignoreSession) {
+            const contextConfig = await this.loadFromSession(contextName)
+            if (contextConfig) {
+                return contextConfig
+            }
         }
 
         const promise = new Promise<boolean>((resolve, reject) => {
@@ -113,7 +117,7 @@ export default class VaultAccount extends Account {
         // First, attempt to Load from query parameters if specified
         const token = getAuthTokenFromQueryParams()
         if (token && token.context == contextName) {
-            this.addContext(token.context, token.contextConfig, new Keyring(token.signature))
+            this.addContext(token.context, token.contextConfig, new Keyring(token.signature), token.contextAuth)
             this.setDid(token.did)
 
             if (typeof(this.config!.callback) === "function") {
@@ -158,7 +162,7 @@ export default class VaultAccount extends Account {
         return this.contextCache[contextName].keyring
     }
 
-    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring, contextAuth: any) {
+    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring, contextAuth: VeridaDatabaseAuthContext) {
         this.contextCache[contextName] = {
             keyring,
             contextConfig,
@@ -218,13 +222,59 @@ export default class VaultAccount extends Account {
     public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
-        if (this.contextCache[contextName]) {
+        if (authConfig.force || !this.contextCache[contextName]) {
+            // Don't have an existing context in the cache or we need to force refresh
+            await this.connectContext(contextName, true)
+        }
+
+        const serviceEndpoint = contextConfig.services.databaseServer
+        if (serviceEndpoint.type == "VeridaDatabase") {
+            // If we have an invalid access token (detected by the internal libraries)
+            // then attempt to re-authenticate using the refreshToken
+            if ((<VeridaDatabaseAuthTypeConfig> authConfig).invalidAccessToken) {
+                const did = await this.did()
+
+                try {
+                    const accessResponse = await this.getAxios(contextName).post(serviceEndpoint.endpointUri + "auth/connect",{
+                        refreshToken: this.contextCache[contextName].contextAuth.refreshToken,
+                        did,
+                        contextName: contextName
+                    });
+            
+                    const accessToken = accessResponse.data.accessToken
+                    this.contextCache[contextName].contextAuth.accessToken = accessToken
+                    return this.contextCache[contextName].contextAuth
+                } catch (err: any) {
+                    // Refresh token is invalid, so raise an exception that will be caught within the protocol
+                    // and force the sign in to be restarted
+                    if (err.message == 'Request failed with status code 400') {
+                        throw new ContextAuthorizationError("Expired refresh token")
+                    } else {
+                        throw err
+                    }
+                }
+            }
+        }
+
+        if (this.contextCache[contextName] && this.contextCache[contextName].contextAuth) {
             return this.contextCache[contextName].contextAuth
         }
 
-        // @todo: Do we only do this with force = true?
-        // force intent was "force to get a new accessToken", not "force if no context"
-        await this.connectContext(contextName)
+        throw new Error(`Unknown auth context type (${authType})`)
     }
 
+    private getAxios(storageContext: string, accessToken?: string) {
+        let config: any = {
+            headers: {
+            // @todo: Application-Name needs to become Storage-Context
+            "Application-Name": storageContext,
+            },
+        };
+
+        if (accessToken) {
+            config.headers['Authorization'] = `Bearer ${accessToken}`
+        }
+
+        return Axios.create(config);
+    }
 }

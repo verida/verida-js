@@ -438,6 +438,10 @@ class BaseDb extends EventEmitter implements Database {
   public async info(): Promise<any> {
     throw new Error("Not implemented");
   }
+
+  public async close(): Promise<any> {
+    throw new Error("Not implemented");
+  }
   
 }
 

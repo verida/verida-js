@@ -327,6 +327,8 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Re-authenticate this storage engine and update the credentials
    * for the database.
+   * 
+   * This is called by the internal fetch() methods when they detect an invalid access token
    */
   public async reAuth(db: BaseDb) {
     if (!this.account) {
@@ -335,9 +337,24 @@ class StorageEngineVerida extends BaseStorageEngine {
       throw new Error(`No account connected. Access token expired, but unable to regenerate for database ${info.databaseName}`)
     }
 
-    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
-      invalidAccessToken: true
-    })
+    let auth
+    try {
+      // Attempt to re-authenticate using the refresh token and ignoring the access token (its invalid)
+      auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
+        invalidAccessToken: true
+      })
+      
+    } catch (err: any) {
+      if (err.name == 'ContextAuthorizationError') {
+        // The refresh token is invalid
+        // Force a new connection, this will cause a new single sign in popup if in a web environment
+        // and using account-web-vault
+        auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
+          force: true
+        })
+      }
+    }
+
     this.auth = <VeridaDatabaseAuthContext> auth
     await this.client.setAuthContext(this.auth)
     await db.setAccessToken(this.auth!.accessToken!)

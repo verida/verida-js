@@ -1,4 +1,4 @@
-import { Account, AuthContext, AuthType, AuthTypeConfig } from "@verida/account";
+import { Account, AuthContext, AuthTypeConfig } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 
 import BaseStorageEngine from "./engines/base";

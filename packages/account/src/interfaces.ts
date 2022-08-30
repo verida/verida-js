@@ -64,3 +64,10 @@ export interface VeridaDatabaseAuthTypeConfig extends AuthTypeConfig {
   endpointUri?: string,
   invalidAccessToken?: boolean
 }
+
+export class ContextAuthorizationError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = "ContextAuthorizationError"
+    }
+}

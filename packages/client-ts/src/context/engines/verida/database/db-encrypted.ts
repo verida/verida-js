@@ -91,12 +91,13 @@ class EncryptedDatabase extends BaseDb {
           // Unauthorized, most likely due to an invalid access token
           // Fetch new credentials and try again
           await instance.getEngine().reAuth(instance)
-
           opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
           const result = await PouchDB.fetch(url, opts)
 
           if (result.status == 401) {
-            throw new Error(`Permission denied to access server: ${this.dsn}`)
+            // Failed again, so the refresh token is likely also invalid an wasn't
+            // able to be re-authenticated
+            throw new Error(`Permission denied to access server: ${instance.dsn}`)
           }
 
           // Return an authorized result
