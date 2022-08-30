@@ -48,7 +48,7 @@ describe('Verida auth tests', () => {
     })
 
     describe('Handle authentication errors', function() {
-        this.timeout(200000)
+        this.timeout(10000)
 
         // Handle errors where the storage node API is down, so unable to authenticate
         it('can handle authentication connection error', async function() {
@@ -56,18 +56,23 @@ describe('Verida auth tests', () => {
             await invalidNetwork.connect(invalidAccount)
             invalidContext = await invalidNetwork.openContext(INVALID_CONTEXT, true)
 
-            const promise = new Promise((resolve, rejects) => {
-                invalidContext.openDatabase(DB_NAME_OWNER).then(rejects, resolve)
+            const promise = new Promise(async (resolve, rejects) => {
+                try {
+                    await invalidContext.openDatabase(DB_NAME_OWNER)
+                } catch (err) {
+                    // Expect a connection error
+                    resolve(err)
+                }
             })
-            const result = await promise
 
+            const result = await promise
             const expectedMessage = `Unable to connect to storage node (http://localhost:6000/): connect ECONNREFUSED 127.0.0.1:6000`
             assert.deepEqual(result, new Error(expectedMessage))
         })
     })
     
     describe('Handle token expiry', function() {
-        this.timeout(200000)
+        this.timeout(2000)
 
         it('can handle accessToken expiry for an encrypted database', async function() {
             // Create a working connection
@@ -105,7 +110,11 @@ describe('Verida auth tests', () => {
             assert.ok(rows && rows.length, 'Have valid results returned')
         })
 
-        // todo: test with public database, not encrypted database
+        // @todo: test with public database, not encrypted database
+
+        // @todo: test with refreshtoken expired
+
+        // @todo: implement and test with account-web-vault (how?)
 
         /*it('can handle refreshToken expiry', async function() {
             // Create a working connection

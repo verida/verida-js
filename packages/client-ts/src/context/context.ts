@@ -301,22 +301,26 @@ class Context {
 
     const instance = this
     this.databaseCache[cacheKey] = new Promise(async (resolve, rejects) => {
-      const databaseEngine = await instance.getDatabaseEngine(
-        config.did!,
-        config.createContext!
-      );
-  
-      if (!config.signingContext) {
-        config.signingContext = instance;
+      try {
+        const databaseEngine = await instance.getDatabaseEngine(
+          config.did!,
+          config.createContext!
+        );
+
+        if (!config.signingContext) {
+          config.signingContext = instance;
+        }
+    
+        const database = await databaseEngine.openDatabase(databaseName, config);
+        if (config.saveDatabase !== false) {
+          await instance.dbRegistry.saveDb(database, false);
+        }
+    
+        instance.databaseCache[cacheKey] = database;
+        resolve(database);
+      } catch (err: any) {
+        rejects(err)
       }
-  
-      const database = await databaseEngine.openDatabase(databaseName, config);
-      if (config.saveDatabase !== false) {
-        await instance.dbRegistry.saveDb(database, false);
-      }
-  
-      instance.databaseCache[cacheKey] = database;
-      resolve(database);
     })
 
     return this.databaseCache[cacheKey]

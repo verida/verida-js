@@ -1,7 +1,7 @@
 import Axios from "axios";
 import AutoAccount from "../auto";
 import { Interfaces } from '@verida/storage-link'
-import { Account, VeridaDatabaseAuthContext, AuthType, AuthTypeConfig, VeridaDatabaseAuthTypeConfig } from "@verida/account";
+import { Account, VeridaDatabaseAuthContext, AuthType, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError } from "@verida/account";
 
 export default class VeridaDatabaseAuthType extends AuthType {
 
@@ -68,7 +68,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
 
         //console.log('refresh response', refreshResponse.data)
       } catch (err: any) {
-        throw new Error(`Unable to authenticate with storage node (${serverUrl}): ${err.message}`)
+        throw new ContextAuthorizationError("Expired refresh token")
       }
 
       //console.log("authenticate response", refreshResponse.data)
