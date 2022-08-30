@@ -94,20 +94,25 @@ export default class VeridaDatabaseAuthType extends AuthType {
     if (this.contextAuth && !this.contextAuth.accessToken) {
       //console.log('getContextAuth(): no access token, but refresh token, so generating access token')
 
-      const accessResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/connect",{
-        refreshToken: this.contextAuth.refreshToken,
-        did,
-        contextName: this.contextName
-      });
+      try {
+        const accessResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/connect",{
+          refreshToken: this.contextAuth.refreshToken,
+          did,
+          contextName: this.contextName
+        });
 
-      // @todo: handle connect error
-      // @todo: handle connect error (accessResponse.data.status != 'success')
-
-      //console.log("connect response", accessResponse.data)
-
-      const accessToken = accessResponse.data.accessToken
-      this.contextAuth.accessToken = accessToken
-      return this.contextAuth
+        const accessToken = accessResponse.data.accessToken
+        this.contextAuth.accessToken = accessToken
+        return this.contextAuth
+      } catch (err: any) {
+        // Refresh token is invalid, so raise an exception that will be caught within the protocol
+        // and force the sign in to be restarted
+        if (err.message == 'Request failed with status code 400') {
+          throw new ContextAuthorizationError("Expired refresh token")
+        } else {
+          throw err
+        }
+      }
     }
 
     // @todo: test if connection is valid?

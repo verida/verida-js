@@ -343,7 +343,6 @@ class StorageEngineVerida extends BaseStorageEngine {
       auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
         invalidAccessToken: true
       })
-      
     } catch (err: any) {
       if (err.name == 'ContextAuthorizationError') {
         // The refresh token is invalid
@@ -352,6 +351,8 @@ class StorageEngineVerida extends BaseStorageEngine {
         auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
           force: true
         })
+      } else {
+        throw err
       }
     }
 
