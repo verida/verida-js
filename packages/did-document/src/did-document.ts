@@ -2,6 +2,7 @@ import { Keyring } from '@verida/keyring'
 import { DIDDocumentStruct, Endpoints, EndpointType } from './interfaces'
 import EncryptionUtils from '@verida/encryption-utils'
 import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
+const _ = require('lodash')
 
 export default class DIDDocument {
 
@@ -249,6 +250,69 @@ export default class DIDDocument {
         const expectedEndpointId = `${this.doc.id}?context=${contextHash}#${endpointType}`
 
         return this.doc.service!.find(entry => entry.id == expectedEndpointId)
+    }
+
+    /**
+     * Compare this document (old) with another doc (new)
+     * 
+     * ie: This will outline what needs to be changed in the old doc
+     * to match the new doc.
+     * 
+     * Example output:
+     * 
+     * ```
+     * {
+     *   {
+     *     controller: 'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694-2',
+     *     verificationMethod: { add: [], remove: [ {..}, {..} ] },
+     *     assertionMethod: {
+     *       add: [],
+     *       remove: [
+     *         'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#sign'
+     *       ]
+     *     },
+     *     service: { add: [], remove: [ {..}, {..} ] },
+     *     keyAgreement: {
+     *       add: [],
+     *       remove: [
+     *         'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#asym'
+     *       ]
+     *     }
+     *   }
+     * }
+     * ```
+     * 
+     * @param doc 
+     * @returns 
+     */
+    public compare(doc: DIDDocument): any {
+        const docExport = doc.export()
+        const thisExport = this.export()
+
+        const result: any = {
+            verificationMethod: {
+                add: _.differenceBy(docExport.verificationMethod, thisExport.verificationMethod, 'id'),
+                remove: _.differenceBy(thisExport.verificationMethod, docExport.verificationMethod, 'id')
+            },
+            assertionMethod: {
+                add: _.differenceBy(docExport.assertionMethod, thisExport.assertionMethod),
+                remove: _.differenceBy(thisExport.assertionMethod, docExport.assertionMethod)
+            },
+            service: {
+                add: _.differenceBy(docExport.service, thisExport.service, 'id'),
+                remove: _.differenceBy(thisExport.service, docExport.service, 'id'),
+            },
+            keyAgreement: {
+                add: _.differenceBy(docExport.keyAgreement, thisExport.keyAgreement),
+                remove: _.differenceBy(thisExport.keyAgreement, docExport.keyAgreement),
+            }
+        }
+
+        if (thisExport.controller != docExport.controller) {
+            result.controller! = docExport.controller
+        }
+        
+        return result
     }
 
 }
