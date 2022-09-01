@@ -107,7 +107,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
       } catch (err: any) {
         // Refresh token is invalid, so raise an exception that will be caught within the protocol
         // and force the sign in to be restarted
-        if (err.message == 'Request failed with status code 400') {
+        if (err.message == 'Request failed with status code 401') {
           throw new ContextAuthorizationError("Expired refresh token")
         } else {
           throw err
