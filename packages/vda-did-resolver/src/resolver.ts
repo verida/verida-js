@@ -31,10 +31,16 @@ import {
 } from './helpers'
 import { logDecoder } from './logParser'
 
+/**
+ * Create a VdaDidResolver instance and return it
+ * @param options Configurations
+ * @returns VdaDidResolver instance
+ */
 export function getResolver(options: ConfigurationOptions): Record<string, DIDResolver> {
   return new VdaDidResolver(options).build()
 }
 
+/** A class that can be used to resolve a DIDDocument */
 export class VdaDidResolver {
   private contracts: ConfiguredNetworks
 
@@ -66,6 +72,9 @@ export class VdaDidResolver {
     return BigNumber.from(result['0'])
   }
 
+  /**
+   * returns the Metadata of a block
+   */
   async getBlockMetadata(blockHeight: number, networkId: string): Promise<{ height: string; isoDate: string }> {
     const block: Block = await this.contracts[networkId].provider.getBlock(blockHeight)
     return {
@@ -74,6 +83,7 @@ export class VdaDidResolver {
     }
   }
 
+  /** Find logs and summarize it by DID */
   async changeLog(
     identity: string,
     networkId: string,
@@ -82,6 +92,7 @@ export class VdaDidResolver {
     const contract = this.contracts[networkId]
     const provider = contract.provider
     const hexChainId = networkId.startsWith('0x') ? networkId : knownNetworks[networkId]
+
     //TODO: this can be used to check if the configuration is ok
     const chainId = hexChainId ? BigNumber.from(hexChainId).toNumber() : (await provider.getNetwork()).chainId
     const history: ERC1056Event[] = []
@@ -113,6 +124,12 @@ export class VdaDidResolver {
     return { address, history, controllerKey, chainId }
   }
 
+  // To-do : Alex check for proof
+  // getVerificationExtra(did: string, pubKey: string) {
+  //   const pubKeyAddress = utils.computeAddress(pubKey)
+  // }
+
+  /** Create a DIDDocument from log list */
   wrapDidDocument(
     did: string,
     address: string,
@@ -176,71 +193,109 @@ export class VdaDidResolver {
                 id: `${did}#delegate-${delegateCount}`,
                 type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
                 controller: did,
-                blockchainAccountId: `${currentEvent.delegate}@eip155:${chainId}`,
+                blockchainAccountId: `@eip155:${chainId}:${currentEvent.delegate}`,
               }
               break
           }
         } else if (event._eventName === eventNames.DIDAttributeChanged) {
           const currentEvent = <DIDAttributeChanged>event
           const name = currentEvent.name //conversion from bytes32 is done in logParser
+          // const value = currentEvent.value
           const match = name.match(/^did\/(pub|svc)\/(\w+)(\/(\w+))?(\/(\w+))?$/)
           if (match) {
             const section = match[1]
             const algorithm = match[2]
             const type = legacyAttrTypes[match[4]] || match[4]
             const encoding = match[6]
-            switch (section) {
-              case 'pub': {
-                delegateCount++
-                const pk: LegacyVerificationMethod = {
-                  id: `${did}#delegate-${delegateCount}`,
-                  type: `${algorithm}${type}`,
-                  controller: did,
-                }
-                pk.type = legacyAlgoMap[pk.type] || algorithm
-                switch (encoding) {
-                  case null:
-                  case undefined:
-                  case 'hex':
-                    pk.publicKeyHex = strip0x(currentEvent.value)
-                    break
-                  case 'base64':
-                    pk.publicKeyBase64 = Buffer.from(currentEvent.value.slice(2), 'hex').toString('base64')
-                    break
-                  case 'base58':
-                    pk.publicKeyBase58 = Base58.encode(Buffer.from(currentEvent.value.slice(2), 'hex'))
-                    break
-                  case 'pem':
-                    pk.publicKeyPem = Buffer.from(currentEvent.value.slice(2), 'hex').toString()
-                    break
-                  default:
-                    pk.value = strip0x(currentEvent.value)
-                }
-                pks[eventIndex] = pk
-                if (match[4] === 'sigAuth') {
-                  auth[eventIndex] = pk.id
-                } else if (match[4] === 'enc') {
-                  keyAgreementRefs[eventIndex] = pk.id
-                }
-                break
+
+            const contextTag = Buffer.from('?context=', 'utf-8').toString('hex')
+            const TypeTag = Buffer.from('&type=', 'utf-8').toString('hex')
+
+            // const valueMatch = currentEvent.value.match(/(\w+)(\?context=(\w+)(&type=(\w+))?)?/)
+
+            if (section === 'pub') {
+              const regExp = new RegExp(`(\\w+)${contextTag}(\\w+)`)
+              const valueMatch = currentEvent.value.match(regExp)
+              const value = valueMatch ? valueMatch[1] : currentEvent.value
+              const valueContext = valueMatch?.[2]
+
+              // console.log('Resolver value = ', currentEvent.value)
+              // console.log('Resolver valueMatch : ', valueMatch)
+              // console.log('Resolver curVal = ', value)
+
+              delegateCount++
+              const pk: LegacyVerificationMethod = {
+                // id: `${did}#delegate-${delegateCount}`,
+                id: `${did}`,
+                type: `${algorithm}${type}`,
+                controller: did,
               }
-              case 'svc':
-                // eslint-disable-next-line no-case-declarations
-                const value = Buffer.from(currentEvent.value.slice(2), 'hex').toString()
-                // eslint-disable-next-line no-case-declarations
-                const valueMatch = value.match(/(.*)##(\w+)##(\w+)/)
+              if (valueContext) {
+                const context = Buffer.from(valueContext, 'hex').toString()
+                pk.id = `${did}?context=${context}`
+              }
 
-                // console.log('Resolver : parsing svc', value)
+              pk.type = legacyAlgoMap[pk.type] || algorithm
+              switch (encoding) {
+                case null:
+                case undefined:
+                case 'hex':
+                  pk.publicKeyHex = strip0x(value)
+                  break
+                case 'base64':
+                  pk.publicKeyBase64 = Buffer.from(value.slice(2), 'hex').toString('base64')
+                  break
+                case 'base58':
+                  pk.publicKeyBase58 = Base58.encode(Buffer.from(value.slice(2), 'hex'))
+                  break
+                case 'pem':
+                  pk.publicKeyPem = Buffer.from(value.slice(2), 'hex').toString()
+                  break
+                default:
+                  pk.value = strip0x(value)
+              }
 
-                serviceCount++
-                services[eventIndex] = {
-                  // id: `${did}#service-${serviceCount}`,
-                  id: `${did}?context=${valueMatch?.[2]}#${valueMatch?.[3]}`,
-                  type: algorithm,
-                  // serviceEndpoint: Buffer.from(currentEvent.value.slice(2), 'hex').toString(),
-                  serviceEndpoint: valueMatch?.[1] ?? '',
+              // To-do : Alex add proofId & proof
+              const proof = currentEvent.proof
+              console.log('Resolver Proof = ', proof)
+              if (proof !== undefined && proof.length > 2 && proof.startsWith('0x')) {
+                pk.proof = proof
+              }
+
+              pks[eventIndex] = pk
+              if (match[4] === 'sigAuth') {
+                auth[eventIndex] = pk.id
+              } else if (match[4] === 'enc') {
+                keyAgreementRefs[eventIndex] = pk.id
+              }
+            } else if (section === 'svc') {
+              const regExp = new RegExp(`(\\w+)${contextTag}(\\w+)${TypeTag}(\\w+)`)
+              const valueMatch = currentEvent.value.match(regExp)
+              const value = valueMatch ? valueMatch[1] : currentEvent.value
+              const valueContext = valueMatch?.[2]
+              const valueType = valueMatch?.[3]
+
+              // console.log('Service value : ', currentEvent.value)
+              // console.log('Service value match : ', valueMatch)
+              // console.log('Matched value : ', currentEvent.value)
+
+              serviceCount++
+              let id = `${did}`
+              if (valueContext) {
+                const context = Buffer.from(valueContext, 'hex').toString()
+                id = `${id}?context=${context}`
+
+                if (valueType) {
+                  const decodedType = Buffer.from(valueType, 'hex').toString()
+                  id = `${id}&type=${decodedType}`
                 }
-                break
+              }
+              services[eventIndex] = {
+                // id: `${did}#service-${serviceCount}`,
+                id,
+                type: algorithm,
+                serviceEndpoint: Buffer.from(value.slice(2), 'hex').toString(),
+              }
             }
           }
         }
@@ -275,7 +330,7 @@ export class VdaDidResolver {
         id: `${did}#controller`,
         type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
         controller: did,
-        blockchainAccountId: `${controller}@eip155:${chainId}`,
+        blockchainAccountId: `@eip155:${chainId}:${controller}`,
       },
     ]
 
@@ -312,6 +367,7 @@ export class VdaDidResolver {
       : { didDocument, deactivated, versionId, nextVersionId }
   }
 
+  /** Resolve a DIDDocument from a DID */
   async resolve(
     did: string,
     parsed: ParsedDID,

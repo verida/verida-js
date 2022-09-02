@@ -29,6 +29,8 @@ export interface DIDAttributeChanged extends ERC1056Event {
   name: bytes32
   value: bytes
   validTo: uint256
+  proofId: string
+  proof: bytes
 }
 
 export interface DIDDelegateChanged extends ERC1056Event {
