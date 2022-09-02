@@ -16,6 +16,7 @@
     "copy": "cd src/contract && find . -name \"*.json\" | xargs cp --parents -t ../../build/src/contract && cd ../../",
     "copy-files": "copyfiles -u 1 src/**/*.json build/src/",
     "compile": "rm -rf build && tsc && yarn copy-files",
+    "build": "rm -rf build && tsc && yarn copy-files",
     "fix": "gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
