@@ -46,7 +46,7 @@
     "test:ci": "jest --coverage && codecov",
     "copy-files": "copyfiles -u 1 src/contract/*.json lib",
     "build:js": "microbundle --compress=false",
-    "build": "rm -rf lib && yarn lint && yarn build:js && yarn copy-files",
+    "build": "rm -rf lib && yarn build:js && yarn copy-files",
     "format": "prettier --write \"src/**/*.[jt]s\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
     "prepublishOnly": "yarn build:js && yarn test:ci && yarn format && yarn lint",

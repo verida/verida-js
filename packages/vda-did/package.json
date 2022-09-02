@@ -26,7 +26,7 @@
     "test": "jest",
     "test:ci": "jest --coverage && codecov",
     "build:js": "microbundle --compress=false",
-    "build": "yarn lint && yarn build:js && yarn test",
+    "build": "yarn build:js",
     "format": "prettier --write \"src/**/*.[jt]s\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
     "prepare": "yarn build",
