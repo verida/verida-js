@@ -72,6 +72,8 @@ export default class VaultAccount extends Account {
     constructor(config: VaultAccountConfig = {}) {
         super()
         this.config = config
+        this.config.request = this.config.request ? this.config.request : {}
+        this.config.request.userAgent = navigator.userAgent
     }
 
     public async connectContext(contextName: string, ignoreSession: boolean = false) {
