@@ -81,6 +81,7 @@
     "@ethersproject/strings": "^5.5.0",
     "@ethersproject/transactions": "^5.5.0",
     "@ethersproject/wallet": "^5.5.0",
+    "@verida/vda-did-resolver": "*",
     "did-jwt": "^5.12.3"
   }
 }
