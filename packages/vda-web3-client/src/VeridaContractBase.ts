@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
 import Axios from 'axios';
 
-import { Contract } from '@ethersproject/contracts'
-import { Signer } from '@ethersproject/abstract-signer'
+import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
 import { isVeridaContract } from './utils'
@@ -11,8 +10,7 @@ import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTran
 import { VeridaGaslessPostConfig, VeridaGaslessRequestConfig } from './config'
 // import { gaslessDefaultServerConfig, gaslessDefaultPostConfig } from './config'
 
-import { BigNumber } from '@ethersproject/bignumber'
-import { Wallet } from 'ethers';
+import { Wallet, BigNumber, Contract, Signer } from 'ethers';
 
 require('dotenv').config();
 
@@ -59,6 +57,12 @@ export type address = string
 export type uint256 = BigNumber
 export type BlockTag = string | number;
 
+export interface VdaTransactionResult {
+    success: boolean;
+    data?: any
+    error?: string
+}
+
 /**
  * Class representing any Verida Smart Contrat
  */
@@ -101,10 +105,11 @@ export class VeridaContract {
                 throw new Error('Input configuration parameters');
             }
 
-            // console.log('Creating Web3 SDK in web3 Mode', config)
-
             const web3Config = <VeridaSelfTransactionConfig>config;
             if (web3Config.provider || web3Config.signer?.provider || web3Config.rpcUrl) {
+
+                // console.log("VeridaContractBase : ", config.abi.abi)
+
                 this.contract = getContractForNetwork({
                     abi: config.abi,
                     address: config.address,
@@ -124,20 +129,11 @@ export class VeridaContract {
                     throw new Error('either Signer or privateKey is required to initialize')
             }
 
-            // this.web3 = new Web3((<VeridaSelfTransactionConfig>config).provider)
-            // this.contract = new this.web3.eth.Contract(
-            //     config.abi.abi,
-            //     config.address,
-            //     (<VeridaSelfTransactionConfig>config).options
-            // )
-
-            // this.account = (<VeridaSelfTransactionConfig>config).account
-
             const methods = config.abi.abi
             methods.forEach((item: any) => {
                 if (item.type === 'function') {
-                    this[item.name] = async(...params : any[]) => {
-                        return await this.callMethod(item.name, item.stateMutability, params);
+                    this[item.name] = async(...params : any[]) : Promise<VdaTransactionResult> => {
+                        return this.callMethod(item.name, item.stateMutability, params)
                     }
                 }
             })
@@ -179,30 +175,12 @@ export class VeridaContract {
                     item.inputs.forEach((param: any) => {
                         if (param.name === '') {
                             parameterNameList.push('param_' + paramIndex)
-                            // parameterNameList.push('')
-
-                            // params += 'param_' + paramIndex + ','
                             paramIndex++
                         }
                         else {
-                            // params += param.name + ','
-
                             parameterNameList.push(param.name)
                         }
                     });
-
-                    // Remove last '.' in the string
-                    // if (params.length > 0) {
-                    //     params = params.slice(0, -1)
-                    // }
-
-                    // Add Member functions
-                    // eval(`this.${item.name} = async (${params}) => {
-                    //     return await this.callMethod(
-                    //         '${item.name}',
-                    //         '${item.stateMutability}',
-                    //         {${params}})
-                    // }`)
 
                     this[item.name] = async(...params : any[]) => {
                         // console.log("Parameters : ", ...params)
@@ -214,7 +192,7 @@ export class VeridaContract {
                         for (let i = 0; i < parameterNameList.length; i++) {
                             paramObj[parameterNameList[i]] = params[i];
                         }
-                        return await this.callMethod(item.name, item.stateMutability, this.type === 'web3' ? params : paramObj);
+                        return this.callMethod(item.name, item.stateMutability, this.type === 'web3' ? params : paramObj)
                     }
                 }
             })
@@ -249,11 +227,9 @@ export class VeridaContract {
      * @param params - Parameters used to make interaction with smart contract : Array
      * @returns - Response from smart contract interaction
      */
-    protected callMethod = async (methodName: string, methodType: string, params: any ) => {
+    protected callMethod = async (methodName: string, methodType: string, params: any ) : Promise<VdaTransactionResult> =>  {
         if (this.type === 'web3') {
             let ret;
-
-            // console.log('Calling function : ', methodName, params)
 
             const contract = await this.attachContract()
 
@@ -261,58 +237,38 @@ export class VeridaContract {
 
             try {
                 if (methodType === 'view') {
-                    ret = await contract.functions[methodName](...params)
+                    ret = await contract.callStatic[methodName](...params)
                 } else {
-                    // From RM
+                    let { gasPrice } = await contract.provider.getFeeData()
+                    gasPrice = gasPrice!.mul(BigNumber.from(11)).div(BigNumber.from(10))
+
                     let gasLimit = await contract.estimateGas[methodName](...params);
-                    const gasPrice = await this.signer!.getGasPrice();
+                    gasLimit = gasLimit.mul(BigNumber.from(11)).div(BigNumber.from(10)) // Multiply 1.1
 
-                    // const multiple = BigNumber.from(2)
-                    gasLimit = gasLimit.mul(BigNumber.from(2))
-
-                    const unsignedTx = await contract.populateTransaction[methodName](...params, {
+                    const transaction = await contract.functions[methodName](...params, {
                         gasLimit,
                         gasPrice
                     })
-
-                    const transaction = await this.signer!.sendTransaction(unsignedTx)
-                    // console.log('Transaction = ', transaction)
 
                     const transactionRecipt = await transaction.wait()
                     // console.log('Transaction Receipt = ', transactionRecipt)
 
                     ret = transactionRecipt
-
-
-                    /*
-                    // Working part
-                    const transaction = await contract.functions[methodName](...params, {
-                        // gasPrice: 5000000,
-                        maxFeePerGas: ethers.utils.parseUnits('100','gwei'),
-                        maxPriorityFeePerGas: ethers.utils.parseUnits('100','gwei')
-                    })
-                    console.log('web3 SDK : ', transaction)
-
-                    // Wait for confirmed
-                    ret = await transaction.wait() // Return transactionReceipt
-
-                    console.log('transactionReceipt : ', ret)
-                    */
                 }
             } catch(e: any) {
                 console.log('Error in transaction', e)
-                return {
+                return Promise.resolve({
                     success: false,
-                    data: {
-                        message: e.toString()
-                    }
-                }
+                    error: e.toString()
+                })
             }
 
-            return {
+            if (BigNumber.isBigNumber(ret)) ret = ret.toNumber()
+
+            return Promise.resolve({
                 success: true,
                 data: ret
-            }
+            })
         } else {
             if (this.server === null) {
                 this.server = await getAxios(this.gaslessServerConfig)
@@ -323,7 +279,7 @@ export class VeridaContract {
                 url,
                 params,
                 this.gaslessPostConfig)
-            return response.data
+            return Promise.resolve(response.data)
         }
     }
 

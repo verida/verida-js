@@ -1,6 +1,6 @@
 {
-  "name": "vda-did",
-  "version": "0.1.1",
+  "name": "@verida/vda-did",
+  "version": "0.0.6",
   "description": "Create, manage and use did:vda identifiers",
   "source": "src/index.ts",
   "main": "lib/index.js",
@@ -43,7 +43,7 @@
     ],
     "testEnvironment": "node",
     "testMatch": [
-      "**/__tests__/**/time_measure_polygon.test.[jt]s"
+      "**/__tests__/**/bsc.test.[jt]s"
     ]
   },
   "devDependencies": {
@@ -81,7 +81,6 @@
     "@ethersproject/strings": "^5.5.0",
     "@ethersproject/transactions": "^5.5.0",
     "@ethersproject/wallet": "^5.5.0",
-    "did-jwt": "^5.12.3",
-    "@verida/vda-did-resolver": "../vda-did-resolver/lib/"
+    "did-jwt": "^5.12.3"
   }
 }

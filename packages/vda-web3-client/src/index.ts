@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { CallType, ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, VeridaWeb3Config } from './config'
-import { VeridaContract } from './VeridaContractBase'
+import { VeridaContract, VdaTransactionResult } from './VeridaContractBase'
 
 /**
  * Create VeridaContract instance - that is verida-web3-sdk instance
@@ -15,5 +15,5 @@ export function getVeridaContract(type: CallType, config: VeridaWeb3Config) {
     )
 }
 
-export { CallType, VeridaContract, VeridaWeb3Config }
+export { CallType, VdaTransactionResult, VeridaContract, VeridaWeb3Config }
 export { ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig }

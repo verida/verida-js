@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did-resolver",
-  "version": "0.1.1",
+  "version": "0.0.6",
   "description": "Resolve DID documents for Verida accounts",
   "source": "src/index.ts",
   "main": "lib/index.js",
@@ -44,8 +44,9 @@
   "scripts": {
     "test": "jest",
     "test:ci": "jest --coverage && codecov",
+    "copy-files": "copyfiles -u 1 src/contract/*.json lib",
     "build:js": "microbundle --compress=false",
-    "build": "yarn lint && yarn build:js",
+    "build": "rm -rf lib && yarn lint && yarn build:js && yarn copy-files",
     "format": "prettier --write \"src/**/*.[jt]s\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
     "prepublishOnly": "yarn build:js && yarn test:ci && yarn format && yarn lint",
@@ -75,6 +76,7 @@
     "@typescript-eslint/parser": "5.8.1",
     "babel-jest": "27.4.5",
     "codecov": "3.8.2",
+    "copyfiles": "^2.4.1",
     "eslint": "8.6.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-import-resolver-babel-module": "^5.3.1",
@@ -99,6 +101,8 @@
     "@ethersproject/transactions": "^5.5.0",
     "did-resolver": "^3.1.5",
     "dotenv": "^16.0.1",
-    "@verida/web3": "../blockchain-vda-web3-client/build/src"
+    "ethers": "^5.7.0",
+    "@verida/encryption-utils": "../encryption-utils/dist",
+    "@verida/web3": "../vda-web3-client/build"
   }
 }

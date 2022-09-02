@@ -12,7 +12,7 @@ import {
   Errors,
 } from './helpers'
 
-import { CallType } from '@verida/web3'
+import { CallType, VdaTransactionResult } from '@verida/web3'
 import { VeridaWeb3ConfigurationOption } from './configuration'
 
 export {
@@ -30,5 +30,6 @@ export {
   interpretIdentifier,
   Errors,
   CallType,
+  VdaTransactionResult,
   VeridaWeb3ConfigurationOption,
 }
