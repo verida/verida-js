@@ -43,7 +43,7 @@
     ],
     "testEnvironment": "node",
     "testMatch": [
-      "**/__tests__/**/bsc.test.[jt]s"
+      "**/__tests__/**/polygon.test.[jt]s"
     ]
   },
   "devDependencies": {

@@ -38,7 +38,25 @@ const attributeName = "did/pub/Secp256k1/sigAuth/hex"
 const attributeValue = `${testAccounts[1].publicKey}?context=${testAccounts[2].address}`
 const proofProvider = ethers.utils.computeAddress(testAccounts[1].publicKey)
 
-const provider = new JsonRpcProvider(process.env.RPC_URL_BSC_TESTNET);
+const TARGET_NET = process.env.RPC_TARGET_NET
+if (TARGET_NET === undefined) {
+    throw new Error('RPC_TARGET_NET not defiend in env')
+}
+console.log('Target Net : ', TARGET_NET)
+
+const RPC_URL = process.env[TARGET_NET]
+if (RPC_URL === undefined) {
+    throw new Error('RPC url not defined in env')
+}
+console.log('RPC URL : ', RPC_URL)
+
+const CONTRACT_ADDRESS = process.env[`CONTRACT_ADDRESS_${TARGET_NET}_DidRegistry`]
+if (CONTRACT_ADDRESS === undefined) {
+    throw new Error('Contract address not defined in env')
+}
+console.log('Contract : ', CONTRACT_ADDRESS)
+
+const provider = new JsonRpcProvider(RPC_URL);
 const txSigner = new Wallet(process.env.PRIVATE_KEY, provider)
 
 const didRegistryABI = require('./abi/VeridaDIDRegistry.json')
@@ -48,7 +66,7 @@ if (testMode === 'direct') {
         'web3', 
         {
             abi: didRegistryABI,
-            address: process.env.CONTRACT_ADDRESS_RPC_URL_BSC_TESTNET_DidRegistry,
+            address: CONTRACT_ADDRESS,
 
             provider: provider,
             signer: txSigner
@@ -60,7 +78,7 @@ if (testMode === 'direct') {
         {
             veridaKey: 'Verida License Here',
             abi: didRegistryABI,
-            address: process.env.CONTRACT_ADDRESS_RPC_URL_BSC_TESTNET_DidRegistry,
+            address: CONTRACT_ADDRESS,
             serverConfig: {
                 headers: {
                     'context-name' : 'Verida Test'

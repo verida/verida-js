@@ -17,6 +17,7 @@ import {
 
 
 const testMode = process.env.TEST_MODE ? process.env.TEST_MODE : 'direct'
+console.log('Test Mode : ', testMode)
 
 let privateKey = process.env.PRIVATE_KEY
 if (privateKey === undefined)
@@ -28,16 +29,20 @@ const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TAR
 const rpcUrl = process.env[currentNet]
 if(rpcUrl === undefined)
   throw new Error("RPC url not defined in env")
-
-const registry = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
-if (registry === undefined) {
-  throw new Error("Registry address not defined in env")
-}
+console.log('RPC URL:', rpcUrl)
 
 const chainId = process.env[`CHAIN_ID_${currentNet}`]
 if (chainId === undefined) {
   throw new Error('Chain ID not defined in env')
 }
+console.log('Chain Id : ', chainId)
+
+
+const registry = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
+if (registry === undefined) {
+  throw new Error("Registry address not defined in env")
+}
+console.log('Contract : ', registry)
 
 const identity = new Wallet(privateKey.slice(2)).address.toLowerCase()
 
