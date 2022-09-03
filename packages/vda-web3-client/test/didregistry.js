@@ -67,7 +67,6 @@ if (testMode === 'direct') {
         {
             abi: didRegistryABI,
             address: CONTRACT_ADDRESS,
-
             provider: provider,
             signer: txSigner
         }
