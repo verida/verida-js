@@ -1,0 +1,15 @@
+{
+  "name": "verida-web3-test",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@ethersproject/bytes": "^5.7.0",
+    "@ethersproject/strings": "^5.7.0",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.7.0",
+    "web3": "^1.7.3"
+  },
+  "devDependencies": {}
+}
