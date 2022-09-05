@@ -244,15 +244,17 @@ export class VdaDidController {
         ? item.value
         : '0x' + Buffer.from(item.value, 'utf-8').toString('hex')
 
+      const attrProof = item.proof.length !== 0 ? item.proof : []
+
       rawMsg = ethers.utils.solidityPack(
         ['bytes', 'bytes32', 'bytes', 'uint', 'bytes'],
-        [rawMsg, attrName, attrValue, item.validity, item.proof]
+        [rawMsg, attrName, attrValue, item.validity, attrProof]
       )
       return {
         name: attrName,
         value: attrValue,
         validity: item.validity,
-        proof: item.proof,
+        proof: attrProof,
       }
     })
 

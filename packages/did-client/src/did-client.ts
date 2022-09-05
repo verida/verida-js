@@ -9,12 +9,13 @@ import { Wallet } from '@ethersproject/wallet'
 // @todo: Link this in package.json
 import { VdaDID, BulkDelegateParam, BulkAttributeParam, DelegateTypes } from '@verida/vda-did'
 import { getResolver, verificationMethodTypes, interpretIdentifier } from '@verida/vda-did-resolver'
-import { CallType, VeridaContract, VeridaMetaTransactionConfig } from '@verida/web3'
+import { CallType, VeridaContract, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
 
 import { Provider } from '@ethersproject/providers'
 
 import { Resolver, ServiceEndpoint, VerificationMethod } from 'did-resolver'
-import { Signer } from 'ethers'
+// import { Signer } from 'ethers'
+import { Signer } from '@ethersproject/abstract-signer';
 
 import { DIDDocument as VeridaDocument } from '@verida/did-document'
 // import { VeridaMetaTransactionConfig } from '@verida/web3/build/src/config'
@@ -131,7 +132,7 @@ class DIDClientImpl implements DIDClient {
 
         const web3Config = config.callType === 'gasless' ?
             <VeridaMetaTransactionConfig>config.web3Config :
-            <VeridaSelfTransactionConfigPart>{
+            <VeridaSelfTransactionConfig>{
                 ...<VeridaSelfTransactionConfigPart>config.web3Config,
                 provider: config.provider,
                 rpcUrl: config.rpcUrl,
@@ -140,6 +141,7 @@ class DIDClientImpl implements DIDClient {
 
         this.vdaDid = new VdaDID({
             identifier: config.identifier,
+            vdaKey: this.veridaWallet.privateKey,
             chainNameOrId: config.chainName || config.chainId,
             callType: config.callType,
             web3Options: web3Config

@@ -1,9 +1,6 @@
 'use strict'
 const assert = require('assert')
 
-// import { privateKey } from '/mnt/Work/Sec/test.json'
-const { privateKey } = require('/mnt/Work/Sec/test.json')
-
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { VdaDID } from '@verida/vda-did'
@@ -12,23 +9,36 @@ import { DIDClient, createDIDClient } from "../src/index"
 
 require('dotenv').config()
 
+if (process.env.PRIVATE_KEY === undefined) {
+    throw new Error('PRIVATE_KEY not defined in env')
+}
+const privateKey : string = process.env.PRIVATE_KEY!
 const veridaPrivateKey = '0x' + privateKey
 
 const currentNet = process.env.RPC_TARGET_NET
 if (currentNet === undefined) {
     throw new Error('RPC_TARGET_NET is not defined in env')
 }
+
+const chainId = process.env[`CHAIN_ID_${currentNet}`]
+if (chainId === undefined) {
+  throw new Error('Chain ID not defined in env')
+}
+console.log('Chain Id : ', chainId)
+
 const rpcUrl = process.env[`${currentNet}`]
 if (rpcUrl === undefined) {
     throw new Error('RPC url is not defined in env')
 }
+console.log('Curren:', rpcUrl)
+
 const registry = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
 if (registry === undefined) {
     throw new Error("Registry address not defined in env")
 }
+console.log('Contract : ', registry)
 
-// const identity = '0x599b3912A63c98dC774eF3E60282fBdf14cda748'.toLowerCase()
-const identity = '0xB4a1a9C1B296280a95E004bFdbcf627315dEE07d'.toLowerCase()
+const identity = new Wallet(veridaPrivateKey).address
 
 const provider = new JsonRpcProvider(rpcUrl);
 const txSigner = new Wallet(privateKey, provider)
@@ -36,6 +46,18 @@ const txSigner = new Wallet(privateKey, provider)
 
 describe('DID Document tests', () => {
     let didClient
+
+    const contextList = [
+        Wallet.createRandom().address,
+        Wallet.createRandom().address,
+        Wallet.createRandom().address
+    ]
+
+    const pubKeyList = [
+        Wallet.createRandom().address,
+        Wallet.createRandom().address,
+        Wallet.createRandom().address
+    ]
 
     before(async () => {
         console.log('Creating DIDClient for test')
@@ -45,7 +67,7 @@ describe('DID Document tests', () => {
             // vda-did resolver - only
             identifier : identity, // DID
             // chainName? : string, 
-            chainId : '0x89',
+            chainId : chainId,
         
             // common to vda-did resolver & vda-did self transaction config
             provider,
@@ -70,8 +92,8 @@ describe('DID Document tests', () => {
         console.log(document)
 
         // Add signkey
-        let context = '0x888888eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
-        let pubKey = '0x999999b792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
+        let context = contextList[0]
+        let pubKey = pubKeyList[0]
         document!.verificationMethod!.push({
             id:`${didClient.getDid()}?context=${context}`,
             type: 'EcdsaSecp256k1VerificationKey2019',
@@ -80,8 +102,8 @@ describe('DID Document tests', () => {
         })
 
         // Add AsymKey
-        context = '0x888888eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00002'
-        pubKey = '0x999999b792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300002'
+        context = context[1]
+        pubKey = pubKeyList[1]
         let id = `${didClient.getDid()}?context=${context}`
         document!.verificationMethod!.push({
             id,
@@ -100,7 +122,7 @@ describe('DID Document tests', () => {
             document!.service = []
         }
 
-        context = '0x777777eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00002'
+        context = contextList[2]
         id = `${didClient.getDid()}?context=${context}&type=message`
         document!.service!.push({
             id,
@@ -132,8 +154,8 @@ describe('DID Document tests', () => {
         console.log('******** Original DIDDocument**********')
         console.log(document?.verificationMethod)
 
-        const context = '0x888888eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
-        const pubKey = '0x999999b792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
+        const context = contextList[0]
+        const pubKey = pubKeyList[0]
         document!.verificationMethod!.push({
             id:`${didClient.getDid()}?context=${context}`,
             type: 'EcdsaSecp256k1VerificationKey2019',
@@ -159,8 +181,8 @@ describe('DID Document tests', () => {
         console.log(document?.verificationMethod)
         console.log(document?.keyAgreement)
 
-        const context = '0x888888eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
-        const pubKey = '0x999999b792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
+        const context = contextList[0]
+        const pubKey = pubKeyList[0]
         const id = `${didClient.getDid()}?context=${context}`
         document!.verificationMethod!.push({
             id,
@@ -196,7 +218,7 @@ describe('DID Document tests', () => {
             document!.service = []
         }
 
-        const context = '0x777777eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00002'
+        const context = contextList[1]
         const id = `${didClient.getDid()}?context=${context}&type=message`
         document!.service!.push({
             id,
