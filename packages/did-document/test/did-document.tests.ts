@@ -120,17 +120,6 @@ describe('DID document tests', () => {
     })
 
     describe('Document signing and verification', function() {
-        it('can sign and verify a proof', async function() {
-            const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-
-            doc.signProof(wallet.privateKey)
-            assert.ok(doc.verifyProof(), "Proof is valid")
-
-            const data = doc.export()
-            assert.ok(data.proof, "Proof still exists after verification")
-        })
-
         it('can sign and verify any context data', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
             await doc.addContext(CONTEXT_NAME, keyring, endpoints)

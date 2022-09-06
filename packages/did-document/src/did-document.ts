@@ -1,12 +1,13 @@
 import { Keyring } from '@verida/keyring'
-import { DIDDocumentStruct, Endpoints, EndpointType } from './interfaces'
+import { DIDDocument as DocInterface} from 'did-resolver'
+import { Endpoints, EndpointType } from './interfaces'
 import EncryptionUtils from '@verida/encryption-utils'
 import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
 const _ = require('lodash')
 
 export default class DIDDocument {
 
-    private doc: DIDDocumentStruct
+    private doc: DocInterface
     protected errors: string[] = []
 
     /**
@@ -14,7 +15,7 @@ export default class DIDDocument {
      * 
      * @param doc 
      */
-    constructor(doc: DIDDocumentStruct | string, publicKeyHex?: string) {
+    constructor(doc: DocInterface | string, publicKeyHex?: string) {
         if (typeof(doc) == 'string') {
             // We are creating a new DID Document
             // Make sure we have a public key
@@ -116,7 +117,7 @@ export default class DIDDocument {
         return true
     }
 
-    public import(doc: DIDDocumentStruct) {
+    public import(doc: DocInterface) {
         doc.id = doc.id.toLowerCase()
         this.doc = doc
     }
@@ -179,33 +180,6 @@ export default class DIDDocument {
         this.doc.keyAgreement.push(`${this.doc.id}?context=${contextHash}#asym`)
     }
 
-    public signProof(privateKey: Uint8Array | string) {
-        if (privateKey == 'string') {
-            privateKey = new Uint8Array(Buffer.from(privateKey.substr(2),'hex'))
-        }
-
-        const proofData = this.getProofData()
-        const signature = EncryptionUtils.signData(proofData, <Uint8Array> privateKey)
-
-        this.doc.proof = {
-            type: "EcdsaSecp256k1VerificationKey2019",
-            verificationMethod: `${this.doc.id}`,
-            proofPurpose: "assertionMethod",
-            proofValue: signature
-        }
-    }
-
-    public verifyProof() {
-        if (!this.doc.proof) {
-            return false
-        }
-
-        const signature = this.doc.proof.proofValue
-        const proofData = this.getProofData()
-
-        return this.verifySig(proofData, signature)
-    }
-
     public verifySig(data: any, signature: string): boolean {
         const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == this.doc.id)
         if (!verificationMethod || !verificationMethod.publicKeyHex) {
@@ -232,12 +206,6 @@ export default class DIDDocument {
 
         const signPublicKey = verificationMethod.publicKeyHex!
         return EncryptionUtils.verifySig(data, signature, signPublicKey)
-    }
-
-    private getProofData() {
-        const proofData = Object.assign({}, this.doc)
-        delete proofData['proof']
-        return proofData
     }
 
     public static generateContextHash(did: string, contextName: string) {
