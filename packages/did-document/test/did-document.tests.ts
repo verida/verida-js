@@ -145,4 +145,137 @@ describe('DID document tests', () => {
         })
     })
 
+    describe('Document comparison', function() {
+        it('can correctly identify added records', async function() {
+            const doc1 = new DIDDocument(did, wallet.publicKey)
+            await doc1.addContext(CONTEXT_NAME, keyring, endpoints)
+
+            const doc2 = new DIDDocument({
+                id: did,
+                controller: `${did}-2`
+            }, wallet.publicKey)
+            await doc2.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc2.addContext(CONTEXT_NAME_2, keyring, endpoints)
+
+            const compareResult: any = doc1.compare(doc2)
+
+            // Verify controller has changed
+            assert.equal(compareResult.controller, `${did}-2`, 'controller is correct')
+
+            // Verify service
+            assert.deepEqual(compareResult.verificationMethod.add, [
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#sign`,
+                    type: 'EcdsaSecp256k1VerificationKey2019',
+                    controller: did,
+                    publicKeyHex: '0x03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                },
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#asym`,
+                    type: 'Curve25519EncryptionPublicKey',
+                    controller: did,
+                    publicKeyHex: '0x7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
+                }
+            ], 'verificationMethod/add is correct')
+            assert.deepEqual(compareResult.verificationMethod.remove, [
+                // As we manually set the controller, the DID verification method wasn't auto generated
+                {
+                    id: did,
+                    type: 'EcdsaSecp256k1VerificationKey2019',
+                    controller: did,
+                    publicKeyHex: '0x048e07cef8dae5b156c3b504c3d09d7a1f038461a9c546e3654d8c2a5189c313cc0bd0aaac0cbfcf5e12895bcf4d1347f6ca14d7e546c96e0ad7acae45e07d13ae'
+                  }
+            ], 'verificationMethod/remove is correct')
+
+            // Verify assertionMethod
+            assert.deepEqual(compareResult.assertionMethod.add, [
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#sign`
+            ], 'assertionMethod/add is correct')
+            assert.deepEqual(compareResult.assertionMethod.remove, [
+                // // As we manually set the controller, the DID assertion method wasn't auto generated
+                'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694'
+            ], 'assertionMethod/remove is correct')
+
+            // Verify service
+            assert.deepEqual(compareResult.service.add, [
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#database`,
+                    type: endpoints.database.type,
+                    serviceEndpoint: endpoints.database.endpointUri
+                },
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#messaging`,
+                    type: endpoints.messaging.type,
+                    serviceEndpoint: endpoints.messaging.endpointUri
+                }
+            ], 'service/add is correct')
+            assert.deepEqual(compareResult.service.remove, [], 'service/remove is correct')
+
+            // Verify keyAgreement
+            assert.deepEqual(compareResult.keyAgreement.add, [
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#asym`
+            ], 'keyAgreement/add is correct')
+            assert.deepEqual(compareResult.keyAgreement.remove, [], 'keyAgreement/remove is correct')
+        })
+
+        it('can correctly identify removed records', async function() {
+            const doc1 = new DIDDocument(did, wallet.publicKey)
+            await doc1.addContext(CONTEXT_NAME, keyring, endpoints)
+
+            const doc2 = new DIDDocument(did, wallet.publicKey)
+            await doc2.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc2.addContext(CONTEXT_NAME_2, keyring, endpoints)
+
+            // Compare in the opposite direction to identify removals
+            const compareResult: any = doc2.compare(doc1)
+
+            // Verify controller hasn't changed
+            assert.equal(compareResult.controller, undefined, 'controller is correct')
+
+            // Verify service
+            assert.deepEqual(compareResult.verificationMethod.remove, [
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#sign`,
+                    type: 'EcdsaSecp256k1VerificationKey2019',
+                    controller: did,
+                    publicKeyHex: '0x03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                },
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#asym`,
+                    type: 'Curve25519EncryptionPublicKey',
+                    controller: did,
+                    publicKeyHex: '0x7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
+                }
+            ], 'verificationMethod/remove is correct')
+            assert.deepEqual(compareResult.verificationMethod.add, [], 'verificationMethod/add is correct')
+
+            // Verify assertionMethod
+            assert.deepEqual(compareResult.assertionMethod.remove, [
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#sign`
+            ], 'assertionMethod/remove is correct')
+            assert.deepEqual(compareResult.assertionMethod.add, [], 'assertionMethod/add is correct')
+
+            // Verify service
+            assert.deepEqual(compareResult.service.remove, [
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#database`,
+                    type: endpoints.database.type,
+                    serviceEndpoint: endpoints.database.endpointUri
+                },
+                {
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#messaging`,
+                    type: endpoints.messaging.type,
+                    serviceEndpoint: endpoints.messaging.endpointUri
+                }
+            ], 'service/remove is correct')
+            assert.deepEqual(compareResult.service.add, [], 'service/add is correct')
+
+            // Verify keyAgreement
+            assert.deepEqual(compareResult.keyAgreement.remove, [
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a#asym`
+            ], 'keyAgreement/remove is correct')
+            assert.deepEqual(compareResult.keyAgreement.add, [], 'add/remove is correct')
+        })
+    })
+
 })
