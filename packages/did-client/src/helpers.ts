@@ -58,6 +58,7 @@ export function getUpdateListFromDocument(document: DIDDocument) {
     document?.verificationMethod?.forEach(item => {
         // DIDDelegateChanged for veriKey
         // or Controller
+        console.log('did-client helper: item', item)
         const {address: did} = interpretIdentifier(item.id)
         if ('blockchainAccountId' in item) {
             // console.log('helper found a delegate changed')

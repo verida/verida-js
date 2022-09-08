@@ -1,3 +1,4 @@
+import { DIDDocument as DocInterface} from 'did-resolver'
 export interface SecureContextEndpoint {
     type: string;
     endpointUri: string;
@@ -16,4 +17,10 @@ export enum EndpointType {
     MESSAGING = 'messaging',
     STORAGE = 'storage',
     NOTIFICATION = 'notification'
+}
+
+export interface ComparisonResult {
+    controller?: string | string[];
+    add: DocInterface;
+    remove: DocInterface;
 }

@@ -152,7 +152,8 @@ export class VdaDidController {
    * @param attrName Attribute name
    * @param attrValue Attribute value.
    * @param exp Validity duration
-   * @param proof Signaure signed by private key of proof provider
+   * @param proof An optional proof signed by the DID controller that proves the DID controls the public key being set as an attribute. See https://github.com/verida/blockchain-contracts/issues/40 (verifyRequest) for more details.
+   * @param signKey Private key for the DID controller, used on chain to verify this request originated from the DID controller
    * @param options Optional - Not used now. Transaction overrides
    * @returns Object that shows the status & transactionRecipient or status & err message
    */
@@ -181,6 +182,7 @@ export class VdaDidController {
    * Revoke an attribute
    * @param attrName Attribute name
    * @param attrValue Attribute value.
+   * @param signKey Private key for the DID controller, used on chain to verify this request originated from the DID controller
    * @param options Optional - Not used now. Transaction overrides
    * @returns Object that shows the status & transactionRecipient or status & err message
    */
@@ -217,6 +219,7 @@ export class VdaDidController {
    * Perform bulk transaction to add delegateList & attributeList
    * @param delegateParams delegate list to be added
    * @param attributeParams attribute list to be added
+   * @param signKey Private key for the DID controller, used on chain to verify this request originated from the DID controller
    * @param options Optional - Not used now. Transaction overrides
    * @returns Object that shows the status & transactionRecipient or status & err message
    */
@@ -267,6 +270,7 @@ export class VdaDidController {
    * Perform bulk transaction to revoke delegateList & attributeList
    * @param delegateParams delegate list to be added
    * @param attributeParams attribute list to be added
+   * @param signKey Private key for the DID controller, used on chain to verify this request originated from the DID controller
    * @param options Optional - Not used now. Transaction overrides
    * @returns Object that shows the status & transactionRecipient or status & err message
    */
