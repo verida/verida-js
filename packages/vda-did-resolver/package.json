@@ -99,7 +99,7 @@
     "@ethersproject/contracts": "^5.5.0",
     "@ethersproject/providers": "^5.5.0",
     "@ethersproject/transactions": "^5.5.0",
-    "@verida/encryption-utils": "^1.1.3",
+    "@verida/encryption-utils": "*",
     "@verida/web3": "*",
     "did-resolver": "^3.1.5",
     "dotenv": "^16.0.1",

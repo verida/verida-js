@@ -6,7 +6,6 @@ const deepcopy = require('deepcopy')
 import { default as VeridaWallet } from "./wallet"
 import { Wallet } from '@ethersproject/wallet'
 
-// @todo: Link this in package.json
 import { VdaDID, BulkDelegateParam, BulkAttributeParam, DelegateTypes } from '@verida/vda-did'
 import { getResolver, verificationMethodTypes, interpretIdentifier } from '@verida/vda-did-resolver'
 import { CallType, VeridaContract, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'

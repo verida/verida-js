@@ -17,7 +17,9 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/did-document": "^1.0.5",
+    "@verida/did-document": "*",
+    "@verida/vda-did-resolver": "*",
+    "@verida/web3": "*",
     "axios": "^0.23.0",
     "deepcopy": "^2.1.0",
     "ethers": "^5.5.1"
