@@ -10,7 +10,7 @@ import { VdaDID, BulkDelegateParam, BulkAttributeParam, DelegateTypes } from '@v
 import { getResolver, verificationMethodTypes, interpretIdentifier } from '@verida/vda-did-resolver'
 import { CallType, VeridaContract, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
 
-import { Provider } from '@ethersproject/providers'
+import { JsonRpcProvider } from '@ethersproject/providers'
 
 import { Resolver, ServiceEndpoint, VerificationMethod } from 'did-resolver'
 // import { Signer } from 'ethers'
@@ -27,21 +27,28 @@ interface VeridaSelfTransactionConfigPart  {
     privateKey?: string
 }
 
+export interface DIDNetwork {
+    DIDRegistryAddress: string
+    chainId: number,
+}
+
+// @todo: config this in vda-did-resolver
+const NETWORKS: Record<string, DIDNetwork> = {
+    testnet: {
+        DIDRegistryAddress: '0x0D10C68F52326C47Dfc3FDBFDCCb37e3b8C852Cb',
+        chainId: 0x13881
+    }
+}
+
 /**
  * veridaPrivateKey, callType, web3Config can be provided later by authenticate
  */
 
 export interface DIDClientConfig {
-    // vda-did resolver - only
-    identifier : string // string value "vda:did:0x12...f" or ethereum address
-    chainName? : string 
-    chainId? : string | number
-
-    // common to vda-did resolver & vda-did self transaction config
-    provider? : Provider
-    rpcUrl? : string
-    registry?: string
-    web3?: any
+    network: string             // testnet OR mainnet OR custom @todo: use proper enums
+    networkCustom?: DIDNetwork  // custom network config
+    connectMode: string         // direct OR gasless @todo: use proper enums
+    rpcUrl : string            // blockchain RPC URI to use
 }
 
 // Interfaces for saving DID Document
@@ -91,38 +98,45 @@ export async function createDIDClient(config:DIDClientConfig) : Promise<DIDClien
 class DIDClientImpl implements DIDClient {
 
     private config: DIDClientConfig
-    private identifier: string // Inputed value in consturctor
-    private did: string // Interpreted did from identifier
+
+    private network: DIDNetwork
 
     // vda-did resolver
     private didResolver: Resolver
 
     // Verida Wallet Info
-    private veridaPrivateKey: Uint8Array | undefined
     private veridaWallet: VeridaWallet | undefined
+
     // private did?: string
     private vdaDid: VdaDID | undefined
 
     constructor(config: DIDClientConfig) {
         this.config = config
-        this.identifier = config.identifier
+        if (config.network == 'custom') {
+            this.network = config.networkCustom!
+        } else {
+            this.network = NETWORKS[config.network]
+        }
 
-        const { address, publicKey, network } = interpretIdentifier(this.identifier)
-        const net = network || (config.chainName || config.chainId)
-        let networkString = net ? `${net}:` : ''
+        const provider = new JsonRpcProvider(this.config.rpcUrl)
+
+        //this.identifier = config.identifier
+
+        //const { address, publicKey, network } = interpretIdentifier(this.identifier)
+        //const net = network || (config.chainName || config.chainId)
+        /*let networkString = net ? `${net}:` : ''
         if (networkString in ['mainnet:', '0x1:']) {
             networkString = ''
         }
         this.did = publicKey ? `did:ethr:${networkString}${publicKey}` : `did:ethr:${networkString}${address}`
-        console.log('did-client DID : ', this.did)
+        console.log('did-client DID : ', this.did)*/
 
         const vdaDidResolver = getResolver({
-            name: config.chainName,
-            provider: config.provider,
-            rpcUrl: config.rpcUrl,
-            registry: config.registry,
-            chainId: config.chainId,
-            web3: config.web3
+            name: '',   // @todo: set proper testnet, mainnet in vda-did-resolver
+            provider,
+            rpcUrl: this.config.rpcUrl,
+            registry: this.network.DIDRegistryAddress,
+            chainId: this.network.chainId
         })
         
         this.didResolver = new Resolver(vdaDidResolver)
@@ -141,21 +155,20 @@ class DIDClientImpl implements DIDClient {
     ) {
         
         this.veridaWallet = new VeridaWallet(veridaPrivateKey)
-        this.veridaPrivateKey = this.veridaWallet.privateKeyBuffer
+        const provider = new JsonRpcProvider(this.config.rpcUrl)
 
         const _web3Config = callType === 'gasless' ?
             <VeridaMetaTransactionConfig>web3Config :
             <VeridaSelfTransactionConfig>{
                 ...<VeridaSelfTransactionConfigPart>web3Config,
-                provider: this.config.provider,
+                provider: provider,
                 rpcUrl: this.config.rpcUrl,
-                web3: this.config.web3
             }
 
         this.vdaDid = new VdaDID({
             identifier: this.identifier,
-            vdaKey: this.veridaWallet.privateKey,
-            chainNameOrId: this.config.chainName || this.config.chainId,
+            vdaKey: this.veridaWallet.privateKey,   // should this be buffer?
+            chainNameOrId: this.network.chainId,
             callType: callType,
             web3Options: _web3Config
         })
@@ -163,8 +176,9 @@ class DIDClientImpl implements DIDClient {
     
     public getDid(): string | undefined {
         if (this.veridaWallet !== undefined) {
-            return this.vdaDid!.did
+            return this.veridaWallet.did
         }
+
         return undefined
     }
     
@@ -172,6 +186,7 @@ class DIDClientImpl implements DIDClient {
         if (this.veridaWallet !== undefined) {
             return this.veridaWallet.publicKey
         }
+
         return undefined
     }
 
@@ -183,16 +198,13 @@ class DIDClientImpl implements DIDClient {
      */
     public async save(document: DIDDocument | undefined): Promise<boolean> {
         if (this.veridaWallet === undefined) {
-            return Promise.reject('Not authenticated.')
+            throw new Error("Unable to save DIDDocument. No private key.")
         }
 
-        const orgDoc = await this.get()
-        
-        if (document === undefined) {
-            return Promise.reject("Empty document")
-        }
-
-        const comparisonResult = orgDoc.compare(document)
+        // Fetch the existing doc. This creates a new, empty doc if not found
+        console.log('tryuing to find existing doc', document)
+        const existingDoc = await this.get(document!.id)
+        const comparisonResult = existingDoc.compare(existingDoc)
 
         const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(comparisonResult.remove)
         const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(comparisonResult.add)
@@ -219,8 +231,8 @@ class DIDClientImpl implements DIDClient {
         }
         */
 
-        console.log('saveDocument - returning result')
-        return Promise.resolve(true)
+        console.log('DIDClient.save() completed successfully')
+        return true
 
         /*
         // Revoke deleted items in original document
@@ -244,78 +256,78 @@ class DIDClientImpl implements DIDClient {
 
     /**
      * 
-     * @returns Get original document loaded from blockchain
+     * @returns Get original document loaded from blockchain. Creates a new one if not found
      */
-    public async get(did = this.did): Promise<DIDDocument> {
+    public async get(did: string): Promise<DIDDocument> {
+        console.log('did: ', did)
         const resolutionResult = await this.didResolver.resolve(did)
-        return new Promise<DIDDocument>((resolve, reject) => {
-            console.log('did-client get : returned ', resolutionResult)
-            if (resolutionResult.didDocument !== null) {
-                // vda-did-resolver always return didDocument if no exception occured while parsing
-                resolve(new DIDDocument(resolutionResult.didDocument!))
+        console.log('did-client get : returned ', resolutionResult)
 
-                // Test code
-                // this.didDoc = {
-                //     '@context': [
-                //       'https://www.w3.org/ns/did/v1',
-                //       'https://w3id.org/security/suites/secp256k1recovery-2020/v2'
-                //     ],
-                //     id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
-                //     verificationMethod: [
-                //         {
-                //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
-                //           type: 'EcdsaSecp256k1RecoveryMethod2020',
-                //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
-                //           blockchainAccountId: '0x599b3912A63c98dC774eF3E60282fBdf14cda748@eip155:97'
-                //         },
-                //         {
-                //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
-                //           type: 'EcdsaSecp256k1VerificationKey2019',
-                //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
-                //           publicKeyHex: '12345bb792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
-                //         },
-                //         {
-                //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003',
-                //           type: 'Ed25519VerificationKey2018',
-                //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
-                //           publicKeyBase58: '2E4cfzc9Kf2nvScMZ2bJwGKPn19TJYvPE98D8RCguqL6'
-                //         }
-                //     ],
-                //     assertionMethod: [
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003'
-                //     ],
-                //     authentication: [
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
-                //     ],
-                //     service: [
-                //         {
-                //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x84e5fb4eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca4698fd4&type=message',
-                //             type: 'VeridaMessage',
-                //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
-                //         },
-                //         {
-                //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0xcfbf4621af64386c92c0badd0aa3ae3877a6ea6e298dfa54aa6b1ebe00769b28&type=database',
-                //             type: 'VeridaDatabase',
-                //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
-                //         }
-                //     ]
-                //   }
-            } else {
-                const baseDIDDocument: DocInterface = {
-                    '@context': [
-                      'https://www.w3.org/ns/did/v1',
-                      'https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld',
-                    ],
-                    id: this.did,
-                    verificationMethod: [],
-                    authentication: [],
-                    assertionMethod: [],
-                }
-                resolve(new DIDDocument(baseDIDDocument))
+        if (resolutionResult.didDocument !== null) {
+            // vda-did-resolver always return didDocument if no exception occured while parsing
+            return new DIDDocument(resolutionResult.didDocument!)
+
+            // Test code
+            // this.didDoc = {
+            //     '@context': [
+            //       'https://www.w3.org/ns/did/v1',
+            //       'https://w3id.org/security/suites/secp256k1recovery-2020/v2'
+            //     ],
+            //     id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+            //     verificationMethod: [
+            //         {
+            //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+            //           type: 'EcdsaSecp256k1RecoveryMethod2020',
+            //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+            //           blockchainAccountId: '0x599b3912A63c98dC774eF3E60282fBdf14cda748@eip155:97'
+            //         },
+            //         {
+            //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
+            //           type: 'EcdsaSecp256k1VerificationKey2019',
+            //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+            //           publicKeyHex: '12345bb792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
+            //         },
+            //         {
+            //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003',
+            //           type: 'Ed25519VerificationKey2018',
+            //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+            //           publicKeyBase58: '2E4cfzc9Kf2nvScMZ2bJwGKPn19TJYvPE98D8RCguqL6'
+            //         }
+            //     ],
+            //     assertionMethod: [
+            //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+            //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
+            //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003'
+            //     ],
+            //     authentication: [
+            //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+            //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
+            //     ],
+            //     service: [
+            //         {
+            //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x84e5fb4eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca4698fd4&type=message',
+            //             type: 'VeridaMessage',
+            //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
+            //         },
+            //         {
+            //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0xcfbf4621af64386c92c0badd0aa3ae3877a6ea6e298dfa54aa6b1ebe00769b28&type=database',
+            //             type: 'VeridaDatabase',
+            //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
+            //         }
+            //     ]
+            //   }
+        } else {
+            const baseDIDDocument: DocInterface = {
+                '@context': [
+                    'https://www.w3.org/ns/did/v1',
+                    'https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld',
+                ],
+                id: did,
+                verificationMethod: [],
+                authentication: [],
+                assertionMethod: [],
             }
-        })
+            return new DIDDocument(baseDIDDocument)
+        }
     }
 }

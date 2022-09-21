@@ -41,6 +41,9 @@ console.log('Contract : ', registry)
 
 const identity = new Wallet(veridaPrivateKey).address
 
+// @bug: This causes issues because our DID resolver expects `did:ethr`. This needs to be fixed in vda-did-resolver
+const did = `did:ethr:${identity}`
+
 const provider = new JsonRpcProvider(rpcUrl);
 const txSigner = new Wallet(privateKey, provider)
 
@@ -63,22 +66,15 @@ describe('DID Document tests', () => {
     before(async () => {
         console.log('Creating DIDClient for test')
         didClient = await createDIDClient({
-            // vda-did resolver - only
-            identifier : identity, // DID
-            // chainName? : string, 
-            chainId : chainId,
-        
-            // common to vda-did resolver & vda-did self transaction config
-            provider,
-            rpcUrl,
-            registry,
-            // web3?: any,
+            connectMode: 'direct',
+            network: 'testnet',
+            rpcUrl
         })
         console.log('DIDClient created successfully')
     })
 
     it ('Create a DIDDocument with one transaction',async () => {
-        const document = await didClient.get()
+        const document = await didClient.get(did)
         console.log('******** Original DIDDocument**********')
         console.log(document)
 
