@@ -12,7 +12,7 @@ describe('ethrResolver (alt-chains)', () => {
   describe('eth-networks', () => {
     it('resolves on mainnet with versionId', async () => {
       const resolver = new Resolver(getResolver({ infuraProjectId: '6b734e0b04454df8a6ce234023c04f26' }))
-      const result = await resolver.resolve('did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388?versionId=12090174')
+      const result = await resolver.resolve('did:vda0x26bf14321004e770e7a8b080b7a526d8eed8b388?versionId=12090174')
       expect(result).toEqual({
         didDocumentMetadata: {
           nextVersionId: '12090175',
@@ -26,23 +26,23 @@ describe('ethrResolver (alt-chains)', () => {
             'https://www.w3.org/ns/did/v1',
             'https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld',
           ],
-          id: 'did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388',
+          id: 'did:vda:0x26bf14321004e770e7a8b080b7a526d8eed8b388',
           verificationMethod: [
             {
-              id: 'did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller',
+              id: 'did:vda:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller',
               type: 'EcdsaSecp256k1RecoveryMethod2020',
-              controller: 'did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388',
+              controller: 'did:vda:0x26bf14321004e770e7a8b080b7a526d8eed8b388',
               blockchainAccountId: '0x26bF14321004e770E7A8b080b7a526d8eed8b388@eip155:1',
             },
           ],
-          authentication: ['did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller'],
-          assertionMethod: ['did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller'],
+          authentication: ['did:vda:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller'],
+          assertionMethod: ['did:vda:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller'],
         },
       })
     })
 
     it('resolves on ropsten when configured', async () => {
-      const did = 'did:ethr:ropsten:' + addr
+      const did = 'did:vda:ropsten:' + addr
       const ethr = getResolver({
         networks: [{ name: 'ropsten', rpcUrl: 'https://ropsten.infura.io/v3/6b734e0b04454df8a6ce234023c04f26' }],
       })
@@ -72,7 +72,7 @@ describe('ethrResolver (alt-chains)', () => {
     })
 
     it('resolves on rinkeby when configured', async () => {
-      const did = 'did:ethr:rinkeby:' + addr
+      const did = 'did:vda:rinkeby:' + addr
       const ethr = getResolver({
         networks: [{ name: 'rinkeby', rpcUrl: 'https://rinkeby.infura.io/v3/6b734e0b04454df8a6ce234023c04f26' }],
       })
@@ -102,7 +102,7 @@ describe('ethrResolver (alt-chains)', () => {
     })
 
     it('resolves on kovan when configured', async () => {
-      const did = 'did:ethr:kovan:' + addr
+      const did = 'did:vda:kovan:' + addr
       const ethr = getResolver({
         networks: [{ name: 'kovan', rpcUrl: 'https://kovan.infura.io/v3/6b734e0b04454df8a6ce234023c04f26' }],
       })
@@ -132,7 +132,7 @@ describe('ethrResolver (alt-chains)', () => {
     })
 
     it('resolves on rsk when configured', async () => {
-      const did = 'did:ethr:rsk:' + addr
+      const did = 'did:vda:rsk:' + addr
       const ethr = getResolver({ networks: [{ name: 'rsk', rpcUrl: 'https://did.rsk.co:4444' }] })
       const resolver = new Resolver(ethr)
       const result = await resolver.resolve(did)
@@ -160,7 +160,7 @@ describe('ethrResolver (alt-chains)', () => {
     })
 
     it('resolves on rsk:testnet when configured', async () => {
-      const did = 'did:ethr:rsk:testnet:' + addr
+      const did = 'did:vda:rsk:testnet:' + addr
       const ethr = getResolver({ networks: [{ name: 'rsk:testnet', rpcUrl: 'https://did.testnet.rsk.co:4444' }] })
       const resolver = new Resolver(ethr)
       const result = await resolver.resolve(did)
@@ -188,7 +188,7 @@ describe('ethrResolver (alt-chains)', () => {
     })
 
     it('resolves public key identifier on rsk when configured', async () => {
-      const did = 'did:ethr:rsk:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479'
+      const did = 'did:vda:rsk:0x03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479'
       const ethr = getResolver({ networks: [{ name: 'rsk', rpcUrl: 'https://did.rsk.co:4444' }] })
       const resolver = new Resolver(ethr)
       const doc = await resolver.resolve(did)
@@ -222,7 +222,7 @@ describe('ethrResolver (alt-chains)', () => {
     })
 
     it('resolves public keys and services on aurora when configured', async () => {
-      const did = 'did:ethr:aurora:0x036d148205e34a8591dcdcea34fb7fed760f5f1eca66d254830833f755ff359ef0'
+      const did = 'did:vda:aurora:0x036d148205e34a8591dcdcea34fb7fed760f5f1eca66d254830833f755ff359ef0'
       const ethr = getResolver({
         networks: [
           {

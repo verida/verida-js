@@ -16,7 +16,7 @@ import { EthrDID } from 'ethr-did'
 const keypair = EthrDID.createKeyPair()
 const ethrDid = new EthrDID({...keypair})
 // this creates a DID like:
-// did:ethr:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b
+// did:vda:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b
 ```
 
 This represents a DID that is based on a secp256k1 key pair (ethereum key pair) and that is anchored on the Ethereum
@@ -29,11 +29,11 @@ To create a DID that is anchored on a different network, you must specify a `cha
 ```ts
 let chainNameOrId = 'rinkeby' // you can use the network name for the most popular [test] networks.
 const ethrDidOnRinkeby = new EthrDID({...keypair, chainNameOrId})
-// did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b
+// did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b
 
 chainNameOrId = 5 // goerli chain ID
 const ethrDidOnGoerli = new EthrDID({...keypair, chainNameOrId})
-// did:ethr:0x5:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b
+// did:vda:0x5:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b
 ```
 
 ### Use Existing Web3 Provider
@@ -92,28 +92,28 @@ const didDocument = (await didResolver.resolve(ethrDidOnRinkeby.did)).didDocumen
     "https://www.w3.org/ns/did/v1",
     "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
   ],
-  "id": "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b",
+  "id": "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b",
   "verificationMethod": [
     {
-      "id": "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controller",
+      "id": "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controller",
       "type": "EcdsaSecp256k1RecoveryMethod2020",
-      "controller": "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b",
+      "controller": "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b",
       "blockchainAccountId": "0x80155C25E363Ee9e1BbBCC08cD5Df7CD249A98C4@eip155:4"
     },
     {
-      "id": "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controllerKey",
+      "id": "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controllerKey",
       "type": "EcdsaSecp256k1VerificationKey2019",
-      "controller": "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b",
+      "controller": "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b",
       "publicKeyHex": "0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b"
     }
   ],
   "authentication": [
-    "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controller",
-    "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controllerKey"
+    "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controller",
+    "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controllerKey"
   ],
   "assertionMethod": [
-    "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controller",
-    "did:ethr:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controllerKey"
+    "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controller",
+    "did:vda:rinkeby:0x02ac49094591d32a4e2f93f3368da2d7d827e987ce6cdb3bd3b8a3390fde8fc33b#controllerKey"
   ]
 }
  */
@@ -247,5 +247,5 @@ await ethrDid.setAttribute('did/pub/Ed25519/veriKey/base64', Buffer.from('Arl8MN
 await ethrDid.setAttribute('did/svc/HubService', 'https://hubs.uport.me', 10)
 ```
 
-The [`did:ethr` spec](https://github.com/decentralized-identity/ethr-did-resolver/blob/master/doc/did-method-spec.md)
+The [`did:vda` spec](https://github.com/decentralized-identity/ethr-did-resolver/blob/master/doc/did-method-spec.md)
 has extensive information on the various attributes you can use.

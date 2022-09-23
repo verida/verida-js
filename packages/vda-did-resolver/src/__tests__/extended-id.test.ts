@@ -54,32 +54,32 @@ describe('interpretIdentifier', () => {
     expect(publicKey).toBeUndefined()
     expect(network).toBeUndefined()
   })
-  it('parses did:ethr with address', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:${checksumAddress}`)
+  it('parses did:vda with address', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:${checksumAddress}`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toBeUndefined()
     expect(network).toBeUndefined()
   })
-  it('parses did:ethr with address and version', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:${checksumAddress}?versionId=42`)
+  it('parses did:vda with address and version', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:${checksumAddress}?versionId=42`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toBeUndefined()
     expect(network).toBeUndefined()
   })
-  it('parses did:ethr with address and network', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:0x1:${checksumAddress}`)
+  it('parses did:vda with address and network', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:0x1:${checksumAddress}`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toBeUndefined()
     expect(network).toEqual('0x1')
   })
-  it('parses did:ethr with address and sub-network', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:rsk:testnet:${checksumAddress}`)
+  it('parses did:vda with address and sub-network', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:rsk:testnet:${checksumAddress}`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toBeUndefined()
     expect(network).toEqual('rsk:testnet')
   })
-  it('parses did:ethr with address and sub-network and version', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:rsk:testnet:${checksumAddress}?versionId=42`)
+  it('parses did:vda with address and sub-network and version', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:rsk:testnet:${checksumAddress}?versionId=42`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toBeUndefined()
     expect(network).toEqual('rsk:testnet')
@@ -91,32 +91,32 @@ describe('interpretIdentifier', () => {
     expect(publicKey).toEqual(pubKey)
     expect(network).toBeUndefined()
   })
-  it('parses did:ethr with publicKey', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:${pubKey}`)
+  it('parses did:vda with publicKey', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:${pubKey}`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toEqual(pubKey)
     expect(network).toBeUndefined()
   })
-  it('parses did:ethr with publicKey and version', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:${pubKey}?versionId=42`)
+  it('parses did:vda with publicKey and version', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:${pubKey}?versionId=42`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toEqual(pubKey)
     expect(network).toBeUndefined()
   })
-  it('parses did:ethr with publicKey and network', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:mainnet:${pubKey}`)
+  it('parses did:vda with publicKey and network', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:mainnet:${pubKey}`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toEqual(pubKey)
     expect(network).toEqual('mainnet')
   })
-  it('parses did:ethr with publicKey and sub-network', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:not:so:main:net:${pubKey}`)
+  it('parses did:vda with publicKey and sub-network', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:not:so:main:net:${pubKey}`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toEqual(pubKey)
     expect(network).toEqual('not:so:main:net')
   })
-  it('parses did:ethr with publicKey and sub-network', () => {
-    const { address, publicKey, network } = interpretIdentifier(`did:ethr:not:so:main:net:${pubKey}?versionId=42`)
+  it('parses did:vda with publicKey and sub-network', () => {
+    const { address, publicKey, network } = interpretIdentifier(`did:vda:not:so:main:net:${pubKey}?versionId=42`)
     expect(address).toEqual(checksumAddress)
     expect(publicKey).toEqual(pubKey)
     expect(network).toEqual('not:so:main:net')

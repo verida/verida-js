@@ -100,7 +100,7 @@ export function stringToBytes32(str: string): string {
 export function interpretIdentifier(identifier: string): { address: string; publicKey?: string; network?: string } {
   let id = identifier
   let network = undefined
-  if (id.startsWith('did:ethr')) {
+  if (id.startsWith('did:vda')) {
     id = id.split('?')[0]
     const components = id.split(':')
     id = components[components.length - 1]
@@ -142,7 +142,7 @@ export enum Errors {
   notFound = 'notFound',
 
   /**
-   * The resolver does not know how to resolve the given DID. Most likely it is not a `did:ethr`.
+   * The resolver does not know how to resolve the given DID. Most likely it is not a `did:vda`.
    */
   invalidDid = 'invalidDid',
 
