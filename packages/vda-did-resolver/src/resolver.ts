@@ -380,7 +380,7 @@ export class VdaDidResolver {
       return {
         didResolutionMetadata: {
           error: Errors.invalidDid,
-          message: `Not a valid did:ethr: ${parsed.id}`,
+          message: `Not a valid did:vda: ${parsed.id}`,
         },
         didDocumentMetadata: {},
         didDocument: null,
@@ -467,6 +467,6 @@ export class VdaDidResolver {
   }
 
   build(): Record<string, DIDResolver> {
-    return { ethr: this.resolve.bind(this) }
+    return { vda: this.resolve.bind(this) }
   }
 }

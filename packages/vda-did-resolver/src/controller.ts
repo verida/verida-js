@@ -19,7 +19,7 @@ import EncryptionUtils from '@verida/encryption-utils'
  */
 export class VdaDidController {
   private address: string // public address of did - 0x324...2321
-  public did: string // DID - did:ethr:kovan:0x324...2321
+  public did: string // DID - did:vda:kovan:0x324...2321
 
   private didContract: VeridaContract
 
@@ -27,7 +27,7 @@ export class VdaDidController {
    * Creates an VdaDidController instance.
    * @param callType : Verida Web3 interaction mode : direct/gasless
    * @param options : Verdia Web3 Configuration
-   * @param identifier - required - a `did:ethr` string or a publicKeyHex or an ethereum address
+   * @param identifier - required - a `did:vda` string or a publicKeyHex or an ethereum address
    * @param chainNameOrId - optional - the network name or chainID, defaults to 'mainnet'
    */
   constructor(
@@ -54,7 +54,7 @@ export class VdaDidController {
     if (networkString in ['mainnet:', '0x1:']) {
       networkString = ''
     }
-    this.did = publicKey ? `did:ethr:${networkString}${publicKey}` : `did:ethr:${networkString}${address}`
+    this.did = publicKey ? `did:vda:${networkString}${publicKey}` : `did:vda:${networkString}${address}`
   }
 
   private getVeridaSignature = async (rawMsg: string, privateKey: string) => {

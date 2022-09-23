@@ -47,7 +47,7 @@ describe('EthrDID', () => {
     owner = accounts[2]
     delegate1 = accounts[3]
     delegate2 = accounts[4]
-    did = `did:ethr:dev:${identity}`
+    did = `did:vda:dev:${identity}`
 
     resolver = new Resolver(getResolver({ name: 'dev', provider, registry, chainId: 1337 }))
     ethrDid = new EthrDID({
@@ -504,7 +504,7 @@ describe('EthrDID', () => {
               ],
               service: [
                 {
-                  id: 'did:ethr:dev:0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf#service-1',
+                  id: 'did:vda:dev:0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf#service-1',
                   type: 'HubService',
                   serviceEndpoint: 'https://hubs.uport.me',
                 },
@@ -744,7 +744,7 @@ describe('EthrDID', () => {
     it('supports base58 keys as hexstring', async () => {
       const publicKeyHex =
         '04fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea535847946393f8145252eea68afe67e287b3ed9b31685ba6c3b00060a73b9b1242d68f7'
-      const did = `did:ethr:dev:${delegate1}`
+      const did = `did:vda:dev:${delegate1}`
       const didController = new EthrDID({
         identifier: did,
         provider,
@@ -770,7 +770,7 @@ describe('EthrDID', () => {
     })
 
     it('supports base58 keys as string', async () => {
-      const did = `did:ethr:dev:${delegate2}`
+      const did = `did:vda:dev:${delegate2}`
       const didController = new EthrDID({
         identifier: did,
         provider,
