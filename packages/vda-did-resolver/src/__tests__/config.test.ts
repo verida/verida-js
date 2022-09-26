@@ -2,70 +2,45 @@ import { InfuraProvider, JsonRpcProvider } from '@ethersproject/providers'
 import { configureResolverWithNetworks } from '../configuration'
 
 describe('configuration', () => {
-  it('works with infuraProjectId', () => {
-    const contracts = configureResolverWithNetworks({
-      infuraProjectId: 'blabla',
-      networks: [{ name: 'dev', rpcUrl: 'test' }],
-    })
-    expect(contracts['mainnet']).toBeDefined()
-    expect(contracts['0x1']).toBeDefined()
-    expect(contracts['ropsten']).toBeDefined()
-    expect(contracts['0x3']).toBeDefined()
-    expect(contracts['rinkeby']).toBeDefined()
-    expect(contracts['0x4']).toBeDefined()
-    expect(contracts['goerli']).toBeDefined()
-    expect(contracts['0x5']).toBeDefined()
-    expect(contracts['kovan']).toBeDefined()
-    expect(contracts['0x2a']).toBeDefined()
-    expect(contracts['dev']).toBeDefined()
-  })
-
-  it('works with infuraProjectId and overrides', () => {
-    const contracts = configureResolverWithNetworks({
-      infuraProjectId: 'blabla',
-      networks: [{ name: 'mainnet', rpcUrl: 'redefine me' }],
-    })
-    expect((<InfuraProvider>contracts['mainnet'].provider).projectId).not.toBeDefined()
-    expect((<JsonRpcProvider>contracts['mainnet'].provider).connection.url).toBe('redefine me')
-  })
 
   it('works with named network', async () => {
     const contracts = configureResolverWithNetworks({
-      networks: [{ name: 'rinkeby', provider: new JsonRpcProvider('some rinkeby JSONRPC URL') }],
+      networks: [{ name: 'testnet', provider: new JsonRpcProvider('https://matic-mumbai.chainstacklabs.com') }],
     })
-    expect(contracts['rinkeby']).toBeDefined()
-    expect(contracts['0x4']).toBeDefined()
+    expect(contracts['testnet']).toBeDefined()
+    expect(contracts['0x13881']).toBeDefined()
   })
 
+  
   it('works with single network', async () => {
     const contracts = configureResolverWithNetworks({
-      name: 'rinkeby',
-      provider: new JsonRpcProvider('some rinkeby JSONRPC URL'),
+      name: 'testnet',
+      provider: new JsonRpcProvider('https://matic-mumbai.chainstacklabs.com'),
     })
-    expect(contracts['rinkeby']).toBeDefined()
-    expect(contracts['0x4']).toBeDefined()
+    expect(contracts['testnet']).toBeDefined()
+    expect(contracts['0x13881']).toBeDefined()
   })
 
   it('works with single provider', async () => {
     const contracts = configureResolverWithNetworks({
-      provider: new JsonRpcProvider('some rinkeby JSONRPC URL'),
+      provider: new JsonRpcProvider('https://matic-mumbai.chainstacklabs.com'),
     })
     expect(contracts['']).toBeDefined()
   })
 
   it('works with only rpcUrl', async () => {
     const contracts = configureResolverWithNetworks({
-      rpcUrl: 'some rinkeby JSONRPC URL',
+      rpcUrl: 'https://matic-mumbai.chainstacklabs.com',
     })
     expect(contracts['']).toBeDefined()
   })
 
   it('works with rpc and numbered chainId', async () => {
     const contracts = configureResolverWithNetworks({
-      rpcUrl: 'some rinkeby JSONRPC URL',
-      chainId: 1,
+      rpcUrl: 'https://matic-mumbai.chainstacklabs.com',
+      chainId: 80001,
     })
-    expect(contracts['0x1']).toBeDefined()
+    expect(contracts['0x13881']).toBeDefined()
   })
 
   it('throws when no configuration is provided', () => {

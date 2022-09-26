@@ -2,7 +2,6 @@ import { getResolver } from './resolver'
 import { VdaDidController } from './controller'
 import {
   bytes32toString,
-  DEFAULT_REGISTRY_ADDRESS,
   identifierMatcher,
   interpretIdentifier,
   legacyAlgoMap,
@@ -16,7 +15,6 @@ import { CallType, VdaTransactionResult } from '@verida/web3'
 import { VeridaWeb3ConfigurationOption } from './configuration'
 
 export {
-  DEFAULT_REGISTRY_ADDRESS as REGISTRY,
   getResolver,
   bytes32toString,
   stringToBytes32,

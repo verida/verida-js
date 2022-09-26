@@ -386,6 +386,7 @@ export class VdaDidResolver {
         didDocument: null,
       }
     }
+
     const id = fullId[2]
     const networkId = !fullId[1] ? 'mainnet' : fullId[1].slice(0, -1)
     let blockTag: string | number = options.blockTag || 'latest'

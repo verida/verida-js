@@ -4,7 +4,7 @@ import { getResolver } from '../resolver'
 describe('error handling', () => {
   const didResolver = new Resolver(
     getResolver({
-      networks: [{ name: 'example', rpcUrl: 'example.com' }],
+      networks: [{ name: 'testnet', rpcUrl: 'https://matic-mumbai.chainstacklabs.com' }],
     })
   )
 
