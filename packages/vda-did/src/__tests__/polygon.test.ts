@@ -54,7 +54,7 @@ const vdaDid = testMode === 'direct' ?
   new VdaDID({
     identifier: identity,
     vdaKey: privateKey,
-    chainNameOrId : chainId,
+    chainNameOrId : "testnet", //chainId,
     
     callType: 'web3',
     web3Options: {
@@ -65,7 +65,7 @@ const vdaDid = testMode === 'direct' ?
   new VdaDID({
     identifier: identity,
     vdaKey: privateKey,
-    chainNameOrId : chainId,
+    chainNameOrId : "testnet", //chainId,
     
     callType: 'gasless',
     web3Options: {
@@ -113,10 +113,16 @@ describe('VdaDID', () => {
   }
 
   beforeAll(async () => {
+    // Working one
+    // const providerConfig = { 
+    //   rpcUrl, 
+    //   registry,
+    //   chainId : chainId,
+    // }
+
     const providerConfig = { 
-      rpcUrl, 
-      registry,
-      chainId : chainId,
+      name: "testnet",
+      rpcUrl
     }
     const vdaDidResolver = getResolver(providerConfig)
     didResolver = new Resolver(vdaDidResolver)
@@ -276,7 +282,6 @@ describe('VdaDID', () => {
   */
 
   describe ('crete a complete DIDDocument', () => {
-    /*
     it ('add delegates',async () => {
       await vdaDid.addDelegate(
         delegates[0].delegate,
@@ -330,7 +335,6 @@ describe('VdaDID', () => {
         )
       }
     })
-    */
 
     it('resolve document',async () => {
       console.log("Parsing : ", vdaDid.did)

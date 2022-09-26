@@ -175,7 +175,7 @@ export default class DIDDocument {
             publicKeyHex: publicKeyHex
         })
 
-        // Add assertion method
+        // Add keyAgreement method
         if (!this.doc.keyAgreement) {
             this.doc.keyAgreement = []
         }

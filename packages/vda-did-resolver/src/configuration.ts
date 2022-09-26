@@ -1,9 +1,11 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract, ContractFactory } from '@ethersproject/contracts'
-import { InfuraProvider, JsonRpcProvider, Provider } from '@ethersproject/providers'
-import { DEFAULT_REGISTRY_ADDRESS, knownInfuraNetworks, knownNetworks } from './helpers'
+import { JsonRpcProvider, Provider } from '@ethersproject/providers'
+import { knownNetworks } from './helpers'
 
 import { VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from '@verida/web3'
+
+import { CONTRACT_ADDRESS } from './const'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const DIDRegistry = require('./contract/abi.json')
@@ -38,27 +40,9 @@ export interface MultiProviderConfiguration extends ProviderConfiguration {
   networks?: ProviderConfiguration[]
 }
 
-export interface InfuraConfiguration {
-  infuraProjectId: string
-}
-
-export type ConfigurationOptions = MultiProviderConfiguration | InfuraConfiguration
+export type ConfigurationOptions = MultiProviderConfiguration 
 
 export type ConfiguredNetworks = Record<string, Contract>
-
-function configureNetworksWithInfura(projectId?: string): ConfiguredNetworks {
-  if (!projectId) {
-    return {}
-  }
-  const networks: ProviderConfiguration[] = [
-    { name: 'mainnet', chainId: '0x1', provider: new InfuraProvider('homestead', projectId) },
-    { name: 'ropsten', chainId: '0x3', provider: new InfuraProvider('ropsten', projectId) },
-    { name: 'rinkeby', chainId: '0x4', provider: new InfuraProvider('rinkeby', projectId) },
-    { name: 'goerli', chainId: '0x5', provider: new InfuraProvider('goerli', projectId) },
-    { name: 'kovan', chainId: '0x2a', provider: new InfuraProvider('kovan', projectId) },
-  ]
-  return configureNetworks({ networks })
-}
 
 export function getContractForNetwork(conf: ProviderConfiguration): Contract {
   let provider: Provider = conf.provider || conf.web3?.currentProvider
@@ -66,15 +50,21 @@ export function getContractForNetwork(conf: ProviderConfiguration): Contract {
     if (conf.rpcUrl) {
       const chainIdRaw = conf.chainId ? conf.chainId : knownNetworks[conf.name || '']
       const chainId = chainIdRaw ? BigNumber.from(chainIdRaw).toNumber() : chainIdRaw
-      const networkName = knownInfuraNetworks[conf.name || ''] ? conf.name?.replace('mainnet', 'homestead') : 'any'
+      const networkName = conf.name ?? 'any'
       provider = new JsonRpcProvider(conf.rpcUrl, chainId || networkName)
     } else {
       throw new Error(`invalid_config: No web3 provider could be determined for network ${conf.name || conf.chainId}`)
     }
   }
+
+
+  if (!conf.registry && !CONTRACT_ADDRESS[conf.name || conf.chainId || '']) {
+    throw new Error(`invalid_config: should define contract address for network ${conf.name || conf.chainId}`)
+  }
+
   // console.log('resolver:getContractForNetwork(): ', conf.registry)
   const contract: Contract = ContractFactory.fromSolidity(DIDRegistry)
-    .attach(conf.registry || DEFAULT_REGISTRY_ADDRESS)
+    .attach((conf.registry || CONTRACT_ADDRESS[conf.name || conf.chainId || ''])!)
     .connect(provider)
   return contract
 }
@@ -120,7 +110,6 @@ function configureNetworks(conf: MultiProviderConfiguration): ConfiguredNetworks
  */
 export function configureResolverWithNetworks(conf: ConfigurationOptions = {}): ConfiguredNetworks {
   const networks = {
-    ...configureNetworksWithInfura((<InfuraConfiguration>conf).infuraProjectId),
     ...configureNetworks(<MultiProviderConfiguration>conf),
   }
   if (Object.keys(networks).length === 0) {
@@ -132,14 +121,15 @@ export function configureResolverWithNetworks(conf: ConfigurationOptions = {}): 
 export function getContractInfoForNetwork(chainNameOrId: any) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const abi = require('./contract/abi.json')
-  const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TARGET_NET : 'RPC_URL_POLYGON_MAINNET'
-  const address = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
+  // const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TARGET_NET : 'RPC_URL_POLYGON_MAINNET'
+  // const address = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
+  const address = CONTRACT_ADDRESS[chainNameOrId]
   if (!address) {
     throw new Error('Contract address not defined in env')
   }
   return {
     abi: abi,
-    address: address,
+    address: <string>address,
   }
 }
 

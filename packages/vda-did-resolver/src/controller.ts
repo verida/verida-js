@@ -5,7 +5,7 @@ import { CallOverrides, Contract } from '@ethersproject/contracts'
 import { BlockTag, JsonRpcProvider, Provider, TransactionReceipt } from '@ethersproject/providers'
 // import { getContractForNetwork } from './configuration'
 import { getContractInfoForNetwork } from './configuration'
-import { address, DEFAULT_REGISTRY_ADDRESS, interpretIdentifier, stringToBytes32 } from './helpers'
+import { address, interpretIdentifier, stringToBytes32 } from './helpers'
 
 import { CallType, ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from '@verida/web3'
 import { getVeridaContract, VeridaContract, VdaTransactionResult } from '@verida/web3'
@@ -51,7 +51,7 @@ export class VdaDidController {
 
     this.address = address
     let networkString = net ? `${net}:` : ''
-    if (networkString in ['mainnet:', '0x1:']) {
+    if (networkString in ['mainnet:', '0x89:']) {
       networkString = ''
     }
     this.did = publicKey ? `did:vda:${networkString}${publicKey}` : `did:vda:${networkString}${address}`
