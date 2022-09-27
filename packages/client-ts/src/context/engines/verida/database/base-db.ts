@@ -207,7 +207,7 @@ class BaseDb extends EventEmitter implements Database {
   public async getMany(
     filter: any = {},
     options: any = {}
-  ): Promise<object[] | undefined> {
+  ): Promise<object[]> {
     await this.init();
 
     filter = filter || {};
