@@ -10,7 +10,7 @@
   "umd:main": "lib/index.umd.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:uport-project/ethr-did.git"
+    "url": "git@github.com:verida/verida-js.git"
   },
   "files": [
     "lib",

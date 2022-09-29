@@ -1,5 +1,6 @@
 import { createDIDClient } from "../src/index"
-import { Wallet } from '@ethersproject/wallet'
+// import { Wallet } from '@ethersproject/wallet'
+import { Wallet } from "ethers"
 import { JsonRpcProvider } from '@ethersproject/providers'
 
 require('dotenv').config()
@@ -8,14 +9,13 @@ if (process.env.PRIVATE_KEY === undefined) {
     throw new Error('PRIVATE_KEY not defined in env')
 }
 const privateKey : string = process.env.PRIVATE_KEY!
-const veridaPrivateKey = '0x' + privateKey
 
 const currentNet = process.env.RPC_TARGET_NET
 if (currentNet === undefined) {
     throw new Error('RPC_TARGET_NET is not defined in env')
 }
 
-const chainId = process.env[`CHAIN_ID_${currentNet}`]
+export const chainId = process.env[`CHAIN_ID_${currentNet}`]
 if (chainId === undefined) {
   throw new Error('Chain ID not defined in env')
 }
@@ -33,12 +33,13 @@ if (registry === undefined) {
 }
 console.log('Contract : ', registry)
 
-const identity = new Wallet(veridaPrivateKey).address
+
 
 const provider = new JsonRpcProvider(rpcUrl);
 const txSigner = new Wallet(privateKey, provider)
 
-export async function getDIDClient() {
+export async function getDIDClient(veridaAccount: Wallet) {
+    const identity = veridaAccount.address
     const config = {
         identifier : identity, // DID
         // chainName? : string, 
@@ -53,7 +54,7 @@ export async function getDIDClient() {
     const didClient = await createDIDClient(config)
 
     didClient.authenticate(
-        veridaPrivateKey,
+        veridaAccount.privateKey,
         'web3',
         {
             signer: txSigner

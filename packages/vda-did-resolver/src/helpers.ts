@@ -5,7 +5,6 @@ import { VerificationMethod } from 'did-resolver'
 
 export const identifierMatcher = /^(.*)?(0x[0-9a-fA-F]{40}|0x[0-9a-fA-F]{66})$/
 export const nullAddress = '0x0000000000000000000000000000000000000000'
-export const DEFAULT_REGISTRY_ADDRESS = '0xdca7ef03e98e0dc2b855be647c39abe984fcf21b'
 export const DEFAULT_JSON_RPC = 'http://127.0.0.1:8545/'
 
 export type address = string
@@ -100,7 +99,7 @@ export function stringToBytes32(str: string): string {
 export function interpretIdentifier(identifier: string): { address: string; publicKey?: string; network?: string } {
   let id = identifier
   let network = undefined
-  if (id.startsWith('did:ethr')) {
+  if (id.startsWith('did:vda')) {
     id = id.split('?')[0]
     const components = id.split(':')
     id = components[components.length - 1]
@@ -115,22 +114,9 @@ export function interpretIdentifier(identifier: string): { address: string; publ
   }
 }
 
-export const knownInfuraNetworks: Record<string, string> = {
-  mainnet: '0x1',
-  ropsten: '0x3',
-  rinkeby: '0x4',
-  goerli: '0x5',
-  kovan: '0x2a',
-}
-
 export const knownNetworks: Record<string, string> = {
-  ...knownInfuraNetworks,
-  rsk: '0x1e',
-  'rsk:testnet': '0x1f',
-  artis_t1: '0x03c401',
-  artis_s1: '0x03c301',
-  matic: '0x89',
-  maticmum: '0x13881',
+  mainnet: '0x89',
+  testnet: '0x13881',
 }
 
 export enum Errors {
@@ -142,7 +128,7 @@ export enum Errors {
   notFound = 'notFound',
 
   /**
-   * The resolver does not know how to resolve the given DID. Most likely it is not a `did:ethr`.
+   * The resolver does not know how to resolve the given DID. Most likely it is not a `did:vda`.
    */
   invalidDid = 'invalidDid',
 

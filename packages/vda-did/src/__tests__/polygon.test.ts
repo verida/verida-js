@@ -54,7 +54,7 @@ const vdaDid = testMode === 'direct' ?
   new VdaDID({
     identifier: identity,
     vdaKey: privateKey,
-    chainNameOrId : chainId,
+    chainNameOrId : "testnet", //chainId,
     
     callType: 'web3',
     web3Options: {
@@ -65,7 +65,7 @@ const vdaDid = testMode === 'direct' ?
   new VdaDID({
     identifier: identity,
     vdaKey: privateKey,
-    chainNameOrId : chainId,
+    chainNameOrId : "testnet", //chainId,
     
     callType: 'gasless',
     web3Options: {
@@ -113,15 +113,22 @@ describe('VdaDID', () => {
   }
 
   beforeAll(async () => {
+    // Working one
+    // const providerConfig = { 
+    //   rpcUrl, 
+    //   registry,
+    //   chainId : chainId,
+    // }
+
     const providerConfig = { 
-      rpcUrl, 
-      registry,
-      chainId : chainId,
+      name: "testnet",
+      rpcUrl
     }
     const vdaDidResolver = getResolver(providerConfig)
     didResolver = new Resolver(vdaDidResolver)
   })
 
+  /*
   describe('Delegate test', () => {
     const delegate = delegates[0].delegate
     const delegateType = DelegateTypes.veriKey
@@ -272,6 +279,7 @@ describe('VdaDID', () => {
       expect(result.success).toEqual(true)
     })
   })
+  */
 
   describe ('crete a complete DIDDocument', () => {
     it ('add delegates',async () => {
@@ -329,14 +337,15 @@ describe('VdaDID', () => {
     })
 
     it('resolve document',async () => {
+      console.log("Parsing : ", vdaDid.did)
       doc = await didResolver.resolve(vdaDid.did)
       console.log('Entire Document : ', doc.didDocument);
 
-      console.log("verificationMethod : ", doc.didDocument.verificationMethod)
-      console.log("AssertionMethod : ", doc.didDocument.assertionMethod)
-      console.log("Authentication : ", doc.didDocument.authentication)
-      console.log("keyAgreement : ", doc.didDocument.keyAgreement)
-      console.log("service : ", doc.didDocument.service)
+      console.log("verificationMethod : ", doc.didDocument?.verificationMethod)
+      console.log("AssertionMethod : ", doc.didDocument?.assertionMethod)
+      console.log("Authentication : ", doc.didDocument?.authentication)
+      console.log("keyAgreement : ", doc.didDocument?.keyAgreement)
+      console.log("service : ", doc.didDocument?.service)
     })
   })
 })

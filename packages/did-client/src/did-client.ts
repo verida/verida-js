@@ -113,8 +113,8 @@ class DIDClientImpl implements DIDClient {
         if (networkString in ['mainnet:', '0x1:']) {
             networkString = ''
         }
-        this.did = publicKey ? `did:ethr:${networkString}${publicKey}` : `did:ethr:${networkString}${address}`
-        console.log('did-client DID : ', this.did)
+        this.did = publicKey ? `did:vda:${networkString}${publicKey}` : `did:vda:${networkString}${address}`
+        // console.log('did-client DID : ', this.did)
 
         const vdaDidResolver = getResolver({
             name: config.chainName,
@@ -186,27 +186,34 @@ class DIDClientImpl implements DIDClient {
             return Promise.reject('Not authenticated.')
         }
 
-        const orgDoc = await this.get()
-        
         if (document === undefined) {
             return Promise.reject("Empty document")
         }
+
+        const orgDID = interpretIdentifier(this.identifier)
+        const newDID = interpretIdentifier(document.id)
+
+        if (orgDID.address !== newDID.address) {
+            throw new Error("DID of document is not matched to did-client")
+        }
+
+        const orgDoc = await this.get()
+        // console.log("Org Doc : ", orgDoc.export())
+        // console.log("New Doc : ", document.export())
 
         const comparisonResult = orgDoc.compare(document)
 
         const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(comparisonResult.remove)
         const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(comparisonResult.add)
 
-        console.log('RevokeList', revokeDelegateList, revokeAttributeList)
-        console.log('AddList', addDelegateList, addAttributeList)
+        // console.log('RevokeList', revokeDelegateList, revokeAttributeList)
+        // console.log('AddList', addDelegateList, addAttributeList)
 
         if (revokeDelegateList.length > 0 || revokeAttributeList.length > 0) {
-            console.log('Revoke deleted items', revokeDelegateList, revokeAttributeList)
             await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
         }
 
         if (addDelegateList.length > 0 || addAttributeList.length > 0) {
-            console.log('Add new items', addDelegateList, addAttributeList)
             await this.vdaDid!.bulkAdd(addDelegateList, addAttributeList)
         }
 
@@ -219,27 +226,7 @@ class DIDClientImpl implements DIDClient {
         }
         */
 
-        console.log('saveDocument - returning result')
         return Promise.resolve(true)
-
-        /*
-        // Revoke deleted items in original document
-        const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(orgDoc!)
-        this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList)
-        .then(() => {
-            // Add new items in updated document
-            const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(document!)
-
-            this.vdaDid.bulkAdd(addDelegateList, addAttributeList).then(() => resolve(true))
-            .catch(() => reject('Failed to add new updates'))
-        })
-        .catch(() => reject('Failed to revoke deleted items'))
-
-        // Promise.all([this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList), 
-        // this.vdaDid.bulkAdd(addDelegateList, addAttributeList)])
-        // .then(() => resolve(true))
-        // .catch(() => reject(false))
-        */
     }
 
     /**
@@ -249,7 +236,7 @@ class DIDClientImpl implements DIDClient {
     public async get(did = this.did): Promise<DIDDocument> {
         const resolutionResult = await this.didResolver.resolve(did)
         return new Promise<DIDDocument>((resolve, reject) => {
-            console.log('did-client get : returned ', resolutionResult)
+            // console.log('did-client get : returned ', resolutionResult)
             if (resolutionResult.didDocument !== null) {
                 // vda-did-resolver always return didDocument if no exception occured while parsing
                 resolve(new DIDDocument(resolutionResult.didDocument!))
@@ -260,50 +247,51 @@ class DIDClientImpl implements DIDClient {
                 //       'https://www.w3.org/ns/did/v1',
                 //       'https://w3id.org/security/suites/secp256k1recovery-2020/v2'
                 //     ],
-                //     id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+                //     id: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
                 //     verificationMethod: [
                 //         {
-                //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+                //           id: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
                 //           type: 'EcdsaSecp256k1RecoveryMethod2020',
-                //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+                //           controller: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
                 //           blockchainAccountId: '0x599b3912A63c98dC774eF3E60282fBdf14cda748@eip155:97'
                 //         },
                 //         {
-                //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
+                //           id: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
                 //           type: 'EcdsaSecp256k1VerificationKey2019',
-                //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+                //           controller: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
                 //           publicKeyHex: '12345bb792710e80b7605fe4ac680eb7f070ffadcca31aeb0312df80f7300001'
                 //         },
                 //         {
-                //           id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003',
+                //           id: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003',
                 //           type: 'Ed25519VerificationKey2018',
-                //           controller: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
+                //           controller: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748',
                 //           publicKeyBase58: '2E4cfzc9Kf2nvScMZ2bJwGKPn19TJYvPE98D8RCguqL6'
                 //         }
                 //     ],
                 //     assertionMethod: [
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003'
+                //         'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+                //         'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001',
+                //         'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x67890c45e3ad1ba47c69f266d6c49c589b9d70de837e318c78ff43c7f0b00003'
                 //     ],
                 //     authentication: [
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
-                //         'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
+                //         'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748#controller',
+                //         'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x678904eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca46d00001'
                 //     ],
                 //     service: [
                 //         {
-                //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x84e5fb4eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca4698fd4&type=message',
+                //             id: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0x84e5fb4eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca4698fd4&type=message',
                 //             type: 'VeridaMessage',
                 //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
                 //         },
                 //         {
-                //             id: 'did:ethr:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0xcfbf4621af64386c92c0badd0aa3ae3877a6ea6e298dfa54aa6b1ebe00769b28&type=database',
+                //             id: 'did:vda:0x61:0x599b3912A63c98dC774eF3E60282fBdf14cda748?context=0xcfbf4621af64386c92c0badd0aa3ae3877a6ea6e298dfa54aa6b1ebe00769b28&type=database',
                 //             type: 'VeridaDatabase',
                 //             serviceEndpoint: 'https://db.testnet.verida.io:5002'
                 //         }
                 //     ]
                 //   }
             } else {
+                /*
                 const baseDIDDocument: DocInterface = {
                     '@context': [
                       'https://www.w3.org/ns/did/v1',
@@ -315,6 +303,8 @@ class DIDClientImpl implements DIDClient {
                     assertionMethod: [],
                 }
                 resolve(new DIDDocument(baseDIDDocument))
+                */
+               reject(resolutionResult.didResolutionMetadata.error)
             }
         })
     }

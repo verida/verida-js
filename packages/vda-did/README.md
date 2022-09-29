@@ -7,11 +7,11 @@
 
 This library forked [ethr-did](https://github.com/uport-project/ethr-did) and updated for Verida.
 
-This library can be used to create a new ethr-did identifier. It allows ethr-did identifiers to be represented as an
+This library can be used to create a new vda-did identifier. It allows vda-did identifiers to be represented as an
 object that can perform actions such as updating its DID document, signing messages, and verifying messages from other
 DIDs.
 
-Use this if you are looking for the easiest way to start using ethr-did identifiers, and want high-level abstractions to
+Use this if you are looking for the easiest way to start using vda-did identifiers, and want high-level abstractions to
 access its entire range of capabilities. It encapsulates all the functionality
 of [vda-did-resolver](https://github.com/verida/blockchain-vda-did-resolver)
 and [vda-did-registry](https://github.com/verida/blockchain-contracts/tree/develop/VDA-DID-Registry).
