@@ -27,26 +27,12 @@ interface VeridaSelfTransactionConfigPart  {
     privateKey?: string
 }
 
-export interface DIDNetwork {
-    DIDRegistryAddress: string
-    chainId: number,
-}
-
-// @todo: config this in vda-did-resolver
-const NETWORKS: Record<string, DIDNetwork> = {
-    testnet: {
-        DIDRegistryAddress: '0x0D10C68F52326C47Dfc3FDBFDCCb37e3b8C852Cb',
-        chainId: 0x13881
-    }
-}
-
 /**
  * veridaPrivateKey, callType, web3Config can be provided later by authenticate
  */
 
 export interface DIDClientConfig {
-    network: string             // testnet OR mainnet OR custom @todo: use proper enums
-    networkCustom?: DIDNetwork  // custom network config
+    network: string             // `testnet` OR `mainnet`
     connectMode: string         // direct OR gasless @todo: use proper enums
     rpcUrl : string            // blockchain RPC URI to use
 }
@@ -99,8 +85,6 @@ class DIDClientImpl implements DIDClient {
 
     private config: DIDClientConfig
 
-    private network: DIDNetwork
-
     // vda-did resolver
     private didResolver: Resolver
 
@@ -112,11 +96,6 @@ class DIDClientImpl implements DIDClient {
 
     constructor(config: DIDClientConfig) {
         this.config = config
-        if (config.network == 'custom') {
-            this.network = config.networkCustom!
-        } else {
-            this.network = NETWORKS[config.network]
-        }
 
         const provider = new JsonRpcProvider(this.config.rpcUrl)
 
@@ -132,11 +111,9 @@ class DIDClientImpl implements DIDClient {
         console.log('did-client DID : ', this.did)*/
 
         const vdaDidResolver = getResolver({
-            name: '',   // @todo: set proper testnet, mainnet in vda-did-resolver
+            chainId: this.config.network,
             provider,
             rpcUrl: this.config.rpcUrl,
-            registry: this.network.DIDRegistryAddress,
-            chainId: this.network.chainId
         })
         
         this.didResolver = new Resolver(vdaDidResolver)
@@ -152,8 +129,7 @@ class DIDClientImpl implements DIDClient {
         veridaPrivateKey: string,
         callType: CallType,
         web3Config: VeridaSelfTransactionConfigPart|VeridaMetaTransactionConfig
-    ) {
-        
+    ) { 
         this.veridaWallet = new VeridaWallet(veridaPrivateKey)
         const provider = new JsonRpcProvider(this.config.rpcUrl)
 
@@ -166,9 +142,9 @@ class DIDClientImpl implements DIDClient {
             }
 
         this.vdaDid = new VdaDID({
-            identifier: this.identifier,
+            identifier: this.veridaWallet.did,
             vdaKey: this.veridaWallet.privateKey,   // should this be buffer?
-            chainNameOrId: this.network.chainId,
+            chainNameOrId: this.config.network,
             callType: callType,
             web3Options: _web3Config
         })
@@ -202,26 +178,23 @@ class DIDClientImpl implements DIDClient {
         }
 
         // Fetch the existing doc. This creates a new, empty doc if not found
-        console.log('tryuing to find existing doc', document)
         const existingDoc = await this.get(document!.id)
-        const comparisonResult = existingDoc.compare(existingDoc)
+        const comparisonResult = existingDoc.compare(document)
 
         const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(comparisonResult.remove)
         const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(comparisonResult.add)
 
-        // console.log('RevokeList', revokeDelegateList, revokeAttributeList)
-        // console.log('AddList', addDelegateList, addAttributeList)
-
         if (revokeDelegateList.length > 0 || revokeAttributeList.length > 0) {
-            await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
+            const bulkRevokeResult = await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
+            console.log(bulkRevokeResult)
         }
 
         if (addDelegateList.length > 0 || addAttributeList.length > 0) {
-            await this.vdaDid!.bulkAdd(addDelegateList, addAttributeList)
+            const bulkAddResult = await this.vdaDid!.bulkAdd(addDelegateList, addAttributeList)
         }
 
         /*
-        // To-do : Alex change owner implemented. bulkAdd() should be called with new controlle'rs privatekey
+        // @todo: Alex change owner implemented. bulkAdd() should be called with new controlle'rs privatekey
         // Implement later
         if (comparisonResult.controller !== undefined) {
             // Change Owner
@@ -231,37 +204,24 @@ class DIDClientImpl implements DIDClient {
 
         console.log('DIDClient.save() completed successfully')
         return true
-
-        /*
-        // Revoke deleted items in original document
-        const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(orgDoc!)
-        this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList)
-        .then(() => {
-            // Add new items in updated document
-            const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(document!)
-
-            this.vdaDid.bulkAdd(addDelegateList, addAttributeList).then(() => resolve(true))
-            .catch(() => reject('Failed to add new updates'))
-        })
-        .catch(() => reject('Failed to revoke deleted items'))
-
-        // Promise.all([this.vdaDid.bulkRevoke(revokeDelegateList, revokeAttributeList), 
-        // this.vdaDid.bulkAdd(addDelegateList, addAttributeList)])
-        // .then(() => resolve(true))
-        // .catch(() => reject(false))
-        */
     }
 
     /**
+     * Get original document loaded from blockchain. Creates a new document if it didn't exist
      * 
-     * @returns Get original document loaded from blockchain. Creates a new one if not found
+     * @returns DID Document instance
      */
     public async get(did: string): Promise<DIDDocument> {
         console.log('did: ', did)
         const resolutionResult = await this.didResolver.resolve(did)
         console.log('did-client get : returned ', resolutionResult)
 
+        if (resolutionResult.didResolutionMetadata && resolutionResult.didResolutionMetadata.error) {
+            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message}`)
+        }
+
         if (resolutionResult.didDocument !== null) {
+            console.log('have did doc', resolutionResult.didDocument!)
             // vda-did-resolver always return didDocument if no exception occured while parsing
             return new DIDDocument(resolutionResult.didDocument!)
 
@@ -315,6 +275,7 @@ class DIDClientImpl implements DIDClient {
             //     ]
             //   }
         } else {
+            console.log('creating empty did doc')
             const baseDIDDocument: DocInterface = {
                 '@context': [
                     'https://www.w3.org/ns/did/v1',

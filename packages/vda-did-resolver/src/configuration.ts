@@ -121,11 +121,11 @@ export function configureResolverWithNetworks(conf: ConfigurationOptions = {}): 
 export function getContractInfoForNetwork(chainNameOrId: any) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const abi = require('./contract/abi.json')
-  // const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TARGET_NET : 'RPC_URL_POLYGON_MAINNET'
-  // const address = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
+
   const address = CONTRACT_ADDRESS[chainNameOrId]
+  
   if (!address) {
-    throw new Error('Contract address not defined in env')
+    throw new Error('Contract address not defined')
   }
   return {
     abi: abi,
