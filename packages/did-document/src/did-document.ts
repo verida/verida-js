@@ -87,7 +87,6 @@ export default class DIDDocument {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         if (!this.doc.verificationMethod) {
-            this.errors = ['No verification method specified']
             return false
         }
 
@@ -95,7 +94,6 @@ export default class DIDDocument {
         const contextAsymId = `${this.doc.id}-asym\\?context=${contextHash}`
 
         if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextSignId))) {
-            this.errors = ['Unable to locate verification method for this context']
             return false
         }
 
