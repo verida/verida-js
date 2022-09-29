@@ -209,16 +209,14 @@ class DIDClientImpl implements DIDClient {
         const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(comparisonResult.remove)
         const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(comparisonResult.add)
 
-        console.log('RevokeList', revokeDelegateList, revokeAttributeList)
-        console.log('AddList', addDelegateList, addAttributeList)
+        // console.log('RevokeList', revokeDelegateList, revokeAttributeList)
+        // console.log('AddList', addDelegateList, addAttributeList)
 
         if (revokeDelegateList.length > 0 || revokeAttributeList.length > 0) {
-            console.log('Revoke deleted items', revokeDelegateList, revokeAttributeList)
             await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
         }
 
         if (addDelegateList.length > 0 || addAttributeList.length > 0) {
-            console.log('Add new items', addDelegateList, addAttributeList)
             await this.vdaDid!.bulkAdd(addDelegateList, addAttributeList)
         }
 

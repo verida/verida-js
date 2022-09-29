@@ -107,7 +107,7 @@ export class VdaDID {
     const address = computeAddress(privateKey)
     const publicKey = computePublicKey(privateKey, true)
     const net = typeof chainNameOrId === 'number' ? hexValue(chainNameOrId) : chainNameOrId
-    const identifier = net ? `did:ethr:${net}:${publicKey}` : publicKey
+    const identifier = net ? `did:vda:${net}:${publicKey}` : publicKey
     return { address, privateKey, publicKey, identifier }
   }
 
@@ -213,20 +213,6 @@ export class VdaDID {
       // from: owner,
     })
   }
-
-  // async nonce(signer: string, gasLimit?: number, txOptions: CallOverrides = {}): Promise<BigInt> {
-  //   if (typeof this.controller === 'undefined') {
-  //     throw new Error('a web3 provider configuration is needed for network operations')
-  //   }
-  //   const owner = await this.lookupOwner()
-  //   const receipt = await this.controller.nonce(signer, {
-  //     gasLimit,
-  //     ...txOptions,
-  //     from: owner,
-  //   })
-  //   // console.log('Ethr-DID : Nonce = ', receipt)
-  //   return receipt.toBigInt()
-  // }
 
   /** Perform bulk transaction for add delegates & attributes */
   async bulkAdd(

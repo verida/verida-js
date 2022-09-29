@@ -380,12 +380,13 @@ export class VdaDidResolver {
       return {
         didResolutionMetadata: {
           error: Errors.invalidDid,
-          message: `Not a valid did:ethr: ${parsed.id}`,
+          message: `Not a valid did:vda: ${parsed.id}`,
         },
         didDocumentMetadata: {},
         didDocument: null,
       }
     }
+
     const id = fullId[2]
     const networkId = !fullId[1] ? 'mainnet' : fullId[1].slice(0, -1)
     let blockTag: string | number = options.blockTag || 'latest'
@@ -467,6 +468,6 @@ export class VdaDidResolver {
   }
 
   build(): Record<string, DIDResolver> {
-    return { ethr: this.resolve.bind(this) }
+    return { vda: this.resolve.bind(this) }
   }
 }
