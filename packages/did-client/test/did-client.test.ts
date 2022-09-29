@@ -44,6 +44,8 @@ const identity = new Wallet(veridaPrivateKey).address
 const provider = new JsonRpcProvider(rpcUrl);
 const txSigner = new Wallet(privateKey, provider)
 
+console.log("Signer : ", txSigner.address)
+
 
 describe('DID Document tests', () => {
     let didClient
@@ -82,6 +84,7 @@ describe('DID Document tests', () => {
         console.log('******** Original DIDDocument**********')
         console.log(document)
 
+        /*
         // Add signkey
         let context = contextList[0]
         let pubKey = pubKeyList[0]
@@ -111,12 +114,22 @@ describe('DID Document tests', () => {
         await didClient.save(document!)
 
         // console.log("Reloading document to check updates")
+        */
+
+        didClient.authenticate(
+            veridaPrivateKey,
+            'web3',
+            {
+                signer: txSigner
+            }
+        )
 
         // LoadDocument again
         const newDoc = await didClient.get()
 
         console.log('********* Updtated DIDDocument**********')
         console.log(newDoc)
+        
     })
 
     /*
