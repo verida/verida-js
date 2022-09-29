@@ -91,27 +91,28 @@ export default class DIDDocument {
             return false
         }
 
-        const contextDid = `${this.doc.id}\\?context=${contextHash}`
+        const contextSignId = `${this.doc.id}-sign\\?context=${contextHash}`
+        const contextAsymId = `${this.doc.id}-asym\\?context=${contextHash}`
 
-        if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextDid))) {
+        if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextSignId))) {
             this.errors = ['Unable to locate verification method for this context']
             return false
         }
 
         // Remove signing key and asymmetric key
         this.doc.verificationMethod = this.doc.verificationMethod!.filter((entry: VerificationMethod) => {
-            return !entry.id.match(contextDid)
+            return !entry.id.match(contextSignId) && !entry.id.match(contextAsymId)
         })
         this.doc.assertionMethod = this.doc.assertionMethod!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${this.doc.id}?context=${contextHash}`
+            return entry !== `${this.doc.id}-sign?context=${contextHash}`
         })
         this.doc.keyAgreement = this.doc.keyAgreement!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${this.doc.id}?context=${contextHash}`
+            return entry !== `${this.doc.id}-asym?context=${contextHash}`
         })
         
         // Remove services
         this.doc.service = this.doc.service!.filter((entry: ServiceEndpoint) => {
-            return !entry.id.match(contextDid)
+            return !entry.id.match(`${this.doc.id}\\?context=${contextHash}`)
         })
 
         return true
@@ -144,7 +145,7 @@ export default class DIDDocument {
             this.doc.verificationMethod = []
         }
 
-        const id = `${this.doc.id}?context=${contextHash}`
+        const id = `${this.doc.id}-sign?context=${contextHash}`
         this.doc.verificationMethod.push({
             id: id,
             type: "EcdsaSecp256k1VerificationKey2019",
@@ -166,7 +167,7 @@ export default class DIDDocument {
             this.doc.verificationMethod = []
         }
 
-        const id = `${this.doc.id}?context=${contextHash}`
+        const id = `${this.doc.id}-asym?context=${contextHash}`
         this.doc.verificationMethod.push({
             id: id,
             // type: "Curve25519EncryptionPublicKey",
@@ -197,7 +198,7 @@ export default class DIDDocument {
             contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
         }
 
-        const publicKeyLookup = `${this.doc.id}?context=${contextHash}`
+        const publicKeyLookup = `${this.doc.id}-sign?context=${contextHash}`
         const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == publicKeyLookup)
 
         if (!verificationMethod) {
@@ -256,25 +257,6 @@ export default class DIDDocument {
     public compare(doc: DIDDocument): ComparisonResult {
         const docExport = doc.export()
         const thisExport = this.export()
-
-        // const result: any = {
-        //     verificationMethod: {
-        //         add: _.differenceBy(docExport.verificationMethod, thisExport.verificationMethod, 'id'),
-        //         remove: _.differenceBy(thisExport.verificationMethod, docExport.verificationMethod, 'id')
-        //     },
-        //     assertionMethod: {
-        //         add: _.differenceBy(docExport.assertionMethod, thisExport.assertionMethod),
-        //         remove: _.differenceBy(thisExport.assertionMethod, docExport.assertionMethod)
-        //     },
-        //     service: {
-        //         add: _.differenceBy(docExport.service, thisExport.service, 'id'),
-        //         remove: _.differenceBy(thisExport.service, docExport.service, 'id'),
-        //     },
-        //     keyAgreement: {
-        //         add: _.differenceBy(docExport.keyAgreement, thisExport.keyAgreement),
-        //         remove: _.differenceBy(thisExport.keyAgreement, docExport.keyAgreement),
-        //     }
-        // }
 
         const result: ComparisonResult = {
             add : {
