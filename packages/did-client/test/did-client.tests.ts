@@ -69,7 +69,7 @@ describe('DID document tests', () => {
             console.log('saved doc output:', data)
 
             const compare = initialDoc.compare(doc)
-            console.log('comparison document:', compare)
+            console.log('comparison document (should be empty as documents should match!):', compare)
 
             /*const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
 
