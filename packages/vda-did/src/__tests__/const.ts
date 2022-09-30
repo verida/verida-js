@@ -62,9 +62,10 @@ function generateAttributes() {
     } else if (encoding[i] === 'base58') {
       pubKey = Base58.encode(pubKey)
     }
+    const valueType = keyPurpose[i] === 'sigAuth' ? 'sign' : 'asym'
     attributes.push({
       name: `did/pub/${keyAlgorithm[i]}/${keyPurpose[i]}/${encoding[i]}`,
-      value: `${pubKey}?context=${contextList[i]}`,
+      value: `${pubKey}?context=${contextList[i]}&type=${valueType}`,
       validity: 86400,
     })
   }
