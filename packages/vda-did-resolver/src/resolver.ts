@@ -212,17 +212,13 @@ export class VdaDidResolver {
             const TypeTag = Buffer.from('&type=', 'utf-8').toString('hex')
 
             // const valueMatch = currentEvent.value.match(/(\w+)(\?context=(\w+)(&type=(\w+))?)?/)
+            const regExp = new RegExp(`(\\w+)${contextTag}(\\w+)${TypeTag}(\\w+)`)
+            const valueMatch = currentEvent.value.match(regExp)
+            const value = valueMatch ? valueMatch[1] : currentEvent.value
+            const valueContext = valueMatch?.[2]
+            const valueType = valueMatch?.[3]
 
             if (section === 'pub') {
-              const regExp = new RegExp(`(\\w+)${contextTag}(\\w+)`)
-              const valueMatch = currentEvent.value.match(regExp)
-              const value = valueMatch ? valueMatch[1] : currentEvent.value
-              const valueContext = valueMatch?.[2]
-
-              // console.log('Resolver value = ', currentEvent.value)
-              // console.log('Resolver valueMatch : ', valueMatch)
-              // console.log('Resolver curVal = ', value)
-
               delegateCount++
               const pk: LegacyVerificationMethod = {
                 // id: `${did}#delegate-${delegateCount}`,
@@ -232,7 +228,12 @@ export class VdaDidResolver {
               }
               if (valueContext) {
                 const context = Buffer.from(valueContext, 'hex').toString()
-                pk.id = `${did}?context=${context}`
+                let id = `${did}?context=${context}`
+                if (valueType) {
+                  const decodedType = Buffer.from(valueType, 'hex').toString()
+                  id = `${id}&type=${decodedType}`
+                }
+                pk.id = id
               }
 
               pk.type = legacyAlgoMap[pk.type] || algorithm
@@ -269,16 +270,6 @@ export class VdaDidResolver {
                 keyAgreementRefs[eventIndex] = pk.id
               }
             } else if (section === 'svc') {
-              const regExp = new RegExp(`(\\w+)${contextTag}(\\w+)${TypeTag}(\\w+)`)
-              const valueMatch = currentEvent.value.match(regExp)
-              const value = valueMatch ? valueMatch[1] : currentEvent.value
-              const valueContext = valueMatch?.[2]
-              const valueType = valueMatch?.[3]
-
-              // console.log('Service value : ', currentEvent.value)
-              // console.log('Service value match : ', valueMatch)
-              // console.log('Matched value : ', currentEvent.value)
-
               serviceCount++
               let id = `${did}`
               if (valueContext) {
