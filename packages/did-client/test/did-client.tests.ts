@@ -59,14 +59,14 @@ describe('DID document tests', () => {
         it.only('can add a context to an existing DID and verify', async function() {
             const initialDoc = new DIDDocument(did, wallet.publicKey)
             await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
-            
+
             const saved = await didClient.save(initialDoc)
 
             assert.ok(saved, 'DID document saved successfully')
 
             const doc = await didClient.get(did)
-            const data = doc.export()
-            console.log('saved doc output:', data)
+            // const data = doc.export()
+            // console.log('saved doc output:', data)
 
             const compare = initialDoc.compare(doc)
             console.log('comparison document (should be empty as documents should match!):', compare)
