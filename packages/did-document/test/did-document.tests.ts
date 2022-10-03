@@ -64,7 +64,7 @@ describe('DID document tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
 
             // @todo: validate signing key
 
@@ -94,7 +94,7 @@ describe('DID document tests', () => {
             assert.ok(endpoint4, "Have messaging endpoint for context 2")
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod!.length, 5, "Have five verificationMethod entries")
+            assert.equal(data.verificationMethod!.length, 6, "Have six verificationMethod entries")
         })
 
         it('can remove a context', async function() {
@@ -113,7 +113,7 @@ describe('DID document tests', () => {
 
             // Confirm we have the correct number of entries
             assert.equal(data.service.length, 2, "Have two service entries")
-            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
 
             // @todo deeper validation of signatures and service endpoints
         })
@@ -169,6 +169,12 @@ describe('DID document tests', () => {
             assert.deepEqual(compareResult.remove.verificationMethod, [
                 // As we manually set the controller, the DID verification method wasn't auto generated
                 {
+                    id: `${did}#controller`,
+                    type: 'EcdsaSecp256k1RecoveryMethod2020',
+                    controller: 'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694',
+                    blockchainAccountId: '@eip155:137:0xb194A2809B5b3b8aaE350d85233439D32b361694'
+                },
+                {
                     id: `${did}`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
@@ -182,6 +188,7 @@ describe('DID document tests', () => {
             ], 'assertionMethod/add is correct')
             assert.deepEqual(compareResult.remove.assertionMethod, [
                 // // As we manually set the controller, the DID assertion method wasn't auto generated
+                'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694#controller',
                 'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694'
             ], 'assertionMethod/remove is correct')
 

@@ -55,8 +55,9 @@ export default class DIDDocument {
                     id: this.doc.id,
                     type: "EcdsaSecp256k1VerificationKey2019",
                     controller: this.doc.id,
-                    publicKeyHex: strip0x(publicKeyHex)
-                }]
+                    publicKeyHex: publicKeyHex
+                }
+            ]
             this.doc.authentication = [
                 `${this.doc.id}#controller`
             ]
@@ -113,8 +114,8 @@ export default class DIDDocument {
             return false
         }
 
-        const contextSignId = `${this.doc.id}?context=${contextHash}&type=sign`
-        const contextAsymId = `${this.doc.id}?context=${contextHash}&type=asym`
+        const contextSignId = `${this.doc.id}\\?context=${contextHash}&type=sign`
+        const contextAsymId = `${this.doc.id}\\?context=${contextHash}&type=asym`
 
         if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextSignId))) {
             return false
@@ -133,7 +134,7 @@ export default class DIDDocument {
         
         // Remove services
         this.doc.service = this.doc.service!.filter((entry: ServiceEndpoint) => {
-            return !entry.id.match(`${this.doc.id}?context=${contextHash}`)
+            return !entry.id.match(`${this.doc.id}\\?context=${contextHash}`)
         })
 
         return true
@@ -171,7 +172,7 @@ export default class DIDDocument {
             id: id,
             type: "EcdsaSecp256k1VerificationKey2019",
             controller: this.doc.id,
-            publicKeyHex: strip0x(publicKeyHex)
+            publicKeyHex: publicKeyHex
         })
 
         // Add assertion method
@@ -194,7 +195,7 @@ export default class DIDDocument {
             // type: "Curve25519EncryptionPublicKey",
             type: 'X25519KeyAgreementKey2019',
             controller: this.doc.id,
-            publicKeyHex: strip0x(publicKeyHex)
+            publicKeyHex: publicKeyHex
         })
 
         // Add keyAgreement method
@@ -203,13 +204,6 @@ export default class DIDDocument {
         }
 
         this.doc.keyAgreement.push(id)
-
-        // Add assertion method
-        if (!this.doc.assertionMethod) {
-            this.doc.assertionMethod = []
-        }
-
-        this.doc.assertionMethod.push(id)
     }
 
     public verifySig(data: any, signature: string): boolean {
