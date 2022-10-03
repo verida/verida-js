@@ -128,7 +128,7 @@ export class DIDClient {
      * @param document Updated DIDDocuent
      * @returns true if success.
      */
-    public async save(document: DIDDocument | undefined): Promise<boolean> {
+    public async save(document: DIDDocument): Promise<boolean> {
         if (this.veridaWallet === undefined) {
             throw new Error("Unable to save DIDDocument. No private key.")
         }
