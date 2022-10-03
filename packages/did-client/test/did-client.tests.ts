@@ -56,18 +56,22 @@ describe('DID document tests', () => {
             assert.equal(doc.id, did, 'Retreived document has matching DID')
         })
 
-        it('can add a context to an existing DID and verify', async function() {
+        it.only('can add a context to an existing DID and verify', async function() {
             const initialDoc = new DIDDocument(did, wallet.publicKey)
             await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
-            
+
             const saved = await didClient.save(initialDoc)
 
-            assert.ok(saved)
+            assert.ok(saved, 'DID document saved successfully')
 
             const doc = await didClient.get(did)
-            const data = doc.export()
+            // const data = doc.export()
+            // console.log('saved doc output:', data)
 
-            const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
+            const compare = initialDoc.compare(doc)
+            console.log('comparison document (should be empty as documents should match!):', compare)
+
+            /*const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
 
             // Validate service endpoints
             assert.equal(data.service?.length, 2, "Have two service entries")
@@ -85,8 +89,11 @@ describe('DID document tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            // Added 2 services & 2 keys
             assert.equal(data.verificationMethod.length, 4, "Have three verificationMethod entries")
+            assert.deepEqual(data.verificationMethod, initialDoc.export().verificationMethod, "Verification methods match")
+
+            assert.equal(data.assertionMethod.length, 4, "Have three assertionMethod entries")
+            assert.equal(data.keyAgreement.length, 1, "Have one keyAgreement entries")*/
         })
 
         it('can handle invalid DIDs', async function() {

@@ -104,6 +104,9 @@ export function getUpdateListFromDocument(document: DIDDocument) {
             if ('publicKeyHex' in item) {
                 encoding  = 'hex'
                 value = item.publicKeyHex!
+                if (!value.startsWith('0x')) {
+                    value = `0x${value}`
+                }
             } else if ('publicKeyBase64' in item) {
                 encoding = 'base64'
                 value = (item as any).publicKeyBase58
@@ -117,10 +120,16 @@ export function getUpdateListFromDocument(document: DIDDocument) {
                 value = (item as any).value
             }
 
-            const idMatch = item.id.match(/(.*)\?context=(\w+)/)
-            const context = idMatch?.[2]
-            if (context)
+
+            const idMatch = item.id.match(/([\w,\:]+)(\?context=(\w+))?(\&type=(\w+))?/)
+            const context = idMatch?.[3]
+            const didType = idMatch?.[5]
+            if (context) {
                 value = `${value}?context=${context}`
+                if (didType !== undefined) {
+                    value=`${value}&type=${didType}`
+                }
+            }
 
             const name = `did/pub/${algorithm}/${keyPurpose}/${encoding}`
 

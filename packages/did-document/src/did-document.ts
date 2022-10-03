@@ -3,6 +3,9 @@ import { DIDDocument as DocInterface} from 'did-resolver'
 import { ComparisonResult, Endpoints, EndpointType } from './interfaces'
 import EncryptionUtils from '@verida/encryption-utils'
 import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
+import { interpretIdentifier, verificationMethodTypes } from '@verida/vda-did-resolver'
+import { knownNetworks, strip0x } from './helpers'
+import { BigNumber } from '@ethersproject/bignumber'
 const _ = require('lodash')
 
 export default class DIDDocument {
@@ -26,17 +29,37 @@ export default class DIDDocument {
             const did = doc.toLowerCase()
             this.doc = {
                 id: did,
-                controller: did
+                // controller: did
             }
 
+
+            const { address, publicKey, network } = interpretIdentifier(this.doc.id)
+
+            const hexChainId = network?.startsWith('0x') ? network : knownNetworks[network || 'mainnet']
+            const chainId = BigNumber.from(hexChainId).toNumber()
+            
             // Add default signing key
-            this.doc.assertionMethod = [this.doc.id]
-            this.doc.verificationMethod = [{
-                id: this.doc.id,
-                type: "EcdsaSecp256k1VerificationKey2019",
-                controller: this.doc.id,
-                publicKeyHex: publicKeyHex
-            }]
+            this.doc.assertionMethod = [
+                `${this.doc.id}#controller`,
+                this.doc.id
+            ]
+            this.doc.verificationMethod = [
+                // From vda-did-resolver/resolver.ts #322
+                {
+                    id: `${this.doc.id}#controller`,
+                    type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
+                    controller: this.doc.id,
+                    blockchainAccountId: `@eip155:${chainId}:${address}`
+                },
+                {
+                    id: this.doc.id,
+                    type: "EcdsaSecp256k1VerificationKey2019",
+                    controller: this.doc.id,
+                    publicKeyHex: strip0x(publicKeyHex)
+                }]
+            this.doc.authentication = [
+                `${this.doc.id}#controller`
+            ]
         } else {
             doc.id = doc.id.toLowerCase()
             this.doc = doc
@@ -90,8 +113,8 @@ export default class DIDDocument {
             return false
         }
 
-        const contextSignId = `${this.doc.id}-sign\\?context=${contextHash}`
-        const contextAsymId = `${this.doc.id}-asym\\?context=${contextHash}`
+        const contextSignId = `${this.doc.id}?context=${contextHash}&type=sign`
+        const contextAsymId = `${this.doc.id}?context=${contextHash}&type=asym`
 
         if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextSignId))) {
             return false
@@ -102,15 +125,15 @@ export default class DIDDocument {
             return !entry.id.match(contextSignId) && !entry.id.match(contextAsymId)
         })
         this.doc.assertionMethod = this.doc.assertionMethod!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${this.doc.id}-sign?context=${contextHash}`
+            return entry !== `${this.doc.id}?context=${contextHash}&type=sign`
         })
         this.doc.keyAgreement = this.doc.keyAgreement!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${this.doc.id}-asym?context=${contextHash}`
+            return entry !== `${this.doc.id}?context=${contextHash}&type=asym`
         })
         
         // Remove services
         this.doc.service = this.doc.service!.filter((entry: ServiceEndpoint) => {
-            return !entry.id.match(`${this.doc.id}\\?context=${contextHash}`)
+            return !entry.id.match(`${this.doc.id}?context=${contextHash}`)
         })
 
         return true
@@ -143,12 +166,12 @@ export default class DIDDocument {
             this.doc.verificationMethod = []
         }
 
-        const id = `${this.doc.id}-sign?context=${contextHash}`
+        const id = `${this.doc.id}?context=${contextHash}&type=sign`
         this.doc.verificationMethod.push({
             id: id,
             type: "EcdsaSecp256k1VerificationKey2019",
             controller: this.doc.id,
-            publicKeyHex: publicKeyHex
+            publicKeyHex: strip0x(publicKeyHex)
         })
 
         // Add assertion method
@@ -165,13 +188,13 @@ export default class DIDDocument {
             this.doc.verificationMethod = []
         }
 
-        const id = `${this.doc.id}-asym?context=${contextHash}`
+        const id = `${this.doc.id}?context=${contextHash}&type=asym`
         this.doc.verificationMethod.push({
             id: id,
             // type: "Curve25519EncryptionPublicKey",
             type: 'X25519KeyAgreementKey2019',
             controller: this.doc.id,
-            publicKeyHex: publicKeyHex
+            publicKeyHex: strip0x(publicKeyHex)
         })
 
         // Add keyAgreement method
@@ -180,6 +203,13 @@ export default class DIDDocument {
         }
 
         this.doc.keyAgreement.push(id)
+
+        // Add assertion method
+        if (!this.doc.assertionMethod) {
+            this.doc.assertionMethod = []
+        }
+
+        this.doc.assertionMethod.push(id)
     }
 
     public verifySig(data: any, signature: string): boolean {
@@ -196,7 +226,7 @@ export default class DIDDocument {
             contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
         }
 
-        const publicKeyLookup = `${this.doc.id}-sign?context=${contextHash}`
+        const publicKeyLookup = `${this.doc.id}?context=${contextHash}&type=sign`
         const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == publicKeyLookup)
 
         if (!verificationMethod) {
