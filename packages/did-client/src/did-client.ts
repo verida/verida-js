@@ -37,51 +37,7 @@ export interface DIDClientConfig {
     rpcUrl : string            // blockchain RPC URI to use
 }
 
-// Interfaces for saving DID Document
-interface VerificationMethodBase {
-    id: string
-    type: string
-    controller: string
-}
-
-interface Controller extends VerificationMethodBase {
-    blockchainAccountId: string
-}
-
-/**
- * Interface to DIDClient instance
- */
-export interface DIDClient {
-
-    authenticate(
-        veridaPrivateKey: string,
-        callType: CallType,
-        web3Config: VeridaSelfTransactionConfigPart|VeridaMetaTransactionConfig
-    ): void;
-
-    getDid(): string | undefined;
-
-    getPublicKey(): string | undefined;
-
-    save(document: DIDDocument): Promise<boolean>;
-
-    get(did?: string): Promise<DIDDocument | null>
-    
-}
-
-/**
- * Create instance of DIDClient interface. And load DIDDocument from chain
- *  * 
- * @param config : cofiguration for DIDClientImpl class
- * @returns DIDClient 
- */
-export async function createDIDClient(config:DIDClientConfig) : Promise<DIDClient> {
-    const didClient = new DIDClientImpl(config)
-
-    return didClient
-}
-
-class DIDClientImpl implements DIDClient {
+export class DIDClient {
 
     private config: DIDClientConfig
 
@@ -186,7 +142,6 @@ class DIDClientImpl implements DIDClient {
 
         if (revokeDelegateList.length > 0 || revokeAttributeList.length > 0) {
             const bulkRevokeResult = await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
-            console.log(bulkRevokeResult)
         }
 
         if (addDelegateList.length > 0 || addAttributeList.length > 0) {
@@ -212,16 +167,15 @@ class DIDClientImpl implements DIDClient {
      * @returns DID Document instance
      */
     public async get(did: string): Promise<DIDDocument> {
-        console.log('did: ', did)
         const resolutionResult = await this.didResolver.resolve(did)
-        console.log('did-client get : returned ', resolutionResult)
+        //console.log('did-client get : returned ', resolutionResult)
 
         if (resolutionResult.didResolutionMetadata && resolutionResult.didResolutionMetadata.error) {
             throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message}`)
         }
 
         if (resolutionResult.didDocument !== null) {
-            console.log('have did doc', resolutionResult.didDocument!)
+            //console.log('have did doc', resolutionResult.didDocument!)
             // vda-did-resolver always return didDocument if no exception occured while parsing
             return new DIDDocument(resolutionResult.didDocument!)
 
@@ -275,7 +229,8 @@ class DIDClientImpl implements DIDClient {
             //     ]
             //   }
         } else {
-            console.log('creating empty did doc')
+            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message}`)
+            /*console.log('creating empty did doc')
             const baseDIDDocument: DocInterface = {
                 '@context': [
                     'https://www.w3.org/ns/did/v1',
@@ -286,7 +241,7 @@ class DIDClientImpl implements DIDClient {
                 authentication: [],
                 assertionMethod: [],
             }
-            return new DIDDocument(baseDIDDocument)
+            return new DIDDocument(baseDIDDocument)*/
         }
     }
 }

@@ -1,4 +1,4 @@
-import { createDIDClient } from "../src/index"
+import { DIDClient } from "../src/index"
 // import { Wallet } from '@ethersproject/wallet'
 import { Wallet } from "ethers"
 import { JsonRpcProvider } from '@ethersproject/providers'
@@ -16,7 +16,6 @@ if (rpcUrl === undefined) {
 }
 console.log('RPC URL :', rpcUrl)
 
-
 const provider = new JsonRpcProvider(rpcUrl);
 const txSigner = new Wallet(privateKey, provider)
 
@@ -27,7 +26,7 @@ export async function getDIDClient(veridaAccount: Wallet) {
         rpcUrl: rpcUrl!
     }
 
-    const didClient = await createDIDClient(config)
+    const didClient = new DIDClient(config)
 
     didClient.authenticate(
         veridaAccount.privateKey,
