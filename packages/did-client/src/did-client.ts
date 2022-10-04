@@ -87,7 +87,7 @@ export class DIDClient {
     
     public getDid(): string | undefined {
         if (this.veridaWallet !== undefined) {
-            return this.veridaWallet.did
+            return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.config.network}:`)
         }
 
         return undefined
@@ -120,11 +120,11 @@ export class DIDClient {
         const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(comparisonResult.add)
 
         if (revokeDelegateList.length > 0 || revokeAttributeList.length > 0) {
-            const bulkRevokeResult = await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
+            await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
         }
 
         if (addDelegateList.length > 0 || addAttributeList.length > 0) {
-            const bulkAddResult = await this.vdaDid!.bulkAdd(addDelegateList, addAttributeList)
+            await this.vdaDid!.bulkAdd(addDelegateList, addAttributeList)
         }
 
         return true
@@ -139,7 +139,7 @@ export class DIDClient {
         const resolutionResult = await this.didResolver.resolve(did)
 
         if (resolutionResult.didResolutionMetadata && resolutionResult.didResolutionMetadata.error) {
-            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message}`)
+            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
         }
 
         if (resolutionResult.didDocument !== null) {
@@ -147,7 +147,7 @@ export class DIDClient {
             // vda-did-resolver always return didDocument if no exception occured while parsing
             return new DIDDocument(resolutionResult.didDocument!)
         } else {
-            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message}`)
+            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
         }
     }
 }
