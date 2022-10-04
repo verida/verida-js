@@ -5,15 +5,20 @@ import { StorageLink } from '../src/index'
 import { SecureContextConfig } from '../src/interfaces'
 import { DIDClient } from '@verida/did-client'
 import { DIDDocument } from '@verida/did-document'
+import { Wallet } from 'ethers'
+import { getDIDClient } from './utils'
 
-const MNEMONIC = "slight crop cactus cute trend tape undo exile retreat large clay average"
-const DID_SERVER_URL = 'http://localhost:5001'
+//const MNEMONIC = "slight crop cactus cute trend tape undo exile retreat large clay average"
+//const DID_SERVER_URL = 'http://localhost:5001'
+
+const wallet = Wallet.createRandom()
 
 const CONTEXT_NAME = 'Test App'
 
-const didClient = new DIDClient(DID_SERVER_URL)
-didClient.authenticate(MNEMONIC)
-const DID = didClient.getDid()
+//didClient.authenticate(MNEMONIC)
+
+const address = wallet.address.toLowerCase()
+const DID = `did:vda:testnet:${address}`
 
 
 // Test config
@@ -65,13 +70,21 @@ const expectedConfig: SecureContextConfig = {
 }
 const TEST_APP_NAME2 = 'Test App 2'
 
+let didClient
+
 describe('Storage Link', () => {
+    before(async () => {
+        didClient = await getDIDClient(wallet)
+    })
+
     describe('Manage DID Links', async function() {
         this.timeout(100000)
 
         it('can link a DID to a secure storage context', async function() {
             let storageConfig = Object.assign({}, expectedConfig)
-            await StorageLink.setLink(didClient, testConfig)
+
+            const success = await StorageLink.setLink(didClient, testConfig)
+            assert.ok(success, 'Set link succeeded')
             const links = await StorageLink.getLinks(didClient, DID)
 
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, testConfig.id)
@@ -101,13 +114,13 @@ describe('Storage Link', () => {
         })
 
         it('ensures a DID can only have one secure context for a given context name', async function() {
-            // TODO
+            // @todo
         })
 
-        after(async () => {
+        /*after(async () => {
             // Cleanup and remove all contexts by creating an empty DID document
             const didDocument = new DIDDocument(DID, didClient.getPublicKey())
             await didClient.save(didDocument)
-        })
+        })*/
     })
 });
