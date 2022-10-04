@@ -55,7 +55,7 @@ export default class DIDDocument {
                     id: this.doc.id,
                     type: "EcdsaSecp256k1VerificationKey2019",
                     controller: this.doc.id,
-                    publicKeyHex: publicKeyHex
+                    publicKeyHex: strip0x(publicKeyHex)
                 }
             ]
             this.doc.authentication = [
@@ -145,7 +145,7 @@ export default class DIDDocument {
         this.doc = doc
     }
 
-    public export() {
+    public export(): DocInterface {
         return this.doc
     }
 
@@ -172,7 +172,7 @@ export default class DIDDocument {
             id: id,
             type: "EcdsaSecp256k1VerificationKey2019",
             controller: this.doc.id,
-            publicKeyHex: publicKeyHex
+            publicKeyHex: strip0x(publicKeyHex)
         })
 
         // Add assertion method
@@ -195,7 +195,7 @@ export default class DIDDocument {
             // type: "Curve25519EncryptionPublicKey",
             type: 'X25519KeyAgreementKey2019',
             controller: this.doc.id,
-            publicKeyHex: publicKeyHex
+            publicKeyHex: strip0x(publicKeyHex)
         })
 
         // Add keyAgreement method
@@ -227,7 +227,7 @@ export default class DIDDocument {
             return false
         }
 
-        const signPublicKey = verificationMethod.publicKeyHex!
+        const signPublicKey = `0x${verificationMethod.publicKeyHex!}`
         return EncryptionUtils.verifySig(data, signature, signPublicKey)
     }
 

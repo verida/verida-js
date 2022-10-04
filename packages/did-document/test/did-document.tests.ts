@@ -67,6 +67,7 @@ describe('DID document tests', () => {
             assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
 
             // @todo: validate signing key
+            
 
             // @todo: validate asymmetric key
         })
@@ -157,13 +158,13 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '0x03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`,
                     type: 'X25519KeyAgreementKey2019',
                     controller: did,
-                    publicKeyHex: '0x7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
+                    publicKeyHex: '7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
                 }
             ], 'verificationMethod/add is correct')
             assert.deepEqual(compareResult.remove.verificationMethod, [
@@ -178,7 +179,7 @@ describe('DID document tests', () => {
                     id: `${did}`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '0x048e07cef8dae5b156c3b504c3d09d7a1f038461a9c546e3654d8c2a5189c313cc0bd0aaac0cbfcf5e12895bcf4d1347f6ca14d7e546c96e0ad7acae45e07d13ae'
+                    publicKeyHex: '048e07cef8dae5b156c3b504c3d09d7a1f038461a9c546e3654d8c2a5189c313cc0bd0aaac0cbfcf5e12895bcf4d1347f6ca14d7e546c96e0ad7acae45e07d13ae'
                   }
             ], 'verificationMethod/remove is correct')
 
@@ -234,13 +235,13 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '0x03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`,
                     type: 'X25519KeyAgreementKey2019',
                     controller: did,
-                    publicKeyHex: '0x7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
+                    publicKeyHex: '7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
                 }
             ], 'verificationMethod/remove is correct')
             assert.deepEqual(compareResult.add.verificationMethod, [], 'verificationMethod/add is correct')
