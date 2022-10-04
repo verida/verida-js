@@ -1,7 +1,7 @@
 'use strict'
 const assert = require('assert')
 
-import { Wallet, utils } from 'ethers'
+import { Wallet } from 'ethers'
 import { Keyring } from '@verida/keyring'
 import { Interfaces, DIDDocument } from "@verida/did-document"
 import { ServiceEndpoint } from "did-resolver"
@@ -61,7 +61,6 @@ describe('DID document tests', () => {
             await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
 
             const saved = await didClient.save(initialDoc)
-
             assert.ok(saved, 'DID document saved successfully')
 
             const doc = await didClient.get(did)
