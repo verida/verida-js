@@ -5,7 +5,7 @@ import { knownNetworks } from './helpers'
 
 import { VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from '@verida/web3'
 
-import { CONTRACT_ADDRESS } from './const'
+import { CONTRACT_ADDRESS, RPC_URL } from './const'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const DIDRegistry = require('./contract/abi.json')
@@ -47,11 +47,17 @@ export type ConfiguredNetworks = Record<string, Contract>
 export function getContractForNetwork(conf: ProviderConfiguration): Contract {
   let provider: Provider = conf.provider || conf.web3?.currentProvider
   if (!provider) {
-    if (conf.rpcUrl) {
+    // Pull rpcUrl from config or from hardcoded list for each testnet
+    let rpcUrl = RPC_URL[conf.name || conf.chainId || '']
+    if (!rpcUrl) {
+      rpcUrl = conf.rpcUrl!
+    }
+
+    if (rpcUrl) {
       const chainIdRaw = conf.chainId ? conf.chainId : knownNetworks[conf.name || '']
       const chainId = chainIdRaw ? BigNumber.from(chainIdRaw).toNumber() : chainIdRaw
       const networkName = conf.name ?? 'any'
-      provider = new JsonRpcProvider(conf.rpcUrl, chainId || networkName)
+      provider = new JsonRpcProvider(rpcUrl, chainId || networkName)
     } else {
       throw new Error(`invalid_config: No web3 provider could be determined for network ${conf.name || conf.chainId}`)
     }
