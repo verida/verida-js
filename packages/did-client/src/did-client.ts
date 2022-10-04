@@ -136,7 +136,7 @@ export class DIDClient {
      * @returns DID Document instance
      */
     public async get(did: string): Promise<DIDDocument> {
-        const resolutionResult = await this.didResolver.resolve(did)
+        const resolutionResult = await this.didResolver.resolve(did.toLowerCase())
 
         if (resolutionResult.didResolutionMetadata && resolutionResult.didResolutionMetadata.error) {
             throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
