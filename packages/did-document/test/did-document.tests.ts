@@ -185,7 +185,8 @@ describe('DID document tests', () => {
 
             // Verify assertionMethod
             assert.deepEqual(compareResult.add.assertionMethod, [
-                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`
             ], 'assertionMethod/add is correct')
             assert.deepEqual(compareResult.remove.assertionMethod, [
                 // // As we manually set the controller, the DID assertion method wasn't auto generated
@@ -248,7 +249,8 @@ describe('DID document tests', () => {
 
             // Verify assertionMethod
             assert.deepEqual(compareResult.remove.assertionMethod, [
-                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`
             ], 'assertionMethod/remove is correct')
             assert.deepEqual(compareResult.add.assertionMethod, [], 'assertionMethod/add is correct')
 

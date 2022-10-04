@@ -204,6 +204,13 @@ export default class DIDDocument {
         }
 
         this.doc.keyAgreement.push(id)
+
+        // Add assertion method
+        if (!this.doc.assertionMethod) {
+            this.doc.assertionMethod = []
+        }
+
+        this.doc.assertionMethod.push(id)
     }
 
     public verifySig(data: any, signature: string): boolean {
