@@ -142,7 +142,6 @@ export default class StorageLink {
         const did = doc.id
 
         // strategy: loop through all signing keys as our way of looping through all contexts
-
         const contexts: SecureContextConfig[] = []
         doc.assertionMethod?.map((value: any) => {
             const assertionParts = Url(value, true)
@@ -185,11 +184,11 @@ export default class StorageLink {
                 publicKeys: {
                     signKey: {
                         type: "EcdsaSecp256k1VerificationKey2019",
-                        publicKeyHex: signKey!
+                        publicKeyHex: `0x${signKey!}`
                     },
                     asymKey: {
                         type: "Curve25519EncryptionPublicKey",
-                        publicKeyHex: asymKey!
+                        publicKeyHex: `0x${asymKey!}`
                     }
                 },
                 services: {
