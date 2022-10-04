@@ -143,7 +143,7 @@ export default class StorageLink {
 
         // strategy: loop through all signing keys as our way of looping through all contexts
         const contexts: SecureContextConfig[] = []
-        doc.assertionMethod?.map((value: any) => {
+        doc.keyAgreement?.map((value: any) => {
             const assertionParts = Url(value, true)
             if (!assertionParts.query || !assertionParts.query.context) {
                 return

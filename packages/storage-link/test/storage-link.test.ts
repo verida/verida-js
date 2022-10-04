@@ -86,10 +86,11 @@ describe('Storage Link', () => {
             const success = await StorageLink.setLink(didClient, testConfig)
             assert.ok(success, 'Set link succeeded')
             const links = await StorageLink.getLinks(didClient, DID)
+            assert.ok(links.length, 1, 'Fetched exactly one saved link')
 
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, testConfig.id)
             storageConfig.id = DIDDocument.generateContextHash(DID, CONTEXT_NAME)
-
+            
             assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the expected storage config')
         })
 
@@ -97,6 +98,7 @@ describe('Storage Link', () => {
             let storageConfig = Object.assign({}, expectedConfig)
             storageConfig.id = TEST_APP_NAME2
             await StorageLink.setLink(didClient, storageConfig)
+
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, TEST_APP_NAME2)
             storageConfig.id = DIDDocument.generateContextHash(DID, TEST_APP_NAME2)
             assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the submitted storage config')
