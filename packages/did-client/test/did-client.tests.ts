@@ -109,9 +109,7 @@ describe('DID document tests', () => {
 
         it('can handle invalid DIDs', async function() {
             assert.rejects(didClient.get(`did:vda:0xabcd`))
-
             assert.rejects(didClient.get(`did:vda`))
-
             assert.rejects(didClient.get(""))
         })
 
@@ -127,9 +125,10 @@ describe('DID document tests', () => {
             assert.ok(saved)
 
             const data = doc.export()
-            assert.equal(data.verificationMethod?.length, 4, 'Have four verification methods')
-            assert.equal(data.keyAgreement?.length, 1, 'Have one keyAgreement')
-            assert.equal(data.assertionMethod?.length, 2, 'Have two assertionMethods')
+            assert.equal(data.service!.length, 2, 'Have two service endpoints')
+            assert.equal(data.verificationMethod!.length, 4, 'Have four verification methods')
+            assert.equal(data.keyAgreement!.length, 1, 'Have one keyAgreement')
+            assert.equal(data.assertionMethod!.length, 4, 'Have four assertionMethods')
         })
     })
 
