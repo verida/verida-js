@@ -105,7 +105,10 @@ describe('DID document tests', () => {
 
             // Confirm we have two contexts
             const data2 = doc.export()
-            assert.equal(data2.service.length, 4, "Have four service entries")
+            assert.equal(data2.service!.length, 4, "Have four service entries after adding a service")
+            assert.equal(data2.verificationMethod!.length, 6, "Have six verificationMethod entries after adding a service")
+            assert.equal(data2.assertionMethod!.length, 6, "Have six assertionMethod entries after adding a service")
+            assert.equal(data2.keyAgreement!.length, 2, 'Have two keyAgreements after adding a service')
 
             // Remove a context
             const success = await doc.removeContext(CONTEXT_NAME)
@@ -113,10 +116,26 @@ describe('DID document tests', () => {
             const data = doc.export()
 
             // Confirm we have the correct number of entries
-            assert.equal(data.service.length, 2, "Have two service entries")
-            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
+            assert.equal(data.service!.length, 2, "Have two service entries after removing a service")
+            assert.equal(data.verificationMethod!.length, 4, "Have four verificationMethod entries after removing a service")
+            assert.equal(data.assertionMethod!.length, 4, "Have four assertionMethod entries after removing a service")
+            assert.equal(data.keyAgreement!.length, 1, 'Have two keyAgreements after removing a service')
 
             // @todo deeper validation of signatures and service endpoints
+        })
+
+        it('can replace an existing context, not add again', async function() {
+            const doc = new DIDDocument(did, wallet.publicKey)
+
+            // Add the same context twice in a row
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+
+            const data = doc.export()
+            assert.equal(data.service!.length, 2, "Have two service entries")
+            assert.equal(data.verificationMethod?.length, 4, 'Have four verification methods')
+            assert.equal(data.assertionMethod?.length, 4, 'Have four assertionMethods')
+            assert.equal(data.keyAgreement?.length, 1, 'Have one keyAgreement')
         })
     })
 

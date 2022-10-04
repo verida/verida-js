@@ -126,7 +126,10 @@ export default class DIDDocument {
             return !entry.id.match(contextSignId) && !entry.id.match(contextAsymId)
         })
         this.doc.assertionMethod = this.doc.assertionMethod!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${this.doc.id}?context=${contextHash}&type=sign`
+            return (
+                entry !== `${this.doc.id}?context=${contextHash}&type=sign` && 
+                entry !== `${this.doc.id}?context=${contextHash}&type=asym`
+            )
         })
         this.doc.keyAgreement = this.doc.keyAgreement!.filter((entry: string | VerificationMethod) => {
             return entry !== `${this.doc.id}?context=${contextHash}&type=asym`
