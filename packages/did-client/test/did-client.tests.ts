@@ -6,14 +6,14 @@ import { Keyring } from '@verida/keyring'
 import { Interfaces, DIDDocument } from "@verida/did-document"
 import { ServiceEndpoint } from "did-resolver"
 
-import { getDIDClient, chainId } from "./utils"
+import { getDIDClient } from "./utils"
 
 const EndpointType = Interfaces.EndpointType
 
 const wallet = Wallet.createRandom()
 
 const address = wallet.address.toLowerCase()
-const did = `did:vda:${chainId}:${address}`
+const did = `did:vda:testnet:${address}`
 
 const CONTEXT_NAME = 'Verida: Test DID Context'
 
@@ -56,7 +56,7 @@ describe('DID document tests', () => {
             assert.equal(doc.id, did, 'Retreived document has matching DID')
         })
 
-        it.only('can add a context to an existing DID and verify', async function() {
+        it('can add a context to an existing DID and verify', async function() {
             const initialDoc = new DIDDocument(did, wallet.publicKey)
             await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
 
@@ -65,13 +65,25 @@ describe('DID document tests', () => {
             assert.ok(saved, 'DID document saved successfully')
 
             const doc = await didClient.get(did)
-            // const data = doc.export()
-            // console.log('saved doc output:', data)
+            const data = doc.export()
 
             const compare = initialDoc.compare(doc)
-            console.log('comparison document (should be empty as documents should match!):', compare)
+            assert.deepEqual(compare, {
+                add: {
+                    verificationMethod: [],
+                    assertionMethod: [],
+                    service: [],
+                    keyAgreement: []
+                },
+                remove: {
+                    verificationMethod: [],
+                    assertionMethod: [],
+                    service: [],
+                    keyAgreement: []
+                }
+            }, 'Saved document on chain has no differences with original document')
 
-            /*const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
+            const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
 
             // Validate service endpoints
             assert.equal(data.service?.length, 2, "Have two service entries")
@@ -93,7 +105,7 @@ describe('DID document tests', () => {
             assert.deepEqual(data.verificationMethod, initialDoc.export().verificationMethod, "Verification methods match")
 
             assert.equal(data.assertionMethod.length, 4, "Have three assertionMethod entries")
-            assert.equal(data.keyAgreement.length, 1, "Have one keyAgreement entries")*/
+            assert.equal(data.keyAgreement.length, 1, "Have one keyAgreement entries")
         })
 
         it('can handle invalid DIDs', async function() {
@@ -116,9 +128,9 @@ describe('DID document tests', () => {
             assert.ok(saved)
 
             const data = doc.export()
-            assert.equal(data.verificationMethod?.length, 3, 'Have three verification methods')
-            assert.equal(data.assertionMethod?.length, 2, 'Have two assertionMethods')
+            assert.equal(data.verificationMethod?.length, 4, 'Have four verification methods')
             assert.equal(data.keyAgreement?.length, 1, 'Have one keyAgreement')
+            assert.equal(data.assertionMethod?.length, 2, 'Have two assertionMethods')
         })
     })
 
