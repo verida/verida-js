@@ -151,7 +151,7 @@ export default class StorageLink {
             const contextHash = assertionParts.query.context
             
             // Get signing key
-            const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}-sign?context=${contextHash}`)
+            const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=sign`)
             if (!signKeyVerificationMethod) {
                 return
             }
@@ -159,7 +159,7 @@ export default class StorageLink {
             const signKey = signKeyVerificationMethod!.publicKeyHex
 
             // Get asym key
-            const asymKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}-asym?context=${contextHash}`)
+            const asymKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=asym`)
             if (!asymKeyVerificationMethod)  {
                 return 
             }
