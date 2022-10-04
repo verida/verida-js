@@ -38,7 +38,6 @@ export class DIDClient {
     // Verida Wallet Info
     private veridaWallet: VeridaWallet | undefined
 
-    // private did?: string
     private vdaDid: VdaDID | undefined
 
     constructor(config: DIDClientConfig) {
