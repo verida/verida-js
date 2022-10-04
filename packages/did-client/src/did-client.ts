@@ -13,7 +13,7 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { getUpdateListFromDocument} from './helpers'
 
 // Part of VeridaSelfTransactionConfig
-interface VeridaSelfTransactionConfigPart  {
+export interface VeridaSelfTransactionConfigPart  {
     signer?: Signer
     privateKey?: string
 }
@@ -23,9 +23,8 @@ interface VeridaSelfTransactionConfigPart  {
  */
 
 export interface DIDClientConfig {
-    network: string             // `testnet` OR `mainnet`
-    connectMode: string         // direct OR gasless @todo: use proper enums
-    rpcUrl : string            // blockchain RPC URI to use
+    network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
+    rpcUrl: string                              // blockchain RPC URI to use
 }
 
 export class DIDClient {
@@ -58,7 +57,7 @@ export class DIDClient {
      * 
      * @param veridaPrivateKey private key of verida. Used to sign transactions for smart contract
      * @param callType Blockchain interaction mode. 'web3' | 'gasless'
-     * @param web3Config Web3 configuration for callType.
+     * @param web3Config Web3 configuration that must be specified if callType is gasless
      */
     public authenticate(
         veridaPrivateKey: string,
@@ -67,6 +66,10 @@ export class DIDClient {
     ) { 
         this.veridaWallet = new VeridaWallet(veridaPrivateKey)
         const provider = new JsonRpcProvider(this.config.rpcUrl)
+
+        if (callType == 'gasless' && !web3Config) {
+            throw new Error('Gasless transactions must specify `web3config`')
+        }
 
         const _web3Config = callType === 'gasless' ?
             <VeridaMetaTransactionConfig>web3Config :
