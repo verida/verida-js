@@ -1,6 +1,7 @@
 import { SecureContextConfig } from './interfaces'
 import { DIDClient } from "@verida/did-client"
 import { DIDDocument, Interfaces } from "@verida/did-document"
+import { DIDDocument as DocInterface, ServiceEndpoint } from 'did-resolver'
 const Url = require('url-parse')
 
 /**
@@ -48,6 +49,7 @@ export default class StorageLink {
      */
     static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig) {
         const did = didClient.getDid()
+
         if (!did) {
             throw new Error("DID client is not authenticated")
         }
@@ -136,7 +138,7 @@ export default class StorageLink {
     }
 
     static buildSecureContexts(didDocument: DIDDocument): SecureContextConfig[] {
-        const doc: Interfaces.DIDDocumentStruct = didDocument.export()
+        const doc: DocInterface = didDocument.export()
         const did = doc.id
 
         // strategy: loop through all signing keys as our way of looping through all contexts
@@ -167,10 +169,10 @@ export default class StorageLink {
             const asymKey = asymKeyVerificationMethod!.publicKeyHex
 
             // Get services
-            const databaseService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#database`)
-            const messageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#messaging`)
-            const storageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#storage`)
-            const notificationService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}#notification`)
+            const databaseService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=database`)
+            const messageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=messaging`)
+            const storageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=storage`)
+            const notificationService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=notification`)
 
             // Valid we have everything
             if (!signKey || !asymKey || !databaseService || !messageService) {
@@ -225,11 +227,15 @@ export default class StorageLink {
     /**
      * Ensure the URL has a trailing slash
      * 
-     * @param url 
+     * @param endpoint ServiceEndpoint | ServiceEndpoint[]
      * @returns 
      */
-    public static standardizeUrl(url: string) {
-        return url.replace(/\/$/, '') + '/'
+    public static standardizeUrl(endpoint: ServiceEndpoint | ServiceEndpoint[]): string {
+        if (typeof(endpoint) == 'string') {
+            return <ServiceEndpoint> endpoint.replace(/\/$/, '') + '/'
+        }
+
+        throw new Error('Non-string service endpoints are not currently supported')
     }
 
 }
