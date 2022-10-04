@@ -24,7 +24,7 @@ export interface VeridaSelfTransactionConfigPart  {
 
 export interface DIDClientConfig {
     network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
-    rpcUrl: string                              // blockchain RPC URI to use
+    rpcUrl?: string                              // blockchain RPC URI to use
 }
 
 export class DIDClient {
@@ -41,11 +41,9 @@ export class DIDClient {
 
     constructor(config: DIDClientConfig) {
         this.config = config
-        const provider = new JsonRpcProvider(this.config.rpcUrl)
 
         const vdaDidResolver = getResolver({
-            chainId: this.config.network,
-            provider,
+            name: this.config.network,
             rpcUrl: this.config.rpcUrl,
         })
         
