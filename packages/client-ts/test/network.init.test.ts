@@ -1,4 +1,3 @@
-'use strict'
 const assert = require('assert')
 
 import { Client } from '../src/index'
@@ -12,13 +11,9 @@ describe('Network initialization tests', () => {
 
         it('can create a network instance', async function() {
             const network = new Client({
-                environment: CONFIG.ENVIRONMENT,
-                web3Config: {
-                    connectionType: 'gasless'
-                }
+                environment: CONFIG.ENVIRONMENT
             })
-
-            assert.ok(network)
+            assert.ok(network, 'Have a network instance')
         })
     })
 
