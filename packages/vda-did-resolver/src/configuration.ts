@@ -48,10 +48,7 @@ export function getContractForNetwork(conf: ProviderConfiguration): Contract {
   let provider: Provider = conf.provider || conf.web3?.currentProvider
   if (!provider) {
     // Pull rpcUrl from config or from hardcoded list for each testnet
-    let rpcUrl = RPC_URL[conf.name || conf.chainId || '']
-    if (!rpcUrl) {
-      rpcUrl = conf.rpcUrl!
-    }
+    let rpcUrl = conf.rpcUrl ? conf.rpcUrl : RPC_URL[conf.name || conf.chainId || '']
 
     if (rpcUrl) {
       const chainIdRaw = conf.chainId ? conf.chainId : knownNetworks[conf.name || '']
@@ -62,7 +59,6 @@ export function getContractForNetwork(conf: ProviderConfiguration): Contract {
       throw new Error(`invalid_config: No web3 provider could be determined for network ${conf.name || conf.chainId}`)
     }
   }
-
 
   if (!conf.registry && !CONTRACT_ADDRESS[conf.name || conf.chainId || '']) {
     throw new Error(`invalid_config: should define contract address for network ${conf.name || conf.chainId}`)
