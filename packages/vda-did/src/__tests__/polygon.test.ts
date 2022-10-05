@@ -19,12 +19,6 @@ import {
 const testMode = process.env.TEST_MODE ? process.env.TEST_MODE : 'direct'
 console.log('Test Mode : ', testMode)
 
-let privateKey = process.env.PRIVATE_KEY
-if (privateKey === undefined)
-  throw new Error('Private key not defined in env')
-if (!privateKey.startsWith('0x'))
-  privateKey = '0x' + privateKey
-
 const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TARGET_NET : 'RPC_URL_POLYGON_MAINNET'
 const rpcUrl = process.env[currentNet]
 if(rpcUrl === undefined)
@@ -44,16 +38,23 @@ if (registry === undefined) {
 }
 console.log('Contract : ', registry)
 
-const identity = new Wallet(privateKey.slice(2)).address.toLowerCase()
+const did = Wallet.createRandom()
+const identity = did.address.toLowerCase()
 
 const provider = new JsonRpcProvider(rpcUrl);
+// Create signer that will pay for gas fees
+let privateKey = process.env.PRIVATE_KEY
+if (privateKey === undefined)
+  throw new Error('Private key not defined in env')
+if (!privateKey.startsWith('0x'))
+  privateKey = '0x' + privateKey
 const txSigner = new Wallet(privateKey.slice(2), provider)
 
     
 const vdaDid = testMode === 'direct' ? 
   new VdaDID({
     identifier: identity,
-    vdaKey: privateKey,
+    vdaKey: did.privateKey,
     chainNameOrId : "testnet", //chainId,
     
     callType: 'web3',
@@ -64,7 +65,7 @@ const vdaDid = testMode === 'direct' ?
   }) : 
   new VdaDID({
     identifier: identity,
-    vdaKey: privateKey,
+    vdaKey: did.privateKey,
     chainNameOrId : "testnet", //chainId,
     
     callType: 'gasless',
@@ -156,7 +157,7 @@ describe('VdaDID', () => {
     it ('set Attributes',async () => {
       for (let i = 0; i < 3; i++) {
         const pubKeyAddr = ethers.utils.computeAddress(pubKeyList[i])
-        const proof = getProof(identity, pubKeyAddr, privateKey!)
+        const proof = getProof(identity, pubKeyAddr, did.privateKey)
         const result = await vdaDid.setAttribute(
           <string>attributes[i].name,
           <string>attributes[i].value,
@@ -236,7 +237,7 @@ describe('VdaDID', () => {
       )
 
       const proofAddress = ethers.utils.computeAddress(pubKeyList[0])
-      const proof = getProof(identity, proofAddress, privateKey!)
+      const proof = getProof(identity, proofAddress, did.privateKey)
 
       const addAttrParams: BulkAttributeParam[] = []
       bulkAttrParams.forEach(item => {
@@ -293,7 +294,7 @@ describe('VdaDID', () => {
     it('add attributes',async () => {
       for (let i = 0; i < 3; i++) {
         const proofAddress = ethers.utils.computeAddress(pubKeyList[i])
-        const proof = getProof(identity, proofAddress, privateKey!)
+        const proof = getProof(identity, proofAddress, did.privateKey)
         if (i < 2) {
           // set attribute with proof
           await vdaDid.setAttribute(
