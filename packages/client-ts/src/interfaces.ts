@@ -1,6 +1,7 @@
 import { Interfaces } from '@verida/storage-link';
 import { Account, EnvironmentType } from '@verida/account';
 import BaseStorageEngine from './context/engines/base';
+import { DIDClientConfig } from '@verida/did-client'
 
 /**
  * Interface for ClientConfig
@@ -10,6 +11,7 @@ export interface ClientConfig {
 	 * Specify client's App name.
 	 */
 	vaultAppName?: string;
+	
 	/**
 	 * Environment to load by default.
 	 *
@@ -17,20 +19,12 @@ export interface ClientConfig {
 	 */
 	environment?: EnvironmentType;
 
-	/**
-	 * URL of Verida DID Server node to use.
-	 */
-	web3Config: Web3Config;
+	didClientConfig?: Omit<DIDClientConfig, 'network'>
 
 	/**
 	 * Specify custom schema paths (typicaly for local development).
 	 */
 	schemaPaths?: object;
-}
-
-export interface Web3Config {
-	connectionType: 'gasless' | 'web3'
-	// @todo: other config options?
 }
 
 /**
@@ -87,7 +81,7 @@ export interface DefaultEnvironmentConfig {
 }
 
 export interface DefaultClientConfig extends DefaultEnvironmentConfig {
-	environment: string
+	environment: EnvironmentType
 	environments: Record<string, DefaultEnvironmentConfig>
 	vaultAppName: string
 }

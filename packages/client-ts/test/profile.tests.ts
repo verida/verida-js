@@ -5,20 +5,29 @@ const assert = require('assert')
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from './config'
+import { DIDClientConfig } from '@verida/account-node'
 
 const DATA = {
     name: "Jane"
 }
 
+const DID_CLIENT_CONFIG: DIDClientConfig = {
+    networkPrivateKey: CONFIG.NETWORK_PRIVATE_KEY,
+    callType: 'web3',
+    web3Config: {},
+    rpcUrl: 'http://44.234.36.28:8545/'
+}
+
 describe('Profile tests', () => {
     const client1 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: 'http://44.234.36.28:8545/'
+        }
     })
     let did1, context1, profile1
 
     const client2 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
         environment: CONFIG.ENVIRONMENT
     })
     let did2, context2, profile2
@@ -26,11 +35,11 @@ describe('Profile tests', () => {
     describe("Public profiles", function() {
         this.timeout(100 * 1000)
 
-        it('can initialise own profile', async () => {
+        it.only('can initialise own profile', async () => {
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
-                didServerUrl: CONFIG.DID_SERVER_URL
+                didClientConfig: DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
             await client1.connect(account1)
@@ -54,7 +63,7 @@ describe('Profile tests', () => {
             const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
-                didServerUrl: CONFIG.DID_SERVER_URL
+                didClientConfig: DID_CLIENT_CONFIG
             })
             did2 = await account2.did()
             await client2.connect(account2)
