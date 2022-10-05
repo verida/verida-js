@@ -14,20 +14,6 @@ import { Wallet, BigNumber, Contract, Signer } from 'ethers';
 
 require('dotenv').config();
 
-/** URL for verida meta-transaction-server */
-const base_url = process.env.VERIDA_SERVER_URL
-  ? process.env.VERIDA_SERVER_URL
-  : 'http://localhost';
-
-/** Port for verida meta-transaction-server */
-const PORT = process.env.VERIDA_SERVER_PORT
-  ? process.env.VERIDA_SERVER_PORT
-  : 5021;
-const SERVER_URL_HOME = PORT ? `${base_url}:${PORT}` : base_url;
-
-// type NetworkType = 'mainnet' | 'testnet';
-
-
 /** Create axios instance to make http requests to meta-transaction-server */
 const getAxios = async (params?: any) => {
     const config: any = {};
@@ -157,12 +143,8 @@ export class VeridaContract {
             }
             this.gaslessPostConfig = (<VeridaMetaTransactionConfig>config).postConfig
 
-            // this.gaslessServerConfig = (<VeridaMetaTransactionConfig>config).serverConfig ?? gaslessDefaultServerConfig
-            // this.gaslessPostConfig = (<VeridaMetaTransactionConfig>config).postConfig ?? gaslessDefaultPostConfig
-
-            this.endPoint = SERVER_URL_HOME
-
-            this.endPoint = `${SERVER_URL_HOME}/${config.abi.contractName}`
+            // @ts-ignore Unsure why the OR typescript isn't being picked up here
+            this.endPoint = `${config.endpointUrl}/${config.abi.contractName}`
 
             const methods = config.abi.abi
             methods.forEach((item: any) => {
