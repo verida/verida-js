@@ -18,10 +18,12 @@ export default class AutoAccount extends Account {
 
     private wallet: Wallet
     protected accountConfig: AccountConfig
+    protected autoConfig: NodeAccountConfig
 
     constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
         super()
         this.accountConfig = accountConfig
+        this.autoConfig = autoConfig
         this.wallet = new Wallet(autoConfig.privateKey)
 
         this.didClient = new DIDClient({
@@ -39,7 +41,7 @@ export default class AutoAccount extends Account {
         }
 
         this.didClient.authenticate(
-            autoConfig.didClientConfig.networkPrivateKey,
+            autoConfig.privateKey,
             autoConfig.didClientConfig.callType,
             autoConfig.didClientConfig.web3Config
         )
@@ -59,11 +61,12 @@ export default class AutoAccount extends Account {
     }
 
     public async did(): Promise<string> {
-        return this.wallet.did
+        return this.wallet.did.replace('did:vda', `did:vda:${this.autoConfig.environment}`)
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
-        let storageConfig = await StorageLink.getLink(this.didClient, this.wallet.did, contextName, true)
+        const did = await this.did()
+        let storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true)
         
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
