@@ -8,6 +8,6 @@ export const CONTRACT_ADDRESS: Record<string, string | null> = {
 export const RPC_URL: Record<string, string | null> = {
     "mainnet" : null,
     "0x89" : null,
-    "testnet" : "https://rpc-mumbai.matic.today",
-    "0x13881" : "https://rpc-mumbai.matic.today",
+    "testnet" : "https://rpc-mumbai.maticvigil.com",
+    "0x13881" : "https://rpc-mumbai.maticvigil.com",
 }
