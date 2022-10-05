@@ -49,7 +49,8 @@ export default class DIDDocument {
                     id: `${this.doc.id}#controller`,
                     type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
                     controller: this.doc.id,
-                    blockchainAccountId: `@eip155:${chainId}:${address}`
+                    blockchainAccountId: `@eip155:${chainId}:${address}`,
+                    publicKeyHex: strip0x(this.doc.id)
                 },
                 {
                     id: this.doc.id,
