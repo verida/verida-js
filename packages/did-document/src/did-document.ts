@@ -49,7 +49,7 @@ export default class DIDDocument {
                     id: `${this.doc.id}#controller`,
                     type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
                     controller: this.doc.id,
-                    blockchainAccountId: `@eip155:${chainId}:${address}`
+                    blockchainAccountId: `@eip155:${chainId}:${address}`,
                 },
                 {
                     id: this.doc.id,
@@ -58,7 +58,8 @@ export default class DIDDocument {
                     publicKeyHex: strip0x(publicKeyHex)
                 }]
             this.doc.authentication = [
-                `${this.doc.id}#controller`
+                `${this.doc.id}#controller`,
+                `${this.doc.id}`
             ]
         } else {
             doc.id = doc.id.toLowerCase()
@@ -290,17 +291,21 @@ export default class DIDDocument {
 
         const result: ComparisonResult = {
             add : {
-                verificationMethod: _.differenceBy(docExport.verificationMethod, thisExport.verificationMethod, 'id'),
-                assertionMethod: _.differenceBy(docExport.assertionMethod, thisExport.assertionMethod),
-                service: _.differenceBy(docExport.service, thisExport.service, 'id'),
-                keyAgreement: _.differenceBy(docExport.keyAgreement, thisExport.keyAgreement),
+                // verificationMethod: _.differenceBy(docExport.verificationMethod, thisExport.verificationMethod, 'id'),
+                verificationMethod: _.differenceBy(docExport.verificationMethod, thisExport.verificationMethod, (item: { id: any }) => item.id.toLowerCase()),
+                assertionMethod: _.differenceBy(docExport.assertionMethod, thisExport.assertionMethod, (item: string) => item.toLowerCase()),
+                service: _.differenceBy(docExport.service, thisExport.service, (item: { id: any }) => item.id.toLowerCase()),
+                keyAgreement: _.differenceBy(docExport.keyAgreement, thisExport.keyAgreement, (item: string) => item.toLowerCase()),
+                authentication: _.differenceBy(docExport.authentication, thisExport.authentication, (item: string) => item.toLowerCase()),
 
             } as DocInterface,
             remove: {
-                verificationMethod: _.differenceBy(thisExport.verificationMethod, docExport.verificationMethod, 'id'),
-                assertionMethod: _.differenceBy(thisExport.assertionMethod, docExport.assertionMethod),
-                service: _.differenceBy(thisExport.service, docExport.service, 'id'),
-                keyAgreement: _.differenceBy(thisExport.keyAgreement, docExport.keyAgreement),
+                // verificationMethod: _.differenceBy(thisExport.verificationMethod, docExport.verificationMethod, 'id'),
+                verificationMethod: _.differenceBy(thisExport.verificationMethod, docExport.verificationMethod, (item: { id: any }) => item.id.toLowerCase()),
+                assertionMethod: _.differenceBy(thisExport.assertionMethod, docExport.assertionMethod, (item: string) => item.toLowerCase()),
+                service: _.differenceBy(thisExport.service, docExport.service, (item: { id: any }) => item.id.toLowerCase()),
+                keyAgreement: _.differenceBy(thisExport.keyAgreement, docExport.keyAgreement, (item: string) => item.toLowerCase()),
+                authentication: _.differenceBy(thisExport.authentication, docExport.authentication, (item: string) => item.toLowerCase()),
             } as DocInterface
         }
 

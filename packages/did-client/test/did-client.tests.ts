@@ -65,13 +65,15 @@ describe('DID document tests', () => {
             assert.ok(saved, 'DID document saved successfully')
 
             const doc = await didClient.get(did)
-            // const data = doc.export()
+            const data = doc.export()
+
+            // console.log("Initial Doc : ", initialDoc.export())
             // console.log('saved doc output:', data)
 
             const compare = initialDoc.compare(doc)
             console.log('comparison document (should be empty as documents should match!):', compare)
 
-            /*const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
+            const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
 
             // Validate service endpoints
             assert.equal(data.service?.length, 2, "Have two service entries")
@@ -93,7 +95,7 @@ describe('DID document tests', () => {
             assert.deepEqual(data.verificationMethod, initialDoc.export().verificationMethod, "Verification methods match")
 
             assert.equal(data.assertionMethod.length, 4, "Have three assertionMethod entries")
-            assert.equal(data.keyAgreement.length, 1, "Have one keyAgreement entries")*/
+            assert.equal(data.keyAgreement.length, 1, "Have one keyAgreement entries")
         })
 
         it('can handle invalid DIDs', async function() {

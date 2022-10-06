@@ -194,6 +194,7 @@ export class VdaDidResolver {
                 type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
                 controller: did,
                 blockchainAccountId: `@eip155:${chainId}:${currentEvent.delegate}`,
+                publicKeyHex: strip0x(did)
               }
               break
           }

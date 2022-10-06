@@ -198,8 +198,6 @@ class DIDClientImpl implements DIDClient {
         }
 
         const orgDoc = await this.get()
-        // console.log("Org Doc : ", orgDoc.export())
-        // console.log("New Doc : ", document.export())
 
         const comparisonResult = orgDoc.compare(document)
 
