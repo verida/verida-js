@@ -67,18 +67,20 @@ describe('DID document tests', () => {
             const data = doc.export()
 
             // console.log("Initial Doc : ", initialDoc.export())
-            // console.log('saved doc output:', data)
+            // console.log('Saved doc output:', data)
 
             const compare = initialDoc.compare(doc)
             assert.deepEqual(compare, {
                 add: {
                     verificationMethod: [],
+                    authentication: [],
                     assertionMethod: [],
                     service: [],
                     keyAgreement: []
                 },
                 remove: {
                     verificationMethod: [],
+                    authentication: [],
                     assertionMethod: [],
                     service: [],
                     keyAgreement: []
