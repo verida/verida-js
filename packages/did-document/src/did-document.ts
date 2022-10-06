@@ -222,7 +222,7 @@ export default class DIDDocument {
         if (!verificationMethod || !verificationMethod.publicKeyHex) {
             return false
         }
-        return EncryptionUtils.verifySig(data, signature, verificationMethod.publicKeyHex!)
+        return EncryptionUtils.verifySig(data, signature, `0x${verificationMethod.publicKeyHex!}`)
     }
 
     public verifyContextSignature(data: any, contextName: string, signature: string, contextIsHash: boolean = false) {
