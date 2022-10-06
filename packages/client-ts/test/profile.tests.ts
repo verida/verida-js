@@ -35,20 +35,25 @@ describe('Profile tests', () => {
     describe("Public profiles", function() {
         this.timeout(100 * 1000)
 
-        it.only('can initialise own profile', async () => {
+        it('can initialise own profile', async () => {
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
-            await client1.connect(account1)
+            await client1.connect(account1) 
             context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
 
             profile1 = await context1.openProfile()
             await profile1.set("name", DATA.name)
             const name = await profile1.get("name")
             assert.equal(name, DATA.name, "Can set and get a profile value")
+
+            // Also set a name on the `Verida: Vault` profile to be fetched in a future test
+            const vaultContext = await client1.openContext('Verida: Vault', true)
+            const vaultProfile = await vaultContext!.openProfile()
+            await vaultProfile!.set("name", 'Vault Test Name')
         })
 
         it('can not set invalid profile values', async () => {
@@ -85,7 +90,7 @@ describe('Profile tests', () => {
                 );
                 const name = await profile.get("name");
 
-                assert.equal(name, DATA.name, "Can get a profile value");
+                assert.equal(name, 'Vault Test Name', "Can get a profile value");
             });
 
             it("can disable fallbackContext on open public profile", async () => {
