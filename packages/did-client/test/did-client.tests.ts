@@ -66,6 +66,9 @@ describe('DID document tests', () => {
             const doc = await didClient.get(did)
             const data = doc.export()
 
+            // console.log("Initial Doc : ", initialDoc.export())
+            // console.log('saved doc output:', data)
+
             const compare = initialDoc.compare(doc)
             assert.deepEqual(compare, {
                 add: {
