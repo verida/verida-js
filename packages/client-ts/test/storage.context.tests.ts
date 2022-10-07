@@ -23,7 +23,7 @@ describe('Storage context tests', () => {
     })
 
     describe('Initialize user storage contexts', function() {
-        this.timeout(100000)
+        this.timeout(200 * 1000)
 
         it(`can open a user storage context when authenticated`, async function() {
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
