@@ -43,7 +43,7 @@ export class RecordSignature {
           _data['schema'] = Schema.getVersionlessSchemaName(_data['schema'])
         }
     
-        data.signatures[signKey] = await keyring.sign(_data);
+        data.signatures[signKey.toLowerCase()] = await keyring.sign(_data);
         return data;
     }
 }
