@@ -256,13 +256,16 @@ class Client {
 
     let validSignatures = [];
     for (let key in data.signatures) {
-      const signerParts = key.match(/did:vda:0x([a-z0-9A-Z]*)\?context=(.*)/);
-      if (!signerParts || signerParts.length != 3) {
+      const signerParts = key.match(/did:vda:([^]*):([^]*)\?context=(.*)$/);
+      if (!signerParts || signerParts.length != 4) {
         continue;
       }
 
-      const signerDid = `did:vda:0x${signerParts[1]}`;
-      const signerContextHash = signerParts[2];
+      const sNetwork = signerParts[1]
+      const sDid = signerParts[2]
+      const sContext = signerParts[3]
+
+      const signerDid = `did:vda:${sNetwork}:${sDid}`;
 
       if (!did || signerDid.toLowerCase() == did.toLowerCase()) {
         const signature = data.signatures[key];
@@ -273,7 +276,7 @@ class Client {
 
         const validSig = didDocument.verifyContextSignature(
           _data,
-          signerContextHash,
+          sContext,
           signature,
           true
         );
