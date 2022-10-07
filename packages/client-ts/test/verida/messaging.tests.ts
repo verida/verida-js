@@ -30,29 +30,35 @@ describe('Verida messaging tests', () => {
     let context3, did3
 
     const client1 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     const client2 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     const client3 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     describe('Sending messages', function() {
-        this.timeout(30000)
+        this.timeout(100 * 1000)
 
         it('can send a message between users of the same application', async function() {
             // Initialize account 1
             const account1 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, [CONTEXT_1])
             did1 = await account1.did()
             await client1.connect(account1)
@@ -61,8 +67,8 @@ describe('Verida messaging tests', () => {
             // Initialize account 2 (different private key, same application context)
             const account2 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, [CONTEXT_1])
             did2 = await account2.did()
             await client2.connect(account2)
@@ -140,8 +146,8 @@ describe('Verida messaging tests', () => {
             // Initialize account 3 (different private key, different application context)
             const account3 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, [CONTEXT_2])
             did3 = await account3.did()
             await client3.connect(account3)

@@ -8,6 +8,11 @@ import CONFIG from '../config'
 import { StorageLink } from '@verida/storage-link'
 import { Interfaces as DIDDocumentInterfaces } from '@verida/did-document'
 import _ from 'lodash'
+import { Wallet } from 'ethers'
+
+const wallet = Wallet.createRandom()
+const address = wallet.address.toLowerCase()
+const did = `did:vda:testnet:${address}`
 
 const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
@@ -53,31 +58,37 @@ const validateDidDocument = async(account: AutoAccount, context: Context, did: s
  */
 describe('Verida notification tests', () => {
     const client = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     const client2 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     const client3 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     let VDA_DID, VDA_ACCOUNT
 
     describe('Sending messages', function() {
-        this.timeout(30000)
+        this.timeout(100 * 1000)
 
         it('can specify a notification server when creating a new account context', async () => {
             // Initialize account 1
             const account = new AutoAccount(ENDPOINT_CONFIG, {
-                privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                privateKey: wallet.privateKey,
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             const did = await account.did()
             VDA_DID = did
@@ -98,9 +109,9 @@ describe('Verida notification tests', () => {
         it('can force add a notification server to an existing account context', async () => {
             // Initialize account 1 without a notification server
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                privateKey: wallet.privateKey,
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             VDA_ACCOUNT = account
             const did = await account.did()
@@ -129,9 +140,9 @@ describe('Verida notification tests', () => {
 
         it('can ping a notification server when sending a message', async () => {
             const account = new AutoAccount(ENDPOINT_CONFIG, {
-                privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                privateKey: wallet.privateKey,
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             });
             const did = await account.did()
             const context = await client3.openContext(CONTEXT_1, false)
