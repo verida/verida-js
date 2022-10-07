@@ -5,7 +5,7 @@ import { knownNetworks } from './helpers'
 
 import { VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from '@verida/web3'
 
-import { CONTRACT_ADDRESS } from './const'
+import { CONTRACT_ADDRESS, RPC_URL } from './const'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const DIDRegistry = require('./contract/abi.json')
@@ -47,16 +47,18 @@ export type ConfiguredNetworks = Record<string, Contract>
 export function getContractForNetwork(conf: ProviderConfiguration): Contract {
   let provider: Provider = conf.provider || conf.web3?.currentProvider
   if (!provider) {
-    if (conf.rpcUrl) {
+    // Pull rpcUrl from config or from hardcoded list for each testnet
+    let rpcUrl = conf.rpcUrl ? conf.rpcUrl : RPC_URL[conf.name || conf.chainId || '']
+
+    if (rpcUrl) {
       const chainIdRaw = conf.chainId ? conf.chainId : knownNetworks[conf.name || '']
       const chainId = chainIdRaw ? BigNumber.from(chainIdRaw).toNumber() : chainIdRaw
       const networkName = conf.name ?? 'any'
-      provider = new JsonRpcProvider(conf.rpcUrl, chainId || networkName)
+      provider = new JsonRpcProvider(rpcUrl, chainId || networkName)
     } else {
       throw new Error(`invalid_config: No web3 provider could be determined for network ${conf.name || conf.chainId}`)
     }
   }
-
 
   if (!conf.registry && !CONTRACT_ADDRESS[conf.name || conf.chainId || '']) {
     throw new Error(`invalid_config: should define contract address for network ${conf.name || conf.chainId}`)
@@ -121,11 +123,11 @@ export function configureResolverWithNetworks(conf: ConfigurationOptions = {}): 
 export function getContractInfoForNetwork(chainNameOrId: any) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const abi = require('./contract/abi.json')
-  // const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TARGET_NET : 'RPC_URL_POLYGON_MAINNET'
-  // const address = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
+
   const address = CONTRACT_ADDRESS[chainNameOrId]
+  
   if (!address) {
-    throw new Error('Contract address not defined in env')
+    throw new Error('Contract address not defined')
   }
   return {
     abi: abi,

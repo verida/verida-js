@@ -6,28 +6,45 @@ import { NodeAccountConfig } from './interfaces'
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import { Interfaces as DIDDocumentInterfaces } from "@verida/did-document"
+import { Wallet as EthersWallet } from "ethers"
+import { JsonRpcProvider } from '@ethersproject/providers'
 
 /**
  * An Authenticator that automatically signs everything
  */
 export default class AutoAccount extends Account {
 
-    private privateKey: string
     private didClient: DIDClient
 
     private wallet: Wallet
     protected accountConfig: AccountConfig
+    protected autoConfig: NodeAccountConfig
 
     constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
         super()
         this.accountConfig = accountConfig
+        this.autoConfig = autoConfig
         this.wallet = new Wallet(autoConfig.privateKey)
 
-        const didServerUrl = autoConfig.didServerUrl ? autoConfig.didServerUrl : Config.environments[autoConfig.environment].didServerUrl
-        this.didClient = new DIDClient(didServerUrl)
-        
-        this.privateKey = this.wallet.privateKey
-        this.didClient.authenticate(this.privateKey)
+        this.didClient = new DIDClient({
+            ...autoConfig.didClientConfig,
+            network: <'testnet' | 'mainnet'> autoConfig.environment
+        })
+
+        if (autoConfig.didClientConfig.callType == 'web3') {
+            const provider = new JsonRpcProvider(autoConfig.didClientConfig.rpcUrl)
+            const txSigner = new EthersWallet(autoConfig.didClientConfig.networkPrivateKey, provider)
+            // @ts-ignore Why doesn't pickup the interfaces?
+            autoConfig.didClientConfig.web3Config.provider = provider
+            // @ts-ignore Why doesn't pickup the interfaces?
+            autoConfig.didClientConfig.web3Config.signer = txSigner
+        }
+
+        this.didClient.authenticate(
+            autoConfig.privateKey,
+            autoConfig.didClientConfig.callType,
+            autoConfig.didClientConfig.web3Config
+        )
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
@@ -44,11 +61,12 @@ export default class AutoAccount extends Account {
     }
 
     public async did(): Promise<string> {
-        return this.wallet.did
+        return this.wallet.did.replace('did:vda', `did:vda:${this.autoConfig.environment}`)
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
-        let storageConfig = await StorageLink.getLink(this.didClient, this.wallet.did, contextName, true)
+        const did = await this.did()
+        let storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true)
         
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {

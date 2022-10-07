@@ -56,7 +56,8 @@ export default class DIDDocument {
                     type: "EcdsaSecp256k1VerificationKey2019",
                     controller: this.doc.id,
                     publicKeyHex: strip0x(publicKeyHex)
-                }]
+                }
+            ]
             this.doc.authentication = [
                 `${this.doc.id}#controller`,
                 `${this.doc.id}`
@@ -111,15 +112,13 @@ export default class DIDDocument {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         if (!this.doc.verificationMethod) {
-            this.errors = ['No verification method specified']
             return false
         }
 
-        const contextSignId = `${this.doc.id}?context=${contextHash}&type=sign`
-        const contextAsymId = `${this.doc.id}?context=${contextHash}&type=asym`
+        const contextSignId = `${this.doc.id}\\?context=${contextHash}&type=sign`
+        const contextAsymId = `${this.doc.id}\\?context=${contextHash}&type=asym`
 
         if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextSignId))) {
-            this.errors = ['Unable to locate verification method for this context']
             return false
         }
 
@@ -128,7 +127,10 @@ export default class DIDDocument {
             return !entry.id.match(contextSignId) && !entry.id.match(contextAsymId)
         })
         this.doc.assertionMethod = this.doc.assertionMethod!.filter((entry: string | VerificationMethod) => {
-            return entry !== `${this.doc.id}?context=${contextHash}&type=sign`
+            return (
+                entry !== `${this.doc.id}?context=${contextHash}&type=sign` && 
+                entry !== `${this.doc.id}?context=${contextHash}&type=asym`
+            )
         })
         this.doc.keyAgreement = this.doc.keyAgreement!.filter((entry: string | VerificationMethod) => {
             return entry !== `${this.doc.id}?context=${contextHash}&type=asym`
@@ -136,7 +138,7 @@ export default class DIDDocument {
         
         // Remove services
         this.doc.service = this.doc.service!.filter((entry: ServiceEndpoint) => {
-            return !entry.id.match(`${this.doc.id}?context=${contextHash}`)
+            return !entry.id.match(`${this.doc.id}\\?context=${contextHash}`)
         })
 
         return true
@@ -147,7 +149,7 @@ export default class DIDDocument {
         this.doc = doc
     }
 
-    public export() {
+    public export(): DocInterface {
         return this.doc
     }
 
@@ -220,7 +222,7 @@ export default class DIDDocument {
         if (!verificationMethod || !verificationMethod.publicKeyHex) {
             return false
         }
-        return EncryptionUtils.verifySig(data, signature, verificationMethod.publicKeyHex!)
+        return EncryptionUtils.verifySig(data, signature, `0x${verificationMethod.publicKeyHex!}`)
     }
 
     public verifyContextSignature(data: any, contextName: string, signature: string, contextIsHash: boolean = false) {
@@ -236,7 +238,7 @@ export default class DIDDocument {
             return false
         }
 
-        const signPublicKey = verificationMethod.publicKeyHex!
+        const signPublicKey = `0x${verificationMethod.publicKeyHex!}`
         return EncryptionUtils.verifySig(data, signature, signPublicKey)
     }
 

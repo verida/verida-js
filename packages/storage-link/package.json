@@ -21,6 +21,7 @@
     "@verida/did-document": "^1.0.5",
     "@verida/encryption-utils": "^1.1.3",
     "@verida/keyring": "^1.1.3",
+    "did-resolver": "^4.0.0",
     "url-parse": "^1.5.3"
   },
   "devDependencies": {

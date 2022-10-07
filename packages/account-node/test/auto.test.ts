@@ -2,15 +2,10 @@
 const assert = require('assert')
 import { AutoAccount } from "../src/index"
 import { decodeJWT } from 'did-jwt'
-import { DIDClient } from "@verida/did-client"
-
-
-const DID_SERVER_URL = 'http://localhost:5001'
+import { DIDClientConfig } from "../src/interfaces"
+import { EnvironmentType } from "@verida/account"
+import CONFIG from './config'
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
-
-const didClient = new DIDClient(DID_SERVER_URL)
-didClient.authenticate(MNEMONIC)
-const DID = didClient.getDid()
 
 const APPLICATION_NAME = 'Verida Test: DIDJWT'
 const DEFAULT_ENDPOINTS = {
@@ -24,6 +19,12 @@ const DEFAULT_ENDPOINTS = {
     },
 }
 
+const DID_CLIENT_CONFIG: DIDClientConfig = {
+    networkPrivateKey: CONFIG.networkPrivateKey,
+    callType: 'web3',
+    web3Config: {}
+}
+
 describe('Auto account tests', () => {
 
     describe('Basic tests', function () {
@@ -31,8 +32,9 @@ describe('Auto account tests', () => {
 
         it('verify did-jwt', async function () {
             const account = new AutoAccount(DEFAULT_ENDPOINTS, {
+                environment: EnvironmentType.TESTNET,
                 privateKey: MNEMONIC,
-                didServerUrl: DID_SERVER_URL
+                didClientConfig: DID_CLIENT_CONFIG
             })
             const didJwt = await account.createDidJwt(APPLICATION_NAME, {
                 hello: 'world'
@@ -49,15 +51,17 @@ describe('Auto account tests', () => {
 
         it('can reopen the same did account with the same mnemonic and did', async () => {
             const account1 = new AutoAccount(DEFAULT_ENDPOINTS, {
+                environment: EnvironmentType.TESTNET,
                 privateKey: MNEMONIC,
-                didServerUrl: DID_SERVER_URL
+                didClientConfig: DID_CLIENT_CONFIG
             })
 
             const did1 = await account1.did()
 
             const account2 = new AutoAccount(DEFAULT_ENDPOINTS, {
+                environment: EnvironmentType.TESTNET,
                 privateKey: MNEMONIC,
-                didServerUrl: DID_SERVER_URL
+                didClientConfig: DID_CLIENT_CONFIG
             })
 
             const did2 = await account2.did()

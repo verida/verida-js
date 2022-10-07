@@ -12,7 +12,7 @@ import {
 } from './helpers'
 
 import { CallType, VdaTransactionResult } from '@verida/web3'
-import { VeridaWeb3ConfigurationOption } from './configuration'
+import { ProviderConfiguration, VeridaWeb3ConfigurationOption } from './configuration'
 
 export {
   getResolver,
@@ -30,4 +30,5 @@ export {
   CallType,
   VdaTransactionResult,
   VeridaWeb3ConfigurationOption,
+  ProviderConfiguration
 }

@@ -16,18 +16,20 @@ describe('Storage context tests', () => {
     let didClient, context
 
     const client = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     describe('Initialize user storage contexts', function() {
-        this.timeout(100000)
+        this.timeout(200 * 1000)
 
         it(`can open a user storage context when authenticated`, async function() {
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             await client.connect(account)
             didClient = await account.getDidClient()

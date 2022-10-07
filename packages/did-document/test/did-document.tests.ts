@@ -64,9 +64,10 @@ describe('DID document tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
 
             // @todo: validate signing key
+            
 
             // @todo: validate asymmetric key
         })
@@ -94,7 +95,7 @@ describe('DID document tests', () => {
             assert.ok(endpoint4, "Have messaging endpoint for context 2")
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 5, "Have five verificationMethod entries")
+            assert.equal(data.verificationMethod!.length, 6, "Have six verificationMethod entries")
         })
 
         it('can remove a context', async function() {
@@ -104,7 +105,10 @@ describe('DID document tests', () => {
 
             // Confirm we have two contexts
             const data2 = doc.export()
-            assert.equal(data2.service.length, 4, "Have four service entries")
+            assert.equal(data2.service!.length, 4, "Have four service entries after adding a service")
+            assert.equal(data2.verificationMethod!.length, 6, "Have six verificationMethod entries after adding a service")
+            assert.equal(data2.assertionMethod!.length, 6, "Have six assertionMethod entries after adding a service")
+            assert.equal(data2.keyAgreement!.length, 2, 'Have two keyAgreements after adding a service')
 
             // Remove a context
             const success = await doc.removeContext(CONTEXT_NAME)
@@ -112,10 +116,26 @@ describe('DID document tests', () => {
             const data = doc.export()
 
             // Confirm we have the correct number of entries
-            assert.equal(data.service.length, 2, "Have two service entries")
-            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
+            assert.equal(data.service!.length, 2, "Have two service entries after removing a service")
+            assert.equal(data.verificationMethod!.length, 4, "Have four verificationMethod entries after removing a service")
+            assert.equal(data.assertionMethod!.length, 4, "Have four assertionMethod entries after removing a service")
+            assert.equal(data.keyAgreement!.length, 1, 'Have two keyAgreements after removing a service')
 
             // @todo deeper validation of signatures and service endpoints
+        })
+
+        it('can replace an existing context, not add again', async function() {
+            const doc = new DIDDocument(did, wallet.publicKey)
+
+            // Add the same context twice in a row
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+
+            const data = doc.export()
+            assert.equal(data.service!.length, 2, "Have two service entries")
+            assert.equal(data.verificationMethod?.length, 4, 'Have four verification methods')
+            assert.equal(data.assertionMethod?.length, 4, 'Have four assertionMethods')
+            assert.equal(data.keyAgreement?.length, 1, 'Have one keyAgreement')
         })
     })
 
@@ -154,34 +174,42 @@ describe('DID document tests', () => {
             // Verify service
             assert.deepEqual(compareResult.add.verificationMethod, [
                 {
-                    id: `${did}-sign?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`,
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '0x03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {
-                    id: `${did}-asym?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`,
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`,
                     type: 'X25519KeyAgreementKey2019',
                     controller: did,
-                    publicKeyHex: '0x7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
+                    publicKeyHex: '7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
                 }
             ], 'verificationMethod/add is correct')
             assert.deepEqual(compareResult.remove.verificationMethod, [
                 // As we manually set the controller, the DID verification method wasn't auto generated
                 {
+                    id: `${did}#controller`,
+                    type: 'EcdsaSecp256k1RecoveryMethod2020',
+                    controller: 'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694',
+                    blockchainAccountId: '@eip155:137:0xb194A2809B5b3b8aaE350d85233439D32b361694'
+                },
+                {
                     id: `${did}`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '0x048e07cef8dae5b156c3b504c3d09d7a1f038461a9c546e3654d8c2a5189c313cc0bd0aaac0cbfcf5e12895bcf4d1347f6ca14d7e546c96e0ad7acae45e07d13ae'
+                    publicKeyHex: '048e07cef8dae5b156c3b504c3d09d7a1f038461a9c546e3654d8c2a5189c313cc0bd0aaac0cbfcf5e12895bcf4d1347f6ca14d7e546c96e0ad7acae45e07d13ae'
                   }
             ], 'verificationMethod/remove is correct')
 
             // Verify assertionMethod
             assert.deepEqual(compareResult.add.assertionMethod, [
-                `${did}-sign?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`
             ], 'assertionMethod/add is correct')
             assert.deepEqual(compareResult.remove.assertionMethod, [
                 // // As we manually set the controller, the DID assertion method wasn't auto generated
+                'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694#controller',
                 'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694'
             ], 'assertionMethod/remove is correct')
 
@@ -202,7 +230,7 @@ describe('DID document tests', () => {
 
             // Verify keyAgreement
             assert.deepEqual(compareResult.add.keyAgreement, [
-                `${did}-asym?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`
             ], 'keyAgreement/add is correct')
             assert.deepEqual(compareResult.remove.keyAgreement, [], 'keyAgreement/remove is correct')
         })
@@ -224,23 +252,24 @@ describe('DID document tests', () => {
             // Verify service
             assert.deepEqual(compareResult.remove.verificationMethod, [
                 {
-                    id: `${did}-sign?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`,
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '0x03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {
-                    id: `${did}-asym?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`,
+                    id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`,
                     type: 'X25519KeyAgreementKey2019',
                     controller: did,
-                    publicKeyHex: '0x7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
+                    publicKeyHex: '7111bd092060f001ccddda39a61d591fafc9005535205001b0ace589dc087f3a'
                 }
             ], 'verificationMethod/remove is correct')
             assert.deepEqual(compareResult.add.verificationMethod, [], 'verificationMethod/add is correct')
 
             // Verify assertionMethod
             assert.deepEqual(compareResult.remove.assertionMethod, [
-                `${did}-sign?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`
             ], 'assertionMethod/remove is correct')
             assert.deepEqual(compareResult.add.assertionMethod, [], 'assertionMethod/add is correct')
 
@@ -261,7 +290,7 @@ describe('DID document tests', () => {
 
             // Verify keyAgreement
             assert.deepEqual(compareResult.remove.keyAgreement, [
-                `${did}-asym?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a`
+                `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`
             ], 'keyAgreement/remove is correct')
             assert.deepEqual(compareResult.add.keyAgreement, [], 'add/remove is correct')
         })
