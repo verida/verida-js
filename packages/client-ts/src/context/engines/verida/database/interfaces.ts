@@ -9,6 +9,7 @@ export interface VeridaDatabaseConfig {
   databaseName: string;
   did: string;
   dsn: string;
+  token?: string;
   storageContext: string;
 
   permissions?: PermissionsConfig;

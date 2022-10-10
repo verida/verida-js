@@ -1,4 +1,4 @@
-import { Account } from "@verida/account";
+import { Account, AuthContext, AuthTypeConfig } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 
 import BaseStorageEngine from "./engines/base";
@@ -57,6 +57,8 @@ class Context {
   private didContextManager: DIDContextManager;
   private databaseEngines: DatabaseEngines = {};
   private dbRegistry: DbRegistry;
+
+  private databaseCache: Record<string, Database | Promise<Database>> = {}
 
   /**
    * Instantiate a new context.
@@ -149,11 +151,12 @@ class Context {
         `Unsupported database engine type specified: ${engineType}`
       );
     }
+
     const engine = DATABASE_ENGINES[engineType]; // @todo type cast correctly
     const databaseEngine = new engine(
       this.contextName,
       this.dbRegistry,
-      contextConfig.services.databaseServer.endpointUri
+      contextConfig
     );
 
     /**
@@ -290,21 +293,37 @@ class Context {
       config.did = accountDid;
     }
 
-    const databaseEngine = await this.getDatabaseEngine(
-      config.did,
-      config.createContext!
-    );
+    const cacheKey = `${config.did}/${databaseName}`
 
-    if (!config.signingContext) {
-      config.signingContext = this;
+    if (this.databaseCache[cacheKey] && !config.ignoreCache) {
+      return this.databaseCache[cacheKey]
     }
 
-    const database = await databaseEngine.openDatabase(databaseName, config);
-    if (config.saveDatabase !== false) {
-      await this.dbRegistry.saveDb(database, false);
-    }
+    const instance = this
+    this.databaseCache[cacheKey] = new Promise(async (resolve, rejects) => {
+      try {
+        const databaseEngine = await instance.getDatabaseEngine(
+          config.did!,
+          config.createContext!
+        );
 
-    return database;
+        if (!config.signingContext) {
+          config.signingContext = instance;
+        }
+    
+        const database = await databaseEngine.openDatabase(databaseName, config);
+        if (config.saveDatabase !== false) {
+          await instance.dbRegistry.saveDb(database, false);
+        }
+    
+        instance.databaseCache[cacheKey] = database;
+        resolve(database);
+      } catch (err: any) {
+        rejects(err)
+      }
+    })
+
+    return this.databaseCache[cacheKey]
   }
 
   /**
@@ -342,8 +361,9 @@ class Context {
       config
     );
 
-    config.saveDatabase = false;
+    config.isOwner = false;
 
+    config.saveDatabase = false;
     if (config.contextName && config.contextName != this.contextName) {
       // We are opening a database for a different context.
       // Open the new context
@@ -358,7 +378,6 @@ class Context {
     }
 
     const databaseEngine = await this.getDatabaseEngine(did);
-
     return databaseEngine.openDatabase(databaseName, config);
   }
 
@@ -411,6 +430,17 @@ class Context {
 
   public getDbRegistry(): DbRegistry {
     return this.dbRegistry;
+  }
+
+  public async getAuthContext(authConfig?: AuthTypeConfig, authType?: string): Promise<AuthContext> {
+    if (!this.account) {
+      throw new Error("No authenticated user");
+    }
+
+    const did = await this.account!.did()
+    const contextConfig = await this.getContextConfig(did, false)
+
+    return this.account!.getAuthContext(this.contextName, contextConfig, authConfig, authType)
   }
 }
 

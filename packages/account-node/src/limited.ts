@@ -13,7 +13,7 @@ export default class LimitedAccount extends AutoAccount {
 
     private signingContexts: string[]
 
-    constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig, signingContexts = []) {
+    constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig, signingContexts: string[] = []) {
         super(accountConfig, autoConfig)
         this.signingContexts = signingContexts
     }
