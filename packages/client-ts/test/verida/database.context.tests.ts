@@ -47,7 +47,6 @@ describe('Verida database tests relating to contexts', () => {
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONTEXT_1, true)
-            
             const database = db1 = await context.openDatabase(DB_NAME_PUBLIC_WRITE, {
                 permissions: {
                     read: 'public',

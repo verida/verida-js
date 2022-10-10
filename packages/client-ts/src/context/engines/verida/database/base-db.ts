@@ -11,6 +11,7 @@ import { Context } from "../../../..";
 import { DbRegistryEntry } from "../../../db-registry";
 import EncryptionUtils from "@verida/encryption-utils";
 import { RecordSignature } from "../../../utils"
+import StorageEngineVerida from "./engine"
 
 /**
  * @category
@@ -20,7 +21,9 @@ class BaseDb extends EventEmitter implements Database {
   protected databaseName: string;
   protected did: string;
   protected dsn: string;
+  protected token?: string;
   protected storageContext: string;
+  protected engine: StorageEngineVerida
 
   protected permissions?: PermissionsConfig;
   protected isOwner?: boolean;
@@ -36,13 +39,15 @@ class BaseDb extends EventEmitter implements Database {
   // PouchDb instance for this database
   protected db?: any;
 
-  constructor(config: VeridaDatabaseConfig) {
+  constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
     super();
     this.client = config.client;
     this.databaseName = config.databaseName;
     this.did = config.did.toLowerCase();
     this.dsn = config.dsn;
+    this.token = config.token;
     this.storageContext = config.storageContext;
+    this.engine = engine
 
     this.isOwner = config.isOwner;
     this.signContext = config.signContext;
@@ -71,6 +76,10 @@ class BaseDb extends EventEmitter implements Database {
     this.db = null;
   }
 
+  public getEngine() {
+    return this.engine
+  }
+
   // DID + context name + DB Name + readPerm + writePerm
   private buildDatabaseHash() {
     let text = [
@@ -79,7 +88,7 @@ class BaseDb extends EventEmitter implements Database {
       this.databaseName,
     ].join("/");
 
-    const hash = EncryptionUtils.hash(text).substr(2);
+    const hash = EncryptionUtils.hash(text).substring(2);
 
     // Database name in CouchDB must start with a letter, so prepend a `v`
     return "v" + hash;
@@ -410,7 +419,7 @@ class BaseDb extends EventEmitter implements Database {
     };
 
     try {
-      await this.client.createDatabase(this.did, this.databaseHash, options);
+      await this.client.createDatabase(this.did, this.databaseName, options);
       // There's an odd timing issue that needs a deeper investigation
       await Utils.sleep(1000);
     } catch (err) {
@@ -418,9 +427,22 @@ class BaseDb extends EventEmitter implements Database {
     }
   }
 
+  public getAccessToken() {
+    return this.token
+  }
+
+  public async setAccessToken(token: string): Promise<void> {
+    this.token = token
+  }
+
   public async info(): Promise<any> {
     throw new Error("Not implemented");
   }
+
+  public async close(): Promise<any> {
+    throw new Error("Not implemented");
+  }
+  
 }
 
 export default BaseDb;

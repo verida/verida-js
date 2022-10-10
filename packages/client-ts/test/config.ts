@@ -18,5 +18,15 @@ export default {
             type: 'VeridaMessage',
             endpointUri: 'https://db.testnet.verida.io:5002/'
         },
+    },
+    INVALID_ENDPOINTS: {    // endpoints that resolve to non-existant storage node
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: 'http://localhost:6000/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaMessage',
+            endpointUri: 'http://localhost:6000/'
+        },
     }
 }

@@ -1,7 +1,10 @@
-import { Account } from '@verida/account'
+import { Account, VeridaDatabaseAuthContext, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
+import Axios from "axios";
+const jwt = require('jsonwebtoken');
+
 const querystring = require('querystring')
 const _ = require('lodash')
 const store = require('store')
@@ -69,14 +72,18 @@ export default class VaultAccount extends Account {
     constructor(config: VaultAccountConfig = {}) {
         super()
         this.config = config
+        this.config.request = this.config.request ? this.config.request : {}
+        this.config.request.userAgent = navigator.userAgent
     }
 
-    public async connectContext(contextName: string) {
+    public async connectContext(contextName: string, ignoreSession: boolean = false) {
         const vaultAccount = this
 
-        const contextConfig = await this.loadFromSession(contextName)
-        if (contextConfig) {
-            return contextConfig
+        if (!ignoreSession) {
+            const contextConfig = await this.loadFromSession(contextName)
+            if (contextConfig) {
+                return contextConfig
+            }
         }
 
         const promise = new Promise<boolean>((resolve, reject) => {
@@ -86,13 +93,13 @@ export default class VaultAccount extends Account {
                     if (!storedSessions) {
                         storedSessions = {}
                     }
-
+ 
                     storedSessions[contextName] = response
                     store.set(VERIDA_AUTH_CONTEXT, storedSessions)
                 }
 
                 this.setDid(response.did)
-                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature))
+                vaultAccount.addContext(response.context, response.contextConfig, new Keyring(response.signature), response.contextAuth)
                 resolve(true)
             }
 
@@ -109,27 +116,60 @@ export default class VaultAccount extends Account {
         return promise
     }
 
+    /**
+     * Verify we have valid JWT's and non-expired accessToken and refreshToken
+     * 
+     * @param contextAuth 
+     * @returns 
+     */
+    public contextAuthIsValid(contextAuth: VeridaDatabaseAuthContext): boolean {
+        if (!contextAuth.accessToken || !contextAuth.refreshToken) {
+            return false
+        }
+
+        // verify tokens are valid JWT's
+        const decodedAccessToken = jwt.decode(contextAuth.accessToken!)
+        if (!decodedAccessToken) {
+            return false
+        }
+
+        const decodedRefreshToken = jwt.decode(contextAuth.refreshToken!)
+        if (!decodedRefreshToken) {
+            return false
+        }
+
+        // verify tokens haven't expired
+        const now = Math.floor(Date.now() / 1000)
+        if (decodedAccessToken.exp < now || decodedRefreshToken.exp < now) {
+            return false
+        }
+
+        return true
+    }
+
     public async loadFromSession(contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
         // First, attempt to Load from query parameters if specified
         const token = getAuthTokenFromQueryParams()
         if (token && token.context == contextName) {
-            this.addContext(token.context, token.contextConfig, new Keyring(token.signature))
-            this.setDid(token.did)
+            if (this.contextAuthIsValid(token.contextAuth)) {
+                this.addContext(token.context, token.contextConfig, new Keyring(token.signature), token.contextAuth)
+                this.setDid(token.did)
 
-            if (typeof(this.config!.callback) === "function") {
-                this.config!.callback(token)
+                if (typeof(this.config!.callback) === "function") {
+                    this.config!.callback(token)
+                }
+
+                // Store the session from the query params so future page loads will be authenticated
+                let storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+                if (!storedSessions) {
+                    storedSessions = {}
+                }
+
+                storedSessions[contextName] = token
+                store.set(VERIDA_AUTH_CONTEXT, storedSessions)
+                
+                return token.contextConfig
             }
-
-            // Store the session from the query params so future page loads will be authenticated
-            let storedSessions = store.get(VERIDA_AUTH_CONTEXT)
-            if (!storedSessions) {
-                storedSessions = {}
-            }
-
-            storedSessions[contextName] = token
-            store.set(VERIDA_AUTH_CONTEXT, storedSessions)
-            
-            return token.contextConfig
         }
 
         const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
@@ -140,14 +180,17 @@ export default class VaultAccount extends Account {
 
         const response = storedSessions[contextName]
 
-        this.setDid(response.did)
-        this.addContext(response.context, response.contextConfig, new Keyring(response.signature))
+        if (this.contextAuthIsValid(response.contextAuth)) {
+            this.setDid(response.did)
 
-        if (typeof(this.config!.callback) === "function") {
-            this.config!.callback(response)
+            this.addContext(response.context, response.contextConfig, new Keyring(response.signature), response.contextAuth)
+
+            if (typeof(this.config!.callback) === "function") {
+                this.config!.callback(response)
+            }
+
+            return response.contextConfig
         }
-
-        return response.contextConfig
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
@@ -158,10 +201,11 @@ export default class VaultAccount extends Account {
         return this.contextCache[contextName].keyring
     }
 
-    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring) {
+    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring, contextAuth: VeridaDatabaseAuthContext) {
         this.contextCache[contextName] = {
             keyring,
-            contextConfig
+            contextConfig,
+            contextAuth
         }
     }
 
@@ -214,4 +258,62 @@ export default class VaultAccount extends Account {
         store.remove(VERIDA_AUTH_CONTEXT)
     }
 
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
+        force: false
+    }, authType: string = "database"): Promise<AuthContext> {
+        if (authConfig.force || !this.contextCache[contextName]) {
+            // Don't have an existing context in the cache or we need to force refresh
+            await this.connectContext(contextName, true)
+        }
+
+        const serviceEndpoint = contextConfig.services.databaseServer
+        if (serviceEndpoint.type == "VeridaDatabase") {
+            // If we have an invalid access token (detected by the internal libraries)
+            // then attempt to re-authenticate using the refreshToken
+            if ((<VeridaDatabaseAuthTypeConfig> authConfig).invalidAccessToken) {
+                const did = await this.did()
+
+                try {
+                    const accessResponse = await this.getAxios(contextName).post(serviceEndpoint.endpointUri + "auth/connect",{
+                        refreshToken: this.contextCache[contextName].contextAuth.refreshToken,
+                        did,
+                        contextName: contextName
+                    });
+            
+                    const accessToken = accessResponse.data.accessToken
+                    this.contextCache[contextName].contextAuth.accessToken = accessToken
+                    return this.contextCache[contextName].contextAuth
+                } catch (err: any) {
+                    // Refresh token is invalid, so raise an exception that will be caught within the protocol
+                    // and force the sign in to be restarted
+                    if (err.message == 'Request failed with status code 401') {
+                        throw new ContextAuthorizationError("Expired refresh token")
+                    } else {
+                        throw err
+                    }
+                }
+            }
+        }
+
+        if (this.contextCache[contextName] && this.contextCache[contextName].contextAuth) {
+            return this.contextCache[contextName].contextAuth
+        }
+
+        throw new Error(`Unknown auth context type (${authType})`)
+    }
+
+    private getAxios(storageContext: string, accessToken?: string) {
+        let config: any = {
+            headers: {
+            // @todo: Application-Name needs to become Storage-Context
+            "Application-Name": storageContext,
+            },
+        };
+
+        if (accessToken) {
+            config.headers['Authorization'] = `Bearer ${accessToken}`
+        }
+
+        return Axios.create(config);
+    }
 }

@@ -18,8 +18,8 @@ const MESSAGE_DATA = {
     }]
 }
 
-const CONTEXT_1 = "Verida Testing: Messaging Application 1"
-const CONTEXT_2 = "Verida Testing: Messaging Application 2"
+const CONTEXT_1 = "Verida Tests: Messaging Application 1"
+const CONTEXT_2 = "Verida Tests: Messaging Application 2"
 
 /**
  * 

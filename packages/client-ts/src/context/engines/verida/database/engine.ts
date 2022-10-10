@@ -2,10 +2,13 @@ import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
 import Database from "../../../database";
 import { DatabaseOpenConfig } from "../../../interfaces";
-import DatastoreServerClient from "./client";
+import { DatastoreServerClient } from "./client";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
+import { Interfaces } from "@verida/storage-link";
+import { VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from "@verida/account"
+import BaseDb from "./base-db";
 
 const _ = require("lodash");
 
@@ -16,21 +19,20 @@ const _ = require("lodash");
 class StorageEngineVerida extends BaseStorageEngine {
   private client: DatastoreServerClient;
 
-  private publicCredentials: any; // @todo
-
+  private publicCredentials: any; // @todo fix typing
   private accountDid?: string;
-  private dsn?: string;
+  private auth?: VeridaDatabaseAuthContext
 
-  // @todo: dbmanager
+  // @todo: specify device id // deviceId: string="Test device"
   constructor(
     storageContext: string,
     dbRegistry: DbRegistry,
-    endpointUri: string
+    contextConfig: Interfaces.SecureContextConfig,
   ) {
-    super(storageContext, dbRegistry, endpointUri);
+    super(storageContext, dbRegistry, contextConfig);
     this.client = new DatastoreServerClient(
       this.storageContext,
-      this.endpointUri
+      contextConfig.services.databaseServer.endpointUri
     );
   }
 
@@ -38,38 +40,17 @@ class StorageEngineVerida extends BaseStorageEngine {
     try {
       await super.connectAccount(account);
 
-      await this.client.setAccount(account);
-      this.accountDid = await this.account!.did();
+      const auth = await account.getAuthContext(this.storageContext, this.contextConfig)
+      this.auth = <VeridaDatabaseAuthContext> auth
+      await this.client.setAuthContext(this.auth)
 
-      // Fetch user details from server
-      let response;
-      try {
-        response = await this.client.getUser(this.accountDid!);
-      } catch (err: any) {
-        if (
-          err.response &&
-          err.response.data.data &&
-          err.response.data.data.did == "Invalid DID specified"
-        ) {
-          // User doesn't exist, so create them
-          response = await this.client.createUser();
-        } else if (err.response && err.response.statusText == "Unauthorized") {
-          throw new Error(
-            "Invalid signature or permission to access DID server"
-          );
-        } else {
-          // Unknown error
-          throw err;
-        }
+      this.accountDid = await this.account!.did();
+    } catch (err: any) {
+      if (err.name == "ContextNotFoundError") {
+        return
       }
 
-      const user = response.data.user;
-      this.dsn = user.dsn;
-    } catch (err: any) {
-      //console.log(err)
-      // Connecting the account may fail.
-      // For example, the user is connect via `account-web-vault` and doesn't have
-      // a keyring for the context associated with this storage engine
+      throw err
     }
   }
 
@@ -88,29 +69,22 @@ class StorageEngineVerida extends BaseStorageEngine {
    * @param did
    * @returns {string}
    */
-  protected async buildExternalDsn(endpointUri: string): Promise<string> {
-    const client = new DatastoreServerClient(this.storageContext, endpointUri);
-    await client.setAccount(this.account!);
-    let response;
-    try {
-      response = await client.getUser(this.accountDid!);
-    } catch (err: any) {
-      if (
-        err.response &&
-        err.response.data.data &&
-        err.response.data.data.did == "Invalid DID specified"
-      ) {
-        // User doesn't exist, so create on this endpointUri server
-        response = await client.createUser();
-      } else if (err.response && err.response.statusText == "Unauthorized") {
-        throw new Error("Invalid signature or permission to access DID server");
-      } else {
-        // Unknown error
-        throw err;
-      }
+  protected async buildExternalAuth(endpointUri: string): Promise<VeridaDatabaseAuthContext> {
+    if (!this.account) {
+      throw new Error('Unable to connect to external storage node. No account connected.')
     }
 
-    return response.data.user.dsn;
+    const auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
+      endpointUri
+    })
+
+    return <VeridaDatabaseAuthContext> auth
+
+    /*const client = new DatastoreServerClient(this.storageContext, this.contextConfig);
+    await client.setAccount(this.account!);
+
+    const auth = await client.getContextAuth();
+    return auth*/
   }
 
   /**
@@ -136,8 +110,15 @@ class StorageEngineVerida extends BaseStorageEngine {
       options
     );
 
+    const instance = this
+
+    const contextName = config.contextName ? config.contextName : this.storageContext
+
     // Default to user's account did if not specified
-    config.isOwner = config.did == this.accountDid;
+    if (typeof(config.isOwner) == 'undefined') {
+      config.isOwner = config.did == this.accountDid;
+    }
+
     config.saveDatabase = config.isOwner; // always save this database to registry if user is the owner
     let did = config.did!.toLowerCase();
 
@@ -170,9 +151,14 @@ class StorageEngineVerida extends BaseStorageEngine {
       }
     }
 
-    let dsn = config.isOwner ? this.dsn! : config.dsn!;
+    let dsn = config.isOwner ? this.auth!.host! : config.dsn!;
     if (!dsn) {
-      throw new Error("Unable to determine DSN for this user and this context");
+      throw new Error(`Unable to determine DSN for this user (${did}) and this context (${contextName})`);
+    }
+
+    let token = config.isOwner ? this.auth!.accessToken : config.token!;
+    if (!dsn) {
+      throw new Error(`Unable to determine DSN for this user (${did}) and this context (${contextName})`);
     }
 
     // force read only access if the current user doesn't have write access
@@ -208,9 +194,10 @@ class StorageEngineVerida extends BaseStorageEngine {
         {
           databaseName,
           did,
-          storageContext: this.storageContext,
+          storageContext: contextName,
           signContext: options.signingContext!,
           dsn,
+          token,
           permissions: config.permissions,
           readOnly: config.readOnly,
           encryptionKey,
@@ -218,7 +205,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
-        this.dbRegistry
+        this
       );
 
       await db.init();
@@ -239,14 +226,15 @@ class StorageEngineVerida extends BaseStorageEngine {
         databaseName,
         did,
         dsn,
-        storageContext: this.storageContext,
+        token,
+        storageContext: contextName,
         signContext: options.signingContext!,
         permissions: config.permissions,
         readOnly: config.readOnly,
         client: this.client,
         isOwner: config.isOwner,
         saveDatabase: config.saveDatabase,
-      });
+      }, this);
 
       await db.init();
       return db;
@@ -276,9 +264,11 @@ class StorageEngineVerida extends BaseStorageEngine {
        *  - Need to talk to the db hash for the did that owns the database
        */
 
-      if (!config.isOwner) {
+      if (!config.isOwner && this.account) {
         // need to build a complete dsn
-        dsn = await this.buildExternalDsn(config.dsn!);
+        const auth = await this.buildExternalAuth(config.dsn!);
+        dsn = auth.host;
+        token = auth.accessToken;
       }
 
       const storageContextKey = await this.keyring!.getStorageContextKey(
@@ -292,9 +282,10 @@ class StorageEngineVerida extends BaseStorageEngine {
         {
           databaseName,
           did,
-          storageContext: this.storageContext,
+          storageContext: contextName,
           signContext: options.signingContext!,
           dsn,
+          token,
           permissions: config.permissions,
           readOnly: config.readOnly,
           encryptionKey,
@@ -302,7 +293,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
-        this.dbRegistry
+        this
       );
 
       try {
@@ -332,11 +323,49 @@ class StorageEngineVerida extends BaseStorageEngine {
         }*/
   }
 
+
+  /**
+   * Re-authenticate this storage engine and update the credentials
+   * for the database.
+   * 
+   * This is called by the internal fetch() methods when they detect an invalid access token
+   */
+  public async reAuth(db: BaseDb) {
+    if (!this.account) {
+      // No account connected, so can't reconnect database
+      const info = await db.info()
+      throw new Error(`No account connected. Access token expired, but unable to regenerate for database ${info.databaseName}`)
+    }
+
+    let auth
+    try {
+      // Attempt to re-authenticate using the refresh token and ignoring the access token (its invalid)
+      auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
+        invalidAccessToken: true
+      })
+    } catch (err: any) {
+      if (err.name == 'ContextAuthorizationError') {
+        // The refresh token is invalid
+        // Force a new connection, this will cause a new single sign in popup if in a web environment
+        // and using account-web-vault
+        auth = await this.account!.getAuthContext(this.storageContext, this.contextConfig, <VeridaDatabaseAuthTypeConfig> {
+          force: true
+        })
+      } else {
+        throw err
+      }
+    }
+
+    this.auth = <VeridaDatabaseAuthContext> auth
+    await this.client.setAuthContext(this.auth)
+    await db.setAccessToken(this.auth!.accessToken!)
+  }
+
   public logout() {
     super.logout();
     this.client = new DatastoreServerClient(
       this.storageContext,
-      this.endpointUri
+      this.contextConfig.services.databaseServer.endpointUri
     );
   }
 

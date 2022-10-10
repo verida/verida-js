@@ -1,11 +1,12 @@
 import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { Account, AccountConfig, Config } from '@verida/account'
+import { Account, AccountConfig, Config, AuthType, VeridaDatabaseAuthTypeConfig, AuthContext, AuthTypeConfig } from '@verida/account'
 import { NodeAccountConfig } from './interfaces'
 
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import { Interfaces as DIDDocumentInterfaces } from "@verida/did-document"
+import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
 
 /**
  * An Authenticator that automatically signs everything
@@ -17,6 +18,7 @@ export default class AutoAccount extends Account {
 
     private wallet: Wallet
     protected accountConfig: AccountConfig
+    protected contextAuths: Record<string, AuthType> = {}
 
     constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
         super()
@@ -100,6 +102,35 @@ export default class AutoAccount extends Account {
 
     public getDidClient() {
         return this.didClient
+    }
+
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig = {
+        force: false
+    }, authType = "database"): Promise<AuthContext> {
+        // Use existing context auth instance if it exists
+        if (this.contextAuths[contextName] && !authConfig.force) {
+            return this.contextAuths[contextName].getAuthContext(authConfig)
+        }
+
+        const signKey = contextConfig.publicKeys.signKey
+        
+        // @todo: Currently hard code database server, need to support other service types in the future
+        const serviceEndpoint = contextConfig.services.databaseServer
+
+        if (serviceEndpoint.type == "VeridaDatabase") {
+            this.contextAuths[contextName] = new VeridaDatabaseAuthType(this, contextName, serviceEndpoint, signKey)
+            return this.contextAuths[contextName].getAuthContext(authConfig)
+        }
+
+        throw new Error(`Unknown auth context type (${authType})`)
+    }
+
+    public async disconnectDevice(contextName: string, deviceId: string="Test device"): Promise<boolean> {
+        if (!this.contextAuths[contextName]) {
+            throw new Error(`Context not connected ${contextName}`)
+        }
+
+        return this.contextAuths[contextName].disconnectDevice(deviceId)
     }
 
 }

@@ -1,8 +1,16 @@
 import { Interfaces } from '@verida/storage-link'
 
+export interface WalletConnectConfig {
+    version: string,
+    uri: string,
+    chainId: string
+}
+
 export interface VaultAccountRequest {
     logoUrl?: string,       // Optional URL that will be displayed as part of the login process
     openUrl?: string,       // Optional URL that will be opened on the user's mobile device once the user is logged in
+    userAgent?: string,      // Optional User Agent that made the authentication request (makes it easier for a user to know which refresh token to disconnect)
+    walletConnect?: WalletConnectConfig  // Optional configuration for WalletConnect
 }
 
 export interface VaultAccountConfig {
