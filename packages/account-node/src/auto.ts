@@ -1,6 +1,6 @@
 import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { Account, AccountConfig, VeridaDatabaseAuthTypeConfig, AuthContext } from '@verida/account'
+import { Account, AccountConfig, VeridaDatabaseAuthTypeConfig, AuthType, AuthContext } from '@verida/account'
 import { NodeAccountConfig } from './interfaces'
 
 import { DIDClient, Wallet } from '@verida/did-client'
