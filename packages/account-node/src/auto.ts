@@ -26,7 +26,7 @@ export default class AutoAccount extends Account {
         super()
         this.accountConfig = accountConfig
         this.autoConfig = autoConfig
-        this.wallet = new Wallet(autoConfig.privateKey)
+        this.wallet = new Wallet(autoConfig.privateKey, <string> autoConfig.environment)
 
         this.didClient = new DIDClient({
             ...autoConfig.didClientConfig,
@@ -63,7 +63,7 @@ export default class AutoAccount extends Account {
     }
 
     public async did(): Promise<string> {
-        return this.wallet.did.replace('did:vda', `did:vda:${this.autoConfig.environment}`)
+        return this.wallet.did
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
