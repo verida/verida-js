@@ -247,10 +247,10 @@ export class VeridaContract {
 
             if (BigNumber.isBigNumber(ret)) ret = ret.toNumber()
 
-            return Promise.resolve({
+            return {
                 success: true,
                 data: ret
-            })
+            }
         } else {
             if (this.server === null) {
                 this.server = await getAxios(this.gaslessServerConfig)
@@ -261,7 +261,7 @@ export class VeridaContract {
                 url,
                 params,
                 this.gaslessPostConfig)
-            return Promise.resolve(response.data)
+            return response.data
         }
     }
 
