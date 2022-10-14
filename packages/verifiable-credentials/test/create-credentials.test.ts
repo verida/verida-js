@@ -2,14 +2,12 @@
 const assert = require('assert');
 
 import Credentials from '../src/credentials';
-import { config } from './config';
-import { connectAccount } from '../src/utils';
+import config from './config';
+import { connectAccount } from './utils';
 import { EnvironmentType } from '@verida/account';
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 dayjs.extend(utc)
-
-
 
 describe('Credential tests', function () {
 
@@ -18,24 +16,23 @@ describe('Credential tests', function () {
         let appContext;
         let credentialSdk: Credentials;
 
-        beforeEach(async function () {
-
+        before(async function () {
             appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
-
             credentialSdk = new Credentials();
         });
-        it('Verify Credential JWT was created correctly', async function () {
 
+        it('Verify Credential JWT was created correctly', async function () {
             const credential: any = await credentialSdk.createCredentialJWT({
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA_PAYLOAD,
                 context: appContext
             });
 
-
             // Decode the credentialSdk
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
-
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
             const payload = decodedCredential.payload
@@ -67,7 +64,10 @@ describe('Credential tests', function () {
             });
 
             // Decode the credentialSdk
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
             const payload = decodedCredential.payload
@@ -113,7 +113,10 @@ describe('Credential tests', function () {
                 options: { expirationDate }
             });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
             assert.equal(decodedCredential, false, 'Credential is not valid')
             assert.deepEqual(credentialSdk.getErrors(), ['Credential has expired'], 'Credential has expected error message')
         });
@@ -127,7 +130,10 @@ describe('Credential tests', function () {
                 options: { issuanceDate }
             });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
 
             const payload = decodedCredential.payload
             const vc = payload.vc
@@ -145,7 +151,10 @@ describe('Credential tests', function () {
                 context: appContext,
             });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
             const payload = decodedCredential.payload
             const vc = payload.vc
 
@@ -168,7 +177,10 @@ describe('Credential tests', function () {
                 options: { issuanceDate, expirationDate }
             });
 
-            await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET, currentDateTime);
+            await credentialSdk.verifyCredential(credential.didJwtVc, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            }, currentDateTime);
 
             assert.deepEqual(credentialSdk.getErrors(), ['Credential has expired'], 'currentDateTime is less than expiration date');
         });
@@ -184,7 +196,10 @@ describe('Credential tests', function () {
                 }
             });
 
-            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, EnvironmentType.TESTNET)
+            const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
             assert.ok(decodedCredential, 'Credential is valid')
         });
     });

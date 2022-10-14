@@ -109,9 +109,9 @@ export default class SharingCredential {
 		const uri = Utils.buildVeridaUri(did, contextName, dbName, result.id, params) as any
 
 		return {
-			item: item,
-			result: result,
-			did: did,
+			item,
+			result,
+			did,
 			veridaUri: uri,
 			publicUri: `https://verida.network/credential?uri=${Buffer.from(uri, 'utf8').toString('base64')}`
 		};

@@ -18,8 +18,8 @@
 	},
 	"dependencies": {
 		"@verida/client-ts": "^1.1.15",
-		"@verida/did-resolver": "^0.1.9",
 		"@verida/encryption-utils": "^1.1.3",
+		"@verida/vda-did-resolver": "*",
 		"dayjs": "^1.10.7",
 		"did-jwt": "^5.12.1",
 		"did-jwt-vc": "^2.1.8",

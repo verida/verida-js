@@ -9,19 +9,23 @@
   },
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
-    "tests": "ts-mocha './test/**/*.ts'",
-    "test": "ts-mocha",
+    "tests": "ts-mocha --timeout 500000 './test/**/*.ts'",
+    "test": "ts-mocha --timeout 500000",
     "build": "rm -rf dist; tsc"
   },
   "engines": {
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/did-document": "^1.0.5",
+    "@verida/did-document": "*",
+    "@verida/vda-did-resolver": "*",
+    "@verida/web3": "*",
     "axios": "^0.23.0",
+    "deepcopy": "^2.1.0",
     "ethers": "^5.5.1"
   },
   "devDependencies": {
+    "dotenv": "^16.0.1",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",

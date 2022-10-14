@@ -1,8 +1,16 @@
 import { EnvironmentType } from "@verida/account"
+import { DIDClientConfig as BaseDIDClientConfig } from "@verida/did-client"
+import { CallType, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from "@verida/web3"
 
 export interface NodeAccountConfig {
     privateKey: string, // or mnemonic
     environment: EnvironmentType
-    didServerUrl?: string
+    didClientConfig: DIDClientConfig
     options?: any
+}
+
+export interface DIDClientConfig extends Omit<BaseDIDClientConfig, 'network'> {
+    networkPrivateKey: string,
+    callType: CallType,
+    web3Config: VeridaSelfTransactionConfig | VeridaMetaTransactionConfig
 }

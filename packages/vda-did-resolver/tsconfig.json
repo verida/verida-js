@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "esnext",
+    "lib": [
+      "dom",
+      "es6",
+      "es2015.promise"
+    ],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "lib",
+    "strict": true,
+    "noImplicitThis": false,
+    "moduleResolution": "node",
+    "types": [
+      "jest"
+    ],
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+  },
+  "exclude": [
+    "**/__tests__/*",
+    "node_modules",
+    "lib"
+  ]
+}

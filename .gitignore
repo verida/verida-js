@@ -5,3 +5,6 @@ node_modules
 .DS_Store
 *.log
 api-docs
+#Ignore all files starting with "."
+.*
+!/.gitignore

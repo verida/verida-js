@@ -1,10 +1,10 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
 import { EnvironmentType, Context, Utils as clientUtils } from '@verida/client-ts/src';
-import { getClientContext, connectAccount } from '../src/utils';
+import { getClientContext, connectAccount } from './utils';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
-import { config } from './config';
+import config from './config';
 
 
 describe('Share Credential tests', function () {
@@ -15,11 +15,9 @@ describe('Share Credential tests', function () {
         let credential: Credentials;
         let createdUri = ''
 
-        beforeEach(async function () {
+        before(async function () {
             appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
-
             shareCredential = new SharingCredential(appContext);
-
             credential = new Credentials()
 
             // `didJwtVc` data won't be in the  test credential data,so remove it from our test data before deepEqual executes
@@ -27,12 +25,12 @@ describe('Share Credential tests', function () {
         });
 
         it('Issue an encrypted credential', async function () {
-
             const item = await credential.createCredentialJWT({
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
                 context: appContext
             });
+
             const data = await shareCredential.issueEncryptedPresentation(item);
 
             createdUri = data.veridaUri
@@ -55,7 +53,10 @@ describe('Share Credential tests', function () {
             const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(data.veridaUri, context);
 
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
+            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
 
             // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
@@ -71,7 +72,10 @@ describe('Share Credential tests', function () {
             const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
 
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
+            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
 
             // Retrieve the verifiable credential within the presentation
 
@@ -94,7 +98,10 @@ describe('Share Credential tests', function () {
             const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
 
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
+            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
 
             // Retrieve the verifiable credential within the presentation
 
@@ -117,7 +124,10 @@ describe('Share Credential tests', function () {
             // Fetch and decode the presentation
             const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, EnvironmentType.TESTNET)
+            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
+                name: <string> EnvironmentType.TESTNET,
+                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
+            })
 
             // Retrieve the verifiable credential within the presentation
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]

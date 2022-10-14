@@ -1,7 +1,7 @@
 import Encryption from "@verida/encryption-utils";
 const _ = require("lodash");
 
-import { Account } from "@verida/account";
+import { Account, EnvironmentType } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 import { Profile } from "./context/profiles/profile";
 import { DIDClient } from "@verida/did-client";
@@ -41,7 +41,7 @@ class Client {
   /**
    * Currently selected environment
    */
-  private environment: string;
+  private environment: EnvironmentType;
 
   /**
    * Current configuration for this client
@@ -53,9 +53,9 @@ class Client {
    *
    * @param userConfig ClientConfig Configuration for establishing a connection to the Verida network
    */
-  constructor(userConfig: ClientConfig = {}) {
+  constructor(userConfig: ClientConfig) {
     this.environment = userConfig.environment
-      ? userConfig.environment
+      ? <EnvironmentType> userConfig.environment
       : DEFAULT_CONFIG.environment;
 
     const defaultConfig = DEFAULT_CONFIG.environments[this.environment]
@@ -63,7 +63,13 @@ class Client {
       : {};
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
-    this.didClient = new DIDClient(this.config.didServerUrl!);
+    userConfig.didClientConfig = userConfig.didClientConfig ? userConfig.didClientConfig : {}
+
+    this.didClient = new DIDClient({
+      ...userConfig.didClientConfig,
+      network: <'testnet' | 'mainnet'> this.environment
+    });
+
     this.didContextManager = new DIDContextManager(this.didClient);
     Schema.setSchemaPaths(this.config.schemaPaths!);
   }
@@ -250,13 +256,16 @@ class Client {
 
     let validSignatures = [];
     for (let key in data.signatures) {
-      const signerParts = key.match(/did:vda:0x([a-z0-9A-Z]*)\?context=(.*)/);
-      if (!signerParts || signerParts.length != 3) {
+      const signerParts = key.match(/did:vda:([^]*):([^]*)\?context=(.*)$/);
+      if (!signerParts || signerParts.length != 4) {
         continue;
       }
 
-      const signerDid = `did:vda:0x${signerParts[1]}`;
-      const signerContextHash = signerParts[2];
+      const sNetwork = signerParts[1]
+      const sDid = signerParts[2]
+      const sContext = signerParts[3]
+
+      const signerDid = `did:vda:${sNetwork}:${sDid}`;
 
       if (!did || signerDid.toLowerCase() == did.toLowerCase()) {
         const signature = data.signatures[key];
@@ -267,7 +276,7 @@ class Client {
 
         const validSig = didDocument.verifyContextSignature(
           _data,
-          signerContextHash,
+          sContext,
           signature,
           true
         );
