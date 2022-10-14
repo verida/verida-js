@@ -1,11 +1,22 @@
+import { DIDClientConfig } from '@verida/account-node'
 
-export const config = {
-    PRIVATE_KEY_1: "0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e0af",
-    PRIVATE_KEY_2: "0x80d3b996ec98a91536efdffbae40f5eaaf117765a587483c69195c9460165c37",
+export default {
+    PRIVATE_KEY_1: "0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e000",
+    PRIVATE_KEY_2: "0x80d3b996ec98a91536efdffbae40f5eaaf117765a587483c69195c9460165c01",
     ISSUER_NAME: "John Doe",
-    ISSUER_DID: 'did:vda:0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
-    SUBJECT_DID: 'did:vda:0x476Fa00518971FCC0b7B342F4b43e5f9892Cbbf8',
+    ISSUER_DID: 'did:vda:testnet:0x0eB0FeD3Fc4f29303fF462fA789E417936E21eee',
+    SUBJECT_DID: 'did:vda:testnet:0x0eB0FeD3Fc4f29303fF462fA789E417936E21ef8',
     ADDRESS_1: '0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
+    DEFAULT_ENDPOINTS: {
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: 'http://localhost:5000/'
+        },
+        defaultMessageServer: {
+            type: 'VeridaMessage',
+            endpointUri: 'http://localhost:5000/'
+        },
+    },
     CREDENTIAL_DATA: {
         name: 'Vitalik Buterin',
         firstName: 'Vitalik',
@@ -13,7 +24,11 @@ export const config = {
         email: 'me@vitalik.eth',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
     },
-    DID_REGISTRY_ENDPOINT: 'https://dids.testnet.verida.io:5001',
+    DID_CLIENT_CONFIG: <DIDClientConfig> {
+        networkPrivateKey: '',
+        callType: 'web3',
+        web3Config: {},
+    },
     INVALID_CREDENTIAL_DATA: {
         email: 'me',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'

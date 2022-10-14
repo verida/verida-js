@@ -1,7 +1,7 @@
 
 import { AutoAccount } from '@verida/account-node';
 import { Client, Context, EnvironmentType, Network, Utils } from '@verida/client-ts';
-import config from './config';
+import CONFIG from './config';
 
 /**
  * 
@@ -12,6 +12,15 @@ import config from './config';
  */
 
 export async function connectAccount(privateKey: string, contextName: string, environment: EnvironmentType): Promise<Context> {
+    const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS,
+        {
+            didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+            privateKey: privateKey,
+            environment: EnvironmentType.TESTNET,
+        }
+    )
+
+    const did = await account.did()
 
     const context = await Network.connect({
         context: {
@@ -20,27 +29,11 @@ export async function connectAccount(privateKey: string, contextName: string, en
         client: {
             environment: environment,
         },
-        account: new AutoAccount(
-            {
-                defaultDatabaseServer: {
-                    type: 'VeridaDatabase',
-                    endpointUri: config.environments[environment].defaultDatabaseServerUrl as string,
-                },
-                defaultMessageServer: {
-                    type: 'VeridaMessage',
-                    endpointUri: config.environments[environment].defaultMessageServerUrl as string,
-                },
-            },
-            {
-                privateKey: privateKey,
-                environment: EnvironmentType.TESTNET,
-            }
-        ),
+        account,
     });
 
     return context as Context;
 };
-
 
 /**
  * 
@@ -48,12 +41,10 @@ export async function connectAccount(privateKey: string, contextName: string, en
  * @param environment current network
  * @returns an application {context} of the connected account
  */
-
 export async function getClientContext(uri: string, environment: EnvironmentType): Promise<Context> {
 
     const clientConfig = {
-        environment: environment,
-        didServerUrl: config.environments[environment].didServerUrl
+        environment: environment
     }
 
     const url = Utils.explodeVeridaUri(uri)
