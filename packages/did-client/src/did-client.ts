@@ -42,10 +42,15 @@ export class DIDClient {
     constructor(config: DIDClientConfig) {
         this.config = config
 
-        const vdaDidResolver = getResolver({
+        const resolverConfig: any = {
             name: this.config.network,
-            rpcUrl: this.config.rpcUrl,
-        })
+        }
+        
+        if (this.config.rpcUrl) {
+            resolverConfig.rpcUrl = this.config.rpcUrl
+        }
+
+        const vdaDidResolver = getResolver(resolverConfig)
         
         this.didResolver = new Resolver(vdaDidResolver)
     }
