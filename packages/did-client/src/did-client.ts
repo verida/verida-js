@@ -92,11 +92,16 @@ export class DIDClient {
     }
     
     public getDid(): string | undefined {
-        if (this.veridaWallet !== undefined) {
+        // Add the network into the DID, if not specified
+        if (this.veridaWallet === undefined) {
+            return undefined
+        }
+        
+        if (this.veridaWallet.did.substring(0,10) == 'did:vda:0x') {
             return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.config.network}:`)
         }
 
-        return undefined
+        return this.veridaWallet.did
     }
     
     public getPublicKey(): string | undefined {
