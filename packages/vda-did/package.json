@@ -30,7 +30,7 @@
     "format": "prettier --write \"src/**/*.[jt]s\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
     "prepare": "yarn build",
-    "prepublishOnly": "yarn test:ci && yarn format && yarn lint",
+    "prepublishOnly": "yarn test:ci && yarn format",
     "release": "semantic-release --debug"
   },
   "jest": {
