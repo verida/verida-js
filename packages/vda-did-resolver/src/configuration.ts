@@ -9,8 +9,6 @@ import { CONTRACT_ADDRESS, RPC_URL } from './const'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const DIDRegistry = require('./contract/abi.json')
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config()
 
 /**
  * A configuration entry for an ethereum network

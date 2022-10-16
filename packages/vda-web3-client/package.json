@@ -24,13 +24,13 @@
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",
+    "dotenv": "^16.0.3",
     "gts": "^3.1.0",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.4"
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "dotenv": "^16.0.0",
     "ethers": "^5.7.0"
   }
 }

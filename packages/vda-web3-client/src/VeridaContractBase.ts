@@ -12,8 +12,6 @@ import { VeridaGaslessPostConfig, VeridaGaslessRequestConfig } from './config'
 
 import { Wallet, BigNumber, Contract, Signer } from 'ethers';
 
-require('dotenv').config();
-
 /** Create axios instance to make http requests to meta-transaction-server */
 const getAxios = async (params?: any) => {
     const config: any = {};
