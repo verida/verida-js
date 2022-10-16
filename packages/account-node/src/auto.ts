@@ -98,7 +98,8 @@ export default class AutoAccount extends Account {
      * @param storageConfig 
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
-        await StorageLink.setLink(this.didClient, storageConfig)
+        const keyring = await this.keyring(storageConfig.id)
+        await StorageLink.setLink(this.didClient, storageConfig, keyring)
      }
 
      /**
