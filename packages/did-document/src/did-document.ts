@@ -182,6 +182,7 @@ export default class DIDDocument {
             id: id,
             type: "EcdsaSecp256k1VerificationKey2019",
             controller: this.doc.id,
+            // @ts-ignore
             proof,
             publicKeyHex: strip0x(publicKeyHex)
         })
