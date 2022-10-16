@@ -102,9 +102,15 @@ export default class DIDDocument {
             this.addContextService(contextHash, EndpointType.NOTIFICATION, endpoints.notification.type, endpoints.notification.endpointUri)
         }
 
-        // Add keys
+        // Get keyring keys so public keys and ownership proof can be saved to the DID document
         const keys = await keyring.getKeys()
-        this.addContextSignKey(contextHash, keys.signPublicKeyHex)
+
+        // Build proof for signing key that demonstrates this `did` controls the signing key
+        const proofString = `${this.id}-${keys.signPublicAddress}`
+        const proof = await keyring.sign(proofString)
+
+        // Add keys to DID document
+        this.addContextSignKey(contextHash, keys.signPublicKeyHex, proof)
         this.addContextAsymKey(contextHash, keys.asymPublicKeyHex)
     }
 
@@ -165,7 +171,7 @@ export default class DIDDocument {
         })
     }
 
-    public addContextSignKey(contextHash: string, publicKeyHex: string) {
+    public addContextSignKey(contextHash: string, publicKeyHex: string, proof: string) {
         // Add verification method
         if (!this.doc.verificationMethod) {
             this.doc.verificationMethod = []
@@ -176,6 +182,7 @@ export default class DIDDocument {
             id: id,
             type: "EcdsaSecp256k1VerificationKey2019",
             controller: this.doc.id,
+            proof,
             publicKeyHex: strip0x(publicKeyHex)
         })
 
