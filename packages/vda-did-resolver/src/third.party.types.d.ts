@@ -1,1 +1,1 @@
-declare module 'ganache-cli'
+declare module "ganache-cli";

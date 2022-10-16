@@ -1,27 +1,41 @@
-import { Signer } from '@ethersproject/abstract-signer'
+import { Signer } from "@ethersproject/abstract-signer";
 // import { isAddress } from '@ethersproject/address'
-import { BigNumber } from '@ethersproject/bignumber'
-import { CallOverrides, Contract } from '@ethersproject/contracts'
-import { BlockTag, JsonRpcProvider, Provider, TransactionReceipt } from '@ethersproject/providers'
+import { BigNumber } from "@ethersproject/bignumber";
+import { CallOverrides, Contract } from "@ethersproject/contracts";
+import {
+  BlockTag,
+  JsonRpcProvider,
+  Provider,
+  TransactionReceipt,
+} from "@ethersproject/providers";
 // import { getContractForNetwork } from './configuration'
-import { getContractInfoForNetwork } from './configuration'
-import { address, interpretIdentifier, stringToBytes32 } from './helpers'
+import { getContractInfoForNetwork } from "./configuration";
+import { address, interpretIdentifier, stringToBytes32 } from "./helpers";
 
-import { CallType, ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from '@verida/web3'
-import { getVeridaContract, VeridaContract, VdaTransactionResult } from '@verida/web3'
-import { VeridaWeb3ConfigurationOption } from './configuration'
-import { ethers } from 'ethers'
+import {
+  CallType,
+  ContractInfo,
+  VeridaSelfTransactionConfig,
+  VeridaMetaTransactionConfig,
+} from "@verida/web3";
+import {
+  getVeridaContract,
+  VeridaContract,
+  VdaTransactionResult,
+} from "@verida/web3";
+import { VeridaWeb3ConfigurationOption } from "./configuration";
+import { ethers } from "ethers";
 
-import EncryptionUtils from '@verida/encryption-utils'
+import EncryptionUtils from "@verida/encryption-utils";
 
 /**
  * A class that can be used to interact with the ERC1056 contract on behalf of a local controller key-pair
  */
 export class VdaDidController {
-  private address: string // public address of did - 0x324...2321
-  public did: string // DID - did:vda:kovan:0x324...2321
+  private address: string; // public address of did - 0x324...2321
+  public did: string; // DID - did:vda:kovan:0x324...2321
 
-  private didContract: VeridaContract
+  private didContract: VeridaContract;
 
   /**
    * Creates an VdaDidController instance.
@@ -34,37 +48,41 @@ export class VdaDidController {
     callType: CallType,
     options: VeridaWeb3ConfigurationOption,
     identifier: string | address,
-    chainNameOrId: string | number = 'mainnet'
+    chainNameOrId: string | number = "mainnet"
   ) {
     // initialize identifier
-    const { address, publicKey, network } = interpretIdentifier(identifier)
-    const net = network || chainNameOrId
+    const { address, publicKey, network } = interpretIdentifier(identifier);
+    const net = network || chainNameOrId;
 
     // initialize contract connection
-    const contractInfo = getContractInfoForNetwork(net)
+    const contractInfo = getContractInfoForNetwork(net);
     // console.log('VdaDIDController ContractInfo : ', contractInfo)
 
     this.didContract = getVeridaContract(callType, {
       ...contractInfo,
       ...options,
-    })
+    });
 
-    this.address = address
-    let networkString = net ? `${net}:` : ''
-    if (networkString in ['mainnet:', '0x89:']) {
-      networkString = ''
+    this.address = address;
+    let networkString = net ? `${net}:` : "";
+    if (networkString in ["mainnet:", "0x89:"]) {
+      networkString = "";
     }
-    this.did = publicKey ? `did:vda:${networkString}${publicKey}` : `did:vda:${networkString}${address}`
+    this.did = publicKey
+      ? `did:vda:${networkString}${publicKey}`
+      : `did:vda:${networkString}${address}`;
   }
 
   private getVeridaSignature = async (rawMsg: string, privateKey: string) => {
-    const nonce = (await this.didContract.getNonce(this.address)).data //.toNumber()
-    rawMsg = ethers.utils.solidityPack(['bytes', 'uint256'], [rawMsg, nonce])
+    const nonce = (await this.didContract.getNonce(this.address)).data; //.toNumber()
+    rawMsg = ethers.utils.solidityPack(["bytes", "uint256"], [rawMsg, nonce]);
 
-    const privateKeyArray = new Uint8Array(Buffer.from(privateKey.slice(2), 'hex'))
+    const privateKeyArray = new Uint8Array(
+      Buffer.from(privateKey.slice(2), "hex")
+    );
 
-    return EncryptionUtils.signData(rawMsg, privateKeyArray)
-  }
+    return EncryptionUtils.signData(rawMsg, privateKeyArray);
+  };
 
   /**
    * Get owner of a DID
@@ -73,13 +91,13 @@ export class VdaDidController {
    * @returns Owner address of DID
    */
   async getOwner(address: address, blockTag?: BlockTag): Promise<string> {
-    const owner = await this.didContract.identityOwner(address)
+    const owner = await this.didContract.identityOwner(address);
     return new Promise((resolve, reject) => {
       if (!owner.data) {
-        reject('Error in transaction')
+        reject("Error in transaction");
       }
-      resolve(owner.data)
-    })
+      resolve(owner.data);
+    });
   }
 
   /**
@@ -90,10 +108,19 @@ export class VdaDidController {
    * @param options Transaction overrides - Not used now. Will be used from next update
    * @returns Object that shows the status & transactionRecipient or status & err message
    */
-  async changeOwner(newOwner: address, signKey: string, options: CallOverrides = {}): Promise<VdaTransactionResult> {
-    const rawMsg = ethers.utils.solidityPack(['address', 'address'], [this.address, newOwner])
-    const signature = await this.getVeridaSignature(rawMsg, signKey)
-    return Promise.resolve(this.didContract.changeOwner(this.address, newOwner, signature))
+  async changeOwner(
+    newOwner: address,
+    signKey: string,
+    options: CallOverrides = {}
+  ): Promise<VdaTransactionResult> {
+    const rawMsg = ethers.utils.solidityPack(
+      ["address", "address"],
+      [this.address, newOwner]
+    );
+    const signature = await this.getVeridaSignature(rawMsg, signKey);
+    return Promise.resolve(
+      this.didContract.changeOwner(this.address, newOwner, signature)
+    );
   }
 
   /**
@@ -111,17 +138,23 @@ export class VdaDidController {
     signKey: string,
     options: CallOverrides = {}
   ): Promise<VdaTransactionResult> {
-    const delegateTypeBytes = stringToBytes32(delegateType)
+    const delegateTypeBytes = stringToBytes32(delegateType);
 
     const rawMsg = ethers.utils.solidityPack(
-      ['address', 'bytes32', 'address', 'uint'],
+      ["address", "bytes32", "address", "uint"],
       [this.address, delegateTypeBytes, delegateAddress, exp]
-    )
-    const signature = await this.getVeridaSignature(rawMsg, signKey)
+    );
+    const signature = await this.getVeridaSignature(rawMsg, signKey);
 
     return Promise.resolve(
-      this.didContract.addDelegate(this.address, delegateTypeBytes, delegateAddress, exp, signature)
-    )
+      this.didContract.addDelegate(
+        this.address,
+        delegateTypeBytes,
+        delegateAddress,
+        exp,
+        signature
+      )
+    );
   }
 
   /**
@@ -137,14 +170,23 @@ export class VdaDidController {
     signKey: string,
     options: CallOverrides = {}
   ): Promise<VdaTransactionResult> {
-    delegateType = delegateType.startsWith('0x') ? delegateType : stringToBytes32(delegateType)
+    delegateType = delegateType.startsWith("0x")
+      ? delegateType
+      : stringToBytes32(delegateType);
     const rawMsg = ethers.utils.solidityPack(
-      ['address', 'bytes32', 'address'],
+      ["address", "bytes32", "address"],
       [this.address, delegateType, delegateAddress]
-    )
-    const signature = await this.getVeridaSignature(rawMsg, signKey)
+    );
+    const signature = await this.getVeridaSignature(rawMsg, signKey);
 
-    return Promise.resolve(this.didContract.revokeDelegate(this.address, delegateType, delegateAddress, signature))
+    return Promise.resolve(
+      this.didContract.revokeDelegate(
+        this.address,
+        delegateType,
+        delegateAddress,
+        signature
+      )
+    );
   }
 
   /**
@@ -165,17 +207,28 @@ export class VdaDidController {
     signKey: string,
     options: CallOverrides = {}
   ): Promise<VdaTransactionResult> {
-    attrName = attrName.startsWith('0x') ? attrName : stringToBytes32(attrName)
-    attrValue = attrValue.startsWith('0x') ? attrValue : '0x' + Buffer.from(attrValue, 'utf-8').toString('hex')
+    attrName = attrName.startsWith("0x") ? attrName : stringToBytes32(attrName);
+    attrValue = attrValue.startsWith("0x")
+      ? attrValue
+      : "0x" + Buffer.from(attrValue, "utf-8").toString("hex");
 
-    const attrProof = proof.length !== 0 ? proof : []
+    const attrProof = proof.length !== 0 ? proof : [];
     const rawMsg = ethers.utils.solidityPack(
-      ['address', 'bytes32', 'bytes', 'uint', 'bytes'],
+      ["address", "bytes32", "bytes", "uint", "bytes"],
       [this.address, attrName, attrValue, exp, attrProof]
-    )
-    const signature = await this.getVeridaSignature(rawMsg, signKey)
+    );
+    const signature = await this.getVeridaSignature(rawMsg, signKey);
 
-    return Promise.resolve(this.didContract.setAttribute(this.address, attrName, attrValue, exp, attrProof, signature))
+    return Promise.resolve(
+      this.didContract.setAttribute(
+        this.address,
+        attrName,
+        attrValue,
+        exp,
+        attrProof,
+        signature
+      )
+    );
   }
 
   /**
@@ -193,13 +246,25 @@ export class VdaDidController {
     options: CallOverrides = {}
   ): Promise<VdaTransactionResult> {
     // console.log(`revoking attribute ${attrName}(${attrValue}) for ${identity}`)
-    attrName = attrName.startsWith('0x') ? attrName : stringToBytes32(attrName)
-    attrValue = attrValue.startsWith('0x') ? attrValue : '0x' + Buffer.from(attrValue, 'utf-8').toString('hex')
+    attrName = attrName.startsWith("0x") ? attrName : stringToBytes32(attrName);
+    attrValue = attrValue.startsWith("0x")
+      ? attrValue
+      : "0x" + Buffer.from(attrValue, "utf-8").toString("hex");
 
-    const rawMsg = ethers.utils.solidityPack(['address', 'bytes32', 'bytes'], [this.address, attrName, attrValue])
-    const signature = await this.getVeridaSignature(rawMsg, signKey)
+    const rawMsg = ethers.utils.solidityPack(
+      ["address", "bytes32", "bytes"],
+      [this.address, attrName, attrValue]
+    );
+    const signature = await this.getVeridaSignature(rawMsg, signKey);
 
-    return Promise.resolve(this.didContract.revokeAttribute(this.address, attrName, attrValue, signature))
+    return Promise.resolve(
+      this.didContract.revokeAttribute(
+        this.address,
+        attrName,
+        attrValue,
+        signature
+      )
+    );
   }
 
   // async nonce(signer: address, options: CallOverrides = {}): Promise<BigNumber> {
@@ -224,46 +289,64 @@ export class VdaDidController {
    * @returns Object that shows the status & transactionRecipient or status & err message
    */
   async bulkAdd(
-    delegateParams: { delegateType: string; delegate: address; validity: number }[],
-    attributeParams: { name: string; value: string; validity: number; proof: string }[],
+    delegateParams: {
+      delegateType: string;
+      delegate: address;
+      validity: number;
+    }[],
+    attributeParams: {
+      name: string;
+      value: string;
+      validity: number;
+      proof: string;
+    }[],
     signKey: string,
     options: CallOverrides = {}
   ): Promise<VdaTransactionResult> {
-    let rawMsg = ethers.utils.solidityPack(['address'], [this.address])
+    let rawMsg = ethers.utils.solidityPack(["address"], [this.address]);
     const dParams = delegateParams.map((item) => {
       rawMsg = ethers.utils.solidityPack(
-        ['bytes', 'bytes32', 'address', 'uint'],
-        [rawMsg, stringToBytes32(item.delegateType), item.delegate, item.validity]
-      )
+        ["bytes", "bytes32", "address", "uint"],
+        [
+          rawMsg,
+          stringToBytes32(item.delegateType),
+          item.delegate,
+          item.validity,
+        ]
+      );
       return {
         ...item,
         delegateType: stringToBytes32(item.delegateType),
-      }
-    })
+      };
+    });
 
     const aParams = attributeParams.map((item) => {
-      const attrName = item.name.startsWith('0x') ? item.name : stringToBytes32(item.name)
-      const attrValue = item.value.startsWith('0x')
+      const attrName = item.name.startsWith("0x")
+        ? item.name
+        : stringToBytes32(item.name);
+      const attrValue = item.value.startsWith("0x")
         ? item.value
-        : '0x' + Buffer.from(item.value, 'utf-8').toString('hex')
+        : "0x" + Buffer.from(item.value, "utf-8").toString("hex");
 
-      const attrProof = item.proof.length !== 0 ? item.proof : []
+      const attrProof = item.proof.length !== 0 ? item.proof : [];
 
       rawMsg = ethers.utils.solidityPack(
-        ['bytes', 'bytes32', 'bytes', 'uint', 'bytes'],
+        ["bytes", "bytes32", "bytes", "uint", "bytes"],
         [rawMsg, attrName, attrValue, item.validity, attrProof]
-      )
+      );
       return {
         name: attrName,
         value: attrValue,
         validity: item.validity,
         proof: attrProof,
-      }
-    })
+      };
+    });
 
-    const signature = await this.getVeridaSignature(rawMsg, signKey)
+    const signature = await this.getVeridaSignature(rawMsg, signKey);
 
-    return Promise.resolve(this.didContract.bulkAdd(this.address, dParams, aParams, signature))
+    return Promise.resolve(
+      this.didContract.bulkAdd(this.address, dParams, aParams, signature)
+    );
   }
 
   /**
@@ -280,30 +363,42 @@ export class VdaDidController {
     signKey: string,
     options: CallOverrides = {}
   ): Promise<VdaTransactionResult> {
-    let rawMsg = ethers.utils.solidityPack(['address'], [this.address])
+    let rawMsg = ethers.utils.solidityPack(["address"], [this.address]);
     const dParams = delegateParams.map((item) => {
-      const delegateType = item.delegateType.startsWith('0x') ? item.delegateType : stringToBytes32(item.delegateType)
-      rawMsg = ethers.utils.solidityPack(['bytes', 'bytes32', 'address'], [rawMsg, delegateType, item.delegate])
+      const delegateType = item.delegateType.startsWith("0x")
+        ? item.delegateType
+        : stringToBytes32(item.delegateType);
+      rawMsg = ethers.utils.solidityPack(
+        ["bytes", "bytes32", "address"],
+        [rawMsg, delegateType, item.delegate]
+      );
       return {
         ...item,
         delegateType,
-      }
-    })
+      };
+    });
 
     const aParams = attributeParams.map((item) => {
-      const attrName = item.name.startsWith('0x') ? item.name : stringToBytes32(item.name)
-      const attrValue = item.value.startsWith('0x')
+      const attrName = item.name.startsWith("0x")
+        ? item.name
+        : stringToBytes32(item.name);
+      const attrValue = item.value.startsWith("0x")
         ? item.value
-        : '0x' + Buffer.from(item.value, 'utf-8').toString('hex')
-      rawMsg = ethers.utils.solidityPack(['bytes', 'bytes32', 'bytes'], [rawMsg, attrName, attrValue])
+        : "0x" + Buffer.from(item.value, "utf-8").toString("hex");
+      rawMsg = ethers.utils.solidityPack(
+        ["bytes", "bytes32", "bytes"],
+        [rawMsg, attrName, attrValue]
+      );
       return {
         name: attrName,
         value: attrValue,
-      }
-    })
+      };
+    });
 
-    const signature = await this.getVeridaSignature(rawMsg, signKey)
+    const signature = await this.getVeridaSignature(rawMsg, signKey);
 
-    return Promise.resolve(this.didContract.bulkRevoke(this.address, dParams, aParams, signature))
+    return Promise.resolve(
+      this.didContract.bulkRevoke(this.address, dParams, aParams, signature)
+    );
   }
 }

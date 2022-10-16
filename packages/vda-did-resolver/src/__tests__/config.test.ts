@@ -1,25 +1,30 @@
-import { InfuraProvider, JsonRpcProvider } from '@ethersproject/providers'
-import { configureResolverWithNetworks } from '../configuration'
+import { InfuraProvider, JsonRpcProvider } from "@ethersproject/providers";
+import { configureResolverWithNetworks } from "../configuration";
 
-describe('configuration', () => {
-
-  it('works with named network', async () => {
+describe("configuration", () => {
+  it("works with named network", async () => {
     const contracts = configureResolverWithNetworks({
-      networks: [{ name: 'testnet', provider: new JsonRpcProvider('https://matic-mumbai.chainstacklabs.com') }],
-    })
-    expect(contracts['testnet']).toBeDefined()
-    expect(contracts['0x13881']).toBeDefined()
-  })
+      networks: [
+        {
+          name: "testnet",
+          provider: new JsonRpcProvider(
+            "https://matic-mumbai.chainstacklabs.com"
+          ),
+        },
+      ],
+    });
+    expect(contracts["testnet"]).toBeDefined();
+    expect(contracts["0x13881"]).toBeDefined();
+  });
 
-  
-  it('works with single network', async () => {
+  it("works with single network", async () => {
     const contracts = configureResolverWithNetworks({
-      name: 'testnet',
-      provider: new JsonRpcProvider('https://matic-mumbai.chainstacklabs.com'),
-    })
-    expect(contracts['testnet']).toBeDefined()
-    expect(contracts['0x13881']).toBeDefined()
-  })
+      name: "testnet",
+      provider: new JsonRpcProvider("https://matic-mumbai.chainstacklabs.com"),
+    });
+    expect(contracts["testnet"]).toBeDefined();
+    expect(contracts["0x13881"]).toBeDefined();
+  });
 
   /*
   it('works with single provider', async () => {
@@ -44,21 +49,27 @@ describe('configuration', () => {
     expect(contracts['0x13881']).toBeDefined()
   })*/
 
-  it('throws when no configuration is provided', () => {
+  it("throws when no configuration is provided", () => {
     expect(() => {
-      configureResolverWithNetworks()
-    }).toThrowError('invalid_config: Please make sure to have at least one network')
-  })
+      configureResolverWithNetworks();
+    }).toThrowError(
+      "invalid_config: Please make sure to have at least one network"
+    );
+  });
 
-  it('throws when no relevant configuration is provided for a network', () => {
+  it("throws when no relevant configuration is provided for a network", () => {
     expect(() => {
-      configureResolverWithNetworks({ networks: [{ chainId: '0xbad' }] })
-    }).toThrowError('invalid_config: No web3 provider could be determined for network')
-  })
+      configureResolverWithNetworks({ networks: [{ chainId: "0xbad" }] });
+    }).toThrowError(
+      "invalid_config: No web3 provider could be determined for network"
+    );
+  });
 
-  it('throws when malformed configuration is provided for a network', () => {
+  it("throws when malformed configuration is provided for a network", () => {
     expect(() => {
-      configureResolverWithNetworks({ networks: [{ web3: '0xbad' }] })
-    }).toThrowError('invalid_config: No web3 provider could be determined for network')
-  })
-})
+      configureResolverWithNetworks({ networks: [{ web3: "0xbad" }] });
+    }).toThrowError(
+      "invalid_config: No web3 provider could be determined for network"
+    );
+  });
+});

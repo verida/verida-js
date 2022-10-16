@@ -1,14 +1,17 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { Contract, ContractFactory } from '@ethersproject/contracts'
-import { JsonRpcProvider, Provider } from '@ethersproject/providers'
-import { knownNetworks } from './helpers'
+import { BigNumber } from "@ethersproject/bignumber";
+import { Contract, ContractFactory } from "@ethersproject/contracts";
+import { JsonRpcProvider, Provider } from "@ethersproject/providers";
+import { knownNetworks } from "./helpers";
 
-import { VeridaSelfTransactionConfig, VeridaMetaTransactionConfig } from '@verida/web3'
+import {
+  VeridaSelfTransactionConfig,
+  VeridaMetaTransactionConfig,
+} from "@verida/web3";
 
-import { CONTRACT_ADDRESS, RPC_URL } from './const'
+import { CONTRACT_ADDRESS, RPC_URL } from "./const";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const DIDRegistry = require('./contract/abi.json')
+const DIDRegistry = require("./contract/abi.json");
 
 /**
  * A configuration entry for an ethereum network
@@ -23,74 +26,93 @@ const DIDRegistry = require('./contract/abi.json')
  * ```
  */
 export interface ProviderConfiguration {
-  name?: string
-  provider?: Provider
-  rpcUrl?: string
-  registry?: string
-  chainId?: string | number
+  name?: string;
+  provider?: Provider;
+  rpcUrl?: string;
+  registry?: string;
+  chainId?: string | number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  web3?: any
+  web3?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [index: string]: any
+  [index: string]: any;
 }
 
 export interface MultiProviderConfiguration extends ProviderConfiguration {
-  networks?: ProviderConfiguration[]
+  networks?: ProviderConfiguration[];
 }
 
-export type ConfigurationOptions = MultiProviderConfiguration 
+export type ConfigurationOptions = MultiProviderConfiguration;
 
-export type ConfiguredNetworks = Record<string, Contract>
+export type ConfiguredNetworks = Record<string, Contract>;
 
 export function getContractForNetwork(conf: ProviderConfiguration): Contract {
-  let provider: Provider = conf.provider || conf.web3?.currentProvider
+  let provider: Provider = conf.provider || conf.web3?.currentProvider;
   if (!provider) {
     // Pull rpcUrl from config or from hardcoded list for each testnet
-    let rpcUrl = conf.rpcUrl ? conf.rpcUrl : RPC_URL[conf.name || conf.chainId || '']
+    let rpcUrl = conf.rpcUrl
+      ? conf.rpcUrl
+      : RPC_URL[conf.name || conf.chainId || ""];
 
     if (rpcUrl) {
-      const chainIdRaw = conf.chainId ? conf.chainId : knownNetworks[conf.name || '']
-      const chainId = chainIdRaw ? BigNumber.from(chainIdRaw).toNumber() : chainIdRaw
-      const networkName = conf.name ?? 'any'
-      provider = new JsonRpcProvider(rpcUrl, chainId || networkName)
+      const chainIdRaw = conf.chainId
+        ? conf.chainId
+        : knownNetworks[conf.name || ""];
+      const chainId = chainIdRaw
+        ? BigNumber.from(chainIdRaw).toNumber()
+        : chainIdRaw;
+      const networkName = conf.name ?? "any";
+      provider = new JsonRpcProvider(rpcUrl, chainId || networkName);
     } else {
-      throw new Error(`invalid_config: No web3 provider could be determined for network ${conf.name || conf.chainId}`)
+      throw new Error(
+        `invalid_config: No web3 provider could be determined for network ${
+          conf.name || conf.chainId
+        }`
+      );
     }
   }
 
-  if (!conf.registry && !CONTRACT_ADDRESS[conf.name || conf.chainId || '']) {
-    throw new Error(`invalid_config: should define contract address for network ${conf.name || conf.chainId}`)
+  if (!conf.registry && !CONTRACT_ADDRESS[conf.name || conf.chainId || ""]) {
+    throw new Error(
+      `invalid_config: should define contract address for network ${
+        conf.name || conf.chainId
+      }`
+    );
   }
 
   // console.log('resolver:getContractForNetwork(): ', conf.registry)
   const contract: Contract = ContractFactory.fromSolidity(DIDRegistry)
-    .attach((conf.registry || CONTRACT_ADDRESS[conf.name || conf.chainId || ''])!)
-    .connect(provider)
-  return contract
+    .attach(
+      (conf.registry || CONTRACT_ADDRESS[conf.name || conf.chainId || ""])!
+    )
+    .connect(provider);
+  return contract;
 }
 
 function configureNetwork(net: ProviderConfiguration): ConfiguredNetworks {
-  const networks: ConfiguredNetworks = {}
-  const chainId = net.chainId || knownNetworks[net.name || '']
+  const networks: ConfiguredNetworks = {};
+  const chainId = net.chainId || knownNetworks[net.name || ""];
   if (chainId) {
     if (net.name) {
-      networks[net.name] = getContractForNetwork(net)
+      networks[net.name] = getContractForNetwork(net);
     }
-    const id = typeof chainId === 'number' ? `0x${chainId.toString(16)}` : chainId
-    networks[id] = getContractForNetwork(net)
+    const id =
+      typeof chainId === "number" ? `0x${chainId.toString(16)}` : chainId;
+    networks[id] = getContractForNetwork(net);
   } else if (net.provider || net.web3 || net.rpcUrl) {
-    networks[net.name || ''] = getContractForNetwork(net)
+    networks[net.name || ""] = getContractForNetwork(net);
   }
-  return networks
+  return networks;
 }
 
-function configureNetworks(conf: MultiProviderConfiguration): ConfiguredNetworks {
+function configureNetworks(
+  conf: MultiProviderConfiguration
+): ConfiguredNetworks {
   return {
     ...configureNetwork(conf),
     ...conf.networks?.reduce<ConfiguredNetworks>((networks, net) => {
-      return { ...networks, ...configureNetwork(net) }
+      return { ...networks, ...configureNetwork(net) };
     }, {}),
-  }
+  };
 }
 
 /**
@@ -108,29 +130,35 @@ function configureNetworks(conf: MultiProviderConfiguration): ConfiguredNetworks
  * ]
  * ```
  */
-export function configureResolverWithNetworks(conf: ConfigurationOptions = {}): ConfiguredNetworks {
+export function configureResolverWithNetworks(
+  conf: ConfigurationOptions = {}
+): ConfiguredNetworks {
   const networks = {
     ...configureNetworks(<MultiProviderConfiguration>conf),
-  }
+  };
   if (Object.keys(networks).length === 0) {
-    throw new Error('invalid_config: Please make sure to have at least one network')
+    throw new Error(
+      "invalid_config: Please make sure to have at least one network"
+    );
   }
-  return networks
+  return networks;
 }
 
 export function getContractInfoForNetwork(chainNameOrId: any) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const abi = require('./contract/abi.json')
+  const abi = require("./contract/abi.json");
 
-  const address = CONTRACT_ADDRESS[chainNameOrId]
-  
+  const address = CONTRACT_ADDRESS[chainNameOrId];
+
   if (!address) {
-    throw new Error('Contract address not defined')
+    throw new Error("Contract address not defined");
   }
   return {
     abi: abi,
     address: <string>address,
-  }
+  };
 }
 
-export type VeridaWeb3ConfigurationOption = VeridaMetaTransactionConfig | VeridaSelfTransactionConfig
+export type VeridaWeb3ConfigurationOption =
+  | VeridaMetaTransactionConfig
+  | VeridaSelfTransactionConfig;

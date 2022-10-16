@@ -1,5 +1,5 @@
-import { getResolver } from './resolver'
-import { VdaDidController } from './controller'
+import { getResolver } from "./resolver";
+import { VdaDidController } from "./controller";
 import {
   bytes32toString,
   identifierMatcher,
@@ -9,10 +9,13 @@ import {
   stringToBytes32,
   verificationMethodTypes,
   Errors,
-} from './helpers'
+} from "./helpers";
 
-import { CallType, VdaTransactionResult } from '@verida/web3'
-import { ProviderConfiguration, VeridaWeb3ConfigurationOption } from './configuration'
+import { CallType, VdaTransactionResult } from "@verida/web3";
+import {
+  ProviderConfiguration,
+  VeridaWeb3ConfigurationOption,
+} from "./configuration";
 
 export {
   getResolver,
@@ -30,5 +33,5 @@ export {
   CallType,
   VdaTransactionResult,
   VeridaWeb3ConfigurationOption,
-  ProviderConfiguration
-}
+  ProviderConfiguration,
+};
