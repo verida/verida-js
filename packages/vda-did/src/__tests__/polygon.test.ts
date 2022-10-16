@@ -1,130 +1,121 @@
 /* eslint-disable prettier/prettier */
-import { Resolver } from 'did-resolver'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { Wallet } from '@ethersproject/wallet'
-import { getResolver } from '@verida/vda-did-resolver'
-import { VdaDID, DelegateTypes } from '../index'
-import { ethers } from 'ethers'
-require('dotenv').config()
+import { Resolver } from "did-resolver";
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { Wallet } from "@ethersproject/wallet";
+import { getResolver } from "@verida/vda-did-resolver";
+import { VdaDID, DelegateTypes } from "../index";
+import { ethers } from "ethers";
+require("dotenv").config();
 
-import {
-  getVeridaSign, 
-  delegates, 
-  attributes, 
-  pubKeyList,
-} from './const'
+import { getVeridaSign, delegates, attributes, pubKeyList } from "./const";
 
-const testMode = process.env.TEST_MODE ? process.env.TEST_MODE : 'direct'
-console.log('Test Mode : ', testMode)
+const testMode = process.env.TEST_MODE ? process.env.TEST_MODE : "direct";
+console.log("Test Mode : ", testMode);
 
-const rpcUrl = process.env.RPC_URL
-if(rpcUrl === undefined)
-  throw new Error("RPC url not defined in env")
-console.log('RPC URL:', rpcUrl)
+const rpcUrl = process.env.RPC_URL;
+if (rpcUrl === undefined) throw new Error("RPC url not defined in env");
+console.log("RPC URL:", rpcUrl);
 
-const chainId = process.env[`CHAIN_ID`]
+const chainId = process.env[`CHAIN_ID`];
 if (chainId === undefined) {
-  throw new Error('Chain ID not defined in env')
+  throw new Error("Chain ID not defined in env");
 }
-console.log('Chain Id : ', chainId)
+console.log("Chain Id : ", chainId);
 
-
-const registry = process.env[`CONTRACT_ADDRESS`]
+const registry = process.env[`CONTRACT_ADDRESS`];
 if (registry === undefined) {
-  throw new Error("Registry address not defined in env")
+  throw new Error("Registry address not defined in env");
 }
-console.log('Contract : ', registry)
+console.log("Contract : ", registry);
 
-const did = Wallet.createRandom()
-const identity = did.address.toLowerCase()
+const did = Wallet.createRandom();
+const identity = did.address.toLowerCase();
 
 const provider = new JsonRpcProvider(rpcUrl);
 // Create signer that will pay for gas fees
-let privateKey = process.env.PRIVATE_KEY
-if (privateKey === undefined)
-  throw new Error('Private key not defined in env')
-if (!privateKey.startsWith('0x'))
-  privateKey = '0x' + privateKey
-const txSigner = new Wallet(privateKey.slice(2), provider)
+let privateKey = process.env.PRIVATE_KEY;
+if (privateKey === undefined) throw new Error("Private key not defined in env");
+if (!privateKey.startsWith("0x")) privateKey = "0x" + privateKey;
+const txSigner = new Wallet(privateKey.slice(2), provider);
 
-    
-const vdaDid = testMode === 'direct' ? 
-  new VdaDID({
-    identifier: identity,
-    vdaKey: did.privateKey,
-    chainNameOrId : "testnet", //chainId,
-    
-    callType: 'web3',
-    web3Options: {
-      provider: provider,
-      signer: txSigner
-    }
-  }) : 
-  new VdaDID({
-    identifier: identity,
-    vdaKey: did.privateKey,
-    chainNameOrId : "testnet", //chainId,
-    
-    callType: 'gasless',
-    web3Options: {
-      veridaKey: 'Input your Verida API key',
-      serverConfig: {
-        headers: {
-            'context-name' : 'Verida Test'
-        } 
-      },
-      postConfig: {
-          headers: {
-              'user-agent': 'Verida-Vault'
-          }
-      }
-    }
-  })
+const vdaDid =
+  testMode === "direct"
+    ? new VdaDID({
+        identifier: identity,
+        vdaKey: did.privateKey,
+        chainNameOrId: "testnet", //chainId,
+
+        callType: "web3",
+        web3Options: {
+          provider: provider,
+          signer: txSigner,
+        },
+      })
+    : new VdaDID({
+        identifier: identity,
+        vdaKey: did.privateKey,
+        chainNameOrId: "testnet", //chainId,
+
+        callType: "gasless",
+        web3Options: {
+          veridaKey: "Input your Verida API key",
+          serverConfig: {
+            headers: {
+              "context-name": "Verida Test",
+            },
+          },
+          postConfig: {
+            headers: {
+              "user-agent": "Verida-Vault",
+            },
+          },
+        },
+      });
 
 function sleep(ms) {
   return new Promise((resolve) => {
-      setTimeout(resolve, ms);
+    setTimeout(resolve, ms);
   });
 }
 
 const getDelegateType = (delegateType: string) => {
-  if (delegateType === 'sigAuth') {
-    return DelegateTypes.sigAuth
-  } else if (delegateType === 'enc') {
-    return DelegateTypes.enc
+  if (delegateType === "sigAuth") {
+    return DelegateTypes.sigAuth;
+  } else if (delegateType === "enc") {
+    return DelegateTypes.enc;
   }
-  return DelegateTypes.veriKey
-}
+  return DelegateTypes.veriKey;
+};
 
-jest.setTimeout(600000)
+jest.setTimeout(600000);
 
-describe('VdaDID', () => {
-  let doc
-  let didResolver
+describe("VdaDID", () => {
+  let doc;
+  let didResolver;
 
-  const getProof = (did: string, pubKeyAddr: string, signKey: string ) => {
+  const getProof = (did: string, pubKeyAddr: string, signKey: string) => {
     const proofRawMsg = ethers.utils.solidityPack(
-      ['address', 'address'],
+      ["address", "address"],
       [did, pubKeyAddr]
-    )
-    return getVeridaSign(proofRawMsg, signKey)
-  }
+    );
+    return getVeridaSign(proofRawMsg, signKey);
+  };
 
   beforeAll(async () => {
     // Working one
-    // const providerConfig = { 
-    //   rpcUrl, 
+    // const providerConfig = {
+    //   rpcUrl,
     //   registry,
     //   chainId : chainId,
     // }
 
-    const providerConfig = { 
+    const providerConfig = {
       name: "testnet",
-      rpcUrl
-    }
-    const vdaDidResolver = getResolver(providerConfig)
-    didResolver = new Resolver(vdaDidResolver)
-  })
+      rpcUrl,
+    };
+    const vdaDidResolver = getResolver(providerConfig);
+    didResolver = new Resolver(vdaDidResolver);
+  });
 
   /*
   describe('Delegate test', () => {
@@ -279,71 +270,62 @@ describe('VdaDID', () => {
   })
   */
 
-  describe ('crete a complete DIDDocument', () => {
-    it ('add delegates',async () => {
+  describe("crete a complete DIDDocument", () => {
+    it("add delegates", async () => {
       await vdaDid.addDelegate(
         delegates[0].delegate,
         getDelegateType(<string>delegates[0].delegateType),
         delegates[0].validity
-      )
-    })
+      );
+    });
 
-    it('add attributes',async () => {
+    it("add attributes", async () => {
       for (let i = 0; i < 3; i++) {
-        const proofAddress = ethers.utils.computeAddress(pubKeyList[i])
-        const proof = getProof(identity, proofAddress, did.privateKey)
+        const proofAddress = ethers.utils.computeAddress(pubKeyList[i]);
+        const proof = getProof(identity, proofAddress, did.privateKey);
         if (i < 2) {
           // set attribute with proof
           await vdaDid.setAttribute(
             <string>attributes[i].name,
             <string>attributes[i].value,
             proof
-          )
+          );
         } else {
           // set attribute without proof
           await vdaDid.setAttribute(
             <string>attributes[i].name,
-            <string>attributes[i].value,
-          )
+            <string>attributes[i].value
+          );
         }
       }
-    })
+    });
 
-    it('add services',async () => {
-      const keyList = [
-        'did/svc/VeridaMessage',
-        'did/svc/VeridaDatabase',
-      ]
-      const typeList = [
-        'message',
-        'database'
-      ]
+    it("add services", async () => {
+      const keyList = ["did/svc/VeridaMessage", "did/svc/VeridaDatabase"];
+      const typeList = ["message", "database"];
       const contextList = [
-        '0x84e5fb4eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca4698fd4',
-        '0xcfbf4621af64386c92c0badd0aa3ae3877a6ea6e298dfa54aa6b1ebe00769b28'
-      ]
-  
-      const serviceEndPoint = 'https://db.testnet.verida.io:5002'
+        "0x84e5fb4eb5c3f53d8506e7085dfbb0ef333c5f7d0769bcaf4ca2dc0ca4698fd4",
+        "0xcfbf4621af64386c92c0badd0aa3ae3877a6ea6e298dfa54aa6b1ebe00769b28",
+      ];
+
+      const serviceEndPoint = "https://db.testnet.verida.io:5002";
 
       for (let i = 0; i < keyList.length; i++) {
-        const paramVale = `${serviceEndPoint}?context=${contextList[i]}&type=${typeList[i]}`
-        await vdaDid.setAttribute(
-          keyList[i],
-          paramVale
-        )
+        const paramVale = `${serviceEndPoint}?context=${contextList[i]}&type=${typeList[i]}`;
+        await vdaDid.setAttribute(keyList[i], paramVale);
       }
-    })
+    });
 
-    it('resolve document',async () => {
-      console.log("Parsing : ", vdaDid.did)
-      doc = await didResolver.resolve(vdaDid.did)
-      console.log('Entire Document : ', doc.didDocument);
+    it("resolve document", async () => {
+      console.log("Parsing : ", vdaDid.did);
+      doc = await didResolver.resolve(vdaDid.did);
+      console.log("Entire Document : ", doc.didDocument);
 
-      console.log("verificationMethod : ", doc.didDocument?.verificationMethod)
-      console.log("AssertionMethod : ", doc.didDocument?.assertionMethod)
-      console.log("Authentication : ", doc.didDocument?.authentication)
-      console.log("keyAgreement : ", doc.didDocument?.keyAgreement)
-      console.log("service : ", doc.didDocument?.service)
-    })
-  })
-})
+      console.log("verificationMethod : ", doc.didDocument?.verificationMethod);
+      console.log("AssertionMethod : ", doc.didDocument?.assertionMethod);
+      console.log("Authentication : ", doc.didDocument?.authentication);
+      console.log("keyAgreement : ", doc.didDocument?.keyAgreement);
+      console.log("service : ", doc.didDocument?.service);
+    });
+  });
+});
