@@ -14,7 +14,6 @@ import { Wallet } from "@ethersproject/wallet";
 import { hexValue } from "@ethersproject/bytes";
 import {
   interpretIdentifier,
-  REGISTRY,
   VdaDidController,
 } from "@verida/vda-did-resolver";
 import { Resolvable } from "did-resolver";
