@@ -66,8 +66,11 @@ describe('DID document tests', () => {
             // @todo: validate verification method
             assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
 
+            // @todo: verify proof
+            const proofVerificationMethod = data.verificationMethod[2]
+            assert.ok(proofVerificationMethod.proof && proofVerificationMethod.type == 'EcdsaSecp256k1VerificationKey2019', 'Proof property is set on the signing verification method')
+
             // @todo: validate signing key
-            
 
             // @todo: validate asymmetric key
         })

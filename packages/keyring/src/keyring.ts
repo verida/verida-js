@@ -32,11 +32,13 @@ export default class Keyring {
 
         return {
             asymPublicKey: this.asymKeyPair!.publicKey,
+            asymPublicAddress: utils.computeAddress(this.asymKeyPair!.publicKey),
             asymPrivateKey: this.asymKeyPair!.secretKey,
             asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
             asymPrivateKeyBase58: utils.base58.encode(this.asymKeyPair!.secretKey),
             asymPublicKeyHex: utils.hexlify(this.asymKeyPair!.publicKey),
             signPublicKey: this.signKeyPair!.publicKey,
+            signPublicAddress: utils.computeAddress(this.signKeyPair!.publicKey),
             signPrivateKey: this.signKeyPair!.secretKey,
             signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey),
             signPrivateKeyBase58: utils.base58.encode(this.signKeyPair!.secretKey),
