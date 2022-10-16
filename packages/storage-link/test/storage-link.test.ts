@@ -3,23 +3,19 @@ const assert = require('assert')
 
 import { StorageLink } from '../src/index'
 import { SecureContextConfig } from '../src/interfaces'
-import { DIDClient } from '@verida/did-client'
+import { Keyring } from '@verida/keyring'
+import EncryptionUtils from '@verida/encryption-utils'
 import { DIDDocument } from '@verida/did-document'
 import { Wallet } from 'ethers'
 import { getDIDClient } from './utils'
-
-//const MNEMONIC = "slight crop cactus cute trend tape undo exile retreat large clay average"
-//const DID_SERVER_URL = 'http://localhost:5001'
+import { DIDClient } from '@verida/did-client'
 
 const wallet = Wallet.createRandom()
 
 const CONTEXT_NAME = 'Test App'
 
-//didClient.authenticate(MNEMONIC)
-
 const address = wallet.address.toLowerCase()
 const DID = `did:vda:testnet:${address}`
-
 
 // Test config
 const testConfig: SecureContextConfig = {
@@ -27,11 +23,11 @@ const testConfig: SecureContextConfig = {
     publicKeys: {
         signKey: {
             type: 'EcdsaSecp256k1VerificationKey2019',
-            publicKeyHex: '0x970c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
+            publicKeyHex: ''
         },
         asymKey: {
             type: 'Curve25519EncryptionPublicKey',
-            publicKeyHex: '0x270c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
+            publicKeyHex: ''
         }
     },
     services: {
@@ -50,11 +46,11 @@ const expectedConfig: SecureContextConfig = {
     publicKeys: {
         signKey: {
             type: 'EcdsaSecp256k1VerificationKey2019',
-            publicKeyHex: '0x970c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
+            publicKeyHex: ''
         },
         asymKey: {
             type: 'Curve25519EncryptionPublicKey',
-            publicKeyHex: '0x270c1016f3efe4c0ac1b404c38a9cfab5a545b36d07d3c3e41f2109a166ecdfd'
+            publicKeyHex: ''
         }
     },
     services: {
@@ -70,20 +66,35 @@ const expectedConfig: SecureContextConfig = {
 }
 const TEST_APP_NAME2 = 'Test App 2'
 
-let didClient
+let didClient: DIDClient, keyring1: Keyring, keyring2: Keyring
+
+async function buildKeyring(did: string, contextName: string) {
+    did = did.toLowerCase()
+    const consentMessage = `Do you wish to unlock this storage context: "${CONTEXT_NAME}"?\n\n${did}`
+    const signature = await EncryptionUtils.signData(consentMessage, Buffer.from(wallet.privateKey.substring(2), 'hex'))
+    return new Keyring(signature)
+}
 
 describe('Storage Link', () => {
     before(async () => {
         didClient = await getDIDClient(wallet)
+        keyring1 = await buildKeyring(DID, CONTEXT_NAME)
+        keyring2 = await buildKeyring(DID, TEST_APP_NAME2)
     })
 
     describe('Manage DID Links', async function() {
-        this.timeout(100000)
+        this.timeout(100 * 1000)
 
         it('can link a DID to a secure storage context', async function() {
+            const keys = await keyring1.publicKeys()
+            expectedConfig.publicKeys.signKey.publicKeyHex = keys.signPublicKeyHex
+            expectedConfig.publicKeys.asymKey.publicKeyHex = keys.asymPublicKeyHex
+            testConfig.publicKeys.signKey.publicKeyHex = keys.signPublicKeyHex
+            testConfig.publicKeys.asymKey.publicKeyHex = keys.asymPublicKeyHex
+
             let storageConfig = Object.assign({}, expectedConfig)
 
-            const success = await StorageLink.setLink(didClient, testConfig)
+            const success = await StorageLink.setLink(didClient, testConfig, keyring1)
             assert.ok(success, 'Set link succeeded')
             const links = await StorageLink.getLinks(didClient, DID)
             assert.ok(links.length, 1, 'Fetched exactly one saved link')
@@ -97,7 +108,7 @@ describe('Storage Link', () => {
         it('can link a DID to multiple secure storage contexts', async function() {
             let storageConfig = Object.assign({}, expectedConfig)
             storageConfig.id = TEST_APP_NAME2
-            await StorageLink.setLink(didClient, storageConfig)
+            await StorageLink.setLink(didClient, storageConfig, keyring2)
 
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, TEST_APP_NAME2)
             storageConfig.id = DIDDocument.generateContextHash(DID, TEST_APP_NAME2)

@@ -2,6 +2,7 @@ import { DIDClient } from '@verida/did-client'
 
 import { Wallet } from "ethers"
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { EnvironmentType } from '../../client-ts/src'
 
 require('dotenv').config()
 

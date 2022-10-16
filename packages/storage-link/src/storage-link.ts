@@ -2,6 +2,8 @@ import { SecureContextConfig } from './interfaces'
 import { DIDClient } from "@verida/did-client"
 import { DIDDocument, Interfaces } from "@verida/did-document"
 import { DIDDocument as DocInterface, ServiceEndpoint } from 'did-resolver'
+import { Endpoints } from '@verida/did-document/dist/interfaces'
+import { Keyring } from '@verida/keyring'
 const Url = require('url-parse')
 
 /**
@@ -47,7 +49,7 @@ export default class StorageLink {
      * @param didClient
      * @param storageConfig (Must have .id as the contextName)
      */
-    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig) {
+    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig, keyring: Keyring) {
         const did = didClient.getDid()
 
         if (!did) {
@@ -72,24 +74,20 @@ export default class StorageLink {
             }
         }
 
-        // Build context hash in the correct format
-        const contextHash = DIDDocument.generateContextHash(did, storageConfig.id)
-
-        // Add services
-        didDocument.addContextService(contextHash, Interfaces.EndpointType.DATABASE, storageConfig.services.databaseServer.type, StorageLink.standardizeUrl(storageConfig.services.databaseServer.endpointUri))
-        didDocument.addContextService(contextHash, Interfaces.EndpointType.MESSAGING, storageConfig.services.messageServer.type, StorageLink.standardizeUrl(storageConfig.services.messageServer.endpointUri))
+        const endpoints: Endpoints = {
+            database: storageConfig.services.databaseServer,
+            messaging: storageConfig.services.messageServer
+        }
 
         if (storageConfig.services.storageServer) {
-            didDocument.addContextService(contextHash, Interfaces.EndpointType.STORAGE, storageConfig.services.storageServer!.type, StorageLink.standardizeUrl(storageConfig.services.storageServer!.endpointUri))
+            endpoints.storage = storageConfig.services.storageServer
         }
 
         if (storageConfig.services.notificationServer) {
-            didDocument.addContextService(contextHash, Interfaces.EndpointType.NOTIFICATION, storageConfig.services.notificationServer!.type, StorageLink.standardizeUrl(storageConfig.services.notificationServer!.endpointUri))
+            endpoints.notification = storageConfig.services.notificationServer
         }
 
-        // Add keys
-        didDocument.addContextSignKey(contextHash, storageConfig.publicKeys.signKey.publicKeyHex)
-        didDocument.addContextAsymKey(contextHash, storageConfig.publicKeys.asymKey.publicKeyHex)
+        await didDocument.addContext(storageConfig.id, keyring, endpoints)
 
         return await didClient.save(didDocument)
     }
