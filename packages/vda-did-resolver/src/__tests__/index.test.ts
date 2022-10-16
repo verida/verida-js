@@ -1,8 +1,7 @@
 import * as index from '../index'
 
 test('has export definitions', () => {
-  expect.assertions(8)
-  expect(index.REGISTRY).toBeDefined()
+  expect.assertions(7)
   expect(index.attrTypes).toBeDefined()
   expect(index.bytes32toString).toBeDefined()
   expect(index.delegateTypes).toBeDefined()

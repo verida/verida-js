@@ -3,10 +3,9 @@ import { Resolver } from 'did-resolver'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { getResolver } from '@verida/vda-did-resolver'
-
-import { VdaDID, DelegateTypes, BulkDelegateParam, BulkAttributeParam } from '../index'
-
+import { VdaDID, DelegateTypes } from '../index'
 import { ethers } from 'ethers'
+require('dotenv').config()
 
 import {
   getVeridaSign, 
@@ -15,24 +14,22 @@ import {
   pubKeyList,
 } from './const'
 
-
 const testMode = process.env.TEST_MODE ? process.env.TEST_MODE : 'direct'
 console.log('Test Mode : ', testMode)
 
-const currentNet = process.env.RPC_TARGET_NET != undefined ? process.env.RPC_TARGET_NET : 'RPC_URL_POLYGON_MAINNET'
-const rpcUrl = process.env[currentNet]
+const rpcUrl = process.env.RPC_URL
 if(rpcUrl === undefined)
   throw new Error("RPC url not defined in env")
 console.log('RPC URL:', rpcUrl)
 
-const chainId = process.env[`CHAIN_ID_${currentNet}`]
+const chainId = process.env[`CHAIN_ID`]
 if (chainId === undefined) {
   throw new Error('Chain ID not defined in env')
 }
 console.log('Chain Id : ', chainId)
 
 
-const registry = process.env[`CONTRACT_ADDRESS_${currentNet}_DidRegistry`]
+const registry = process.env[`CONTRACT_ADDRESS`]
 if (registry === undefined) {
   throw new Error("Registry address not defined in env")
 }

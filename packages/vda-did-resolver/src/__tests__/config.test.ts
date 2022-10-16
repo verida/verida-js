@@ -21,6 +21,7 @@ describe('configuration', () => {
     expect(contracts['0x13881']).toBeDefined()
   })
 
+  /*
   it('works with single provider', async () => {
     const contracts = configureResolverWithNetworks({
       provider: new JsonRpcProvider('https://matic-mumbai.chainstacklabs.com'),
@@ -41,7 +42,7 @@ describe('configuration', () => {
       chainId: 80001,
     })
     expect(contracts['0x13881']).toBeDefined()
-  })
+  })*/
 
   it('throws when no configuration is provided', () => {
     expect(() => {
