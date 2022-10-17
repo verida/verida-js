@@ -28,16 +28,16 @@ export async function getDIDClient(veridaAccount: Wallet) {
     const didClient = new DIDClient(config)
 
     // Configure authenticate to talk directly to the blockchain
-    /*didClient.authenticate(
+    didClient.authenticate(
         veridaAccount.privateKey,
         'web3',
         {
             signer: txSigner
         }
-    )*/
+    )
 
     // Configure authenticate to use meta transaction server
-    didClient.authenticate(
+    /*didClient.authenticate(
         veridaAccount.privateKey,
         'gasless',
         {
@@ -54,7 +54,7 @@ export async function getDIDClient(veridaAccount: Wallet) {
               },
               endpointUrl: 'http://localhost:5021'
         }
-    )
+    )*/
 
     return didClient
 }

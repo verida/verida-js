@@ -50,7 +50,7 @@ describe('DID document tests', () => {
             const data = doc.export()
 
             // Validate service endpoints
-            assert.equal(data.service.length, 2, "Have two service entries")
+            assert.equal(data.service?.length, 2, "Have two service entries")
             function validateServiceEndpoint(type, endpointUri, actual: ServiceEndpoint) {
                 assert.equal(actual.id, `did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694?context=0x2d23fba7467f275904b4bc474c816ff37056ae8436ddfc555747613945034a91&type=${type}`, "Endpoint ID matches hard coded value")
                 assert.equal(actual.type, type, "Type has expected value")
@@ -64,11 +64,11 @@ describe('DID document tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
+            assert.equal(data.verificationMethod?.length, 4, "Have four verificationMethod entries")
 
             // @todo: verify proof
-            const proofVerificationMethod = data.verificationMethod[2]
-            assert.ok(proofVerificationMethod.proof && proofVerificationMethod.type == 'EcdsaSecp256k1VerificationKey2019', 'Proof property is set on the signing verification method')
+            const proofVerificationMethod = data.verificationMethod![2]
+            assert.ok((proofVerificationMethod as any).proof && proofVerificationMethod.type == 'EcdsaSecp256k1VerificationKey2019', 'Proof property is set on the signing verification method')
 
             // @todo: validate signing key
 
@@ -83,7 +83,7 @@ describe('DID document tests', () => {
             await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
 
             const data = doc.export()
-            assert.equal(data.service.length, 4, "Have four service entries")
+            assert.equal(data.service?.length, 4, "Have four service entries")
 
             // Check we have both endpoints for context 1
             const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
@@ -180,7 +180,8 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690',
+                    proof: "0xb7aedda22d3240a1822d8cbe2aaf1e580821a28f192276ff42d64e06016e210a6f7ed2bde06f67caceeea9f8faeed473257b37698bd2765eadadcbb660221e9a1b"
                 },
                 {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`,
@@ -258,7 +259,8 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
+                    publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690',
+                    proof: "0xb7aedda22d3240a1822d8cbe2aaf1e580821a28f192276ff42d64e06016e210a6f7ed2bde06f67caceeea9f8faeed473257b37698bd2765eadadcbb660221e9a1b"
                 },
                 {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=asym`,

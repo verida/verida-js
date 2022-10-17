@@ -139,7 +139,8 @@ export function getUpdateListFromDocument(document: DIDDocument) {
             // call revokeAttribute & setAttribute for updates
             attributeList.push({
                 name,
-                value
+                value,
+                proof: (item as any).proof
             })
         }
     })
