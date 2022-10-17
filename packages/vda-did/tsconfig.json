@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "esnext",
+    "target": "es5",
+    "module": "commonjs",
     "lib": [
-      "dom",
-      "es6",
-      "es2015.promise"
+      "es5",
+      "es2015"
     ],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "lib",
     "strict": true,
+    "skipLibCheck": true,
     "moduleResolution": "node",
     "types": [
       "jest"
