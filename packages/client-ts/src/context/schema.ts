@@ -1,6 +1,7 @@
 const RefParser = require("json-schema-ref-parser");
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
+const draft7MetaSchema = require("ajv/dist/refs/json-schema-draft-07.json");
 
 const resolveAllOf = require("json-schema-resolve-allof");
 const _ = require("lodash");
@@ -62,6 +63,7 @@ class Schema {
     );
 
     this.ajv = new Ajv2020(options.ajv);
+    this.ajv.addMetaSchema(draft7MetaSchema);
     addFormats(this.ajv);
 
     for (let s in options.metaSchemas) {
