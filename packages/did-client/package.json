@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@verida/did-document": "^2.0.0-rc1",
+    "@verida/vda-did": "^2.0.0-rc1",
     "@verida/vda-did-resolver": "^2.0.0-rc1",
     "@verida/web3": "^2.0.0-rc1",
     "axios": "^0.23.0",
