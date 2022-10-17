@@ -35,13 +35,13 @@ let didClient
 /**
  * 
  */
-describe('DID document tests', () => {
+describe('DID Client tests', () => {
 
     before(async () => {
         didClient = await getDIDClient(wallet)
     })
 
-    describe('Document creation', function() {
+    describe('Basic tests', function() {
         it('can create an empty document', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
             const saved = await didClient.save(doc)
