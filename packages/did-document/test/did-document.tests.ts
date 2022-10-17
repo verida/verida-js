@@ -180,6 +180,7 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
+                    proof: '0x996e138b4a37809304e12e5b480f3ce2ef620b55567e93655f3acfcf36e0588e79a225b41112e5fe95e373c35a7adbfa9addfda773c7c8b45728a96aba1a90f51c',
                     publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {
@@ -258,6 +259,7 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
+                    proof: '0x996e138b4a37809304e12e5b480f3ce2ef620b55567e93655f3acfcf36e0588e79a225b41112e5fe95e373c35a7adbfa9addfda773c7c8b45728a96aba1a90f51c',
                     publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {
