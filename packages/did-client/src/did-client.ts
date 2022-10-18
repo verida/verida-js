@@ -23,8 +23,13 @@ export interface VeridaSelfTransactionConfigPart  {
  */
 
 export interface DIDClientConfig {
-    network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
-    rpcUrl?: string                              // blockchain RPC URI to use
+    // network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
+    network: string
+    rpcUrl?: string,                              // blockchain RPC URI to use
+
+    chainId?: string,
+    registry?: string
+
 }
 
 export class DIDClient {
@@ -43,16 +48,22 @@ export class DIDClient {
         this.config = config
 
         const resolverConfig: any = {
-            name: this.config.network,
+            ...this.config,
+            name: this.config.network, //config.network will be ignored once config.name defined
         }
         
+        /*
         if (this.config.rpcUrl) {
             resolverConfig.rpcUrl = this.config.rpcUrl
+            resolverConfig.chainId = this.config.chainId
+            resolverConfig.registry = this.config.registry
         }
+        */
 
         const vdaDidResolver = getResolver(resolverConfig)
         
         this.didResolver = new Resolver(vdaDidResolver)
+
     }
 
     /**
@@ -61,11 +72,13 @@ export class DIDClient {
      * @param veridaPrivateKey private key of verida. Used to sign transactions for smart contract
      * @param callType Blockchain interaction mode. 'web3' | 'gasless'
      * @param web3Config Web3 configuration that must be specified if callType is gasless
+     * @param registry Contract address. Used when `rpcUrl` param specified in did-client constructor.
      */
     public authenticate(
         veridaPrivateKey: string,
         callType: CallType,
-        web3Config: VeridaSelfTransactionConfigPart|VeridaMetaTransactionConfig
+        web3Config: VeridaSelfTransactionConfigPart|VeridaMetaTransactionConfig,
+        registry?: string
     ) { 
         this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.network)
         const provider = new JsonRpcProvider(this.config.rpcUrl)
@@ -87,7 +100,8 @@ export class DIDClient {
             vdaKey: this.veridaWallet.privateKey,   // should this be buffer?
             chainNameOrId: this.config.network,
             callType: callType,
-            web3Options: _web3Config
+            web3Options: _web3Config,
+            registry: registry
         })
     }
     
@@ -147,6 +161,7 @@ export class DIDClient {
      * @returns DID Document instance
      */
     public async get(did: string): Promise<DIDDocument> {
+        console.log("did-client get()", did)
         const resolutionResult = await this.didResolver.resolve(did.toLowerCase())
 
         if (resolutionResult.didResolutionMetadata && resolutionResult.didResolutionMetadata.error) {

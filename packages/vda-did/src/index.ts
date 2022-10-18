@@ -43,6 +43,7 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
  * @param chainNameOrId: Target chain name or chain id.
  * @param callType : VDA-DID run mode. Values from vda-did-resolver
  * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
+ * @param registry: Contract address for custom network. Especially for Hardhat test net.
  */
 interface IConfig {
   identifier: string;
@@ -51,6 +52,8 @@ interface IConfig {
 
   callType: CallType;
   web3Options: VeridaWeb3ConfigurationOption;
+
+  registry?: string
 
   // txSigner?: TxSigner
   // privateKey?: string
@@ -96,11 +99,14 @@ export class VdaDID {
       conf.identifier
     );
 
+    console.log("VDA-DID constructor : ", conf)
+
     this.controller = new VdaDidController(
       conf.callType,
       conf.web3Options,
       conf.identifier,
-      conf.chainNameOrId
+      conf.chainNameOrId,
+      conf.registry
     );
     this.did = this.controller.did;
     this.signKey = conf.vdaKey;

@@ -52,6 +52,8 @@ export class VdaDidResolver {
 
   constructor(options: ConfigurationOptions) {
     this.contracts = configureResolverWithNetworks(options);
+
+    // console.log("VDADIDResolver Constructor:", this.contracts)
   }
 
   /**

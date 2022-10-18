@@ -89,6 +89,7 @@ export function getContractForNetwork(conf: ProviderConfiguration): Contract {
 }
 
 function configureNetwork(net: ProviderConfiguration): ConfiguredNetworks {
+  // console.log("vda-did-resolver configuration", net)
   const networks: ConfiguredNetworks = {};
   const chainId = net.chainId || knownNetworks[net.name || ""];
   if (chainId) {
@@ -144,11 +145,11 @@ export function configureResolverWithNetworks(
   return networks;
 }
 
-export function getContractInfoForNetwork(chainNameOrId: any) {
+export function getContractInfoForNetwork(chainNameOrId: any, registry?: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const abi = require("./contract/abi.json");
 
-  const address = CONTRACT_ADDRESS[chainNameOrId];
+  const address = registry || CONTRACT_ADDRESS[chainNameOrId];
 
   if (!address) {
     throw new Error("Contract address not defined");

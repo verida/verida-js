@@ -3,6 +3,7 @@
 export const knownNetworks: Record<string, string> = {
   mainnet: '0x89',
   testnet: '0x13881',
+  hardhat: '0x7a69'
 };
 
 export function strip0x(input: string): string {

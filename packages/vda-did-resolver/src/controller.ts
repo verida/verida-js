@@ -43,19 +43,21 @@ export class VdaDidController {
    * @param options : Verdia Web3 Configuration
    * @param identifier - required - a `did:vda` string or a publicKeyHex or an ethereum address
    * @param chainNameOrId - optional - the network name or chainID, defaults to 'mainnet'
+   * @param registry - optional - contract address for custom network.
    */
   constructor(
     callType: CallType,
     options: VeridaWeb3ConfigurationOption,
     identifier: string | address,
-    chainNameOrId: string | number = "mainnet"
+    chainNameOrId: string | number = "mainnet",
+    registry? : string
   ) {
     // initialize identifier
     const { address, publicKey, network } = interpretIdentifier(identifier);
     const net = network || chainNameOrId;
 
     // initialize contract connection
-    const contractInfo = getContractInfoForNetwork(net);
+    const contractInfo = getContractInfoForNetwork(net, registry);
     // console.log('VdaDIDController ContractInfo : ', contractInfo)
 
     this.didContract = getVeridaContract(callType, {
