@@ -45,7 +45,7 @@ describe('DID document tests', () => {
 
         it('can add a context', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const data = doc.export()
 
@@ -79,8 +79,8 @@ describe('DID document tests', () => {
     describe('Document changes', function() {
         it('can add multiple contexts', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-            await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc.addContext(CONTEXT_NAME_2, keyring, wallet.privateKey, endpoints)
 
             const data = doc.export()
             assert.equal(data.service?.length, 4, "Have four service entries")
@@ -103,8 +103,8 @@ describe('DID document tests', () => {
 
         it('can remove a context', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-            await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc.addContext(CONTEXT_NAME_2, keyring, wallet.privateKey, endpoints)
 
             // Confirm we have two contexts
             const data2 = doc.export()
@@ -131,8 +131,8 @@ describe('DID document tests', () => {
             const doc = new DIDDocument(did, wallet.publicKey)
 
             // Add the same context twice in a row
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const data = doc.export()
             assert.equal(data.service!.length, 2, "Have two service entries")
@@ -145,7 +145,7 @@ describe('DID document tests', () => {
     describe('Document signing and verification', function() {
         it('can sign and verify any context data', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const signData = {
                 hello: 'world'
@@ -160,14 +160,14 @@ describe('DID document tests', () => {
     describe('Document comparison', function() {
         it('can correctly identify added records', async function() {
             const doc1 = new DIDDocument(did, wallet.publicKey)
-            await doc1.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc1.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const doc2 = new DIDDocument({
                 id: did,
                 controller: `${did}-2`
             }, wallet.publicKey)
-            await doc2.addContext(CONTEXT_NAME, keyring, endpoints)
-            await doc2.addContext(CONTEXT_NAME_2, keyring, endpoints)
+            await doc2.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc2.addContext(CONTEXT_NAME_2, keyring, wallet.privateKey, endpoints)
 
             const compareResult: any = doc1.compare(doc2)
 
@@ -180,7 +180,7 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    proof: '0x996e138b4a37809304e12e5b480f3ce2ef620b55567e93655f3acfcf36e0588e79a225b41112e5fe95e373c35a7adbfa9addfda773c7c8b45728a96aba1a90f51c',
+                    proof: '0x065af202774b6e2934e94f956eecfce1befed212ae1d92d0019607986718f01e002451a99f2de6332b5140ff26df7f35ee98eed38f0d46c8725ea648be449c811c',
                     publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {
@@ -241,11 +241,11 @@ describe('DID document tests', () => {
 
         it('can correctly identify removed records', async function() {
             const doc1 = new DIDDocument(did, wallet.publicKey)
-            await doc1.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc1.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const doc2 = new DIDDocument(did, wallet.publicKey)
-            await doc2.addContext(CONTEXT_NAME, keyring, endpoints)
-            await doc2.addContext(CONTEXT_NAME_2, keyring, endpoints)
+            await doc2.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc2.addContext(CONTEXT_NAME_2, keyring, wallet.privateKey, endpoints)
 
             // Compare in the opposite direction to identify removals
             const compareResult: any = doc2.compare(doc1)
@@ -259,7 +259,7 @@ describe('DID document tests', () => {
                     id: `${did}?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a&type=sign`,
                     type: 'EcdsaSecp256k1VerificationKey2019',
                     controller: did,
-                    proof: '0x996e138b4a37809304e12e5b480f3ce2ef620b55567e93655f3acfcf36e0588e79a225b41112e5fe95e373c35a7adbfa9addfda773c7c8b45728a96aba1a90f51c',
+                    proof: '0x065af202774b6e2934e94f956eecfce1befed212ae1d92d0019607986718f01e002451a99f2de6332b5140ff26df7f35ee98eed38f0d46c8725ea648be449c811c',
                     publicKeyHex: '03d9e1ea9cc5de0f1d2e34e9ac6502ecee77df8410c1cf641505d4910a99769690'
                 },
                 {

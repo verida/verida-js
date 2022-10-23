@@ -22,6 +22,7 @@
     "@verida/keyring": "^2.0.0-rc1",
     "@verida/vda-did-resolver": "^2.0.0-rc1",
     "did-resolver": "^3.1.2",
+    "ethers": "^5.7.2",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

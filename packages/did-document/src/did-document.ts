@@ -6,6 +6,7 @@ import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
 import { interpretIdentifier, verificationMethodTypes } from '@verida/vda-did-resolver'
 import { knownNetworks, strip0x } from './helpers'
 import { BigNumber } from '@ethersproject/bignumber'
+import { ethers } from 'ethers'
 const _ = require('lodash')
 
 export default class DIDDocument {
@@ -79,11 +80,12 @@ export default class DIDDocument {
     /**
      * Not used directly, used for testing
      * 
-     * @param contextName 
-     * @param keyring 
-     * @param endpoints 
+     * @param contextName string
+     * @param keyring Keyring
+     * @param privateKey Private key of the DID that controls this DID Document 
+     * @param endpoints Endpoints
      */
-    public async addContext(contextName: string, keyring: Keyring, endpoints: Endpoints) {
+    public async addContext(contextName: string, keyring: Keyring, privateKey: string, endpoints: Endpoints) {
         // Remove this context if it already exists
         this.removeContext(contextName)
 
@@ -105,9 +107,18 @@ export default class DIDDocument {
         // Get keyring keys so public keys and ownership proof can be saved to the DID document
         const keys = await keyring.getKeys()
 
-        // Build proof for signing key that demonstrates this `did` controls the signing key
-        const proofString = `${this.id}-${keys.signPublicAddress}`
-        const proof = await keyring.sign(proofString)
+        // Generate an address representation of the DID (to save storage)
+        const didAddress = this.id.match(/0x[0-9a-z]*/i)![0].toLowerCase()
+
+        // Generate a proof that the DID controls the context public signing key that can be used on chain
+        const proofRawMsg = ethers.utils.solidityPack(
+            ["address", "address"],
+            [didAddress, keys.signPublicAddress]
+        )
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(privateKey.slice(2), "hex")
+        )
+        const proof = EncryptionUtils.signData(proofRawMsg, privateKeyArray)
 
         // Add keys to DID document
         this.addContextSignKey(contextHash, keys.signPublicKeyHex, proof)
