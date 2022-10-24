@@ -58,7 +58,7 @@ describe('DID Client tests', () => {
 
         it('can add a context to an existing DID and verify', async function() {
             const initialDoc = new DIDDocument(did, wallet.publicKey)
-            await initialDoc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await initialDoc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const saved = await didClient.save(initialDoc)
             assert.ok(saved, 'DID document saved successfully')
@@ -120,12 +120,12 @@ describe('DID Client tests', () => {
 
         it('can replace an existing context, not add again', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
             let saved = await didClient.save(doc)
             assert.ok(saved)
 
             // Add the same context and save a second time
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
             saved = await didClient.save(doc)
             assert.ok(saved)
 

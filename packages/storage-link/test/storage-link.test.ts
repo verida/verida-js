@@ -94,7 +94,7 @@ describe('Storage Link', () => {
 
             let storageConfig = Object.assign({}, expectedConfig)
 
-            const success = await StorageLink.setLink(didClient, testConfig, keyring1)
+            const success = await StorageLink.setLink(didClient, testConfig, keyring1, wallet.privateKey)
             assert.ok(success, 'Set link succeeded')
             const links = await StorageLink.getLinks(didClient, DID)
             assert.ok(links.length, 1, 'Fetched exactly one saved link')
@@ -108,7 +108,7 @@ describe('Storage Link', () => {
         it('can link a DID to multiple secure storage contexts', async function() {
             let storageConfig = Object.assign({}, expectedConfig)
             storageConfig.id = TEST_APP_NAME2
-            await StorageLink.setLink(didClient, storageConfig, keyring2)
+            await StorageLink.setLink(didClient, storageConfig, keyring2, wallet.privateKey)
 
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, TEST_APP_NAME2)
             storageConfig.id = DIDDocument.generateContextHash(DID, TEST_APP_NAME2)

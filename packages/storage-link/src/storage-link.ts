@@ -49,7 +49,7 @@ export default class StorageLink {
      * @param didClient
      * @param storageConfig (Must have .id as the contextName)
      */
-    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig, keyring: Keyring) {
+    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig, keyring: Keyring, privateKey: string) {
         const did = didClient.getDid()
 
         if (!did) {
@@ -87,7 +87,7 @@ export default class StorageLink {
             endpoints.notification = storageConfig.services.notificationServer
         }
 
-        await didDocument.addContext(storageConfig.id, keyring, endpoints)
+        await didDocument.addContext(storageConfig.id, keyring, privateKey, endpoints)
 
         return await didClient.save(didDocument)
     }
