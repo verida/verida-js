@@ -1,6 +1,3 @@
-import Encryption from "@verida/encryption-utils";
-const _ = require("lodash");
-
 import { Account, EnvironmentType } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 import { Profile } from "./context/profiles/profile";
@@ -11,7 +8,7 @@ import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
 import DEFAULT_CONFIG from "./config";
-import EncryptionUtils from "@verida/encryption-utils";
+const _ = require("lodash");
 
 /**
  * @category

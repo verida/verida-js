@@ -74,7 +74,6 @@ export interface FetchUriParams {
 }
 
 export interface DefaultEnvironmentConfig {
-	didServerUrl?: string,
 	defaultDatabaseServerUrl?: string
 	defaultMessageServerUrl?: string
 	schemaPaths?: Record<string,string>

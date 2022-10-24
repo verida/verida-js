@@ -1,11 +1,11 @@
+import { EnvironmentType } from "@verida/account"
 import { DefaultClientConfig } from "./interfaces"
 
 const config: DefaultClientConfig = {
-    environment: process.env.VERIDA_ENVIRONMENT || "testnet",
+    environment: EnvironmentType.TESTNET,
     environments: {
         local: {
             // For core development
-            didServerUrl: 'http://localhost:5001',
             defaultDatabaseServerUrl: "http://localhost:5000/",
             defaultMessageServerUrl: "http://localhost:5000/",
             schemaPaths: {
@@ -15,7 +15,6 @@ const config: DefaultClientConfig = {
             }
         },
         testnet: {
-            didServerUrl: 'https://dids.testnet.verida.io:5001',
             defaultDatabaseServerUrl: "https://db.testnet.verida.io:5002/",
             defaultMessageServerUrl: "https://db.testnet.verida.io:5002/",
             schemaPaths: {
