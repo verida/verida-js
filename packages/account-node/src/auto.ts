@@ -103,7 +103,7 @@ export default class AutoAccount extends Account {
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
         const keyring = await this.keyring(storageConfig.id)
-        await StorageLink.setLink(this.didClient, storageConfig, keyring)
+        await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
      }
 
      /**
