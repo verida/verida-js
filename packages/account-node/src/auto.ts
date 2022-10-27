@@ -47,7 +47,7 @@ export default class AutoAccount extends Account {
         }
 
         this.didClient.authenticate(
-            autoConfig.privateKey,
+            this.wallet.privateKey,
             autoConfig.didClientConfig.callType,
             autoConfig.didClientConfig.web3Config
         )
