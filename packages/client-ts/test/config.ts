@@ -20,10 +20,10 @@ export default {
         },
     },
     DID_CLIENT_CONFIG: <DIDClientConfig> {
-        networkPrivateKey: '',
         callType: 'web3',
-        web3Config: {},
-        //rpcUrl: ''
+        web3Config: {
+            privateKey: ''
+        },
     },
     INVALID_ENDPOINTS: {    // endpoints that resolve to non-existant storage node
         defaultDatabaseServer: {
