@@ -1,19 +1,14 @@
-import { Signer } from "@ethersproject/abstract-signer";
-// import { isAddress } from '@ethersproject/address'
-import { BigNumber } from "@ethersproject/bignumber";
-import { CallOverrides, Contract } from "@ethersproject/contracts";
+import { CallOverrides } from "@ethersproject/contracts";
 import {
-  BlockTag
+  BlockTag,
+  JsonRpcProvider
 } from "@ethersproject/providers";
-// import { getContractForNetwork } from './configuration'
+import { Wallet } from "ethers"
 import { getContractInfoForNetwork, getDefaultRpcUrl } from "./configuration";
 import { address, interpretIdentifier, stringToBytes32 } from "./helpers";
 
 import {
-  CallType,
-  ContractInfo,
-  VeridaSelfTransactionConfig,
-  VeridaMetaTransactionConfig,
+  CallType
 } from "@verida/web3";
 import {
   getVeridaContract,
@@ -53,7 +48,6 @@ export class VdaDidController {
 
     // initialize contract connection
     const contractInfo = getContractInfoForNetwork(net);
-    //console.log('VdaDIDController ContractInfo : ', contractInfo)
   
     // @ts-ignore
     if (!options.rpcUrl) {
@@ -62,7 +56,18 @@ export class VdaDidController {
       options.rpcUrl = defaultRpcUrl
     }
 
-    // set signer
+    // set signer if in web3 mode
+    // @ts-ignore
+    if (!options.signer && callType == 'web3') {
+      // @ts-ignore
+      if (!options.privateKey) {
+        throw new Error('Private key for blockchain or pre-configured signer must be specified in web3 mode')
+      }
+      // @ts-ignore
+      const provider = new JsonRpcProvider(options.rpcUrl);
+      // @ts-ignore
+      options.signer = new Wallet(options.privateKey, provider)
+    }
 
     this.didContract = getVeridaContract(callType, {
       ...contractInfo,
