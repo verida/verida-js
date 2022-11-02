@@ -21,18 +21,6 @@ const getAxios = async (params?: any) => {
     return Axios.create(config);
   };
 
-/**
- * Check validity of creating meta-transaction-server instance in gasless mode
- * @param key - Key value provided by Verida. Check validation on creating gasless instance
- * @returns {boolean} - Validity of creating instance
- */
-function isValidVeridaKey(key?: string) {
-    // if (!key || !key.includes('approved')) {
-    //     return false;
-    // }
-    return true;
-}
-
 interface ParameterType {
     [key: string] : any
 }
@@ -122,10 +110,6 @@ export class VeridaContract {
                 }
             })
         } else {
-            if (!isValidVeridaKey((<VeridaMetaTransactionConfig>config).veridaKey)) {
-                throw new Error('Input valid Verida Key for gasless transaction')
-            }
-
             if (!isVeridaContract(config.address)) {
                 throw new Error('Not a Verida contract address')
             }

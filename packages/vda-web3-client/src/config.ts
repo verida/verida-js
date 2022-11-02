@@ -34,7 +34,6 @@ export interface VeridaSelfTransactionConfig {
 
 /** Configuration type for gasless mode */
 export interface VeridaMetaTransactionConfig {
-    veridaKey: string
     serverConfig: VeridaGaslessRequestConfig
     postConfig: VeridaGaslessPostConfig
     endpointUrl: string
