@@ -66,9 +66,8 @@ export class DIDClient {
         veridaPrivateKey: string,
         callType: CallType,
         web3Config: VeridaSelfTransactionConfigPart|VeridaMetaTransactionConfig
-    ) { 
+    ) {
         this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.network)
-        const provider = new JsonRpcProvider(this.config.rpcUrl)
 
         if (callType == 'gasless' && !web3Config) {
             throw new Error('Gasless transactions must specify `web3config`')
@@ -78,8 +77,8 @@ export class DIDClient {
             <VeridaMetaTransactionConfig>web3Config :
             <VeridaSelfTransactionConfig>{
                 ...<VeridaSelfTransactionConfigPart>web3Config,
-                provider: provider,
                 rpcUrl: this.config.rpcUrl,
+                privateKey: veridaPrivateKey
             }
 
         this.vdaDid = new VdaDID({

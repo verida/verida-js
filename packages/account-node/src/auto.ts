@@ -37,13 +37,6 @@ export default class AutoAccount extends Account {
             if (!autoConfig.didClientConfig.networkPrivateKey) {
                 throw new Error('`autoConfig` parameter must specify a `networkPrivateKey` when in `web3` mode.')
             }
-
-            const provider = new JsonRpcProvider(autoConfig.didClientConfig.rpcUrl)
-            const txSigner = new EthersWallet(autoConfig.didClientConfig.networkPrivateKey!, provider)
-            // @ts-ignore Why doesn't pickup the interfaces?
-            autoConfig.didClientConfig.web3Config.provider = provider
-            // @ts-ignore Why doesn't pickup the interfaces?
-            autoConfig.didClientConfig.web3Config.signer = txSigner
         }
 
         this.didClient.authenticate(

@@ -97,7 +97,7 @@ export function getContractForNetwork(conf: ProviderConfiguration & ContractInfo
             const chainId = chainIdRaw ? BigNumber.from(chainIdRaw).toNumber() : chainIdRaw
             provider = new JsonRpcProvider(conf.rpcUrl, chainId || 'any')
         } else {
-        throw new Error(`invalid_config: No web3 provider could be determined for network ${conf.name || conf.chainId}`)
+            throw new Error(`invalid_config: No web3 provider could be determined for network ${conf.name || conf.chainId}`)
         }
     }
 

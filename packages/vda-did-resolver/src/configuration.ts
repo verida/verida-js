@@ -79,7 +79,6 @@ export function getContractForNetwork(conf: ProviderConfiguration): Contract {
     );
   }
 
-  // console.log('resolver:getContractForNetwork(): ', conf.registry)
   const contract: Contract = ContractFactory.fromSolidity(DIDRegistry)
     .attach(
       (conf.registry || CONTRACT_ADDRESS[conf.name || conf.chainId || ""])!
@@ -157,6 +156,14 @@ export function getContractInfoForNetwork(chainNameOrId: any) {
     abi: abi,
     address: <string>address,
   };
+}
+
+export function getDefaultRpcUrl(chainNameOrId: any) {
+  if (RPC_URL[chainNameOrId]) {
+    return RPC_URL[chainNameOrId]
+  }
+
+  throw new Error(`Unknown chain: ${chainNameOrId}`)
 }
 
 export type VeridaWeb3ConfigurationOption =

@@ -3,13 +3,10 @@ import { Signer } from "@ethersproject/abstract-signer";
 import { BigNumber } from "@ethersproject/bignumber";
 import { CallOverrides, Contract } from "@ethersproject/contracts";
 import {
-  BlockTag,
-  JsonRpcProvider,
-  Provider,
-  TransactionReceipt,
+  BlockTag
 } from "@ethersproject/providers";
 // import { getContractForNetwork } from './configuration'
-import { getContractInfoForNetwork } from "./configuration";
+import { getContractInfoForNetwork, getDefaultRpcUrl } from "./configuration";
 import { address, interpretIdentifier, stringToBytes32 } from "./helpers";
 
 import {
@@ -56,7 +53,16 @@ export class VdaDidController {
 
     // initialize contract connection
     const contractInfo = getContractInfoForNetwork(net);
-    // console.log('VdaDIDController ContractInfo : ', contractInfo)
+    //console.log('VdaDIDController ContractInfo : ', contractInfo)
+  
+    // @ts-ignore
+    if (!options.rpcUrl) {
+      const defaultRpcUrl = getDefaultRpcUrl(net)
+      // @ts-ignore
+      options.rpcUrl = defaultRpcUrl
+    }
+
+    // set signer
 
     this.didContract = getVeridaContract(callType, {
       ...contractInfo,
