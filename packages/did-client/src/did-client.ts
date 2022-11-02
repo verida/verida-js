@@ -2,10 +2,8 @@ import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
 import { VdaDID } from '@verida/vda-did'
-import { getResolver } from '@verida/vda-did-resolver'
+import { getResolver, VeridaWeb3ConfigurationOption } from '@verida/vda-did-resolver'
 import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
-
-import { JsonRpcProvider } from '@ethersproject/providers'
 
 import { Resolver } from 'did-resolver'
 import { Signer } from '@ethersproject/abstract-signer';
@@ -14,8 +12,8 @@ import { getUpdateListFromDocument} from './helpers'
 
 // Part of VeridaSelfTransactionConfig
 export interface VeridaSelfTransactionConfigPart  {
-    signer?: Signer
-    privateKey?: string
+    signer?: Signer         // Pre-built transaction signer that is configured to pay for gas
+    privateKey?: string     // MATIC private key that will pay for gas
 }
 
 /**
@@ -58,32 +56,37 @@ export class DIDClient {
     /**
      * Unlock save() function by providing verida signing key.
      * 
-     * @param veridaPrivateKey private key of verida. Used to sign transactions for smart contract
+     * @param veridaPrivateKey Private key of a Verida Account. Used to sign transactions in the DID Registry to verify the request originated from the DID owner / controller
      * @param callType Blockchain interaction mode. 'web3' | 'gasless'
-     * @param web3Config Web3 configuration that must be specified if callType is gasless
+     * @param web3Config Web3 configuration. If `web3`, you must provide `privateKey` (MATIC private key that will pay for gas). If `gasless` you must specify `endpointUrl` (URL of the meta transaction server) and any appropriate `serverConfig` and `postConfig`.
      */
     public authenticate(
         veridaPrivateKey: string,
         callType: CallType,
-        web3Config: VeridaSelfTransactionConfigPart|VeridaMetaTransactionConfig
+        web3Config: VeridaSelfTransactionConfigPart | VeridaMetaTransactionConfig
     ) {
         this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.network)
 
-        if (callType == 'gasless' && !web3Config) {
-            throw new Error('Gasless transactions must specify `web3config`')
+        // @ts-ignore
+        if (callType == 'gasless' && !web3Config.endpointUrl) {
+            throw new Error('Gasless transactions must specify `web3config.endpointUrl`')
         }
 
-        const _web3Config = callType === 'gasless' ?
+        // @ts-ignore
+        if (callType == 'web3' && !web3Config.privateKey) {
+            throw new Error('Web3 transactions must specify `web3config.privateKey`')
+        }
+
+        const _web3Config: VeridaWeb3ConfigurationOption = callType === 'gasless' ?
             <VeridaMetaTransactionConfig>web3Config :
             <VeridaSelfTransactionConfig>{
                 ...<VeridaSelfTransactionConfigPart>web3Config,
-                rpcUrl: this.config.rpcUrl,
-                privateKey: veridaPrivateKey
+                rpcUrl: this.config.rpcUrl
             }
 
         this.vdaDid = new VdaDID({
             identifier: this.veridaWallet.did,
-            vdaKey: this.veridaWallet.privateKey,   // should this be buffer?
+            vdaKey: this.veridaWallet.privateKey,
             chainNameOrId: this.config.network,
             callType: callType,
             web3Options: _web3Config

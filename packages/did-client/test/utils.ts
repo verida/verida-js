@@ -1,7 +1,6 @@
 import { DIDClient, DIDClientConfig } from "../src/index"
 // import { Wallet } from '@ethersproject/wallet'
 import { Wallet } from "ethers"
-import { JsonRpcProvider } from '@ethersproject/providers'
 
 require('dotenv').config()
 
@@ -16,9 +15,6 @@ if (rpcUrl === undefined) {
 }
 console.log('RPC URL :', rpcUrl)
 
-const provider = new JsonRpcProvider(rpcUrl);
-const txSigner = new Wallet(privateKey, provider)
-
 export async function getDIDClient(veridaAccount: Wallet) {
     const config: DIDClientConfig = {
         network: 'testnet',
@@ -28,20 +24,19 @@ export async function getDIDClient(veridaAccount: Wallet) {
     const didClient = new DIDClient(config)
 
     // Configure authenticate to talk directly to the blockchain
-    didClient.authenticate(
-        veridaAccount.privateKey,
+    /*didClient.authenticate(
+        veridaAccount.privateKey,   // Verida DID private key
         'web3',
         {
-            signer: txSigner
+            privateKey,             // MATIC private key that will submit transaction
         }
-    )
+    )*/
 
     // Configure authenticate to use meta transaction server
-    /*didClient.authenticate(
-        veridaAccount.privateKey,
+    didClient.authenticate(
+        veridaAccount.privateKey,   // Verida DID private key
         'gasless',
         {
-            veridaKey: veridaAccount.privateKey,
             serverConfig: {
                 headers: {
                     'context-name' : 'Verida Test'
@@ -52,9 +47,9 @@ export async function getDIDClient(veridaAccount: Wallet) {
                       'user-agent': 'Verida-Vault'
                   }
               },
-              endpointUrl: 'http://localhost:5021'
+              endpointUrl: 'https://meta-tx-server1.tn.verida.tech'
         }
-    )*/
+    )
 
     return didClient
 }
