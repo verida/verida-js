@@ -10,7 +10,6 @@ export interface NodeAccountConfig {
 }
 
 export interface DIDClientConfig extends Omit<BaseDIDClientConfig, 'network'> {
-    networkPrivateKey?: string,
     callType: CallType,
     web3Config: VeridaSelfTransactionConfig | VeridaMetaTransactionConfig
 }

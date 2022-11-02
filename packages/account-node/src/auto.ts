@@ -33,12 +33,6 @@ export default class AutoAccount extends Account {
             network: <'testnet' | 'mainnet'> autoConfig.environment
         })
 
-        if (autoConfig.didClientConfig.callType == 'web3') {
-            if (!autoConfig.didClientConfig.networkPrivateKey) {
-                throw new Error('`autoConfig` parameter must specify a `networkPrivateKey` when in `web3` mode.')
-            }
-        }
-
         this.didClient.authenticate(
             this.wallet.privateKey,
             autoConfig.didClientConfig.callType,
