@@ -92,6 +92,10 @@ export class DIDClient {
             web3Options: _web3Config
         })
     }
+
+    public authenticated(): boolean {
+        return this.veridaWallet !== undefined
+    }
     
     public getDid(): string | undefined {
         // Add the network into the DID, if not specified
