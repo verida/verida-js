@@ -105,17 +105,35 @@ describe('DID Client tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 4, "Have three verificationMethod entries")
+            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
             assert.deepEqual(data.verificationMethod, initialDoc.export().verificationMethod, "Verification methods match")
 
-            assert.equal(data.assertionMethod.length, 4, "Have three assertionMethod entries")
+            assert.equal(data.assertionMethod.length, 4, "Have four assertionMethod entries")
             assert.equal(data.keyAgreement.length, 1, "Have one keyAgreement entries")
         })
 
-        it('can handle invalid DIDs', async function() {
-            assert.rejects(didClient.get(`did:vda:0xabcd`))
-            assert.rejects(didClient.get(`did:vda`))
-            assert.rejects(didClient.get(""))
+        it('can remove an existing context', async function() {
+            const doc = await didClient.get(did)
+            const removed = await doc.removeContext(CONTEXT_NAME)
+            assert.ok(removed, 'Context successfully removed locally')
+
+            const data = doc.export()
+
+            // Validate service endpoints
+            assert.equal(data.service?.length, 0, "Have no service entries")
+            assert.equal(data.verificationMethod.length, 2, "Have two verificationMethod entries")
+            assert.equal(data.assertionMethod.length, 2, "Have two assertionMethod entries")
+
+            const saved = await didClient.save(doc)
+            assert.ok(saved, 'Context successfully saved to blockchain')
+
+            // Verify on chain document has the record removed
+            const chainDoc = await didClient.get(did)
+            const chainData = chainDoc.export()
+
+            assert.ok(!chainData.service, "Have no service entries")
+            assert.equal(chainData.verificationMethod.length, 2, "Have two verificationMethod entries")
+            assert.equal(chainData.assertionMethod.length, 2, "Have two assertionMethod entries")
         })
 
         it('can replace an existing context, not add again', async function() {
@@ -134,6 +152,12 @@ describe('DID Client tests', () => {
             assert.equal(data.verificationMethod!.length, 4, 'Have four verification methods')
             assert.equal(data.keyAgreement!.length, 1, 'Have one keyAgreement')
             assert.equal(data.assertionMethod!.length, 4, 'Have four assertionMethods')
+        })
+
+        it('can handle invalid DIDs', async function() {
+            assert.rejects(didClient.get(`did:vda:0xabcd`))
+            assert.rejects(didClient.get(`did:vda`))
+            assert.rejects(didClient.get(""))
         })
     })
 
