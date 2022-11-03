@@ -23,8 +23,8 @@ const txSigner = new Wallet(privateKey, provider)
 export async function getDIDClient(veridaAccount: Wallet) {
     const config = {
         network: 'testnet',
-        connectMode: 'direct',
-        rpcUrl: rpcUrl!
+        connectMode: 'web3',
+        rpcUrl
     }
 
     const didClient = new DIDClient(config)
@@ -33,7 +33,7 @@ export async function getDIDClient(veridaAccount: Wallet) {
         veridaAccount.privateKey,
         'web3',
         {
-            signer: txSigner
+            privateKey
         }
     )
 
