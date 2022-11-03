@@ -32,12 +32,6 @@ export default class AutoAccount extends Account {
             ...autoConfig.didClientConfig,
             network: <'testnet' | 'mainnet'> autoConfig.environment
         })
-
-        this.didClient.authenticate(
-            this.wallet.privateKey,
-            autoConfig.didClientConfig.callType,
-            autoConfig.didClientConfig.web3Config
-        )
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
@@ -58,6 +52,8 @@ export default class AutoAccount extends Account {
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
+        this.ensureAuthenticated()
+
         const did = await this.did()
         let storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true)
         
@@ -89,6 +85,7 @@ export default class AutoAccount extends Account {
      * @param storageConfig 
      */
      public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
+        this.ensureAuthenticated()
         const keyring = await this.keyring(storageConfig.id)
         await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
      }
@@ -99,6 +96,7 @@ export default class AutoAccount extends Account {
       * @param contextName 
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
+        this.ensureAuthenticated()
         return await StorageLink.unlink(this.didClient, contextName)
     }
 
@@ -107,10 +105,12 @@ export default class AutoAccount extends Account {
      * 
      */
     public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUri: string) {
+        this.ensureAuthenticated()
         return await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUri)
     }
 
     public getDidClient() {
+        this.ensureAuthenticated()
         return this.didClient
     }
 
@@ -143,4 +143,13 @@ export default class AutoAccount extends Account {
         return this.contextAuths[contextName].disconnectDevice(deviceId)
     }
 
+    private ensureAuthenticated() {
+        if (!this.didClient.authenticated()) {
+            this.didClient.authenticate(
+                this.wallet.privateKey,
+                this.autoConfig.didClientConfig.callType,
+                this.autoConfig.didClientConfig.web3Config
+            )
+        }
+    }
 }
