@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did",
-  "version": "2.0.0-rc2",
+  "version": "2.0.0-rc3",
   "description": "Create, manage and use did:vda identifiers",
   "source": "src/index.ts",
   "main": "lib/index.js",
@@ -82,7 +82,7 @@
     "@ethersproject/strings": "^5.5.0",
     "@ethersproject/transactions": "^5.5.0",
     "@ethersproject/wallet": "^5.5.0",
-    "@verida/vda-did-resolver": "^2.0.0-rc2",
+    "@verida/vda-did-resolver": "^2.0.0-rc3",
     "did-jwt": "^5.12.3"
   }
 }
