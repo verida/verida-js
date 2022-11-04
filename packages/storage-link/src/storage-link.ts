@@ -108,7 +108,7 @@ export default class StorageLink {
         const contextHash = DIDDocument.generateContextHash(did, contextName)
 
         // Add the context service
-        await didDocument.addContextService(contextHash, endpointType, serverType, StorageLink.standardizeUrl(endpointUri))
+        await didDocument.addContextService(contextHash, endpointType, serverType, [StorageLink.standardizeUrl(endpointUri)])
 
         return await didClient.save(didDocument)
     }

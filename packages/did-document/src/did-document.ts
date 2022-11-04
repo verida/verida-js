@@ -170,7 +170,7 @@ export default class DIDDocument {
         return this.doc
     }
 
-    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUri: string) {
+    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUri: string[]) {
         if (!this.doc.service) {
             this.doc.service = []
         }
@@ -178,7 +178,7 @@ export default class DIDDocument {
         this.doc.service.push({
             id: `${this.doc.id}?context=${contextHash}&type=${endpointType}`,
             type: serviceType,
-            serviceEndpoint: endpointUri
+            serviceEndpoint: JSON.stringify(endpointUri)
         })
     }
 

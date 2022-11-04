@@ -22,11 +22,11 @@ const keyring = new Keyring(wallet.mnemonic.phrase)
 const endpoints = {
     database: {
         type: EndpointType.DATABASE,
-        endpointUri: 'https://db.testnet.verida.io/1'
+        endpointUri: ["https://db.testnet.verida.io/1", "https://db.testnet.verida.io/3"]
     },
     messaging: {
         type: EndpointType.MESSAGING,
-        endpointUri: 'https://db.testnet.verida.io/2'
+        endpointUri: ["https://db.testnet.verida.io/2"]
     }
 }
 
@@ -67,7 +67,7 @@ describe('DID Client tests', () => {
             const data = doc.export()
 
             // console.log("Initial Doc : ", initialDoc.export())
-            // console.log('Saved doc output:', data)
+            console.log('Saved doc output:', data)
 
             const compare = initialDoc.compare(doc)
             assert.deepEqual(compare, {
@@ -95,7 +95,7 @@ describe('DID Client tests', () => {
                 assert.ok(actual)
                 assert.equal(actual.id, `${did}?context=${contextHash}&type=${type}`, "Endpoint ID matches hard coded value")
                 assert.equal(actual.type, type, "Type has expected value")
-                assert.equal(actual.serviceEndpoint, endpointUri, "Endpoint has expected value")
+                assert.equal(actual.serviceEndpoint, JSON.stringify(endpointUri), "Endpoint has expected value")
             }
 
             const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
