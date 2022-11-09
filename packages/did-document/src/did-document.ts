@@ -9,9 +9,24 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ethers } from 'ethers'
 const _ = require('lodash')
 
+export interface ProofInterface {
+    type: string
+    verificationMethod: string
+    proofPurpose: string
+    proofValue: string
+}
+
+export interface VeridaDocInterface extends DocInterface {
+    versionId: number
+    created?: string
+    updated?: string
+    deactivated?: string
+    proof?: ProofInterface
+}
+
 export default class DIDDocument {
 
-    private doc: DocInterface
+    private doc: VeridaDocInterface
     protected errors: string[] = []
 
     /**
@@ -19,7 +34,7 @@ export default class DIDDocument {
      * 
      * @param doc - this value can be a DocInterface or DID. 
      */
-    constructor(doc: DocInterface | string, publicKeyHex?: string) {
+    constructor(doc: VeridaDocInterface | string, publicKeyHex?: string) {
         if (typeof(doc) == 'string') {
             // We are creating a new DID Document
             // Make sure we have a public key
@@ -30,7 +45,10 @@ export default class DIDDocument {
             const did = doc.toLowerCase()
             this.doc = {
                 id: did,
-                // controller: did
+                created: this.buildTimestamp(new Date()),
+                updated: this.buildTimestamp(new Date()),
+                controller: did,
+                versionId: 0
             }
 
 
@@ -65,6 +83,9 @@ export default class DIDDocument {
             ]
         } else {
             doc.id = doc.id.toLowerCase()
+            if (!doc.versionId) {
+                doc.versionId = 0
+            }
             this.doc = doc
         }
     }
@@ -161,12 +182,19 @@ export default class DIDDocument {
         return true
     }
 
-    public import(doc: DocInterface) {
+    public setAttributes(attributes: Record<string, any>) {
+        for (let attribute in attributes) {
+            // @ts-ignore
+            this.doc[attribute] = attributes[attribute]
+        }
+    }
+
+    public import(doc: VeridaDocInterface) {
         doc.id = doc.id.toLowerCase()
         this.doc = doc
     }
 
-    public export(): DocInterface {
+    public export(): VeridaDocInterface {
         return this.doc
     }
 
@@ -273,68 +301,41 @@ export default class DIDDocument {
         return this.doc.service!.find(entry => entry.id == expectedEndpointId)
     }
 
-    /**
-     * Compare this document (old) with another doc (new)
-     * 
-     * ie: This will outline what needs to be changed in the old doc
-     * to match the new doc.
-     * 
-     * Example output:
-     * 
-     * ```
-     * {
-     *   {
-     *     controller: 'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694-2',
-     *     verificationMethod: { add: [], remove: [ {..}, {..} ] },
-     *     assertionMethod: {
-     *       add: [],
-     *       remove: [
-     *         'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a'
-     *       ]
-     *     },
-     *     service: { add: [], remove: [ {..}, {..} ] },
-     *     keyAgreement: {
-     *       add: [],
-     *       remove: [
-     *         'did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694?context=0xf955c80c778cbe78c9903fa30e157d9d69d76b0a67bbbc0d3c97affeb2cdbb3a'
-     *       ]
-     *     }
-     *   }
-     * }
-     * ```
-     * 
-     * @param doc 
-     * @returns 
-     */
-    public compare(doc: DIDDocument): ComparisonResult {
-        const docExport = doc.export()
-        const thisExport = this.export()
-
-        const result: ComparisonResult = {
-            add : {
-                // verificationMethod: _.differenceBy(docExport.verificationMethod, thisExport.verificationMethod, 'id'),
-                verificationMethod: _.differenceBy(docExport.verificationMethod, thisExport.verificationMethod, (item: { id: any }) => item.id.toLowerCase()),
-                assertionMethod: _.differenceBy(docExport.assertionMethod, thisExport.assertionMethod, (item: string) => item.toLowerCase()),
-                service: _.differenceBy(docExport.service, thisExport.service, (item: { id: any }) => item.id.toLowerCase()),
-                keyAgreement: _.differenceBy(docExport.keyAgreement, thisExport.keyAgreement, (item: string) => item.toLowerCase()),
-                authentication: _.differenceBy(docExport.authentication, thisExport.authentication, (item: string) => item.toLowerCase()),
-
-            } as DocInterface,
-            remove: {
-                // verificationMethod: _.differenceBy(thisExport.verificationMethod, docExport.verificationMethod, 'id'),
-                verificationMethod: _.differenceBy(thisExport.verificationMethod, docExport.verificationMethod, (item: { id: any }) => item.id.toLowerCase()),
-                assertionMethod: _.differenceBy(thisExport.assertionMethod, docExport.assertionMethod, (item: string) => item.toLowerCase()),
-                service: _.differenceBy(thisExport.service, docExport.service, (item: { id: any }) => item.id.toLowerCase()),
-                keyAgreement: _.differenceBy(thisExport.keyAgreement, docExport.keyAgreement, (item: string) => item.toLowerCase()),
-                authentication: _.differenceBy(thisExport.authentication, docExport.authentication, (item: string) => item.toLowerCase()),
-            } as DocInterface
+    public signProof(privateKey: Uint8Array | string) {
+        if (privateKey == 'string') {
+            privateKey = new Uint8Array(Buffer.from(privateKey.substr(2),'hex'))
         }
 
-        if (thisExport.controller != docExport.controller) {
-            result.controller = docExport.controller
+        const proofData = this.getProofData()
+        const signature = EncryptionUtils.signData(proofData, <Uint8Array> privateKey)
+
+        this.doc.proof = {
+            type: "EcdsaSecp256k1VerificationKey2019",
+            verificationMethod: `${this.doc.id}`,
+            proofPurpose: "assertionMethod",
+            proofValue: signature
         }
-        
-        return result
+    }
+
+    public verifyProof() {
+        if (!this.doc.proof) {
+            return false
+        }
+
+        const signature = this.doc.proof.proofValue
+        const proofData = this.getProofData()
+
+        return this.verifySig(proofData, signature)
+    }
+
+    private getProofData() {
+        const proofData: any = Object.assign({}, this.doc)
+        delete proofData['proof']
+        return proofData
+    }
+
+    public buildTimestamp(date: Date) {
+        return date.toISOString().split('.')[0] + 'Z'
     }
 
 }
