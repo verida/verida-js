@@ -36,7 +36,7 @@ nvm use v14.17.1
 
 It's not possible to add dependencies between monorepo packages using yarn (ie: `yarn add @verida/encryption-utils`) if that package hasn't been published to `npm`.
 
-Unpublished dependencies betwen monorepo packages can be linked by:
+Unpublished dependencies between monorepo packages can be linked by:
 
 - Manually adding the expected dependency to `package.json` (ie: `@verida/encryption-utils`)
 - Run `npx lerna bootstrap` in the root directory of this project
