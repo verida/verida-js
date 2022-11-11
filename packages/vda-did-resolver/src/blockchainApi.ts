@@ -13,7 +13,7 @@ export default class BlockchainApi {
         // @todo
     }
 
-    public async register(didAddress: string, endpoints: string[]) {
+    public async register(didAddress: string, endpoints: string[], privateKey: string) {
         if (!this.options.privateKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
@@ -21,14 +21,14 @@ export default class BlockchainApi {
         // @todo
     }
 
-    public async setController(didAddress: string, controllerAddress: string) {
+    public async setController(didAddress: string, controllerAddress: string, privateKey: string) {
         if (!this.options.privateKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
         // @todo
     }
 
-    public async revoke(didAddress: string) {
+    public async revoke(didAddress: string, privateKey: string) {
         if (!this.options.privateKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
