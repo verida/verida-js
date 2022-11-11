@@ -44,8 +44,8 @@ class VdaDidResolver {
         // Return the DIDResolutionResult object
         return {
             didResolutionMetadata: { contentType: 'application/did+ld+json' },
-            didDocument: didDoc
-            didDocumentMetadata: { ... }
+            didDocument: didDoc,
+            didDocumentMetadata: {}
         }
     }
 

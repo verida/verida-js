@@ -20,12 +20,13 @@
     "@ethersproject/providers": "^5.7.2",
     "@verida/did-document": "^2.0.0-rc1",
     "@verida/encryption-utils": "^2.0.0-rc1",
-    "axios": "^1.1.3",
+    "axios": "1.2.0-alpha.1",
     "did-resolver": "^4.0.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "mocha": "^8.2.1",
+    "ethers": "^5.7.2",
+    "mocha": "7.0.0",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
