@@ -1,29 +1,17 @@
 {
-  "compilerOptions": {
-    "target": "ES2018",
-    "module": "esnext",
-    "lib": [
-      "dom",
-      "es6",
-      "es2015.promise"
-    ],
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "lib",
-    "strict": true,
-    "noImplicitThis": false,
-    "moduleResolution": "node",
-    "types": [
-      "jest"
-    ],
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-  },
-  "exclude": [
-    "**/__tests__/*",
-    "node_modules",
-    "lib"
-  ]
+    "compilerOptions": {
+      "target": "es5",
+      "module": "commonjs",
+      "declaration": true,
+      "skipLibCheck": true, // disable TS checking of dependencies
+      "outDir": "./dist",
+      "sourceMap": true,
+      "strict": true,
+      "lib": [
+        "es5",
+        "es2015"
+      ]
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "test", "dist"]
 }
