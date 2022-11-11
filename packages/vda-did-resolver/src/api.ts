@@ -1,8 +1,8 @@
 import { ConfigurationOptions } from "./interfaces"
 import {
-    DIDDocument,
     ParsedDID
   } from "did-resolver";
+import { DIDDocument } from '@verida/did-document'
 import BlockchainApi from "./blockchainApi";
 
 export default class VdaApi {
@@ -17,6 +17,10 @@ export default class VdaApi {
 
     public async resolve(parsed: ParsedDID) {
         const didAddress = parsed.id
+
+        //const endpoints = this.blockchain.lookup(didAddress)
+        const endpoints = [`http://localhost:5000/did/${parsed.didUrl}`]
+        console.log(endpoints)
         
         //timestamp?: number, fullVerification?: boolean
 
