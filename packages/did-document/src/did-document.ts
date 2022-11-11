@@ -1,11 +1,12 @@
 import { Keyring } from '@verida/keyring'
 import { DIDDocument as DocInterface} from 'did-resolver'
-import { ComparisonResult, Endpoints, EndpointType } from './interfaces'
+import { Endpoints, EndpointType, VerificationMethodTypes } from './interfaces'
 import EncryptionUtils from '@verida/encryption-utils'
 import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
-import { interpretIdentifier, verificationMethodTypes } from '@verida/vda-did-resolver'
 import { knownNetworks, strip0x } from './helpers'
 import { BigNumber } from '@ethersproject/bignumber'
+import { computeAddress } from "@ethersproject/transactions";
+import { getAddress } from "@ethersproject/address";
 import { ethers } from 'ethers'
 const _ = require('lodash')
 
@@ -23,6 +24,28 @@ export interface VeridaDocInterface extends DocInterface {
     deactivated?: string
     proof?: ProofInterface
 }
+
+function interpretIdentifier(identifier: string): {
+    address: string;
+    publicKey?: string;
+    network?: string;
+  } {
+    let id = identifier;
+    let network = undefined;
+    if (id.startsWith("did:vda")) {
+      id = id.split("?")[0];
+      const components = id.split(":");
+      id = components[components.length - 1];
+      if (components.length >= 4) {
+        network = components.splice(2, components.length - 3).join(":");
+      }
+    }
+    if (id.length > 42) {
+      return { address: computeAddress(id), publicKey: id, network };
+    } else {
+      return { address: getAddress(id), network }; // checksum address
+    }
+  }
 
 export default class DIDDocument {
 
@@ -66,7 +89,7 @@ export default class DIDDocument {
                 // From vda-did-resolver/resolver.ts #322
                 {
                     id: `${this.doc.id}#controller`,
-                    type: verificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
+                    type: VerificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
                     controller: this.doc.id,
                     blockchainAccountId: `@eip155:${chainId}:${address}`,
                 },

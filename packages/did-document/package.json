@@ -17,7 +17,9 @@
     "node": "^14.0.0"
   },
   "dependencies": {
+    "@ethersproject/address": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
+    "@ethersproject/transactions": "^5.7.0",
     "@verida/encryption-utils": "^2.0.0-rc1",
     "@verida/keyring": "^2.0.0-rc1",
     "@verida/vda-did-resolver": "^2.0.0-rc3",
