@@ -1,8 +1,7 @@
 import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
-import { VdaDID } from '@verida/vda-did'
-import { getResolver, VeridaWeb3ConfigurationOption } from '@verida/vda-did-resolver'
+import { getResolver, VeridaWeb3ConfigurationOptionm, VdaApi } from '@verida/vda-did-resolver'
 import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
 
 import { Resolver } from 'did-resolver'
@@ -32,10 +31,10 @@ export class DIDClient {
     // vda-did resolver
     private didResolver: Resolver
 
+    private vdaApi?: VdaApi
+
     // Verida Wallet Info
     private veridaWallet: VeridaWallet | undefined
-
-    private vdaDid: VdaDID | undefined
 
     constructor(config: DIDClientConfig) {
         this.config = config
@@ -49,7 +48,6 @@ export class DIDClient {
         }
 
         const vdaDidResolver = getResolver(resolverConfig)
-        
         this.didResolver = new Resolver(vdaDidResolver)
     }
 
@@ -84,7 +82,7 @@ export class DIDClient {
                 rpcUrl: this.config.rpcUrl
             }
 
-        this.vdaDid = new VdaDID({
+        this.vdaApi = new vdaApi({
             identifier: this.veridaWallet.did,
             vdaKey: this.veridaWallet.privateKey,
             chainNameOrId: this.config.network,

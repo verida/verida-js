@@ -3770,11 +3770,6 @@ did-resolver@^4.0.0:
   resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-4.0.0.tgz#fc8f657b4cd7f44c2921051fb046599fbe7d4b31"
   integrity sha512-/roxrDr9EnAmLs+s9T+8+gcpilMo+IkeytcsGO7dcxvTmVJ+0Rt60HtV8o0UXHhGBo0Q+paMH/0ffXz1rqGFYg==
 
-did-resolver@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-4.0.1.tgz#11bb3f19ed1c8f53f4af4702912fa9f7852fc305"
-  integrity sha512-eHs2VLKhcANmh08S87PKvOauIAmSOd7nb7AlhNxcvOyDAIGQY1UfbiqI1VOW5IDKvOO6aEWY+5edOt1qrCp1Eg==
-
 diff@3.5.0, diff@^3.1.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"

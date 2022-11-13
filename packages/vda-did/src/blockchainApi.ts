@@ -1,11 +1,11 @@
 import { DIDDocument } from "did-resolver"
-import { ConfigurationOptions } from "./interfaces"
+import { VdaApiConfigurationOptions } from "./interfaces"
 
 export default class BlockchainApi {
 
-    private options: ConfigurationOptions
+    private options: VdaApiConfigurationOptions
 
-    constructor(options: ConfigurationOptions) {
+    constructor(options: VdaApiConfigurationOptions) {
         this.options = options
     }
 

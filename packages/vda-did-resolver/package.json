@@ -21,7 +21,6 @@
     "@verida/did-document": "^2.0.0-rc3",
     "@verida/encryption-utils": "^2.0.0-rc1",
     "axios": "1.2.0-alpha.1",
-    "did-resolver": "^4.0.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

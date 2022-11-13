@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { ConfigurationOptions } from "./interfaces"
+import { VdaApiConfigurationOptions } from "./interfaces"
 import {
     ParsedDID
   } from "did-resolver";
@@ -8,51 +8,12 @@ import BlockchainApi from "./blockchainApi";
 
 export default class VdaApi {
 
-    private options: ConfigurationOptions
+    private options: VdaApiConfigurationOptions
     private blockchain: BlockchainApi
 
-    constructor(options: ConfigurationOptions) {
+    constructor(options: VdaApiConfigurationOptions) {
         this.options = options
         this.blockchain = new BlockchainApi(options)
-    }
-
-    /**
-     * Resolve a DID Document
-     * 
-     * For performance, the latest version is fetched from endpoint. It is possible to fetch all versions
-     * and verify them by using the `fullVerification` query param.
-     * 
-     * Supports query parameters:
-     * 
-     * `timestamp`: Return DID document that was valid at the specified timestamp
-     * `fullVerification`: Verify every copy of the DID document instead of using consensus
-     * 
-     * @param parsed 
-     */
-    public async resolve(parsed: ParsedDID): Promise<DIDDocument> {
-        const didAddress = parsed.id
-
-        //const endpoints = await this.blockchain.lookup(didAddress)
-        //throw new Error(`DID Document not found: DID doesn't exit`)
-
-        // For now hardcode single endpoint
-        const endpoints = [`http://localhost:5000/did/${parsed.didUrl}`]
-
-        // @todo: support timestamp
-        // @todo: support fullVerification 
-
-        const didDocuments = await this.fetchDocuments(endpoints)
-
-        if (didDocuments.length == 0) {
-            throw new Error(`DID Document not found: No valid documents on endpoints`)
-        }
-        
-        // @todo: support consensus
-        // @todo: support proof verification
-        
-        
-        // For now return the first doc
-        return didDocuments[0]
     }
 
     /**
@@ -134,33 +95,6 @@ export default class VdaApi {
         }
         
         // @todo
-    }
-
-    /**
-     * Fetch the latest DIDDocument stored at each endpoint
-     * 
-     * @param endpoints 
-     */
-    private async fetchDocuments(endpoints: string[]) {
-        const documents: DIDDocument[] = []
-
-        for (let i in endpoints) {
-            const endpointUri = endpoints[i]
-
-            try {
-                const response = await Axios.get(endpointUri);
-                if (response.data.status == 'success') {
-                    const doc = new DIDDocument(response.data.data)
-                    doc.import(response.data.data)
-                    documents.push(doc)
-                }
-            } catch (err: any) {
-                console.error('endpoint error!!')
-                console.error(err)
-            }
-        }
-
-        return documents
     }
 
 }

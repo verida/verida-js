@@ -1,4 +1,4 @@
-import { JsonRpcProvider, Provider } from "@ethersproject/providers";
+import { Provider } from "@ethersproject/providers";
 
 export interface ProviderConfiguration {
     name?: string;
@@ -18,3 +18,4 @@ export interface ProviderConfiguration {
   }
   
   export type ConfigurationOptions = MultiProviderConfiguration;
+
