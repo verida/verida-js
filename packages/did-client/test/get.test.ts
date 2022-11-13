@@ -2,12 +2,6 @@
 const assert = require('assert')
 import { DIDClient } from '@verida/did-client'
 const util = require('util')
-require('dotenv').config()
-
-const rpcUrl = process.env[`RPC_URL`]
-if (rpcUrl === undefined) {
-    throw new Error('RPC url is not defined in env')
-}
 
 let didClient
 
@@ -20,8 +14,7 @@ describe('DID GET document tests', () => {
 
     before(async () => {
         didClient = new DIDClient({
-            network: 'testnet',
-            rpcUrl
+            network: 'testnet'
         })
     })
 
