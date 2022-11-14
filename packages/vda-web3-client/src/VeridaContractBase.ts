@@ -214,13 +214,13 @@ export class VeridaContract {
                         gasPrice
                     })
 
-                    const transactionRecipt = await transaction.wait()
+                    const transactionRecipt = await transaction.wait(1)
                     // console.log('Transaction Receipt = ', transactionRecipt)
 
                     ret = transactionRecipt
                 }
             } catch(e: any) {
-                console.log('Error in transaction', e)
+                // console.log('Error in transaction', e)
                 return Promise.resolve({
                     success: false,
                     error: e.toString()
