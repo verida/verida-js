@@ -19,7 +19,7 @@ export default class BlockchainApi {
         // return values for testing
         return {
             didControllerAddress: didAddress,
-            endpoints: [`http://localhost:5000/did/${didAddress}`]
+            endpoints: [`http://localhost:5000/did/did:vda:testnet:${didAddress}`]
         }
     }
 

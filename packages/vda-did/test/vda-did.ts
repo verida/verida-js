@@ -219,4 +219,17 @@ describe("VdaDid tests", function() {
             assert.deepEqual(resolvedDid!.export(), doc.export(), 'Returned DID Document matches created DID Document')
         })
     })
+
+    describe("Endpoint changes", () => {
+        it("Fail - Add endpoint that is unavailable", async () => {
+            try {
+                const response = await veridaApi.addEndpoint(DID_ADDRESS, `http://localhost:9000/did/${DID}`)
+                assert.fail('Should not have succeeded')
+            } catch (err) {
+                assert.ok(err.message, 'Failed: Unable to add endpoint. connect ECONNREFUSED 127.0.0.1:9000', 'Unable to connect to endpoint')
+            }
+        })
+
+        // @todo Success
+    })
 })

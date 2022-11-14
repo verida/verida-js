@@ -159,12 +159,43 @@ export default class VdaDid {
         // 2. Call DELETE on all endpoints
     }
 
-    public async addEndpoint(didAddress: string, endpoint: string, verifyAllVersions=false) {
+    public async addEndpoint(didAddress: string, endpointUri: string, verifyAllVersions=false) {
         if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
 
-        // @todo
+        // 1. Fetch all versions of the DID
+        const lookupResponse = await this.blockchain.lookup(didAddress)
+        const endpoints = lookupResponse.endpoints
+        const versions = await this.fetchDocumentHistory(endpoints)
+
+        const versionHistory = []
+        for (let i in versions) {
+            versionHistory.push(versions[i].export())
+        }
+
+        // 2. Call /migrate on the new endpoint
+        // @todo: generate signature
+        const proofString = ''
+        const signature = ''
+        try {
+            const response = await Axios.post(`${endpointUri}/migrate`, {
+                versions: versionHistory,
+                signature
+            });
+        } catch (err: any) {
+            //console.error('addEndpoint error!!')
+            if (err.response) {
+                throw new Error(`Unable to add endpoint. ${err.response.data.message}`)
+            }
+
+            throw new Error(`Unable to add endpoint. ${err.message}`)
+        }
+
+        // Update the blockchain
+
+        // endpoints.push(endpoint)
+        // this.blockchain.register(didAddress, endpoints)
     }
 
     public async removeEndpoint(didAddress: string, endpoint: string) {
@@ -177,6 +208,34 @@ export default class VdaDid {
 
     public getLastEndpointErrors() {
         return this.lastEndpointErrors
+    }
+
+    private async fetchDocumentHistory(endpoints: string[]): Promise<DIDDocument[]> {
+        const documents: DIDDocument[] = []
+
+        const endpointVersions: any = {}
+        for (let i in endpoints) {
+            const endpointUri = endpoints[i]
+            endpointVersions[endpointUri] = []
+
+            try {
+                const response = await Axios.get(`${endpointUri}?allVersions=true`);
+                if (response.data.status == 'success') {
+                    for (let j in response.data.data.versions) {
+                        const version = response.data.data.versions[j]
+                        const doc = new DIDDocument(version)
+                        endpointVersions[endpointUri].push(doc)
+                    }
+                }
+            } catch (err: any) {
+                throw new Error(`Unable to fetch DID Document history. ${err.message}`)
+            }
+        }
+
+        // @todo: check consensus
+
+        // Return consensus of versioned DID Document
+        return endpointVersions[endpoints[0]]
     }
 
 }

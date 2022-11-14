@@ -93,7 +93,7 @@ export class VdaDidResolver {
      * 
      * @param endpoints 
      */
-     private async fetchDocuments(endpoints: string[]) {
+    private async fetchDocuments(endpoints: string[]) {
         const documents: DIDDocument[] = []
 
         for (let i in endpoints) {
