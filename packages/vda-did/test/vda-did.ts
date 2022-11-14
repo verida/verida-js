@@ -102,10 +102,15 @@ describe("VdaDid tests", function() {
                 })
                 doc.signProof(wallet.privateKey)
 
+                // Verify update response is correct
                 const response = await veridaApi.update(doc)
                 assert.ok(Object.keys(response).length > 0, 'Update successfully returned at least one response')
-
                 assert.equal(response[ENDPOINTS[0].toLocaleLowerCase()].status, 'success', 'Success response')
+
+                // Verify the new DID document is resolved
+                const didResolve = await didResolver.resolve(DID)
+                const resolvedDid = <DIDDocument> didResolve.didDocument
+                assert.deepEqual(resolvedDid!.export(), doc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {
                 console.log(err)
                 console.log(veridaApi.getLastEndpointErrors())
