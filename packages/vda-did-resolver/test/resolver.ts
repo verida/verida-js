@@ -60,6 +60,14 @@ describe("SDK tests", function() {
                 assert.fail(`Failed: ${err.message}`)
             }
         })
+
+        it("Fail - Invalid DID", async () => {
+            try {
+                await didResolver.resolve(`did:vda:0xabcdefg`)
+            } catch (err) {
+                assert.fail(`Failed: ${err.message}`)
+            }
+        })
     })
 
     this.beforeAll(async () => {
