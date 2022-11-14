@@ -69,7 +69,7 @@ export default class VdaDid {
                 //console.error(err)
                 finalEndpoints[endpoint] = {
                     status: 'fail',
-                    message: err.response && err.response.data && err.response.data.data.message ? err.response.data.data.message : err.message
+                    message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
                 }
             }
         }
@@ -102,7 +102,12 @@ export default class VdaDid {
             throw new Error(`Unable to update DID Document. No private key specified in config.`)
         }
 
-        // @todo: Verify the didDocument the same as the storage node?
+        const attributes = didDocument.export()
+        if (attributes.created == attributes.updated) {
+            throw new Error(`Unable to update DID Document. "updated" timestamp matches "created" timestamp`)
+        }
+
+        didDocument.signProof(this.options.vdaKey)
 
         // Fetch the endpoint list from the blockchain
         const response = await this.blockchain.lookup(didDocument.id)
