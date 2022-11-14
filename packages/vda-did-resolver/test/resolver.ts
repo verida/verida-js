@@ -26,11 +26,11 @@ const VDA_DID_CONFIG = {
 
 // build resolver
 const vdaDidResolver = getResolver()
-didResolver = new Resolver(vdaDidResolver)
+const didResolver = new Resolver(vdaDidResolver)
 
 let veridaApi = new VdaDid(VDA_DID_CONFIG)
 
-let masterDidDoc, didResolver
+let masterDidDoc
 
 describe("SDK tests", function() {
     this.beforeAll(async () => {

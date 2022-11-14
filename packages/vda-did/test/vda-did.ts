@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
 import { CallType } from '@verida/web3'
 import { getResolver } from '@verida/vda-did-resolver'
+import { Resolver } from 'did-resolver'
 
 import VdaDid from '../src/vdaDid'
 
@@ -14,6 +15,9 @@ DID_ADDRESS = wallet.address
 DID = `did:vda:testnet:${DID_ADDRESS}`
 DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
+
+const vdaDidResolver = getResolver()
+const didResolver = new Resolver(vdaDidResolver)
 
 const VDA_DID_CONFIG = {
     identifier: DID,
@@ -51,12 +55,8 @@ describe("SDK tests", function() {
     describe("Get", () => {
         it("Success", async () => {
             try {
-                const didDocument = await veridaApi.resolve({
-                    id: DID,
-                    did: DID,
-                    didUrl: DID,
-                    method: 'vda'
-                })
+                const response = await didResolver.resolve(DID)
+                const didDocument = response.didDocument
 
                 assert.deepEqual(didDocument.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {
