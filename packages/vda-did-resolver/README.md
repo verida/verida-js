@@ -1,4 +1,4 @@
 
 ## VDA DID Resolver
 
-@todo
+Provides a simple `getResolver()` method that supports resolving Verida DID's.

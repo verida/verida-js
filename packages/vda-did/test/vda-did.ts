@@ -2,7 +2,7 @@ const assert = require('assert')
 import { ethers } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
 
-import API from '../src/api'
+import API from '../src/vdaDid'
 
 const wallet = ethers.Wallet.createRandom()
 
@@ -22,7 +22,23 @@ let masterDidDoc
 
 describe("SDK tests", function() {
     this.beforeAll(async () => {
-        // @todo: create the DID
+    })
+
+    describe("Create", () => {
+        it("Success", async () => {
+            try {
+                const doc = new DIDDocument(DID, DID_PK)
+                doc.signProof(wallet.privateKey)
+                masterDidDoc = doc
+
+                const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
+
+                assert.ok(publishedEndpoints.length, 'At least one endpoint was published')
+                assert.deepEqual(publishedEndpoints, ENDPOINTS, 'Succesfully published to all endpoints')
+            } catch (err) {
+                assert.fail(`Failed: ${err.message}`)
+            }
+        })
     })
 
     describe("Get", () => {
@@ -40,9 +56,5 @@ describe("SDK tests", function() {
                 assert.fail(`Failed: ${err.message}`)
             }
         })
-    })
-
-    this.beforeAll(async () => {
-        // @todo: delete the DID
     })
 })

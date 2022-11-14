@@ -1,7 +1,7 @@
 import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
-import { getResolver, VeridaWeb3ConfigurationOptionm, VdaApi } from '@verida/vda-did-resolver'
+import { getResolver, VeridaWeb3ConfigurationOptions, VdaApi } from '@verida/vda-did-resolver'
 import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
 
 import { Resolver } from 'did-resolver'
@@ -75,7 +75,7 @@ export class DIDClient {
             throw new Error('Web3 transactions must specify `web3config.privateKey`')
         }
 
-        const _web3Config: VeridaWeb3ConfigurationOption = callType === 'gasless' ?
+        const _web3Config: VeridaWeb3ConfigurationOptions = callType === 'gasless' ?
             <VeridaMetaTransactionConfig>web3Config :
             <VeridaSelfTransactionConfig>{
                 ...<VeridaSelfTransactionConfigPart>web3Config,
