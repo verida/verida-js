@@ -1,5 +1,10 @@
 import { VdaDidConfigurationOptions } from "./interfaces"
 
+export interface LookupResponse {
+    didControllerAddress: string
+    endpoints: string[]
+}
+
 export default class BlockchainApi {
 
     private options: VdaDidConfigurationOptions
@@ -8,8 +13,14 @@ export default class BlockchainApi {
         this.options = options
     }
 
-    public async lookup(didAddress: string) {
-        // @todo
+    public async lookup(didAddress: string): Promise<LookupResponse> {
+        // @todo: Fetch actual on chain values
+
+        // return values for testing
+        return {
+            didControllerAddress: didAddress,
+            endpoints: [`http://localhost:5000/did/${didAddress}`]
+        }
     }
 
     public async register(didAddress: string, endpoints: string[]) {
