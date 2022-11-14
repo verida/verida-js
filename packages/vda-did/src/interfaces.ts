@@ -1,12 +1,12 @@
 import {
-    VeridaSelfTransactionConfig,
-    VeridaMetaTransactionConfig,
-    CallType
-  } from "@verida/web3"
+  VeridaSelfTransactionConfig,
+  VeridaMetaTransactionConfig,
+  CallType
+} from "@verida/web3"
 
 export type VeridaWeb3ConfigurationOptions =
-    | VeridaMetaTransactionConfig
-    | VeridaSelfTransactionConfig;
+  | VeridaMetaTransactionConfig
+  | VeridaSelfTransactionConfig;
 
 /**
  * Interface for VDA-DID instance creation
@@ -17,10 +17,17 @@ export type VeridaWeb3ConfigurationOptions =
  * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
  */
  export interface VdaDidConfigurationOptions {
-    identifier: string;
-    vdaKey: string;
-    chainNameOrId?: string | number;
-  
-    callType: CallType;
-    web3Options: VeridaWeb3ConfigurationOptions;
-  }
+  identifier: string;
+  vdaKey: string;
+  chainNameOrId?: string | number;
+
+  callType: CallType;
+  web3Options: VeridaWeb3ConfigurationOptions;
+}
+
+export interface VdaDidEndpointResponse {
+  status: 'success' | 'fail',
+  message?: string
+}
+
+export type VdaDidEndpointResponses = Record<string, VdaDidEndpointResponse>
