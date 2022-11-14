@@ -1,10 +1,10 @@
-import { VdaApiConfigurationOptions } from "./interfaces"
+import { VdaDidConfigurationOptions } from "./interfaces"
 
 export default class BlockchainApi {
 
-    private options: VdaApiConfigurationOptions
+    private options: VdaDidConfigurationOptions
 
-    constructor(options: VdaApiConfigurationOptions) {
+    constructor(options: VdaDidConfigurationOptions) {
         this.options = options
     }
 
@@ -12,23 +12,23 @@ export default class BlockchainApi {
         // @todo
     }
 
-    public async register(didAddress: string, endpoints: string[], privateKey: string) {
-        if (!this.options.privateKey) {
+    public async register(didAddress: string, endpoints: string[]) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
 
         // @todo
     }
 
-    public async setController(didAddress: string, controllerAddress: string, privateKey: string) {
-        if (!this.options.privateKey) {
+    public async setController(didAddress: string, controllerAddress: string) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
         // @todo
     }
 
-    public async revoke(didAddress: string, privateKey: string) {
-        if (!this.options.privateKey) {
+    public async revoke(didAddress: string) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
         // @todo

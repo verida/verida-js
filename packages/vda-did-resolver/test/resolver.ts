@@ -1,8 +1,9 @@
 const assert = require('assert')
 import { ethers } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
-
-import API from '../src/api'
+import { getResolver } from '../src/resolver'
+import { Resolver } from 'did-resolver'
+import { VdaDid } from '@verida/vda-did'
 
 const wallet = ethers.Wallet.createRandom()
 
@@ -18,22 +19,19 @@ let veridaApi = new API({
     privateKey: DID_PRIVATE_KEY
 })
 
-let masterDidDoc
+let masterDidDoc, didResolver
 
 describe("SDK tests", function() {
     this.beforeAll(async () => {
         // @todo: create the DID
+        const vdaDidResolver = getResolver()
+        didResolver = new Resolver(vdaDidResolver)
     })
 
     describe("Get", () => {
         it("Success", async () => {
             try {
-                const didDocument = await veridaApi.resolve({
-                    id: DID,
-                    did: DID,
-                    didUrl: DID,
-                    method: 'vda'
-                })
+                const didDocument = await didResolver.resolve(DID)
 
                 assert.deepEqual(didDocument.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {

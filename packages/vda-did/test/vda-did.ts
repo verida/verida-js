@@ -1,8 +1,10 @@
 const assert = require('assert')
 import { ethers } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
+import { CallType } from '@verida/web3'
+import { getResolver } from '@verida/vda-did-resolver'
 
-import API from '../src/vdaDid'
+import VdaDid from '../src/vdaDid'
 
 const wallet = ethers.Wallet.createRandom()
 
@@ -13,10 +15,15 @@ DID = `did:vda:testnet:${DID_ADDRESS}`
 DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
 
+const VDA_DID_CONFIG = {
+    identifier: DID,
+    vdaKey: DID_PRIVATE_KEY,
+    callType: <CallType> 'web3',
+    web3Options: {}
+}
+
 const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
-let veridaApi = new API({
-    privateKey: DID_PRIVATE_KEY
-})
+let veridaApi = new VdaDid(VDA_DID_CONFIG)
 
 let masterDidDoc
 

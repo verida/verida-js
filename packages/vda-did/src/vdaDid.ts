@@ -1,17 +1,17 @@
 import Axios from 'axios'
-import { VdaApiConfigurationOptions } from "./interfaces"
+import { VdaDidConfigurationOptions } from "./interfaces"
 import {
     ParsedDID
   } from "did-resolver";
 import { DIDDocument } from '@verida/did-document'
 import BlockchainApi from "./blockchainApi";
 
-export default class VdaApi {
+export default class VdaDid {
 
-    private options: VdaApiConfigurationOptions
+    private options: VdaDidConfigurationOptions
     private blockchain: BlockchainApi
 
-    constructor(options: VdaApiConfigurationOptions) {
+    constructor(options: VdaDidConfigurationOptions) {
         this.options = options
         this.blockchain = new BlockchainApi(options)
     }
@@ -24,7 +24,7 @@ export default class VdaApi {
      * @return string[] Array of endpoints where the DID Document was successfully published
      */
     public async create(didDocument: DIDDocument, endpoints: string[]) {
-        if (!this.options.privateKey) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID: No private key specified in config.`)
         }
 
@@ -38,7 +38,7 @@ export default class VdaApi {
         }
 
         // Sign the DID Document
-        didDocument.signProof(this.options.privateKey!)
+        didDocument.signProof(this.options.vdaKey!)
 
         // Submit to all the endpoints
         const finalEndpoints: string[] = []
@@ -68,21 +68,21 @@ export default class VdaApi {
     }
 
     public async update(didDocument: DIDDocument) {
-        if (!this.options.privateKey) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to update DID Document. No private key specified in config.`)
         }
         // @todo
     }
 
     public async delete(didAddress: string) {
-        if (!this.options.privateKey) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to delete DID. No private key specified in config.`)
         }
         // @todo
     }
 
     public async addEndpoint(didAddress: string, endpoint: string, verifyAllVersions=false) {
-        if (!this.options.privateKey) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
 
@@ -90,7 +90,7 @@ export default class VdaApi {
     }
 
     public async removeEndpoint(didAddress: string, endpoint: string) {
-        if (!this.options.privateKey) {
+        if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
         

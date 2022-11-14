@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { ConfigurationOptions } from "./interfaces";
+import { ResolverConfigurationOptions } from "./interfaces";
 import { lookup } from './lookup';
 import {
     DIDResolutionOptions,
@@ -17,16 +17,16 @@ import { RPC_URLS } from './config'
  * @returns VdaDidResolver instance
  */
 export function getResolver(
-    options: ConfigurationOptions
+    options: ResolverConfigurationOptions
   ): Record<string, DIDResolver> {
     return new VdaDidResolver(options).build();
 }
 
 export class VdaDidResolver {
 
-    private options: ConfigurationOptions
+    private options: ResolverConfigurationOptions
 
-    constructor(options: ConfigurationOptions) {
+    constructor(options: ResolverConfigurationOptions) {
         this.options = options
     }
 

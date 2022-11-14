@@ -1,11 +1,11 @@
 import VdaDid from "./vdaDid";
 import {
     VeridaWeb3ConfigurationOptions,
-    VdaApiConfigurationOptions
+    VdaDidConfigurationOptions
 } from './interfaces'
 
 export {
     VeridaWeb3ConfigurationOptions,
-    VdaApiConfigurationOptions,
+    VdaDidConfigurationOptions,
     VdaDid
 }

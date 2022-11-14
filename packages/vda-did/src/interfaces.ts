@@ -16,19 +16,11 @@ export type VeridaWeb3ConfigurationOptions =
  * @param callType : VDA-DID run mode. Values from vda-did-resolver
  * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
  */
- export interface VdaApiConfigurationOptions {
+ export interface VdaDidConfigurationOptions {
     identifier: string;
     vdaKey: string;
     chainNameOrId?: string | number;
   
     callType: CallType;
     web3Options: VeridaWeb3ConfigurationOptions;
-
-    privateKey?: string
-  
-    // txSigner?: TxSigner
-  
-    // provider?: Provider
-    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // web3?: any
   }
