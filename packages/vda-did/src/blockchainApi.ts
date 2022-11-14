@@ -1,4 +1,3 @@
-import { DIDDocument } from "did-resolver"
 import { VdaApiConfigurationOptions } from "./interfaces"
 
 export default class BlockchainApi {
