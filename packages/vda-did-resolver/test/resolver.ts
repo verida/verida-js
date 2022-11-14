@@ -4,6 +4,7 @@ import { DIDDocument } from '@verida/did-document'
 import { getResolver } from '../src/resolver'
 import { Resolver } from 'did-resolver'
 import { VdaDid } from '@verida/vda-did'
+import { CallType } from '@verida/web3'
 
 const wallet = ethers.Wallet.createRandom()
 
@@ -15,23 +16,44 @@ DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
 
 const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
-let veridaApi = new API({
-    privateKey: DID_PRIVATE_KEY
-})
+
+const VDA_DID_CONFIG = {
+    identifier: DID,
+    vdaKey: DID_PRIVATE_KEY,
+    callType: <CallType> 'web3',
+    web3Options: {}
+}
+
+// build resolver
+const vdaDidResolver = getResolver()
+didResolver = new Resolver(vdaDidResolver)
+
+let veridaApi = new VdaDid(VDA_DID_CONFIG)
 
 let masterDidDoc, didResolver
 
 describe("SDK tests", function() {
     this.beforeAll(async () => {
-        // @todo: create the DID
-        const vdaDidResolver = getResolver()
-        didResolver = new Resolver(vdaDidResolver)
+        // Create the test DID
+        try {
+            const doc = new DIDDocument(DID, DID_PK)
+            doc.signProof(wallet.privateKey)
+            masterDidDoc = doc
+
+            const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
+
+            assert.ok(publishedEndpoints.length, 'At least one endpoint was published')
+            assert.deepEqual(publishedEndpoints, ENDPOINTS, 'Succesfully published to all endpoints')
+        } catch (err) {
+            assert.fail(`Failed: ${err.message}`)
+        }
     })
 
     describe("Get", () => {
         it("Success", async () => {
             try {
-                const didDocument = await didResolver.resolve(DID)
+                const response = await didResolver.resolve(DID)
+                const didDocument = response.didDocument
 
                 assert.deepEqual(didDocument.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {

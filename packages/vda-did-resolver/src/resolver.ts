@@ -17,8 +17,9 @@ import { RPC_URLS } from './config'
  * @returns VdaDidResolver instance
  */
 export function getResolver(
-    options: ResolverConfigurationOptions
+    options?: ResolverConfigurationOptions
   ): Record<string, DIDResolver> {
+    options = !options ? {} : options
     return new VdaDidResolver(options).build();
 }
 
