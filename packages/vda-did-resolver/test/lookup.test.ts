@@ -8,18 +8,20 @@ const did = {
     publicKey: "0x042b816206dfd7c694d627ff775b9c151319b9a0e54de94d18e61619372fc713664dc677d5247adc2d4f8722b227bd9504b741ea380d5e7887a5698a7a634ec6ae",
 }
 
+const NETWORK = 'testnet'
+
 const rpcUrl = "https://rpc-mumbai.maticvigil.com";
 
 describe('Lookup test', () => {
     it('Failed : Unregistered DID address', async () => {
         const tempDid = Wallet.createRandom();
-        const result = await lookup(tempDid.address, rpcUrl);
+        const result = await lookup(tempDid.address, NETWORK, rpcUrl);
         
         assert.equal(result.success, false, 'Unregistered DID address')
     });
 
     it('Success', async () => {
-        const result = await lookup(did.address, rpcUrl);
+        const result = await lookup(did.address, NETWORK, rpcUrl);
 
         assert.equal(result.data.length, 2, 'DID Controller and endpoints returned')
         assert.equal(typeof(result.data[0]), 'string', 'DID Controller is a string')

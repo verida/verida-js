@@ -8,13 +8,13 @@ import { ContractFactory } from 'ethers';
  * @param didAddress DID address to lookup
  * @param rpcUrl URL
  */
-export async function lookup(didAddress: string, rpcUrl: string) {
+export async function lookup(didAddress: string, network: string, rpcUrl: string) {
     // @todo: Alex perform lookup() on chain, without using VdaDid
     // Simple read-only of the blockchain
 
     const contractABI = require(`./abi/DidRegistry.json`);
     const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESSES["testnet"];
+    const address = CONTRACT_ADDRESSES[network];
 
     const contract = ContractFactory.fromSolidity(contractABI)
         .attach(address!)
