@@ -30,7 +30,11 @@ const endpoints = {
     }
 }
 
-let didClient
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+let didClient, currentDoc
 
 /**
  * 
@@ -43,54 +47,45 @@ describe('DID Client tests', () => {
 
     describe('Basic tests', function() {
         it('can create an empty document', async function() {
-            const doc = new DIDDocument(did, wallet.publicKey)
-            const saved = await didClient.save(doc)
+            const doc  = new DIDDocument(did, wallet.publicKey)
+            const endpointResponses = await didClient.save(doc)
 
-            assert.ok(saved)
+            assert.ok(endpointResponses, 'Saved response')
+            for (let i in endpointResponses) {
+                assert.equal(endpointResponses[i].status, 'success', `${i} success`)
+            }
         })
 
         it('can fetch an existing document', async function() {
-            const doc = await didClient.get(did)
-            assert.ok(doc)
+            currentDoc = await didClient.get(did)
+            assert.ok(currentDoc)
 
-            assert.equal(doc.id, did, 'Retreived document has matching DID')
+            assert.equal(currentDoc.id, did, 'Retreived document has matching DID')
         })
 
         it('can add a context to an existing DID and verify', async function() {
-            const initialDoc = new DIDDocument(did, wallet.publicKey)
-            await initialDoc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await currentDoc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
-            const saved = await didClient.save(initialDoc)
-            assert.ok(saved, 'DID document saved successfully')
+            // Sleep so enough time passes for the updated field to not match created
+            await sleep(1000)
+
+            try {
+                const saveResponse = await didClient.save(currentDoc)
+                assert.ok(saveResponse, 'DID document saved successfully')
+            } catch (err) {
+                console.log(didClient.getLastEndpointErrors())
+                throw err
+            }
 
             const doc = await didClient.get(did)
-            const data = doc.export()
+            const savedDoc = doc.export()
 
-            // console.log("Initial Doc : ", initialDoc.export())
-            // console.log('Saved doc output:', data)
-
-            const compare = initialDoc.compare(doc)
-            assert.deepEqual(compare, {
-                add: {
-                    verificationMethod: [],
-                    authentication: [],
-                    assertionMethod: [],
-                    service: [],
-                    keyAgreement: []
-                },
-                remove: {
-                    verificationMethod: [],
-                    authentication: [],
-                    assertionMethod: [],
-                    service: [],
-                    keyAgreement: []
-                }
-            }, 'Saved document on chain has no differences with original document')
+            assert.deepEqual(savedDoc, currentDoc.export(), 'Saved document matches original document')
 
             const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME)
 
             // Validate service endpoints
-            assert.equal(data.service?.length, 2, "Have two service entries")
+            assert.equal(savedDoc.service?.length, 2, "Have two service entries")
             function validateServiceEndpoint(type, endpointUri, actual: ServiceEndpoint) {
                 assert.ok(actual)
                 assert.equal(actual.id, `${did}?context=${contextHash}&type=${type}`, "Endpoint ID matches hard coded value")
@@ -105,15 +100,16 @@ describe('DID Client tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 4, "Have four verificationMethod entries")
-            assert.deepEqual(data.verificationMethod, initialDoc.export().verificationMethod, "Verification methods match")
+            assert.equal(savedDoc.verificationMethod.length, 4, "Have four verificationMethod entries")
+            assert.deepEqual(savedDoc.verificationMethod, currentDoc.export().verificationMethod, "Verification methods match")
 
-            assert.equal(data.assertionMethod.length, 4, "Have four assertionMethod entries")
-            assert.equal(data.keyAgreement.length, 1, "Have one keyAgreement entries")
+            assert.equal(savedDoc.assertionMethod.length, 4, "Have four assertionMethod entries")
+            assert.equal(savedDoc.keyAgreement.length, 1, "Have one keyAgreement entries")
         })
 
         it('can remove an existing context', async function() {
             const doc = await didClient.get(did)
+
             const removed = await doc.removeContext(CONTEXT_NAME)
             assert.ok(removed, 'Context successfully removed locally')
 
@@ -131,27 +127,39 @@ describe('DID Client tests', () => {
             const chainDoc = await didClient.get(did)
             const chainData = chainDoc.export()
 
-            assert.ok(!chainData.service, "Have no service entries")
+            assert.equal(chainData.service?.length, 0, "Have no service entries")
             assert.equal(chainData.verificationMethod.length, 2, "Have two verificationMethod entries")
             assert.equal(chainData.assertionMethod.length, 2, "Have two assertionMethod entries")
         })
 
         it('can replace an existing context, not add again', async function() {
-            const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
-            let saved = await didClient.save(doc)
-            assert.ok(saved)
+            try {
+                const doc = await didClient.get(did)
+                await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
-            // Add the same context and save a second time
-            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
-            saved = await didClient.save(doc)
-            assert.ok(saved)
+                // Sleep so enough time passes for the updated field to not match created
+                await sleep(1000)
+                let saved = await didClient.save(doc)
+                assert.ok(saved)
 
-            const data = doc.export()
-            assert.equal(data.service!.length, 2, 'Have two service endpoints')
-            assert.equal(data.verificationMethod!.length, 4, 'Have four verification methods')
-            assert.equal(data.keyAgreement!.length, 1, 'Have one keyAgreement')
-            assert.equal(data.assertionMethod!.length, 4, 'Have four assertionMethods')
+                // Add the same context and save a second time
+                await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+                
+                // Sleep so enough time passes for the updated field to not match created
+                await sleep(1000)
+                
+                saved = await didClient.save(doc)
+                assert.ok(saved)
+
+                const data = doc.export()
+                assert.equal(data.service!.length, 2, 'Have two service endpoints')
+                assert.equal(data.verificationMethod!.length, 4, 'Have four verification methods')
+                assert.equal(data.keyAgreement!.length, 1, 'Have one keyAgreement')
+                assert.equal(data.assertionMethod!.length, 4, 'Have four assertionMethods')
+            } catch (err) {
+                console.log(didClient.getLastEndpointErrors())
+                throw err
+            }
         })
 
         it('can handle invalid DIDs', async function() {
