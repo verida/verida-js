@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "tests": "mocha --reporter spec --compilers ts:ts-node/register 'src/**/*.test.ts'",
+    "tests": "ts-mocha './test/**/*.test.ts'",
     "test": "ts-mocha --timeout 200000",
     "lint": "gts lint",
     "clean": "gts clean",

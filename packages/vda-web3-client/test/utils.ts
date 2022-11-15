@@ -5,13 +5,16 @@ import {JsonRpcProvider} from '@ethersproject/providers';
 import {ethers, Wallet} from 'ethers';
 import EncryptionUtils from '@verida/encryption-utils';
 
+const PORT = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5021;
+const SERVER_URL = `http://localhost:${PORT}`;
+
 export function getVeridaWeb3Instance(
   contractName: 'DidRegistry' | 'NameRegistry'
 ) {
   const args = process.argv.slice(2);
   // console.log("ARGS : ", args);
-  const testMode = 'direct';
-    // args.length > 0 && args[0] === 'direct' ? args[0] : 'gasless';
+  const testMode = args.length > 0 && args.includes('gasless') ? 'gasless' : 'direct';
+  // args.length > 0 && args[0] === 'direct' ? args[0] : 'gasless';
   console.log('Test mode : ', testMode);
 
   const TARGET_NET = process.env.RPC_TARGET_NET;
@@ -60,6 +63,7 @@ export function getVeridaWeb3Instance(
           'user-agent': 'Verida-Vault',
         },
       },
+      endpointUrl: SERVER_URL,
     });
   }
 
