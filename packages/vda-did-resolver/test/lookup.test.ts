@@ -1,6 +1,6 @@
+const assert = require('assert')
 import { Wallet } from 'ethers';
 import {lookup} from '../src/lookup';
-import {expect} from 'chai';
 
 const did = {
     address: "0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539",
@@ -15,12 +15,12 @@ describe('Lookup test', () => {
         const tempDid = Wallet.createRandom();
         const result = await lookup(tempDid.address, rpcUrl);
         
-        expect(result.success).to.be.equal(false, 'Unregistered DID address');
+        assert.equal(result.success, false, 'Unregistered DID address')
     });
 
     it('Success', async () => {
         const result = await lookup(did.address, rpcUrl);
 
-        expect(result.success).to.be.equal(true, 'Success');
+        assert.equal(result.success, true, 'Unregistered DID address')
     });
 })
