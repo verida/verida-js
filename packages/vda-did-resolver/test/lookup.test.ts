@@ -21,6 +21,11 @@ describe('Lookup test', () => {
     it('Success', async () => {
         const result = await lookup(did.address, rpcUrl);
 
+        assert.equal(result.data.length, 2, 'DID Controller and endpoints returned')
+        assert.equal(typeof(result.data[0]), 'string', 'DID Controller is a string')
+        assert.equal(typeof(result.data[1]), 'object', 'Endpoints is an array / object')
+        assert.equal(result.data[1].length, 3, 'Three endpoints returned')
+
         assert.equal(result.success, true, 'Unregistered DID address')
     });
 })
