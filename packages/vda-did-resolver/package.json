@@ -10,7 +10,7 @@
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
-    "test": "ts-mocha",
+    "test": "ts-mocha --timeout 100000",
     "build": "rm -rf dist; tsc"
   },
   "engines": {
@@ -25,11 +25,14 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.0",
+    "chai": "^4.3.7",
     "did-resolver": "^4.0.1",
     "ethers": "^5.7.2",
-    "mocha": "7.0.0",
+    "mocha": "^10.1.0",
     "ts-mocha": "^8.0.0",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.9.1",
     "typescript": "^4.1.3"
   }
 }
