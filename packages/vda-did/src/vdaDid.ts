@@ -4,9 +4,6 @@ import {
     VdaDidEndpointResponse,
     VdaDidEndpointResponses
 } from "./interfaces"
-import {
-    ParsedDID
-  } from "did-resolver";
 import { DIDDocument } from '@verida/did-document'
 import BlockchainApi from "./blockchainApi";
 
@@ -80,8 +77,7 @@ export default class VdaDid {
         }
 
         // Publish final endpoints on-chain
-        //const didAddress = this.didToAddress(didDocument.id)
-        //const blockchainResult = await this.blockchain.register(didAddress, Object.keys(finalEndpoints), this.options.privateKey)
+        //const blockchainResult = await this.blockchain.register(did, Object.keys(finalEndpoints), this.options.privateKey)
 
         return finalEndpoints
     }
@@ -150,7 +146,7 @@ export default class VdaDid {
         return finalEndpoints
     }
 
-    public async delete(didAddress: string) {
+    public async delete(did: string) {
         if (!this.options.vdaKey) {
             throw new Error(`Unable to delete DID. No private key specified in config.`)
         }
@@ -159,13 +155,13 @@ export default class VdaDid {
         // 2. Call DELETE on all endpoints
     }
 
-    public async addEndpoint(didAddress: string, endpointUri: string, verifyAllVersions=false) {
+    public async addEndpoint(did: string, endpointUri: string, verifyAllVersions=false) {
         if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
 
         // 1. Fetch all versions of the DID
-        const lookupResponse = await this.blockchain.lookup(didAddress)
+        const lookupResponse = await this.blockchain.lookup(did)
         const endpoints = lookupResponse.endpoints
         const versions = await this.fetchDocumentHistory(endpoints)
 
@@ -195,10 +191,10 @@ export default class VdaDid {
         // Update the blockchain
 
         // endpoints.push(endpoint)
-        // this.blockchain.register(didAddress, endpoints)
+        // this.blockchain.register(did, endpoints)
     }
 
-    public async removeEndpoint(didAddress: string, endpoint: string) {
+    public async removeEndpoint(did: string, endpoint: string) {
         if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
