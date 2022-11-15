@@ -220,6 +220,38 @@ describe("VdaDid tests", function() {
         })
     })
 
+    describe("Delete", () => {
+        it("Fail - Delete DID that doesn't exist", async () => {
+            try {
+                await veridaApi.delete('did:vda:testnet:0xabc')
+                assert.fail('Should not have succeeded')
+            } catch (err) {
+                assert.ok(err.message, 'Unable to delete DID: All endpoints failed to accept the delete request', 'Unable to delete')
+            }
+        })
+
+        it("Success", async () => {
+            try {
+                const deleteResponse = await veridaApi.delete(DID)
+
+                assert.ok(Object.keys(deleteResponse).length > 0, 'Update successfully returned at least one response')
+                assert.equal(deleteResponse[ENDPOINTS[0].toLocaleLowerCase()].status, 'success', 'Success response')
+            } catch (err) {
+                console.log(err)
+                assert.fail('exception')
+            }
+        })
+
+        it("Fail - Delete DID that has been deleted", async () => {
+            try {
+                await veridaApi.delete(DID)
+                assert.fail('Should not have succeeded')
+            } catch (err) {
+                assert.ok(err.message, 'Unable to delete DID: All endpoints failed to accept the delete request', 'Unable to delete')
+            }
+        })
+    })
+
     describe("Endpoint changes", () => {
         it("Fail - Add endpoint that is unavailable", async () => {
             try {

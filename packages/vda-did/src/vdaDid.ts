@@ -5,6 +5,7 @@ import {
     VdaDidEndpointResponses
 } from "./interfaces"
 import { DIDDocument } from '@verida/did-document'
+import EncryptionUtils from '@verida/encryption-utils'
 import BlockchainApi from "./blockchainApi";
 
 export default class VdaDid {
@@ -146,15 +147,60 @@ export default class VdaDid {
         return finalEndpoints
     }
 
-    public async delete(did: string) {
+    public async delete(did: string): Promise<VdaDidEndpointResponses> {
         if (!this.options.vdaKey) {
             throw new Error(`Unable to delete DID. No private key specified in config.`)
         }
 
+        did = did.toLowerCase()
+
         // 1. Call revoke() on the DID registry
+
+
         // 2. Call DELETE on all endpoints
+        const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
+        const proofString = `Delete DID Document ${did} at ${nowInMinutes}`
+        const privateKey = new Uint8Array(Buffer.from(this.options.vdaKey.substr(2),'hex'))
+        const signature = EncryptionUtils.signData(proofString, privateKey)
+
+        // Fetch the endpoint list from the blockchain
+        const response = await this.blockchain.lookup(did)
+
+        // Delete DID Document from all the endpoints
+        const finalEndpoints: VdaDidEndpointResponses = {}
+        let successCount = 0
+        for (let i in response.endpoints) {
+            const endpoint = response.endpoints[i]
+            try {
+                const response = await Axios.delete(`${endpoint}`, {
+                    headers: {
+                        signature
+                    }
+                });
+
+                finalEndpoints[endpoint] = {
+                    status: 'success'
+                }
+                successCount++
+            } catch (err: any) {
+                //console.error('endpoint error!!')
+                //console.error(err.response.data)
+                finalEndpoints[endpoint] = {
+                    status: 'fail',
+                    message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
+                }
+            }
+        }
+
+        if (successCount === 0) {
+            this.lastEndpointErrors = finalEndpoints
+            throw new Error(`Unable to delete DID: All endpoints failed to accept the delete request`)
+        }
+
+        return finalEndpoints
     }
 
+    // @todo: Complete once `migrate` is implemented on storage node
     public async addEndpoint(did: string, endpointUri: string, verifyAllVersions=false) {
         if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
@@ -194,6 +240,7 @@ export default class VdaDid {
         // this.blockchain.register(did, endpoints)
     }
 
+    // @todo: Implement
     public async removeEndpoint(did: string, endpoint: string) {
         if (!this.options.vdaKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
