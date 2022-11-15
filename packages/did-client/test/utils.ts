@@ -48,7 +48,8 @@ export async function getDIDClient(veridaAccount: Wallet) {
                   }
               },
               endpointUrl: 'https://meta-tx-server1.tn.verida.tech'
-        }
+        },
+        ['http://localhost:5000/did/']
     )
 
     return didClient

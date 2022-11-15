@@ -40,13 +40,26 @@ export class VdaDidResolver {
         options: DIDResolutionOptions
         ): Promise<DIDResolutionResult> {
 
-        const didDoc = await this._resolve(parsed)
+        try {
+            const didDoc = await this._resolve(parsed)
 
-        // Return the DIDResolutionResult object
-        return {
-            didResolutionMetadata: { contentType: 'application/did+ld+json' },
-            didDocument: didDoc,
-            didDocumentMetadata: {}
+            // Return the DIDResolutionResult object
+            return {
+                didResolutionMetadata: { contentType: 'application/did+ld+json' },
+                didDocument: didDoc,
+                didDocumentMetadata: {}
+            }
+        
+        } catch (err: any) {
+            if (err.message == 'DID Document not found: No valid documents on endpoints') {
+                return {
+                    didDocument: null,
+                    didDocumentMetadata: {},
+                    didResolutionMetadata: { error: 'notFound' },
+                }
+            }
+        
+            throw err
         }
     }
 
@@ -107,8 +120,8 @@ export class VdaDidResolver {
                     documents.push(doc)
                 }
             } catch (err: any) {
-                console.error('endpoint error!!')
-                console.error(err)
+                //console.error('endpoint error!!')
+                //console.error(err)
             }
         }
 

@@ -1,13 +1,14 @@
 import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
-import { getResolver, VeridaWeb3ConfigurationOptions, VdaApi } from '@verida/vda-did-resolver'
+import { getResolver, VeridaWeb3ConfigurationOptions } from '@verida/vda-did-resolver'
+import { VdaDid, VdaDidEndpointResponses } from '@verida/vda-did'
 import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
 
 import { Resolver } from 'did-resolver'
 import { Signer } from '@ethersproject/abstract-signer';
 
-import { getUpdateListFromDocument} from './helpers'
+import { MultiProviderConfiguration } from "@verida/vda-did-resolver/dist/interfaces"
 
 // Part of VeridaSelfTransactionConfig
 export interface VeridaSelfTransactionConfigPart  {
@@ -31,17 +32,19 @@ export class DIDClient {
     // vda-did resolver
     private didResolver: Resolver
 
-    private vdaApi?: VdaApi
+    private vdaDid?: VdaDid
 
     // Verida Wallet Info
     private veridaWallet: VeridaWallet | undefined
 
+    private defaultEndpoints?: string[]
+
+    private endpointErrors?: VdaDidEndpointResponses
+
     constructor(config: DIDClientConfig) {
         this.config = config
 
-        const resolverConfig: any = {
-            name: this.config.network,
-        }
+        const resolverConfig: MultiProviderConfiguration = {}
         
         if (this.config.rpcUrl) {
             resolverConfig.rpcUrl = this.config.rpcUrl
@@ -61,8 +64,11 @@ export class DIDClient {
     public authenticate(
         veridaPrivateKey: string,
         callType: CallType,
-        web3Config: VeridaSelfTransactionConfigPart | VeridaMetaTransactionConfig
+        web3Config: VeridaSelfTransactionConfigPart | VeridaMetaTransactionConfig,
+        defaultEndpoints: string[]
     ) {
+        this.defaultEndpoints = defaultEndpoints
+
         this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.network)
 
         // @ts-ignore
@@ -82,7 +88,7 @@ export class DIDClient {
                 rpcUrl: this.config.rpcUrl
             }
 
-        this.vdaApi = new vdaApi({
+        this.vdaDid = new VdaDid({
             identifier: this.veridaWallet.did,
             vdaKey: this.veridaWallet.privateKey,
             chainNameOrId: this.config.network,
@@ -122,27 +128,60 @@ export class DIDClient {
      * @param document Updated DIDDocuent
      * @returns true if success.
      */
-    public async save(document: DIDDocument): Promise<boolean> {
-        if (this.veridaWallet === undefined) {
+    public async save(document: DIDDocument): Promise<VdaDidEndpointResponses> {
+        if (!this.authenticated()) {
             throw new Error("Unable to save DIDDocument. No private key.")
         }
 
         // Fetch the existing doc. This creates a new, empty doc if not found
-        const existingDoc = await this.get(document!.id)
-        const comparisonResult = existingDoc.compare(document)
-
-        const {delegateList: revokeDelegateList, attributeList: revokeAttributeList} = getUpdateListFromDocument(comparisonResult.remove)
-        const {delegateList: addDelegateList, attributeList: addAttributeList} = getUpdateListFromDocument(comparisonResult.add)
-
-        if (revokeDelegateList.length > 0 || revokeAttributeList.length > 0) {
-            await this.vdaDid!.bulkRevoke(revokeDelegateList, revokeAttributeList)
+        let existingDoc
+        try {
+            existingDoc = await this.get(document!.id)
+        } catch (err: any) {
+            if (!err.message.match('DID resolution error')) {
+                throw err
+            }
         }
 
-        if (addDelegateList.length > 0 || addAttributeList.length > 0) {
-            await this.vdaDid!.bulkAdd(addDelegateList, addAttributeList)
+        let endpointResponse
+        if (!existingDoc) {
+            // Need to create the DID Doc
+            if (!this.defaultEndpoints || this.defaultEndpoints.length === 0) {
+                throw new Error('Default DID Document endpoints not specified')
+            }
+
+            const endpoints = this.defaultEndpoints!.map(item => {
+                return `${item}${document.id}`
+            })
+
+            endpointResponse = await this.vdaDid!.create(document, endpoints)
+        } else {
+            // Doc exists, need to update
+            const doc = document.export()
+
+            document.setAttributes({
+                // Set updated timestamp
+                updated: document.buildTimestamp(new Date()),
+                // Increment version number
+                versionId: doc.versionId + 1
+            })
+
+            try {
+                endpointResponse = await this.vdaDid!.update(document)
+            } catch (err: any) {
+                if (err.message == 'Unable to update DID: All endpoints failed to accept the DID Document') {
+                    this.endpointErrors = this.vdaDid!.getLastEndpointErrors()
+                }
+
+                throw err
+            }
         }
 
-        return true
+        return endpointResponse
+    }
+
+    public getLastEndpointErrors() {
+        return this.endpointErrors
     }
 
     /**
@@ -157,12 +196,6 @@ export class DIDClient {
             throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
         }
 
-        if (resolutionResult.didDocument !== null) {
-            //console.log('have did doc', resolutionResult.didDocument!)
-            // vda-did-resolver always return didDocument if no exception occured while parsing
-            return new DIDDocument(resolutionResult.didDocument!)
-        } else {
-            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
-        }
+        return <DIDDocument> resolutionResult.didDocument
     }
 }

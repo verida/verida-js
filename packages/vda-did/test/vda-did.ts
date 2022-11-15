@@ -146,7 +146,7 @@ describe("VdaDid tests", function() {
             } catch (err) {
                 assert.equal(err.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Unable to update DID Document')
                 const errors = veridaApi.getLastEndpointErrors()
-                assert.equal(errors![ENDPOINT].message, 'Invalid DID Document: Missing value for versionId (Expected 1)')
+                assert.equal(errors![ENDPOINT].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
             }
         })
 
@@ -164,7 +164,7 @@ describe("VdaDid tests", function() {
             } catch (err) {
                 assert.equal(err.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Unable to update DID DOcument')
                 const errors = veridaApi.getLastEndpointErrors()
-                assert.equal(errors![ENDPOINT].message, 'Invalid DID Document: Missing value for versionId (Expected 1)')
+                assert.equal(errors![ENDPOINT].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
             }
         })
 
