@@ -49,7 +49,7 @@ const checkRegister = async (
 ) => {
   const signature = await getRegisterSignature(name, did, signKey);
   const response = await nameRegistry.register(name, did, signature);
-  expect(response.success === expectedResult, msg);
+  expect(response.success).to.be.equal(expectedResult, msg);
 };
 
 const checkUnregister = async (
@@ -61,7 +61,7 @@ const checkUnregister = async (
 ) => {
   const signature = await getRegisterSignature(name, did, signKey);
   const response = await nameRegistry.unregister(name, did, signature);
-  expect(response.success === expectedResult, msg);
+  expect(response.success).to.be.equal(expectedResult, msg);
 };
 
 const checkFindDID = async (
@@ -72,7 +72,7 @@ const checkFindDID = async (
   dataMsg: string | undefined = undefined
 ) => {
   const response = await nameRegistry.findDID(name);
-  expect(response.success === expectedResult, resultMsg);
+  expect(response.success).to.be.equal(expectedResult, resultMsg);
   if (expectedResult === true && expectedData !== undefined) {
     expect(response.data).equal(expectedData, dataMsg);
   }
@@ -86,7 +86,7 @@ const checkGetUserNameList = async (
   dataMsg: string | undefined = undefined
 ) => {
   const response = await nameRegistry.getUserNameList(did);
-  expect(response.success === expectedResult, resultMsg);
+  expect(response.success).to.be.equal(expectedResult, resultMsg);
   if (expectedResult === true && expectedData !== undefined) {
     expect(response.data).deep.equal(expectedData, dataMsg);
   }
