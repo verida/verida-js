@@ -93,7 +93,7 @@ const checkLookup = async (
   const response = await didRegistry.lookup(did);
   expect(response.success).to.be.equal(expectedResult, resultMsg);
   if (expectedResult === true && expectedData !== undefined) {
-    expect(response.data).deep.equal(expectedData, dataMsg);
+    expect(response.data[1]).deep.equal(expectedData, dataMsg);
   }
 };
 
