@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 export const veridaContractWhiteList = [
-  '0x5c5CA3376b2C82f0322DB9dEE0504D2565080865'.toLowerCase(), //BSCTest - NameRegistry
-  '0x1a0A67467DB853486ae328cFdd2d7D51FaefC5E7'.toLowerCase(), //BSCTest - DIDRegistry
+  // ''.toLowerCase(), //BSCTest - NameRegistry
+  // ''.toLowerCase(), //BSCTest - DIDRegistry
   '0x666F81e59082ccD7C8737f84e1C232a982043140'.toLowerCase(), //Mumbai - NameRegistry
-  '0x322F0273D7f6eCd9EeBc6C800a6777d1b3EEB697'.toLowerCase(), //Mumbai - DIDRegistry
+  '0x7347E3C6b8Fc38B2fb4a4f72E68953F0A4b899b0'.toLowerCase(), //Mumbai - DIDRegistry
 ];
 
 export const DEFAULT_JSON_RPC = 'http://127.0.0.1:8545/'
