@@ -65,3 +65,21 @@ const ret = instance.identityOwner('0x12...5f')
 ## Return Values
 Return values is in JSON format. 
 Refer : https://github.com/verida/blockchain-gasless-server/tree/review/generic-example#endpoint-returns
+
+## Test
+There are 2 test modes of "direct" & "gasless". Default mode is "direct".
+You can specify the test mode at the end of command.
+### Test all files
+You can run all test files in "gasless" mode by:
+```
+yarn tests gasless
+```
+If you don't specify test mode, it will test in "direct" mode.
+
+### Test individual test files
+You can run individual test files by `yarn test`.
+
+**Example** : Test didregistry.test.ts in "gasless" mode:
+```
+yarn test test/didregistry.test.ts gasless
+```
