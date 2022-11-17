@@ -1,7 +1,7 @@
 import { DIDDocument as DocInterface} from 'did-resolver'
 export interface SecureContextEndpoint {
     type: string;
-    endpointUri: string;
+    endpointUri: string | string[];
     config?: object;
 }
 

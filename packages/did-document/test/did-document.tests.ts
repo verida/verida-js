@@ -29,6 +29,17 @@ const endpoints: Endpoints = {
     }
 }
 
+const endpointsMultiple: Endpoints = {
+    database: {
+        type: EndpointType.DATABASE,
+        endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
+    },
+    messaging: {
+        type: EndpointType.MESSAGING,
+        endpointUri: ['https://db.testnet.verida.io/2', 'https://db2.testnet.verida.io/2']
+    }
+}
+
 /**
  * 
  */
@@ -99,6 +110,16 @@ describe('DID document tests', () => {
 
             // @todo: validate verification method
             assert.equal(data.verificationMethod!.length, 6, "Have six verificationMethod entries")
+        })
+
+        it('can add a context with multiple endpoints', async function() {
+            const doc = new DIDDocument(did, wallet.publicKey)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpointsMultiple)
+
+            const data = doc.export()
+            assert.ok(data.service, 'Service exists')
+            assert.equal(data.service!.length, 2, 'Service has two entries')
+            assert.equal(data.service![0].serviceEndpoint.length, 2, 'First service has two endpoints')
         })
 
         it('can remove a context', async function() {
