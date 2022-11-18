@@ -117,10 +117,10 @@ describe('DID document tests', () => {
             await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpointsMultiple)
 
             const data = doc.export()
-            console.log(data.service![0].serviceEndpoint)
             assert.ok(data.service, 'Service exists')
-            assert.equal(data.service!.length, 4, 'Service has four entries')
-            assert.equal(typeof(data.service![0].serviceEndpoint), 'string', 'First serviceEndpoint is a string')
+            assert.equal(data.service!.length, 2, 'Service has four entries')
+            assert.equal(data.service![0].serviceEndpoint.length, 2, 'First service has two endpoints')
+            assert.equal(data.service![1].serviceEndpoint.length, 2, 'Second service has two endpoints')
         })
 
         it('can remove a context', async function() {

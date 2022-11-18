@@ -226,14 +226,12 @@ export default class DIDDocument {
             this.doc.service = []
         }
 
-        for (let i in endpointUris) {
-            const endpointUri = endpointUris[i]
-            this.doc.service.push({
-                id: `${this.doc.id}?context=${contextHash}&type=${endpointType}`,
-                type: serviceType,
-                serviceEndpoint: endpointUri
-            })
-        }
+        this.doc.service.push({
+            id: `${this.doc.id}?context=${contextHash}&type=${endpointType}`,
+            type: serviceType,
+            // @ts-ignore
+            serviceEndpoint: endpointUris
+        })
     }
 
     public addContextSignKey(contextHash: string, publicKeyHex: string, proof: string) {
