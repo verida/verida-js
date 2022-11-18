@@ -221,16 +221,19 @@ export default class DIDDocument {
         return this.doc
     }
 
-    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUri: string) {
+    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUris: string[]) {
         if (!this.doc.service) {
             this.doc.service = []
         }
 
-        this.doc.service.push({
-            id: `${this.doc.id}?context=${contextHash}&type=${endpointType}`,
-            type: serviceType,
-            serviceEndpoint: endpointUri
-        })
+        for (let i in endpointUris) {
+            const endpointUri = endpointUris[i]
+            this.doc.service.push({
+                id: `${this.doc.id}?context=${contextHash}&type=${endpointType}`,
+                type: serviceType,
+                serviceEndpoint: endpointUri
+            })
+        }
     }
 
     public addContextSignKey(contextHash: string, publicKeyHex: string, proof: string) {
