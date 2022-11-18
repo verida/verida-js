@@ -1,3 +1,5 @@
+import { ServiceEndpoint } from "did-resolver"
+import { Interfaces } from '@verida/did-document'
 
 export interface SecureContextPublicKey {
     type: string,
@@ -9,17 +11,11 @@ export interface SecureStorageContextPublicKeys {
     signKey: SecureContextPublicKey,
 }
 
-export interface SecureContextEndpoint {
-    type: string,
-    endpointUri: string,
-    config?: object
-}
-
 export interface SecureContextServices {
-    databaseServer: SecureContextEndpoint,
-    messageServer: SecureContextEndpoint,
-    storageServer?: SecureContextEndpoint,
-    notificationServer?: SecureContextEndpoint
+    databaseServer: Interfaces.SecureContextEndpoint,
+    messageServer: Interfaces.SecureContextEndpoint,
+    storageServer?: Interfaces.SecureContextEndpoint,
+    notificationServer?: Interfaces.SecureContextEndpoint
 }
 
 export interface SecureContextConfig {
