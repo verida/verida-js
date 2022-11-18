@@ -1,7 +1,8 @@
-import { DIDDocument as DocInterface} from 'did-resolver'
+import { DIDDocument as DocInterface, Service, ServiceEndpoint } from 'did-resolver'
+
 export interface SecureContextEndpoint {
     type: string;
-    endpointUri: string[];
+    endpointUri: ServiceEndpoint[];
     config?: object;
 }
 
