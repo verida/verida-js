@@ -6,7 +6,7 @@ import {
 } from "./interfaces"
 import { DIDDocument } from '@verida/did-document'
 import EncryptionUtils from '@verida/encryption-utils'
-import BlockchainApi from "./blockchainApi";
+import BlockchainApi from "./blockchain/blockchainApi";
 
 export default class VdaDid {
 
@@ -31,7 +31,7 @@ export default class VdaDid {
      */
     public async create(didDocument: DIDDocument, endpoints: string[]): Promise<VdaDidEndpointResponses> {
         this.lastEndpointErrors = undefined
-        if (!this.options.vdaKey) {
+        if (!this.options.signKey) {
             throw new Error(`Unable to create DID: No private key specified in config.`)
         }
 
@@ -45,7 +45,7 @@ export default class VdaDid {
         }
 
         // Sign the DID Document
-        didDocument.signProof(this.options.vdaKey!)
+        didDocument.signProof(this.options.signKey!)
 
         // Submit to all the endpoints
         const finalEndpoints: VdaDidEndpointResponses = {}
@@ -95,7 +95,7 @@ export default class VdaDid {
      */
     public async update(didDocument: DIDDocument): Promise<VdaDidEndpointResponses> {
         this.lastEndpointErrors = undefined
-        if (!this.options.vdaKey) {
+        if (!this.options.signKey) {
             throw new Error(`Unable to update DID Document. No private key specified in config.`)
         }
 
@@ -104,7 +104,7 @@ export default class VdaDid {
             throw new Error(`Unable to update DID Document. "updated" timestamp matches "created" timestamp`)
         }
 
-        didDocument.signProof(this.options.vdaKey)
+        didDocument.signProof(this.options.signKey)
 
         // Fetch the endpoint list from the blockchain
         const response = await this.blockchain.lookup(didDocument.id)
@@ -148,7 +148,7 @@ export default class VdaDid {
     }
 
     public async delete(did: string): Promise<VdaDidEndpointResponses> {
-        if (!this.options.vdaKey) {
+        if (!this.options.signKey) {
             throw new Error(`Unable to delete DID. No private key specified in config.`)
         }
 
@@ -160,7 +160,7 @@ export default class VdaDid {
         // 2. Call DELETE on all endpoints
         const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
         const proofString = `Delete DID Document ${did} at ${nowInMinutes}`
-        const privateKey = new Uint8Array(Buffer.from(this.options.vdaKey.substr(2),'hex'))
+        const privateKey = new Uint8Array(Buffer.from(this.options.signKey.substr(2),'hex'))
         const signature = EncryptionUtils.signData(proofString, privateKey)
 
         // Fetch the endpoint list from the blockchain
@@ -202,7 +202,7 @@ export default class VdaDid {
 
     // @todo: Complete once `migrate` is implemented on storage node
     public async addEndpoint(did: string, endpointUri: string, verifyAllVersions=false) {
-        if (!this.options.vdaKey) {
+        if (!this.options.signKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
 
@@ -242,7 +242,7 @@ export default class VdaDid {
 
     // @todo: Implement
     public async removeEndpoint(did: string, endpoint: string) {
-        if (!this.options.vdaKey) {
+        if (!this.options.signKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
         
