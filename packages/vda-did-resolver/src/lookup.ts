@@ -20,7 +20,7 @@ export async function lookup(didAddress: string, network: string, rpcUrl: string
         .attach(address!)
         .connect(provider);
 
-    let data : string[] = [];
+    let data = [];
     try {
         data = await contract.callStatic.lookup(didAddress);
     } catch (e: any) {
