@@ -1,13 +1,14 @@
 import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { Account, AccountConfig, AuthContext, AuthTypeConfig } from '@verida/account'
-import { NodeAccountConfig } from './interfaces'
+import { Account, AccountConfig, AuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
+import { NodeAccountConfig, } from './interfaces'
 
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import { Interfaces as DIDDocumentInterfaces } from "@verida/did-document"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
 import { ServiceEndpoint } from 'did-resolver'
+import { VdaDidEndpointResponses } from '@verida/vda-did'
 
 /**
  * An Authenticator that automatically signs everything
@@ -83,10 +84,19 @@ export default class AutoAccount extends Account {
      * 
      * @param storageConfig 
      */
-     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
+     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<boolean> {
         this.ensureAuthenticated()
         const keyring = await this.keyring(storageConfig.id)
-        await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
+        const result = await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
+
+        for (let i in result) {
+            const response = result[i]
+            if (response.status !== 'success') {
+                return false
+            }
+        }
+
+        return true
      }
 
      /**
@@ -96,16 +106,38 @@ export default class AutoAccount extends Account {
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         this.ensureAuthenticated()
-        return await StorageLink.unlink(this.didClient, contextName)
+        let result = await StorageLink.unlink(this.didClient, contextName)
+        if (!result) {
+            return false
+        }
+
+        result = <VdaDidEndpointResponses> result
+        for (let i in result) {
+            const response = result[i]
+            if (response.status !== 'success') {
+                return false
+            }
+        }
+
+        return true
     }
 
     /**
      * Link storage context service endpoint
      * 
      */
-    public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUris: string[]) {
+    public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
         this.ensureAuthenticated()
-        return await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUris)
+        const result = await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUris)
+
+        for (let i in result) {
+            const response = result[i]
+            if (response.status !== 'success') {
+                return false
+            }
+        }
+
+        return true
     }
 
     public getDidClient() {
@@ -113,13 +145,13 @@ export default class AutoAccount extends Account {
         return this.didClient
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: AuthTypeConfig = {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: VeridaDatabaseAuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
         endpointUri = <string> endpointUri
 
         // Use existing context auth instance if it exists
-        if (this.contextAuths[contextName] && this.contextAuths[contextName][endpointUri]  && !authConfig.force) {
+        if (this.contextAuths[contextName] && this.contextAuths[contextName][endpointUri]  && !authConfig.force && !authConfig.invalidAccessToken) {
             return this.contextAuths[contextName][endpointUri].getAuthContext()
         }
 

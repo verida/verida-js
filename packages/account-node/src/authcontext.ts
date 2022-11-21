@@ -30,6 +30,8 @@ export default class AuthContextAccount extends LimitedAccount {
         super(accountConfig, autoConfig, signingContexts)
 
         const endpointUri = <string> authContext.endpointUri
+
+        this.contextAuths[signingContext] = {}
         this.contextAuths[signingContext][endpointUri] = new VeridaDatabaseAuthType(this, signingContext, {
             endpointUri,
             type: 'VeridaDatabase'

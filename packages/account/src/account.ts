@@ -42,7 +42,7 @@ export default class Account {
       * 
       * @param storageConfig 
       */
-    linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
+    linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<boolean> {
         throw new Error("Not implemented")
     }
  
