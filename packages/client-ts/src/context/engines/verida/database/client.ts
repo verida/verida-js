@@ -1,5 +1,6 @@
 import Axios from "axios";
-import { Account, VeridaDatabaseAuthContext } from "@verida/account";
+import { VeridaDatabaseAuthContext } from "@verida/account";
+import { ServiceEndpoint } from 'did-resolver'
 
 /**
  * Interface for RemoteClientAuthentication
@@ -18,9 +19,9 @@ export class DatastoreServerClient {
 
   private authContext?: VeridaDatabaseAuthContext
   private storageContext: string;
-  private serviceEndpoint: string;
+  private serviceEndpoint: ServiceEndpoint;
 
-  constructor(storageContext: string, serviceEndpoint: string, authContext?: VeridaDatabaseAuthContext) {
+  constructor(storageContext: string, serviceEndpoint: ServiceEndpoint, authContext?: VeridaDatabaseAuthContext) {
     this.authContext = authContext
     this.storageContext = storageContext;
     this.serviceEndpoint = serviceEndpoint

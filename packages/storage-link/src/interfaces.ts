@@ -1,4 +1,3 @@
-import { ServiceEndpoint } from "did-resolver"
 import { Interfaces } from '@verida/did-document'
 
 export interface SecureContextPublicKey {

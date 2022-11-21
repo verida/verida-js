@@ -31,7 +31,6 @@ class EncryptedDatabase extends BaseDb {
   private _sync: any;
   private _localDbEncrypted: any;
   private _localDb: any;
-  private _remoteDbEncrypted: any;
 
   private _syncError = null;
 
@@ -48,14 +47,13 @@ class EncryptedDatabase extends BaseDb {
     super(config, engine);
 
     this.encryptionKey = config.encryptionKey!;
-    this.token = config.token!;
 
     // PouchDB sync object
     this._sync = null;
   }
 
   public async init() {
-    if (this._localDb) {
+    if (this.db) {
       return;
     }
 
@@ -80,56 +78,6 @@ class EncryptedDatabase extends BaseDb {
       // Setting to 1,000 -- Any higher and it takes too long on mobile devices
     });
 
-    /* @ts-ignore */
-    const instance = this
-    this._remoteDbEncrypted = new PouchDB(`${this.dsn}/${this.databaseHash}`, {
-      skip_setup: true,
-      fetch: async function(url: string, opts: any) {
-        opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
-        const result = await PouchDB.fetch(url, opts)
-        if (result.status == 401) {
-          // Unauthorized, most likely due to an invalid access token
-          // Fetch new credentials and try again
-          await instance.getEngine().reAuth(instance)
-          opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
-          const result = await PouchDB.fetch(url, opts)
-
-          if (result.status == 401) {
-            // Failed again, so the refresh token is likely also invalid an wasn't
-            // able to be re-authenticated
-            throw new Error(`Permission denied to access server: ${instance.dsn}`)
-          }
-
-          // Return an authorized result
-          return result
-        }
-
-        // Return an authorized result
-        return result
-      }
-    });
-
-    let info;
-    try {
-      info = await this._remoteDbEncrypted.info();
-
-      if (info.error && info.error == "not_found") {
-        // Remote dabase wasn't found, so attempt to create it
-        await this.createDb();
-      }
-    } catch (err: any) {
-      if (err.error && err.error == "not_found") {
-        // Remote database wasn't found, so attempt to create it
-        await this.createDb();
-      }
-
-      throw err;
-    }
-
-    if (info && info.error == "forbidden") {
-      throw new Error(`Permission denied to access remote database.`);
-    }
-
     const databaseName = this.databaseName;
     const dsn = this.dsn;
     /* @ts-ignore */
@@ -138,7 +86,7 @@ class EncryptedDatabase extends BaseDb {
     // Do a once off sync to ensure the local database pulls all data from remote server
     // before commencing live syncronisation between the two databases
     await this._localDbEncrypted.replicate
-      .from(this._remoteDbEncrypted, {
+      .from(this.db, {
         // Dont sync design docs
         filter: function (doc: any) {
           return doc._id.indexOf("_design") !== 0;
@@ -161,8 +109,6 @@ class EncryptedDatabase extends BaseDb {
         instance.sync();
       });
 
-    this.db = this._localDb;
-
     /**
      * We attempt to fetch some rows from the database.
      *
@@ -179,7 +125,7 @@ class EncryptedDatabase extends BaseDb {
         err.message == "Could not decrypt!"
       ) {
         // Clear the instantiated PouchDb instances and throw a more useful exception
-        this._localDb = this._localDbEncrypted = this._remoteDbEncrypted = null;
+        this._localDb = this._localDbEncrypted = this.db = null;
         throw new Error(`Invalid encryption key supplied`);
       }
 
@@ -206,7 +152,7 @@ class EncryptedDatabase extends BaseDb {
     const databaseName = this.databaseName;
     const dsn = this.dsn;
 
-    this._sync = PouchDB.sync(this._localDbEncrypted, this._remoteDbEncrypted, {
+    this._sync = PouchDB.sync(this._localDbEncrypted, this.db, {
       live: true,
       retry: true,
       // Dont sync design docs
@@ -264,7 +210,7 @@ class EncryptedDatabase extends BaseDb {
   public async close() {
     this._sync.cancel();
     await this._localDbEncrypted.close();
-    await this._remoteDbEncrypted.close();
+    await this.db.close();
     this._sync = null;
     this._syncError = null;
   }
@@ -301,7 +247,7 @@ class EncryptedDatabase extends BaseDb {
 
   public async getRemoteEncrypted(): Promise<any> {
     await this.init();
-    return this._remoteDbEncrypted;
+    return this.db;
   }
 
   public async getLocalEncrypted(): Promise<any> {
