@@ -1,11 +1,13 @@
 import { Interfaces } from "@verida/storage-link"
+import { Interfaces as DIDDocInterfaces } from "@verida/did-document"
+import { ServiceEndpoint } from 'did-resolver'
 import Account from "./account"
 
 export interface AccountConfig {
-    defaultDatabaseServer: Interfaces.SecureContextEndpoint,
-    defaultMessageServer: Interfaces.SecureContextEndpoint,
-    defaultStorageServer?: Interfaces.SecureContextEndpoint,
-    defaultNotificationServer?: Interfaces.SecureContextEndpoint,
+    defaultDatabaseServer: DIDDocInterfaces.SecureContextEndpoint,
+    defaultMessageServer: DIDDocInterfaces.SecureContextEndpoint,
+    defaultStorageServer?: DIDDocInterfaces.SecureContextEndpoint,
+    defaultNotificationServer?: DIDDocInterfaces.SecureContextEndpoint,
 }
 
 export enum EnvironmentType {
@@ -27,10 +29,10 @@ export class AuthType {
     protected contextAuth?: AuthContext
     protected account: Account
     protected contextName: string
-    protected serviceEndpoint: Interfaces.SecureContextEndpoint
+    protected serviceEndpoint: ServiceEndpoint
     protected signKey: Interfaces.SecureContextPublicKey
 
-    public constructor(account: Account, contextName: string, serviceEndpoint: Interfaces.SecureContextEndpoint, signKey: Interfaces.SecureContextPublicKey) {
+    public constructor(account: Account, contextName: string, serviceEndpoint: ServiceEndpoint, signKey: Interfaces.SecureContextPublicKey) {
         this.account = account
         this.contextName = contextName
         this.serviceEndpoint = serviceEndpoint
@@ -55,7 +57,7 @@ export class AuthType {
 export interface VeridaDatabaseAuthContext extends AuthContext {
     refreshToken?: string,
     accessToken?: string,
-    endpointUri: string,
+    endpointUri: ServiceEndpoint,
     host: string
 }
 

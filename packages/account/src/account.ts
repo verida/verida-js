@@ -3,6 +3,7 @@ import { Interfaces } from '@verida/storage-link'
 import { createJWT, ES256KSigner } from 'did-jwt'
 import { encodeBase64 } from "tweetnacl-util"
 import { AuthContext, AuthTypeConfig } from './interfaces'
+import { ServiceEndpoint } from 'did-resolver'
 
 const _ = require('lodash')
 
@@ -58,7 +59,7 @@ export default class Account {
         throw new Error("Not implemented")
     }
 
-    linkStorageContextService(contextName: string, endpointType: string, serverType: string, endpointUri: string): Promise<boolean> {
+    linkStorageContextService(contextName: string, endpointType: string, serverType: string, endpointUris: string[]): Promise<boolean> {
         throw new Error("Not implemented")
     }
 
@@ -106,7 +107,7 @@ export default class Account {
         throw new Error("Not implemented.")
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
         throw new Error("Not implemented.")

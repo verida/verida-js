@@ -22,7 +22,8 @@
     "@verida/did-document": "^2.0.0-rc3",
     "@verida/encryption-utils": "^2.0.0-rc1",
     "@verida/keyring": "^2.0.0-rc1",
-    "axios": "^0.27.2"
+    "axios": "^0.27.2",
+    "did-resolver": "^4.0.1"
   },
   "devDependencies": {
     "did-jwt": "5.7.0",
