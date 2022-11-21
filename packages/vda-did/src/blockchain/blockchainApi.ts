@@ -49,10 +49,10 @@ export default class BlockchainApi {
      * Get a controller & Endpoints' array of a DID address fro blockchain
      * @returns Controller & Endpoints array
      */
-    public async lookup(): Promise<LookupResponse> {
+    public async lookup(did: string): Promise<LookupResponse> {
         // @todo: Fetch actual on chain values
 
-        const response = await this.vdaWeb3Client.lookup(this.didAddress);
+        const response = await this.vdaWeb3Client.lookup(did);
         if (response.success !== true) {
             throw new Error('Failed to lookup');
         }
@@ -67,7 +67,7 @@ export default class BlockchainApi {
      * @param signKey Verida account key to generate signature
      * @returns Signature
      */
-    public async getRegisterSignature (
+    private async getRegisterSignature (
         did: string,
         endpoints: string[],
         signKey: string
@@ -107,7 +107,7 @@ export default class BlockchainApi {
      * @param signKey Private key of original controller of `did`
      * @returns Signature
      */
-    public async getControllerSignature(
+    private async getControllerSignature(
         did: string,
         controller: string,
         signKey: string
@@ -156,7 +156,7 @@ export default class BlockchainApi {
      * @param signKey Private key of original controller of `did`
      * @returns Signature
      */
-    public async getRevokeSignature(did: string, signKey: string) {
+    private async getRevokeSignature(did: string, signKey: string) {
         const rawMsg = ethers.utils.solidityPack(
             ['address', 'string'],
             [did, '/revoke/']

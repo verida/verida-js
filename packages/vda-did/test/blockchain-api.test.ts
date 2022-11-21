@@ -32,14 +32,14 @@ describe('vda-did blockchain api', () => {
         it('Register successfully', async () => {
             await blockchainApi.register(endPoints_A);
 
-            const endpoints = await blockchainApi.lookup();
+            const endpoints = await blockchainApi.lookup(did.address);
             assert.deepEqual(endpoints, endPoints_A, 'Get same endpoints');
         })
 
         it('Should update for registered DID', async () => {
             await blockchainApi.register(endPoints_B);
 
-            const endpoints = await blockchainApi.lookup();
+            const endpoints = await blockchainApi.lookup(did.address);
             assert.deepEqual(endpoints, endPoints_B, 'Get updated endpoints');
         })
 
@@ -59,26 +59,28 @@ describe('vda-did blockchain api', () => {
 
     describe('Lookup', () => {
         it('Get endpoints successfully', async () => {
-            const endpoints = await blockchainApi.lookup();
+            const endpoints = await blockchainApi.lookup(did.address);
             assert.deepEqual(endpoints, endPoints_B, 'Get updated endpoints');
         })
 
         it('Should reject for unregistered DID',async () => {
-            const testAPI = createBlockchainAPI(Wallet.createRandom());
+            const testDID = Wallet.createRandom();
+            const testAPI = createBlockchainAPI(testDID);
             await assert.rejects(
-                testAPI.lookup(),
+                testAPI.lookup(testDID.address),
                 {message: 'Failed to lookup'}
             )
         })
 
         it('Should reject for revoked DID', async () => {
-            const testAPI = createBlockchainAPI(Wallet.createRandom());
+            const testDID = Wallet.createRandom();
+            const testAPI = createBlockchainAPI(testDID);
 
             await testAPI.register(endPoints_A);
             await testAPI.revoke();
 
             await assert.rejects(
-                testAPI.lookup(),
+                testAPI.lookup(testDID.address),
                 {message: 'Failed to lookup'}
             )
         })
