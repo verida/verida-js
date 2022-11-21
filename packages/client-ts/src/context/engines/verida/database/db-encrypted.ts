@@ -3,6 +3,7 @@ import BaseDb from "./base-db";
 import { DbRegistryEntry } from "../../../db-registry";
 import StorageEngineVerida from "./engine"
 import EncryptionUtils from "@verida/encryption-utils";
+import Utils from "./utils";
 
 import * as PouchDBCryptLib from "pouchdb";
 import * as PouchDBLib from "pouchdb";
@@ -41,6 +42,7 @@ class EncryptedDatabase extends BaseDb {
     super(config, engine);
 
     this.encryptionKey = config.encryptionKey!;
+    this.databaseHash = Utils.buildDatabaseHash(this.databaseName, this.storageContext, this.did)
 
     // PouchDB sync object
     this._sync = null;

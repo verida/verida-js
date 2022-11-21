@@ -3,9 +3,9 @@ import { DIDClientConfig } from '@verida/account-node'
 
 export default {
     ENVIRONMENT: EnvironmentType.TESTNET,
-    VDA_PRIVATE_KEY:   '0x81d3b996ec98a9a536efdffbae40e5eaaf117765a587483c69195c9460165d39',
-    VDA_PRIVATE_KEY_2: '0x82d3b996ec98a9a536efdffbae40f5eaaf117765a587483c69195c9460165d39',
-    VDA_PRIVATE_KEY_3: '0x83d3b996ec98a91536efdffbae40f5eaaf117765a587483c69195c9460165d39',
+    VDA_PRIVATE_KEY:   '0xa1d3b996ec98a9a536efdffbae40e5eaaf117765a587483c69195c9460165d39',
+    VDA_PRIVATE_KEY_2: '0xa2d3b996ec98a9a536efdffbae40f5eaaf117765a587483c69195c9460165d39',
+    VDA_PRIVATE_KEY_3: '0xa3d3b996ec98a91536efdffbae40f5eaaf117765a587483c69195c9460165d39',
     CONTEXT_NAME: 'Verida Test: Test Application 1',
     DATABASE_SERVER: 'http://localhost:5000/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
     MESSAGE_SERVER: 'http://localhost:5000/',  // http://localhost:5000/ for local testing when running local @verida/storage-node

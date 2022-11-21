@@ -117,7 +117,6 @@ class DIDContextManager {
       const accountDid = await this.account.did();
       if (accountDid == did) {
         try {
-          console.log('1')
           storageConfig = await this.account.storageConfig(
             contextName,
             forceCreate

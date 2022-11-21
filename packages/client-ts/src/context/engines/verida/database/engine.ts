@@ -59,7 +59,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       for (let i in this.endpoints) {
         const endpoint = this.endpoints[i]
-        endpoint.connectAccount(account)
+        await endpoint.connectAccount(account)
       }
 
       this.accountDid = await this.account!.did();

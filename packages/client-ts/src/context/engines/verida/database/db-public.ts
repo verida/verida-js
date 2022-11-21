@@ -1,12 +1,5 @@
 import BaseDb from "./base-db";
 import { DbRegistryEntry } from "../../../db-registry";
-import * as PouchDBFind from "pouchdb-find";
-import * as PouchDBLib from "pouchdb";
-
-// See https://github.com/pouchdb/pouchdb/issues/6862
-const { default: PouchDB } = PouchDBLib as any;
-
-PouchDB.plugin(PouchDBFind);
 
 /**
  * @category

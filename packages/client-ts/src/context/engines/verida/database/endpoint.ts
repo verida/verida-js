@@ -2,10 +2,17 @@ import { EventEmitter } from 'events'
 import DatastoreServerClient from './client'
 import { ServiceEndpoint } from 'did-resolver'
 import { Account, AuthContext, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
-import EncryptionUtils from '@verida/encryption-utils'
 import { Interfaces } from '@verida/storage-link'
 import { PermissionsConfig } from "../../../interfaces";
 import Utils from "./utils";
+
+import * as PouchDBFind from "pouchdb-find";
+import * as PouchDBLib from "pouchdb";
+
+// See https://github.com/pouchdb/pouchdb/issues/6862
+const { default: PouchDB } = PouchDBLib as any;
+
+PouchDB.plugin(PouchDBFind);
 
 export default class Endpoint extends EventEmitter {
 
@@ -16,6 +23,7 @@ export default class Endpoint extends EventEmitter {
 
     private account?: Account
     private auth?: VeridaDatabaseAuthContext
+    private couchDbHost?: string
 
     private db?: any
 
@@ -34,7 +42,7 @@ export default class Endpoint extends EventEmitter {
 
     public async setUsePublic() {
         const response = await this.client.getPublicUser();
-        this.endpointUri = response.data.user.dsn
+        this.couchDbHost = response.data.user.dsn
     }
 
     public toString() {
@@ -49,30 +57,33 @@ export default class Endpoint extends EventEmitter {
 
     public async connectDb(did: string, databaseName: string, permissions: PermissionsConfig, isOwner: boolean) {
         if (this.db) {
-            return;
+            return this.db;
         }
 
         const dbConfig: any = {
             skip_setup: true,
         }
 
-        const databaseHash = this.buildDatabaseHash(databaseName, did);
+        const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
 
         if (this.auth) {
             const instance = this
             dbConfig['fetch'] = async function (url: string, opts: any) {
-                opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
+                const accessToken = await instance.getAccessToken()
+                opts.headers.set('Authorization', `Bearer ${accessToken}`)
                 const result = await PouchDB.fetch(url, opts)
                 if (result.status == 401) {
                     // Unauthorized, most likely due to an invalid access token
                     // Fetch new credentials and try again
                     await instance.authenticate(isOwner)
 
-                    opts.headers.set('Authorization', `Bearer ${instance.getAccessToken()}`)
+                    const accessToken = await instance.getAccessToken()
+                    opts.headers.set('Authorization', `Bearer ${accessToken}`)
+
                     const result = await PouchDB.fetch(url, opts)
 
                     if (result.status == 401) {
-                        throw new Error(`Permission denied to access server: ${this.dsn}`)
+                        throw new Error(`Permission denied to access server: ${instance.toString()}`)
                     }
 
                     // Return an authorized result
@@ -84,7 +95,7 @@ export default class Endpoint extends EventEmitter {
             }
         }
 
-        this.db = new PouchDB(`${this.endpointUri}/${databaseHash}`, dbConfig);
+        this.db = new PouchDB(`${this.couchDbHost!}/${databaseHash}`, dbConfig);
 
         try {
             let info = await this.db.info();
@@ -161,10 +172,12 @@ export default class Endpoint extends EventEmitter {
 
         this.auth = <VeridaDatabaseAuthContext>auth
         await this.client.setAuthContext(this.auth)
+        this.couchDbHost = this.auth.host
     }
 
     public async setAuth(auth: VeridaDatabaseAuthContext) {
         this.auth = auth
+        await this.client.setAuthContext(this.auth)
     }
 
     public async getAccessToken() {
@@ -187,20 +200,6 @@ export default class Endpoint extends EventEmitter {
         } catch (err) {
             throw new Error("User doesn't exist or unable to create user database");
         }
-    }
-
-    // DID + context name + DB Name + readPerm + writePerm
-    private buildDatabaseHash(databaseName: string, did: string) {
-        let text = [
-            did.toLowerCase(),
-            this.contextName,
-            databaseName,
-        ].join("/");
-
-        const hash = EncryptionUtils.hash(text).substring(2);
-
-        // Database name in CouchDB must start with a letter, so prepend a `v`
-        return "v" + hash;
     }
 
   /**
