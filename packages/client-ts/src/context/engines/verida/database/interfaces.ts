@@ -9,7 +9,7 @@ import Endpoint from "./endpoint";
 export interface VeridaDatabaseConfig {
   databaseName: string;
   did: string;
-  dsn: string | string[];
+  dsn?: string | string[];
   storageContext: string;
 
   permissions?: PermissionsConfig;

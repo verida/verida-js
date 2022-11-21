@@ -36,12 +36,6 @@ class EncryptedDatabase extends BaseDb {
 
   /**
    *
-   * @param {*} dbName
-   * @param {*} dataserver
-   * @param {string} encryptionKey Uint8Array(32) representing encryption key
-   * @param {*} remoteDsn
-   * @param {*} did
-   * @param {*} permissions
    */
   constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
     super(config, engine);
@@ -79,7 +73,7 @@ class EncryptedDatabase extends BaseDb {
     });
 
     const databaseName = this.databaseName;
-    const dsn = this.dsn;
+
     /* @ts-ignore */
     const instance = this;
 
@@ -94,13 +88,13 @@ class EncryptedDatabase extends BaseDb {
       })
       .on("error", function (err: any) {
         console.error(
-          `Unknown error occurred with replication snapshot from remote database: ${databaseName} (${dsn})`
+          `Unknown error occurred with replication snapshot from remote database: ${databaseName}`
         );
         console.error(err);
       })
       .on("denied", function (err: any) {
         console.error(
-          `Permission denied with replication snapshot from remote database: ${databaseName} (${dsn})`
+          `Permission denied with replication snapshot from remote database: ${databaseName})`
         );
         console.error(err);
       })
@@ -150,7 +144,6 @@ class EncryptedDatabase extends BaseDb {
 
     const instance = this;
     const databaseName = this.databaseName;
-    const dsn = this.dsn;
 
     this._sync = PouchDB.sync(this._localDbEncrypted, this.db, {
       live: true,
@@ -163,13 +156,13 @@ class EncryptedDatabase extends BaseDb {
       .on("error", function (err: any) {
         instance._syncError = err;
         console.error(
-          `Unknown error occurred syncing with remote database: ${databaseName} (${dsn})`
+          `Unknown error occurred syncing with remote database: ${databaseName}`
         );
         console.error(err);
       })
       .on("denied", function (err: any) {
         console.error(
-          `Permission denied to sync with remote database: ${databaseName} (${dsn})`
+          `Permission denied to sync with remote database: ${databaseName}`
         );
         console.error(err);
       });
@@ -275,11 +268,16 @@ class EncryptedDatabase extends BaseDb {
       };
     }
 
+    const endpoints = []
+    for (let i in this.endpoints) {
+      endpoints.push(this.endpoints[i].toString())
+    }
+
     const info = {
       type: "VeridaDatabase",
       privacy: "encrypted",
       did: this.did,
-      dsn: this.dsn,
+      endpoints: endpoints,
       permissions: this.permissions!,
       storageContext: this.storageContext,
       databaseName: this.databaseName,

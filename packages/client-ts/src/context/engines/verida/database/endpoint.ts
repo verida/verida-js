@@ -16,7 +16,6 @@ export default class Endpoint extends EventEmitter {
 
     private account?: Account
     private auth?: VeridaDatabaseAuthContext
-    private publicCreds: boolean = false
 
     private db?: any
 
@@ -34,11 +33,13 @@ export default class Endpoint extends EventEmitter {
     }
 
     public async setUsePublic() {
-        this.publicCreds = true
-    
         const response = await this.client.getPublicUser();
         this.endpointUri = response.data.user.dsn
-      }
+    }
+
+    public toString() {
+        return this.endpointUri
+    }
 
     public async connectAccount(account: Account) {
         this.account = account

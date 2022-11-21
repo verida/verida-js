@@ -1,14 +1,14 @@
 import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
-import { getResolver, VeridaWeb3ConfigurationOptions } from '@verida/vda-did-resolver'
-import { VdaDid, VdaDidEndpointResponses } from '@verida/vda-did'
+import { getResolver } from '@verida/vda-did-resolver'
+import { VdaDid, VdaDidEndpointResponses, VeridaWeb3ConfigurationOptions } from '@verida/vda-did'
 import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
 
 import { Resolver } from 'did-resolver'
 import { Signer } from '@ethersproject/abstract-signer';
 
-import { MultiProviderConfiguration } from "@verida/vda-did-resolver/dist/interfaces"
+import { ResolverConfigurationOptions } from "@verida/vda-did-resolver"
 
 // Part of VeridaSelfTransactionConfig
 export interface VeridaSelfTransactionConfigPart  {
@@ -44,7 +44,7 @@ export class DIDClient {
     constructor(config: DIDClientConfig) {
         this.config = config
 
-        const resolverConfig: MultiProviderConfiguration = {}
+        const resolverConfig: ResolverConfigurationOptions = {}
         
         if (this.config.rpcUrl) {
             resolverConfig.rpcUrl = this.config.rpcUrl

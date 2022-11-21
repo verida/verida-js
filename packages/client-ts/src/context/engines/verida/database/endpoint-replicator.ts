@@ -18,6 +18,7 @@ export default class EndpointReplicator extends EventEmitter {
 
         // Upon completion of replicating all the databases, the DID Document will be updated with the new endpoint.
         // Any existing open databases will be closed, so they are forced to re-open and include the new endpoint in the replication list.
+        return true
     }
 
 }
