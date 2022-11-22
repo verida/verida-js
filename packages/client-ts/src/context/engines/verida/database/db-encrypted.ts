@@ -223,15 +223,15 @@ class EncryptedDatabase extends BaseDb {
       permissions: this.permissions,
     };
 
-    try {
-      this.client.updateDatabase(this.did, this.databaseName, options);
-
-      if (this.config.saveDatabase !== false) {
-        await this.engine.getDbRegistry().saveDb(this);
-      }
-    } catch (err: any) {
-      throw new Error("User doesn't exist or unable to create user database");
+    for (let i in this.endpoints) {
+      await this.endpoints[i].updateDatabase(this.did, this.databaseName, options);
     }
+
+    if (this.config.saveDatabase !== false) {
+      await this.engine.getDbRegistry().saveDb(this);
+    }
+
+    return true
   }
 
   public async getDb(): Promise<any> {

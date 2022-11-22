@@ -141,12 +141,17 @@ class StorageEngineVerida extends BaseStorageEngine {
         throw new Error(`Unable to determine DSN for this user (${did}) and this context (${contextName})`);
       }
 
-      let endpointUris = <string[]> (typeof(config.dsn) == 'object' ? config.dsn : <string> config.dsn)
+      let endpointUris = <string[]> (typeof(config.dsn) == 'object' ? config.dsn : [<string> config.dsn])
 
       endpoints = {}
       for (let i in endpointUris) {
         const endpointUri = <string> endpointUris[i]
         endpoints[endpointUri] = new Endpoint(this.storageContext, this.contextConfig, endpointUri)
+
+        // connect account to the endpoint if we are connected
+        if (this.account) {
+          endpoints[endpointUri].connectAccount(this.account, false)
+        }
       }
     }
 
@@ -202,7 +207,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       // to access this database
       if (!config.isOwner) {
         for (let i in endpoints) {
-          endpoints[i].setUsePublic()
+          await endpoints[i].setUsePublic()
         }
 
         if (config.permissions!.write != "public") {

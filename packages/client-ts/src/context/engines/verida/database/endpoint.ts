@@ -24,8 +24,8 @@ export default class Endpoint extends EventEmitter {
     private account?: Account
     private auth?: VeridaDatabaseAuthContext
     private couchDbHost?: string
-
-    private db?: any
+    private usePublic: boolean = false
+    private databases: Record<string, any> = {}
 
     constructor(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint) {
         super()
@@ -43,35 +43,39 @@ export default class Endpoint extends EventEmitter {
     public async setUsePublic() {
         const response = await this.client.getPublicUser();
         this.couchDbHost = response.data.user.dsn
+        this.usePublic = true
     }
 
     public toString() {
         return this.endpointUri
     }
 
-    public async connectAccount(account: Account) {
+    public async connectAccount(account: Account, isOwner: boolean = true) {
         this.account = account
         // @todo: is this needed or not? if we do this, then we will always auth with public databases
-        await this.authenticate(true)
+        await this.authenticate(isOwner)
     }
 
     public async connectDb(did: string, databaseName: string, permissions: PermissionsConfig, isOwner: boolean) {
-        if (this.db) {
-            return this.db;
+        const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
+        if (this.databases[databaseHash]) {
+            return this.databases[databaseHash];
+        }
+
+        if (!this.couchDbHost) {
+            throw new Error(`Unable to connect to database (${databaseName}). No CouchDB host.`)
         }
 
         const dbConfig: any = {
             skip_setup: true,
         }
 
-        const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
-
-        if (this.auth) {
+        if (this.auth && !this.usePublic) {
             const instance = this
             dbConfig['fetch'] = async function (url: string, opts: any) {
                 const accessToken = await instance.getAccessToken()
                 opts.headers.set('Authorization', `Bearer ${accessToken}`)
-                const result = await PouchDB.fetch(url, opts)
+                const result = await PouchDB.fetch(url, opts.headers)
                 if (result.status == 401) {
                     // Unauthorized, most likely due to an invalid access token
                     // Fetch new credentials and try again
@@ -95,10 +99,10 @@ export default class Endpoint extends EventEmitter {
             }
         }
 
-        this.db = new PouchDB(`${this.couchDbHost!}/${databaseHash}`, dbConfig);
+        const db = new PouchDB(`${this.couchDbHost!}/${databaseHash}`, dbConfig);
 
         try {
-            let info = await this.db.info();
+            let info = await db.info();
             if (info.error && info.error == "not_found") {
                 if (isOwner) {
                     await this.createDb(databaseName, did, permissions);
@@ -114,11 +118,12 @@ export default class Endpoint extends EventEmitter {
             if (isOwner) {
                 await this.createDb(databaseName, did, permissions);
             } else {
-                throw new Error(`Database not found: ${databaseName}`);
+                throw new Error(`Database not found: ${err.message}`);
             }
         }
 
-        return this.db
+        this.databases[databaseHash] = db
+        return db
     }
 
     /**
@@ -129,7 +134,7 @@ export default class Endpoint extends EventEmitter {
      * 
      * @ todo: redo
      */
-    public async authenticate(isOwner: boolean/*db: BaseDb*/) {
+    public async authenticate(isOwner: boolean) {
         if (!this.account) {
             // No account connected, so can't reconnect database
             throw new Error(`Unable to connect to ${this.endpointUri}. Access token has expired and unable to refresh as no account is connected.`)
@@ -144,10 +149,10 @@ export default class Endpoint extends EventEmitter {
          *  - Need to authenticate as ourselves
          *  - Need to talk to the db hash for the did that owns the database
          */
-
         if (!isOwner && this.account) {
             this.auth = await this.buildExternalAuth();
-            // is this needed? await this.client.setAuthContext(this.auth)
+            await this.client.setAuthContext(this.auth)
+            this.couchDbHost = this.auth.host
             return
         }
 
@@ -194,11 +199,25 @@ export default class Endpoint extends EventEmitter {
         };
 
         try {
-            await this.client.createDatabase(did, databaseName, options);
+            const response = await this.client.createDatabase(did, databaseName, options);
             // There's an odd timing issue that needs a deeper investigation
             await Utils.sleep(1000);
         } catch (err) {
             throw new Error("User doesn't exist or unable to create user database");
+        }
+    }
+
+    public async updateDatabase(did: string, databaseName: string, options: any): Promise<void> {
+        try {
+            await this.client.updateDatabase(did, databaseName, options)
+        }
+        catch (err: any) {
+            let message = err.message
+            if (err.response && err.response.data && err.response.data.message) {
+                message = err.response.data.message
+            }
+
+            throw new Error(`Unable to update database configuration: ${message}`);
         }
     }
 

@@ -349,6 +349,7 @@ class Context extends EventEmitter {
         false,
         config.contextName ? config.contextName : this.contextName
       );
+
       config.dsn = <string> contextConfig.services.databaseServer.endpointUri[0];
     }
 
