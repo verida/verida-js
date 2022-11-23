@@ -1,6 +1,6 @@
 const assert = require('assert')
 import { Wallet } from 'ethers';
-import {lookup} from '../src/lookup';
+import { lookup } from '../src/lookup';
 
 const did = {
     address: "0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539",
@@ -15,19 +15,17 @@ const rpcUrl = "https://rpc-mumbai.maticvigil.com";
 describe('Lookup test', () => {
     it('Failed : Unregistered DID address', async () => {
         const tempDid = Wallet.createRandom();
-        const result = await lookup(tempDid.address, NETWORK, rpcUrl);
-        
-        assert.equal(result.success, false, 'Unregistered DID address')
+        await assert.rejects(
+            lookup(tempDid.address, NETWORK, rpcUrl),
+            {message: 'Failed to look up'}
+        )
     });
 
     it('Success', async () => {
+        // Need to register this did before
         const result = await lookup(did.address, NETWORK, rpcUrl);
 
-        assert.equal(result.data.length, 2, 'DID Controller and endpoints returned')
-        assert.equal(typeof(result.data[0]), 'string', 'DID Controller is a string')
-        assert.equal(typeof(result.data[1]), 'object', 'Endpoints is an array / object')
-        assert.equal(result.data[1].length, 3, 'Three endpoints returned')
-
-        assert.equal(result.success, true, 'Unregistered DID address')
+        assert.equal(typeof(result), 'object', 'DID Controller is a string')
+        assert.equal(result.length, 2, 'Two endpoints returned')
     });
 })

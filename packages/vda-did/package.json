@@ -10,8 +10,9 @@
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
-    "test": "ts-mocha",
-    "build": "rm -rf dist; tsc"
+    "test": "ts-mocha --timeout 100000",
+    "copy-files": "copyfiles -u 1 src/**/*.json dist/",
+    "build": "rm -rf dist; tsc && yarn copy-files "
   },
   "engines": {
     "node": "^14.0.0"
@@ -25,6 +26,7 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "mocha": "7.0.0",
     "ts-mocha": "^8.0.0",

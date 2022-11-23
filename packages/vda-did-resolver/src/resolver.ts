@@ -10,6 +10,7 @@ import {
   } from "did-resolver";
 import { DIDDocument } from "@verida/did-document"
 import { RPC_URLS } from './config'
+import { interpretIdentifier } from './utils'
 
 /**
  * Create a VdaDidResolver instance and return it
@@ -20,7 +21,7 @@ export function getResolver(
     options?: ResolverConfigurationOptions
   ): Record<string, DIDResolver> {
     options = !options ? {} : options
-    return new VdaDidResolver(options).build();
+    return new VdaDidResolver(options).build()
 }
 
 export class VdaDidResolver {
@@ -40,8 +41,10 @@ export class VdaDidResolver {
         options: DIDResolutionOptions
         ): Promise<DIDResolutionResult> {
 
+        const didDetails = interpretIdentifier(did)
+
         try {
-            const didDoc = await this._resolve(parsed)
+            const didDoc = await this._resolve(didDetails)
 
             // Return the DIDResolutionResult object
             return {
@@ -76,13 +79,19 @@ export class VdaDidResolver {
      * 
      * @param parsed 
      */
-     public async _resolve(parsed: ParsedDID): Promise<DIDDocument> {
-        //const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.method]
-        //const endpoints = await lookup(didAddress, parsed.method)
-        //throw new Error(`DID Document not found: DID doesn't exit`)
+     public async _resolve(parsed: any): Promise<DIDDocument> {
+        const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.network]
+        
+        let endpoints
+        try {
+            endpoints = await lookup(parsed.address, parsed.network, rpcUrl!)
+        } catch (err: any) {
+            if (err.message === 'DID not found') {
+                throw new Error(`DID Document not found: No valid documents on endpoints`)
+            }
 
-        // For now hardcode single endpoint
-        const endpoints = [`http://localhost:5000/did/${parsed.didUrl}`]
+            throw err
+        }
 
         // @todo: support timestamp
         // @todo: support fullVerification 

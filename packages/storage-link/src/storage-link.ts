@@ -99,7 +99,7 @@ export default class StorageLink {
         let didDocument
         try {
             didDocument = await didClient.get(did)
-        } catch (err) {
+        } catch (err: any) {
             // document not found
             throw new Error(`DID Document doesn't exist for this context`)
         }
@@ -122,7 +122,7 @@ export default class StorageLink {
         let didDocument
         try {
             didDocument = await didClient.get(did)
-        } catch (err) {
+        } catch (err: any) {
             // DID document not found
             return false
         }

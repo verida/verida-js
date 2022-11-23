@@ -40,6 +40,17 @@ const endpointsMultiple: Endpoints = {
     }
 }
 
+const endpointsMultiple: Endpoints = {
+    database: {
+        type: EndpointType.DATABASE,
+        endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
+    },
+    messaging: {
+        type: EndpointType.MESSAGING,
+        endpointUri: ['https://db.testnet.verida.io/2', 'https://db2.testnet.verida.io/2']
+    }
+}
+
 /**
  * 
  */

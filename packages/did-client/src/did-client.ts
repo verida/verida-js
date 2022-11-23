@@ -4,11 +4,10 @@ import { default as VeridaWallet } from "./wallet"
 import { getResolver } from '@verida/vda-did-resolver'
 import { VdaDid, VdaDidEndpointResponses, VeridaWeb3ConfigurationOptions } from '@verida/vda-did'
 import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
+import { ResolverConfigurationOptions } from "@verida/vda-did-resolver"
 
 import { Resolver } from 'did-resolver'
 import { Signer } from '@ethersproject/abstract-signer';
-
-import { ResolverConfigurationOptions } from "@verida/vda-did-resolver"
 
 // Part of VeridaSelfTransactionConfig
 export interface VeridaSelfTransactionConfigPart  {
@@ -51,6 +50,7 @@ export class DIDClient {
         }
 
         const vdaDidResolver = getResolver(resolverConfig)
+        // @ts-ignore
         this.didResolver = new Resolver(vdaDidResolver)
     }
 
@@ -90,7 +90,7 @@ export class DIDClient {
 
         this.vdaDid = new VdaDid({
             identifier: this.veridaWallet.did,
-            vdaKey: this.veridaWallet.privateKey,
+            signKey: this.veridaWallet.privateKey,
             chainNameOrId: this.config.network,
             callType: callType,
             web3Options: _web3Config

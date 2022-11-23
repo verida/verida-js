@@ -111,7 +111,7 @@ export class VeridaContract {
             })
         } else {
             if (!isVeridaContract(config.address)) {
-                throw new Error('Not a Verida contract address')
+                throw new Error(`Not a Verida contract address (${config.address})`)
             }
 
             if (!(<VeridaMetaTransactionConfig>config).serverConfig) {
