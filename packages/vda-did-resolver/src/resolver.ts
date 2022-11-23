@@ -21,7 +21,7 @@ export function getResolver(
     options?: ResolverConfigurationOptions
   ): Record<string, DIDResolver> {
     options = !options ? {} : options
-    return new VdaDidResolver(options).build();
+    return new VdaDidResolver(options).build()
 }
 
 export class VdaDidResolver {
@@ -81,7 +81,17 @@ export class VdaDidResolver {
      */
      public async _resolve(parsed: any): Promise<DIDDocument> {
         const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.network]
-        const endpoints = await lookup(parsed.address, parsed.network, rpcUrl!)
+        
+        let endpoints
+        try {
+            endpoints = await lookup(parsed.address, parsed.network, rpcUrl!)
+        } catch (err: any) {
+            if (err.message === 'DID not found') {
+                throw new Error(`DID Document not found: No valid documents on endpoints`)
+            }
+
+            throw err
+        }
 
         // @todo: support timestamp
         // @todo: support fullVerification 

@@ -9,7 +9,6 @@ import { ContractFactory } from 'ethers';
  * @param rpcUrl URL
  */
 export async function lookup(didAddress: string, network: string, rpcUrl: string) : Promise<string[]> {
-    // @todo: Alex perform lookup() on chain, without using VdaDid
     // Simple read-only of the blockchain
 
     const contractABI = require(`./abi/DidRegistry.json`);
@@ -24,8 +23,9 @@ export async function lookup(didAddress: string, network: string, rpcUrl: string
     try {
         data = await contract.callStatic.lookup(didAddress);
     } catch (e: any) {
+        //console.log(e)
         // console.log('Error in transaction', e);
-        throw new Error('Failed to look up');
+        throw new Error('DID not found');
     }
 
     return data[1]

@@ -1,5 +1,7 @@
 import { getResolver } from './resolver'
+import { ResolverConfigurationOptions } from './interfaces'
 
 export {
-    getResolver
+    getResolver,
+    ResolverConfigurationOptions
 }
