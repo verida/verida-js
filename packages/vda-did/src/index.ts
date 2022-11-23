@@ -4,10 +4,12 @@ import {
     VdaDidConfigurationOptions,
     VdaDidEndpointResponses
 } from './interfaces'
+import { LookupResponse } from "./blockchain/blockchainApi";
 
 export {
     VeridaWeb3ConfigurationOptions,
     VdaDidConfigurationOptions,
     VdaDidEndpointResponses,
-    VdaDid
+    VdaDid,
+    LookupResponse
 }
