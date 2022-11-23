@@ -11,7 +11,8 @@
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha --timeout 100000",
-    "build": "rm -rf dist; tsc"
+    "copy-files": "copyfiles -u 1 src/**/*.json dist/",
+    "build": "rm -rf dist; tsc && yarn copy-files "
   },
   "engines": {
     "node": "^14.0.0"
