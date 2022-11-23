@@ -44,7 +44,6 @@ describe("SDK tests", function() {
             masterDidDoc = doc
 
             const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
-            console.log(publishedEndpoints)
 
             assert.ok(typeof(publishedEndpoints) == 'object' && Object.keys(publishedEndpoints).length > 0, 'At least one endpoint was accessed')
             for (let i in publishedEndpoints) {
@@ -71,8 +70,9 @@ describe("SDK tests", function() {
         it("Fail - Invalid DID", async () => {
             try {
                 await didResolver.resolve(`did:vda:0xabcdefg`)
+                assert.fail(`Invalid DID was found`)
             } catch (err) {
-                assert.fail(`Failed: ${err.message}`)
+                assert.ok(err.message.match('invalid address'), 'DID not found')
             }
         })
     })

@@ -10,6 +10,7 @@ import {
   } from "did-resolver";
 import { DIDDocument } from "@verida/did-document"
 import { RPC_URLS } from './config'
+import { interpretIdentifier } from './utils'
 
 /**
  * Create a VdaDidResolver instance and return it
@@ -39,6 +40,8 @@ export class VdaDidResolver {
         _unused: Resolvable,
         options: DIDResolutionOptions
         ): Promise<DIDResolutionResult> {
+
+        parsed = interpretIdentifier(did)
 
         try {
             const didDoc = await this._resolve(parsed)
@@ -76,13 +79,9 @@ export class VdaDidResolver {
      * 
      * @param parsed 
      */
-     public async _resolve(parsed: ParsedDID): Promise<DIDDocument> {
-        const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.method]
-        const endpoints = await lookup(parsed.id, parsed.method, rpcUrl!)
-        //throw new Error(`DID Document not found: DID doesn't exit`)
-
-        // For now hardcode single endpoint
-        //const endpoints = [`http://localhost:5000/did/${parsed.didUrl}`]
+     public async _resolve(parsed: any): Promise<DIDDocument> {
+        const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.network]
+        const endpoints = await lookup(parsed.address, parsed.network, rpcUrl!)
 
         // @todo: support timestamp
         // @todo: support fullVerification 
