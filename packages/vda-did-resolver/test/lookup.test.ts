@@ -1,6 +1,6 @@
 const assert = require('assert')
 import { Wallet } from 'ethers';
-import {lookup} from '../src/lookup';
+import { lookup } from '../src/lookup';
 
 const did = {
     address: "0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539",
@@ -27,6 +27,6 @@ describe('Lookup test', () => {
 
         assert.equal(typeof(result.didController), 'string', 'DID Controller is a string')
         assert.equal(typeof(result.endpoints), 'object', 'Endpoints is an array / object')
-        assert.equal(result.endpoints.length, 3, 'Three endpoints returned')
+        assert.equal(result.endpoints.length, 2, 'Two endpoints returned')
     });
 })

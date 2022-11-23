@@ -10,7 +10,10 @@
       "lib": [
         "es5",
         "es2015"
-      ]
+      ],
+      "allowSyntheticDefaultImports": true,
+      "resolveJsonModule": true,
+      "esModuleInterop": true,
     },
     "include": ["src"],
     "exclude": ["node_modules", "test", "dist"]

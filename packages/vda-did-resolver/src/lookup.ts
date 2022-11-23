@@ -2,15 +2,13 @@ import { CONTRACT_ADDRESSES } from "./config";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ContractFactory } from 'ethers';
-
-import { LookupResponse } from "@verida/vda-did";
   
 /**
  * Call lookUp() function of DIDRegistry contract
  * @param didAddress DID address to lookup
  * @param rpcUrl URL
  */
-export async function lookup(didAddress: string, network: string, rpcUrl: string) : Promise<LookupResponse> {
+export async function lookup(didAddress: string, network: string, rpcUrl: string) : Promise<string[]> {
     // @todo: Alex perform lookup() on chain, without using VdaDid
     // Simple read-only of the blockchain
 
@@ -30,8 +28,5 @@ export async function lookup(didAddress: string, network: string, rpcUrl: string
         throw new Error('Failed to look up');
     }
 
-    return {
-        didController: data[0],
-        endpoints: data[1]
-    }
+    return data[1]
 }

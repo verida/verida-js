@@ -77,12 +77,12 @@ export class VdaDidResolver {
      * @param parsed 
      */
      public async _resolve(parsed: ParsedDID): Promise<DIDDocument> {
-        //const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.method]
-        //const endpoints = await lookup(didAddress, parsed.method)
+        const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.method]
+        const endpoints = await lookup(parsed.id, parsed.method, rpcUrl!)
         //throw new Error(`DID Document not found: DID doesn't exit`)
 
         // For now hardcode single endpoint
-        const endpoints = [`http://localhost:5000/did/${parsed.didUrl}`]
+        //const endpoints = [`http://localhost:5000/did/${parsed.didUrl}`]
 
         // @todo: support timestamp
         // @todo: support fullVerification 
