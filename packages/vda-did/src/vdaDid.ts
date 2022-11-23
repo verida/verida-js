@@ -2,7 +2,6 @@ import Axios from 'axios'
 import { ethers } from 'ethers'
 import {
     VdaDidConfigurationOptions,
-    VdaDidEndpointResponse,
     VdaDidEndpointResponses
 } from "./interfaces"
 import { DIDDocument } from '@verida/did-document'
@@ -135,7 +134,6 @@ export default class VdaDid {
         let successCount = 0
 
         for (let i in response.endpoints) {
-            //const endpoint = response[i]
             const endpoint = response.endpoints[i]
             try {
                 const result = await Axios.put(`${endpoint}`, {
@@ -244,7 +242,7 @@ export default class VdaDid {
 
         // 2. Call /migrate on the new endpoint
         // @todo: generate signature
-        const proofString = ''
+        const proofString = '' 
         const signature = ''
         try {
             const response = await Axios.post(`${endpointUri}/migrate`, {

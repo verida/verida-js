@@ -24,6 +24,7 @@ console.log(`DID1: ${DID}`)
 console.log(`DID2: ${DID2}`)
 
 const vdaDidResolver = getResolver()
+// @ts-ignore
 const didResolver = new Resolver(vdaDidResolver)
 
 const baseConfig = getBlockchainAPIConfiguration()
