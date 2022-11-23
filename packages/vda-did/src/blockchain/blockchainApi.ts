@@ -58,7 +58,10 @@ export default class BlockchainApi {
             throw new Error('DID not found');
         }
 
-        return response.data;
+        return {
+            didController: response.data[0],
+            endpoints: response.data[1]
+        }
     }
 
     /**

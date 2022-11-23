@@ -32,15 +32,21 @@ describe('vda-did blockchain api', () => {
         it('Register successfully', async () => {
             await blockchainApi.register(endPoints_A);
 
-            const endpoints = await blockchainApi.lookup(did.address);
-            assert.deepEqual(endpoints, endPoints_A, 'Get same endpoints');
+            const lookupResult = await blockchainApi.lookup(did.address);
+            assert.deepEqual(
+                lookupResult, 
+                {didController: did.address, endpoints: endPoints_A},
+                'Get same endpoints');
         })
 
         it('Should update for registered DID', async () => {
             await blockchainApi.register(endPoints_B);
 
-            const endpoints = await blockchainApi.lookup(did.address);
-            assert.deepEqual(endpoints, endPoints_B, 'Get updated endpoints');
+            const lookupResult = await blockchainApi.lookup(did.address);
+            assert.deepEqual(
+                lookupResult, 
+                {didController: did.address, endpoints: endPoints_B}, 
+                'Get updated endpoints');
         })
 
         it('Should reject for revoked did', async () => {
@@ -59,8 +65,11 @@ describe('vda-did blockchain api', () => {
 
     describe('Lookup', () => {
         it('Get endpoints successfully', async () => {
-            const endpoints = await blockchainApi.lookup(did.address);
-            assert.deepEqual(endpoints, endPoints_B, 'Get updated endpoints');
+            const lookupResult = await blockchainApi.lookup(did.address);
+            assert.deepEqual(
+                lookupResult, 
+                {didController:did.address, endpoints:endPoints_B}, 
+                'Get updated endpoints');
         })
 
         it('Should reject for unregistered DID',async () => {
@@ -68,7 +77,7 @@ describe('vda-did blockchain api', () => {
             const testAPI = createBlockchainAPI(testDID);
             await assert.rejects(
                 testAPI.lookup(testDID.address),
-                {message: 'Failed to lookup'}
+                {message: 'DID not found'}
             )
         })
 
@@ -81,7 +90,7 @@ describe('vda-did blockchain api', () => {
 
             await assert.rejects(
                 testAPI.lookup(testDID.address),
-                {message: 'Failed to lookup'}
+                {message: 'DID not found'}
             )
         })
     })
