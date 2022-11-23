@@ -12,7 +12,7 @@ export interface LookupResponse {
 export default class BlockchainApi {
 
     private options: VdaDidConfigurationOptions
-
+    private network: string
     private didAddress : string
 
     private vdaWeb3Client : VeridaContract;
@@ -21,11 +21,11 @@ export default class BlockchainApi {
         this.options = options
 
         const { address, publicKey, network } = interpretIdentifier(options.identifier)
-
+        
         this.didAddress = address.toLowerCase();
-
-        const net = network || options.chainNameOrId
-        const contractInfo = getContractInfoForNetwork(net);
+        // @ts-ignore
+        this.network = network || options.chainNameOrId
+        const contractInfo = getContractInfoForNetwork(this.network);
 
         this.vdaWeb3Client = getVeridaContract(
             options.callType, 
@@ -176,11 +176,9 @@ export default class BlockchainApi {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
         
-        //console.log(`revoke(${this.didAddress}, ${this.options.signKey})`)
         const signature = await this.getRevokeSignature(this.didAddress, this.options.signKey);
         const response = await this.vdaWeb3Client.revoke(this.didAddress, signature);
         if (response.success !== true) {
-            //console.log(response)
             throw new Error('Failed to revoke');
         }
     }

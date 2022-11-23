@@ -8,6 +8,7 @@ import {
 import { DIDDocument } from '@verida/did-document'
 import EncryptionUtils from '@verida/encryption-utils'
 import BlockchainApi from "./blockchain/blockchainApi";
+import { interpretIdentifier } from './blockchain/helpers'
 
 export default class VdaDid {
 
@@ -107,13 +108,13 @@ export default class VdaDid {
 
         // Fetch the endpoint list from the blockchain
         const response: any = await this.blockchain.lookup(didDocument.id)
-
-        // console.log('response...')
-        // console.log(response)
+        const didInfo = interpretIdentifier(didDocument.id)
 
         let updateController = false
+        const currentController = `did:vda:${didInfo.network}:${response.didController}`.toLowerCase()
+
         // @ts-ignore
-        if (response.didController != didDocument.export().controller) {
+        if (currentController != didDocument.export().controller) {
             // Controller has changed, ensure we have a private key
             if (!controllerPrivateKey) {
                 throw new Error(`Unable to update DID Document. Changing controller, but "controllerPrivateKey" not specified.`)
@@ -132,12 +133,12 @@ export default class VdaDid {
         // Update all the endpoints
         const finalEndpoints: VdaDidEndpointResponses = {}
         let successCount = 0
-        // for (let i in response) {
+
         for (let i in response.endpoints) {
             //const endpoint = response[i]
-            const endpoint = response[i].endpoints
+            const endpoint = response.endpoints[i]
             try {
-                const response = await Axios.put(`${endpoint}`, {
+                const result = await Axios.put(`${endpoint}`, {
                     document: didDocument.export()
                 });
 
@@ -174,6 +175,9 @@ export default class VdaDid {
 
         const did = this.options.identifier.toLowerCase()
 
+        // Fetch the endpoint list from the blockchain
+        const response = await this.blockchain.lookup(did)
+
         // 1. Call revoke() on the DID registry
         await this.blockchain.revoke()
 
@@ -182,9 +186,6 @@ export default class VdaDid {
         const proofString = `Delete DID Document ${did} at ${nowInMinutes}`
         const privateKey = new Uint8Array(Buffer.from(this.options.signKey.substr(2),'hex'))
         const signature = EncryptionUtils.signData(proofString, privateKey)
-
-        // Fetch the endpoint list from the blockchain
-        const response = await this.blockchain.lookup(did)
 
         // Delete DID Document from all the endpoints
         const finalEndpoints: VdaDidEndpointResponses = {}

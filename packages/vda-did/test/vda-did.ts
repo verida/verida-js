@@ -1,7 +1,6 @@
 const assert = require('assert')
 import { ethers } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
-import { CallType } from '@verida/web3'
 import { getResolver } from '@verida/vda-did-resolver'
 import { Resolver } from 'did-resolver'
 import { randomBytes } from 'crypto'
@@ -14,9 +13,6 @@ const wallet = new ethers.Wallet(DID_PRIVATE_KEY)
 const DID_ADDRESS = wallet.address
 const DID = `did:vda:testnet:${DID_ADDRESS}`
 const DID_PK = wallet.publicKey
-
-//console.log(entropy.toString('hex'))
-//console.log(entropy.reverse().toString('hex'))
 
 const DID_PRIVATE_KEY2 = `0x${randomBytes(32).toString('hex')}`
 const wallet2 = new ethers.Wallet(DID_PRIVATE_KEY2)
@@ -47,7 +43,6 @@ const VDA_DID_CONFIG2 = {
 }
 
 const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
-const ENDPOINT = ENDPOINTS[0].toLowerCase()
 
 // Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
 const ENDPOINTS_FAIL = [`http://localhost:5000/did/${DID2}`, `http://localhost:7000/did/${DID2}`]
@@ -64,7 +59,7 @@ describe("VdaDid tests", function() {
     this.beforeAll(async () => {
     })
 
-    describe.only("Create", () => {
+    describe("Create", () => {
         it("Success", async () => {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
@@ -77,7 +72,7 @@ describe("VdaDid tests", function() {
 
                 const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
                 const time = (new Date()).getTime()
-                console.log(`DID publish time: ${(time-NOW)}`)
+                console.log(`DID creation time: ${(time-NOW)}`)
 
                 assert.ok(Object.keys(publishedEndpoints).length, 'At least one endpoint was published')
                 assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS, 'Succesfully published to all endpoints')
@@ -128,7 +123,7 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe.only("Get", () => {
+    describe("Get", () => {
         it("Success", async () => {
             try {
                 const response = await didResolver.resolve(DID)
@@ -145,7 +140,7 @@ describe("VdaDid tests", function() {
     })
 
     describe("Update", () => {
-        it.only("Fail - Version not updated", async () => {
+        it("Fail - Version not updated", async () => {
             try {
                 const doc = new DIDDocument(masterDidDoc.export())
                 doc.setAttributes({
@@ -162,7 +157,7 @@ describe("VdaDid tests", function() {
             }
         })
 
-        it.only("Fail - Version not next", async () => {
+        it("Fail - Version not next", async () => {
             try {
                 const doc = new DIDDocument(masterDidDoc.export())
                 doc.setAttributes({
@@ -180,7 +175,7 @@ describe("VdaDid tests", function() {
             }
         })
 
-        it.only("Fail - Updated timestamp is same as created", async () => {
+        it("Fail - Updated timestamp is same as created", async () => {
             try {
                 const doc = new DIDDocument(masterDidDoc.export())
                 doc.setAttributes({
@@ -212,7 +207,7 @@ describe("VdaDid tests", function() {
             }
         })*/
 
-        it.only("Success", async () => {
+        it("Success", async () => {
             const doc = new DIDDocument(masterDidDoc.export())
             doc.setAttributes({
                 versionId: 1,
@@ -232,32 +227,21 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe.only("Delete", () => {
-        it("Fail - Delete DID that doesn't exist", async () => {
-            try {
-                await veridaApi.delete('did:vda:testnet:0xabc')
-                assert.fail('Should not have succeeded')
-            } catch (err) {
-                console.log(err)
-                assert.ok(err.message, 'Unable to delete DID: All endpoints failed to accept the delete request', 'Unable to delete')
-            }
-        })
-
+    describe("Delete", () => {
         it("Success", async () => {
             try {
-                const deleteResponse = await veridaApi.delete(DID)
+                const deleteResponse = await veridaApi.delete()
 
                 assert.ok(Object.keys(deleteResponse).length > 0, 'Update successfully returned at least one response')
-                assert.equal(deleteResponse[ENDPOINTS[0].toLocaleLowerCase()].status, 'success', 'Success response')
+                assert.equal(deleteResponse[Object.keys(deleteResponse)[0]].status, 'success', 'Success response')
             } catch (err) {
-                console.log(err)
-                assert.fail('exception')
+                assert.fail('Failed to delete')
             }
         })
 
         it("Fail - Delete DID that has been deleted", async () => {
             try {
-                await veridaApi.delete(DID)
+                await veridaApi.delete()
                 assert.fail('Should not have succeeded')
             } catch (err) {
                 assert.ok(err.message, 'Unable to delete DID: All endpoints failed to accept the delete request', 'Unable to delete')

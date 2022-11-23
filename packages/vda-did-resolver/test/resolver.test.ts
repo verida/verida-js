@@ -35,7 +35,7 @@ let veridaApi = new VdaDid(VDA_DID_CONFIG)
 
 let masterDidDoc
 
-describe("SDK tests", function() {
+describe("DID Resolver Tests", function() {
     this.beforeAll(async () => {
         // Create the test DID
         try {

@@ -41,10 +41,10 @@ export class VdaDidResolver {
         options: DIDResolutionOptions
         ): Promise<DIDResolutionResult> {
 
-        parsed = interpretIdentifier(did)
+        const didDetails = interpretIdentifier(did)
 
         try {
-            const didDoc = await this._resolve(parsed)
+            const didDoc = await this._resolve(didDetails)
 
             // Return the DIDResolutionResult object
             return {
