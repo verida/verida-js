@@ -1,10 +1,11 @@
 const assert = require('assert')
+require('dotenv').config();
 import { ethers } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
 import { getResolver } from '../src/resolver'
 import { Resolver } from 'did-resolver'
 import { VdaDid } from '@verida/vda-did'
-import { CallType } from '@verida/web3'
+import { getBlockchainAPIConfiguration } from "./utils"
 
 const wallet = ethers.Wallet.createRandom()
 
@@ -17,11 +18,13 @@ DID_PRIVATE_KEY = wallet.privateKey
 
 const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
 
+const baseConfig = getBlockchainAPIConfiguration()
+
 const VDA_DID_CONFIG = {
     identifier: DID,
-    vdaKey: DID_PRIVATE_KEY,
-    callType: <CallType> 'web3',
-    web3Options: {}
+    signKey: DID_PRIVATE_KEY,
+    callType: baseConfig.callType,
+    web3Options: baseConfig.web3Options
 }
 
 // build resolver
@@ -41,9 +44,13 @@ describe("SDK tests", function() {
             masterDidDoc = doc
 
             const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
+            console.log(publishedEndpoints)
 
-            assert.ok(publishedEndpoints.length, 'At least one endpoint was published')
-            assert.deepEqual(publishedEndpoints, ENDPOINTS, 'Succesfully published to all endpoints')
+            assert.ok(typeof(publishedEndpoints) == 'object' && Object.keys(publishedEndpoints).length > 0, 'At least one endpoint was accessed')
+            for (let i in publishedEndpoints) {
+                const endpoint = publishedEndpoints[i]
+                assert.equal(endpoint.status, 'success', `${endpoint} success`)
+            }
         } catch (err) {
             assert.fail(`Failed: ${err.message}`)
         }
