@@ -22,7 +22,7 @@ export default class BlockchainApi {
 
         const { address, publicKey, network } = interpretIdentifier(options.identifier)
 
-        this.didAddress = address;
+        this.didAddress = address.toLowerCase();
 
         const net = network || options.chainNameOrId
         const contractInfo = getContractInfoForNetwork(net);
@@ -51,10 +51,11 @@ export default class BlockchainApi {
      */
     public async lookup(did: string): Promise<LookupResponse> {
         // @todo: Fetch actual on chain values
+        const didParts = interpretIdentifier(did)
 
-        const response = await this.vdaWeb3Client.lookup(did);
+        const response = await this.vdaWeb3Client.lookup(didParts.address.toLowerCase());
         if (response.success !== true) {
-            throw new Error('Failed to lookup');
+            throw new Error('DID not found');
         }
 
         return response.data;
@@ -72,7 +73,7 @@ export default class BlockchainApi {
         endpoints: string[],
         signKey: string
     ) {
-        let rawMsg = ethers.utils.solidityPack(['address', 'string'], [did, '/']);
+        let rawMsg = ethers.utils.solidityPack(['address', 'string'], [did.toLowerCase(), '/']);
         
         for (let i = 0; i < endpoints.length; i++) {
             rawMsg = ethers.utils.solidityPack(
@@ -128,7 +129,7 @@ export default class BlockchainApi {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
 
-        const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey);
+        const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase();
 
         const signature = await this.getControllerSignature(this.didAddress, controllerAddress, this.options.signKey);
         const response = await this.vdaWeb3Client.setController(this.didAddress, controllerAddress, signature);
@@ -159,7 +160,7 @@ export default class BlockchainApi {
     private async getRevokeSignature(did: string, signKey: string) {
         const rawMsg = ethers.utils.solidityPack(
             ['address', 'string'],
-            [did, '/revoke/']
+            [did.toLowerCase(), '/revoke/']
         );
         return await getVeridaSignWithNonce(rawMsg, signKey, await this.nonceFN());
     };
@@ -172,9 +173,11 @@ export default class BlockchainApi {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
         
+        //console.log(`revoke(${this.didAddress}, ${this.options.signKey})`)
         const signature = await this.getRevokeSignature(this.didAddress, this.options.signKey);
         const response = await this.vdaWeb3Client.revoke(this.didAddress, signature);
         if (response.success !== true) {
+            //console.log(response)
             throw new Error('Failed to revoke');
         }
     }

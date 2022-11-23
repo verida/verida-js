@@ -5,6 +5,7 @@ import { CallType } from '@verida/web3'
 import { getResolver } from '@verida/vda-did-resolver'
 import { Resolver } from 'did-resolver'
 import { randomBytes } from 'crypto'
+import { getBlockchainAPIConfiguration } from "./utils"
 
 import VdaDid from '../src/vdaDid'
 
@@ -29,18 +30,20 @@ console.log(`DID2: ${DID2}`)
 const vdaDidResolver = getResolver()
 const didResolver = new Resolver(vdaDidResolver)
 
+const baseConfig = getBlockchainAPIConfiguration()
+
 const VDA_DID_CONFIG = {
     identifier: DID,
-    vdaKey: DID_PRIVATE_KEY,
-    callType: <CallType> 'web3',
-    web3Options: {}
+    signKey: DID_PRIVATE_KEY,
+    callType: baseConfig.callType,
+    web3Options: baseConfig.web3Options
 }
 
 const VDA_DID_CONFIG2 = {
     identifier: DID2,
-    vdaKey: DID_PRIVATE_KEY2,
-    callType: <CallType> 'web3',
-    web3Options: {}
+    signKey: DID_PRIVATE_KEY2,
+    callType: baseConfig.callType,
+    web3Options: baseConfig.web3Options
 }
 
 const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
@@ -61,17 +64,20 @@ describe("VdaDid tests", function() {
     this.beforeAll(async () => {
     })
 
-    describe("Create", () => {
+    describe.only("Create", () => {
         it("Success", async () => {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
                 doc.setAttributes({
-                    created: doc.buildTimestamp(NOW)
+                    created: doc.buildTimestamp(NOW),
+                    updated: doc.buildTimestamp(NOW),
                 })
                 doc.signProof(wallet.privateKey)
                 masterDidDoc = doc
 
                 const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
+                const time = (new Date()).getTime()
+                console.log(`DID publish time: ${(time-NOW)}`)
 
                 assert.ok(Object.keys(publishedEndpoints).length, 'At least one endpoint was published')
                 assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS, 'Succesfully published to all endpoints')
@@ -84,7 +90,8 @@ describe("VdaDid tests", function() {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
                 doc.setAttributes({
-                    created: doc.buildTimestamp(NOW)
+                    created: doc.buildTimestamp(NOW),
+                    updated: doc.buildTimestamp(NOW)
                 })
                 doc.signProof(wallet.privateKey)
                 masterDidDoc = doc
@@ -103,7 +110,8 @@ describe("VdaDid tests", function() {
             try {
                 const doc = new DIDDocument(DID2, DID_PK2)
                 doc.setAttributes({
-                    created: doc.buildTimestamp(NOW)
+                    created: doc.buildTimestamp(NOW),
+                    updated: doc.buildTimestamp(NOW)
                 })
                 doc.signProof(DID_PRIVATE_KEY2)
                 //masterDidDoc2 = doc
@@ -114,16 +122,20 @@ describe("VdaDid tests", function() {
                 assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS_FAIL, 'Response for all endpoints')
                 assert.equal(publishedEndpoints[ENDPOINTS_FAIL[1]].status, 'fail', 'Second endpoint failed')
             } catch (err) {
+                //console.log(err)
                 assert.fail(`Failed: ${err.message}`)
             }
         })
     })
 
-    describe("Get", () => {
+    describe.only("Get", () => {
         it("Success", async () => {
             try {
                 const response = await didResolver.resolve(DID)
                 const didDocument = <DIDDocument> response.didDocument
+
+                // console.log(didDocument!.export())
+                // console.log(masterDidDoc.export())
 
                 assert.deepEqual(didDocument!.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {
@@ -133,7 +145,7 @@ describe("VdaDid tests", function() {
     })
 
     describe("Update", () => {
-        it("Fail - Version not updated", async () => {
+        it.only("Fail - Version not updated", async () => {
             try {
                 const doc = new DIDDocument(masterDidDoc.export())
                 doc.setAttributes({
@@ -146,11 +158,11 @@ describe("VdaDid tests", function() {
             } catch (err) {
                 assert.equal(err.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Unable to update DID Document')
                 const errors = veridaApi.getLastEndpointErrors()
-                assert.equal(errors![ENDPOINT].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
+                assert.equal(errors![Object.keys(errors!)[0]].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
             }
         })
 
-        it("Fail - Version not next", async () => {
+        it.only("Fail - Version not next", async () => {
             try {
                 const doc = new DIDDocument(masterDidDoc.export())
                 doc.setAttributes({
@@ -164,11 +176,11 @@ describe("VdaDid tests", function() {
             } catch (err) {
                 assert.equal(err.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Unable to update DID DOcument')
                 const errors = veridaApi.getLastEndpointErrors()
-                assert.equal(errors![ENDPOINT].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
+                assert.equal(errors![Object.keys(errors!)[0]].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
             }
         })
 
-        it("Fail - Updated timestamp is same as created", async () => {
+        it.only("Fail - Updated timestamp is same as created", async () => {
             try {
                 const doc = new DIDDocument(masterDidDoc.export())
                 doc.setAttributes({
@@ -180,7 +192,7 @@ describe("VdaDid tests", function() {
                 await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
             } catch (err) {
-                assert.equal(err.message, 'Unable to update DID Document. "updated" timestamp matches "created" timestamp', 'Invalid updated timestamp')
+                assert.equal(err.message, 'Unable to update DID Document. "updated" timestamp matches "created" timestamp.', 'Invalid updated timestamp')
             }
         })
 
@@ -200,7 +212,7 @@ describe("VdaDid tests", function() {
             }
         })*/
 
-        it("Success", async () => {
+        it.only("Success", async () => {
             const doc = new DIDDocument(masterDidDoc.export())
             doc.setAttributes({
                 versionId: 1,
@@ -211,7 +223,7 @@ describe("VdaDid tests", function() {
             // Verify update response is correct
             const response = await veridaApi.update(doc)
             assert.ok(Object.keys(response).length > 0, 'Update successfully returned at least one response')
-            assert.equal(response[ENDPOINTS[0].toLocaleLowerCase()].status, 'success', 'Success response')
+            assert.equal(response[Object.keys(response)[0]].status, 'success', 'Success response')
 
             // Verify the new DID document is resolved
             const didResolve = await didResolver.resolve(DID)
@@ -220,12 +232,13 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe("Delete", () => {
+    describe.only("Delete", () => {
         it("Fail - Delete DID that doesn't exist", async () => {
             try {
                 await veridaApi.delete('did:vda:testnet:0xabc')
                 assert.fail('Should not have succeeded')
             } catch (err) {
+                console.log(err)
                 assert.ok(err.message, 'Unable to delete DID: All endpoints failed to accept the delete request', 'Unable to delete')
             }
         })

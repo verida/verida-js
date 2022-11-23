@@ -1,4 +1,5 @@
 import Axios from 'axios'
+import { ethers } from 'ethers'
 import {
     VdaDidConfigurationOptions,
     VdaDidEndpointResponse,
@@ -63,8 +64,6 @@ export default class VdaDid {
                 
                 successCount++
             } catch (err: any) {
-                //console.error('endpoint error!!')
-                //console.error(err)
                 finalEndpoints[endpoint] = {
                     status: 'fail',
                     message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
@@ -78,7 +77,7 @@ export default class VdaDid {
         }
 
         // Publish final endpoints on-chain
-        //const blockchainResult = await this.blockchain.register(did, Object.keys(finalEndpoints), this.options.privateKey)
+        await this.blockchain.register(Object.keys(finalEndpoints))
 
         return finalEndpoints
     }
@@ -93,7 +92,7 @@ export default class VdaDid {
      * @param didDocument 
      * @returns VdaDidEndpointResponses Map of endpoints where the DID Document was successfully published
      */
-    public async update(didDocument: DIDDocument): Promise<VdaDidEndpointResponses> {
+    public async update(didDocument: DIDDocument, controllerPrivateKey?: string): Promise<VdaDidEndpointResponses> {
         this.lastEndpointErrors = undefined
         if (!this.options.signKey) {
             throw new Error(`Unable to update DID Document. No private key specified in config.`)
@@ -101,19 +100,42 @@ export default class VdaDid {
 
         const attributes = didDocument.export()
         if (attributes.created == attributes.updated) {
-            throw new Error(`Unable to update DID Document. "updated" timestamp matches "created" timestamp`)
+            throw new Error(`Unable to update DID Document. "updated" timestamp matches "created" timestamp.`)
         }
 
         didDocument.signProof(this.options.signKey)
 
         // Fetch the endpoint list from the blockchain
-        const response = await this.blockchain.lookup(didDocument.id)
+        const response: any = await this.blockchain.lookup(didDocument.id)
+
+        // console.log('response...')
+        // console.log(response)
+
+        let updateController = false
+        // @ts-ignore
+        if (response.didController != didDocument.export().controller) {
+            // Controller has changed, ensure we have a private key
+            if (!controllerPrivateKey) {
+                throw new Error(`Unable to update DID Document. Changing controller, but "controllerPrivateKey" not specified.`)
+            }
+
+            // Ensure new controller in the DID Document matches the private key
+            const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey)
+            if ((<string> didDocument.export().controller!).toLowerCase() !== `did:vda:${this.options.chainNameOrId}:${controllerAddress}`) {
+                console.log((<string> didDocument.export().controller!).toLowerCase(), `did:vda:${this.options.chainNameOrId}:${controllerAddress}`)
+                throw new Error(`Unable to update DID Document. Changing controller, but private key doens't match controller in DID Document`)
+            }
+
+            updateController = true
+        }
 
         // Update all the endpoints
         const finalEndpoints: VdaDidEndpointResponses = {}
         let successCount = 0
+        // for (let i in response) {
         for (let i in response.endpoints) {
-            const endpoint = response.endpoints[i]
+            //const endpoint = response[i]
+            const endpoint = response[i].endpoints
             try {
                 const response = await Axios.put(`${endpoint}`, {
                     document: didDocument.export()
@@ -124,8 +146,6 @@ export default class VdaDid {
                 }
                 successCount++
             } catch (err: any) {
-                //console.error('endpoint error!!')
-                //console.error(err.response.data)
                 finalEndpoints[endpoint] = {
                     status: 'fail',
                     message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
@@ -139,23 +159,23 @@ export default class VdaDid {
         }
 
         // If the controller doesn't match the DID, the controller may have changed
-        if (didDocument.id != didDocument.export().controller) {
+        if (updateController) {
             // If the DID controller has changed, update on-chain via `setController()`
-            // Requires fetching latest DID Document to confirm the controller has changed
+            await this.blockchain.setController(controllerPrivateKey!)
         }
 
         return finalEndpoints
     }
 
-    public async delete(did: string): Promise<VdaDidEndpointResponses> {
+    public async delete(): Promise<VdaDidEndpointResponses> {
         if (!this.options.signKey) {
             throw new Error(`Unable to delete DID. No private key specified in config.`)
         }
 
-        did = did.toLowerCase()
+        const did = this.options.identifier.toLowerCase()
 
         // 1. Call revoke() on the DID registry
-
+        await this.blockchain.revoke()
 
         // 2. Call DELETE on all endpoints
         const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
@@ -200,14 +220,19 @@ export default class VdaDid {
         return finalEndpoints
     }
 
-    // @todo: Complete once `migrate` is implemented on storage node
-    public async addEndpoint(did: string, endpointUri: string, verifyAllVersions=false) {
+    /**
+     * Add a new to an existing DID
+     * 
+     * @param endpointUri 
+     * @param verifyAllVersions 
+     */
+    public async addEndpoint(endpointUri: string, verifyAllVersions=false) {
         if (!this.options.signKey) {
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
 
         // 1. Fetch all versions of the DID
-        const lookupResponse = await this.blockchain.lookup(did)
+        const lookupResponse = await this.blockchain.lookup(this.options.identifier)
         const endpoints = lookupResponse.endpoints
         const versions = await this.fetchDocumentHistory(endpoints)
 
@@ -234,10 +259,10 @@ export default class VdaDid {
             throw new Error(`Unable to add endpoint. ${err.message}`)
         }
 
-        // Update the blockchain
+        endpoints.push(endpointUri)
 
-        // endpoints.push(endpoint)
-        // this.blockchain.register(did, endpoints)
+        // Update the blockchain
+        await this.blockchain.register(endpoints)
     }
 
     // @todo: Implement

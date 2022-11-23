@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 export const dids = [
   {
       address: "0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539",
