@@ -1,17 +1,10 @@
-node_modules
-lib
-dist
-.vscode/settings.json
-coverage
+#Ignore all files starting with "."
+.*
+!/.gitignore
 
-*.log
+# node_modules in all sub directories
+**node_modules
 
-*.tgz
-
-.DS_Store
-/.idea/
-
-.rts2_cache_cjs
-.rts2_cache_es
-.rts2_cache_umd
-/.idea/
+# build
+dist/
+lib/

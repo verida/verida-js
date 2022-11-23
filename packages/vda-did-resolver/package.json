@@ -1,107 +1,38 @@
 {
   "name": "@verida/vda-did-resolver",
   "version": "2.0.0-rc3",
-  "description": "Resolve DID documents for Verida accounts",
-  "source": "src/index.ts",
-  "main": "lib/index.js",
-  "module": "lib/index.module.js",
-  "unpkg": "lib/index.umd.js",
-  "types": "lib/index.d.ts",
-  "umd:main": "lib/index.umd.js",
-  "repository": {
-    "type": "git",
-    "url": "git@https://github.com/verida/verida-js/tree/main/packages/vda-did-resolver"
+  "main": "dist/index.js",
+  "license": "ISC",
+  "directories": {
+    "src": "src",
+    "test": "tests"
   },
-  "files": [
-    "lib",
-    "src",
-    "LICENSE"
-  ],
-  "author": "Alex J",
-  "contributors": [
-    "Mircea Nistor <mircea.nistor@mesh.xyz>"
-  ],
-  "license": "Apache-2.0",
-  "keywords": [
-    "did:vda",
-    "did:ethr",
-    "DID",
-    "DID document",
-    "PKI",
-    "resolver",
-    "Verifiable Credential",
-    "W3C",
-    "verida",
-    "ethereum",
-    "ethereumAddress",
-    "blockchainAccountId",
-    "registry",
-    "EIP1056",
-    "EcdsaSecp256k1RecoveryMethod2020",
-    "EcdsaSecp256k1VerificationKey2019",
-    "Ed25519VerificationKey2018"
-  ],
+  "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
-    "test": "jest",
-    "test:ci": "jest --coverage && codecov",
-    "copy-files": "copyfiles -u 1 src/contract/*.json lib",
-    "build:js": "microbundle --compress=false",
-    "build": "rm -rf lib && yarn build:js && yarn copy-files",
-    "format": "prettier --write \"src/**/*.[jt]s\"",
-    "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
-    "prepublishOnly": "yarn build:js && yarn test:ci && yarn format",
-    "release": "semantic-release --debug"
+    "tests": "ts-mocha './test/**/*.ts'",
+    "copy-files": "copyfiles -u 1 src/abi/*.json dist",
+    "test": "ts-mocha --timeout 100000",
+    "build": "rm -rf dist && tsc && yarn copy-files"
   },
-  "jest": {
-    "clearMocks": true,
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!src/**/*.d.ts",
-      "!**/node_modules/**",
-      "!**/__tests__/**"
-    ],
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/__tests__/**/*.test.[jt]s"
-    ]
-  },
-  "devDependencies": {
-    "@babel/core": "7.16.7",
-    "@babel/preset-env": "7.16.7",
-    "@babel/preset-typescript": "7.16.7",
-    "@semantic-release/changelog": "6.0.1",
-    "@semantic-release/git": "10.0.1",
-    "@types/jest": "27.4.0",
-    "@typescript-eslint/eslint-plugin": "5.8.1",
-    "@typescript-eslint/parser": "5.8.1",
-    "babel-jest": "27.4.5",
-    "codecov": "3.8.2",
-    "copyfiles": "^2.4.1",
-    "eslint": "8.6.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-import-resolver-babel-module": "^5.3.1",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jest": "25.3.4",
-    "eslint-plugin-prettier": "4.0.0",
-    "ganache-cli": "^6.12.2",
-    "jest": "27.4.5",
-    "microbundle": "0.14.2",
-    "prettier": "2.5.1",
-    "semantic-release": "18.0.1",
-    "typescript": "4.5.4"
+  "engines": {
+    "node": "^14.0.0"
   },
   "dependencies": {
-    "@ethersproject/abi": "^5.5.0",
-    "@ethersproject/abstract-signer": "^5.5.0",
-    "@ethersproject/address": "^5.5.0",
-    "@ethersproject/basex": "^5.5.0",
-    "@ethersproject/bignumber": "^5.5.0",
-    "@ethersproject/contracts": "^5.5.0",
-    "@ethersproject/providers": "^5.5.0",
-    "@ethersproject/transactions": "^5.5.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@verida/did-document": "^2.0.0-rc3",
     "@verida/encryption-utils": "^2.0.0-rc1",
-    "@verida/web3": "^2.0.0-rc3",
-    "did-resolver": "^3.1.5",
-    "ethers": "^5.7.0"
+    "@verida/vda-did": "^2.0.0-rc3",
+    "axios": "1.2.0-alpha.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.0",
+    "did-resolver": "^4.0.1",
+    "ethers": "^5.7.2",
+    "mocha": "^10.1.0",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.1.3"
   }
 }

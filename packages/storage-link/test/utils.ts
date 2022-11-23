@@ -34,7 +34,8 @@ export async function getDIDClient(veridaAccount: Wallet) {
         'web3',
         {
             privateKey
-        }
+        },
+        ['http://localhost:5000/did/']
     )
 
     return didClient
