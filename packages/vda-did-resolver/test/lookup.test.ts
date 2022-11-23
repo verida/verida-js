@@ -25,8 +25,7 @@ describe('Lookup test', () => {
         // Need to register this did before
         const result = await lookup(did.address, NETWORK, rpcUrl);
 
-        assert.equal(typeof(result.didController), 'string', 'DID Controller is a string')
-        assert.equal(typeof(result.endpoints), 'object', 'Endpoints is an array / object')
-        assert.equal(result.endpoints.length, 2, 'Two endpoints returned')
+        assert.equal(typeof(result), 'object', 'DID Controller is a string')
+        assert.equal(result.length, 2, 'Two endpoints returned')
     });
 })
