@@ -150,7 +150,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
         // connect account to the endpoint if we are connected
         if (this.account) {
-          endpoints[endpointUri].connectAccount(this.account, false)
+          await endpoints[endpointUri].connectAccount(this.account, false)
         }
       }
     }

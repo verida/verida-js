@@ -95,7 +95,8 @@ class BaseDb extends EventEmitter implements Database {
    * @returns {boolean} Boolean indicating if the save was successful. If not successful `this.errors` will be populated.
    */
   public async save(data: any, options: any = {}): Promise<boolean> {
-    await this.init();
+    const db = await this.getDb();
+
     if (this.readOnly) {
       throw new Error("Unable to save. Database is read only.");
     }
@@ -157,7 +158,7 @@ class BaseDb extends EventEmitter implements Database {
       this.emit("beforeUpdate", data);
     }
 
-    let response = await this.db.put(data, options);
+    let response = await db.put(data, options);
 
     if (insert) {
       this._afterInsert(data, options);
@@ -195,7 +196,7 @@ class BaseDb extends EventEmitter implements Database {
     filter: any = {},
     options: any = {}
   ): Promise<object[]> {
-    await this.init();
+    const db = await this.getDb();
 
     filter = filter || {};
     let defaults = {
@@ -212,7 +213,7 @@ class BaseDb extends EventEmitter implements Database {
       options.selector = _.merge(options.selector, filter);
     }
 
-    let docs = await this.db.find(options);
+    let docs = await db.find(options);
     if (docs) {
       return raw ? docs : docs.docs;
     }
@@ -226,7 +227,7 @@ class BaseDb extends EventEmitter implements Database {
       throw "Unable to delete. Read only.";
     }
 
-    await this.init();
+    await this.init()
 
     let defaults = {};
     options = _.merge(defaults, options);
@@ -256,12 +257,12 @@ class BaseDb extends EventEmitter implements Database {
   }
 
   public async get(docId: string, options: any = {}) {
-    await this.init();
+    const db = await this.getDb();
 
     let defaults = {};
     options = _.merge(defaults, options);
 
-    return await this.db.get(docId, options);
+    return await db.get(docId, options);
   }
 
   /**
