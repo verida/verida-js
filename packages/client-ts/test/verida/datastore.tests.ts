@@ -54,7 +54,12 @@ describe('Verida datastore tests', () => {
             await network2.connect(account2)
             context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
 
-            const datastore = await context.openDatastore(DS_CONTACTS)
+            const datastore = await context.openDatastore(DS_CONTACTS, {
+                permissions: {
+                    read: 'users',
+                    write: 'users'
+                }
+            })
             const result1 = await datastore.save({'hello': 'world'})
             assert.ok(result1 === false, 'Unable to save due to validation error')
 
@@ -83,7 +88,7 @@ describe('Verida datastore tests', () => {
             const info = await database.info()
             DB_USER_ENCRYPTION_KEY = info.encryptionKey
 
-            // Grant read / write access to DID_3 for future tests relating to read / write of user databases
+            // Grant read / write access to DID_2 for future tests relating to read / write of user databases
             const updateResponse = await datastore.updateUsers([did2], [did2])
 
             const contact = {
