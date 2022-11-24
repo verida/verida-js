@@ -259,8 +259,4 @@ export default class Endpoint extends EventEmitter {
         );
     }
 
-    public getDb() {
-        return this.db
-    }
-
 }

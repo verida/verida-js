@@ -230,8 +230,6 @@ class EncryptedDatabase extends BaseDb {
     if (this.config.saveDatabase !== false) {
       await this.engine.getDbRegistry().saveDb(this);
     }
-
-    return true
   }
 
   public async getDb(): Promise<any> {

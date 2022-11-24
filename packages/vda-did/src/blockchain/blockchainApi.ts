@@ -27,6 +27,11 @@ export default class BlockchainApi {
         this.network = network || options.chainNameOrId
         const contractInfo = getContractInfoForNetwork(this.network);
 
+        // @ts-ignore
+        if (options.callType == 'web3' && !options.web3Options.rpcUrl) {
+            throw new Error('Web3 transactions must specify `rpcUrl` in the configuration options')
+        }
+
         this.vdaWeb3Client = getVeridaContract(
             options.callType, 
             {...contractInfo,
