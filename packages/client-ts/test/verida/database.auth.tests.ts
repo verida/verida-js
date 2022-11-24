@@ -37,7 +37,7 @@ describe('Verida auth tests', () => {
     })
 
     describe('Handle authentication errors', function() {
-        this.timeout(10000)
+        this.timeout(100000)
 
         // Handle errors where the storage node API is down, so unable to authenticate
         it('can handle authentication connection error', async function() {
@@ -81,6 +81,7 @@ describe('Verida auth tests', () => {
             const db1 = await context!.openDatabase(DB_NAME_OWNER, {
                 saveDatabase: false
             })
+            const row = await db1.save({'hello': 'world'})
 
             // 1/ get the context auth
             const did = await account.did()
@@ -104,7 +105,7 @@ describe('Verida auth tests', () => {
             const context2 = await network2.openContext(VALID_CONTEXT)
 
             // 4/ Create a new context which will use the refresh token to create a new access token
-            const db2 = await context2?.openDatabase(DB_NAME_OWNER, {
+            const db2 = await context2!.openDatabase(DB_NAME_OWNER, {
                 saveDatabase: false
             })
 
