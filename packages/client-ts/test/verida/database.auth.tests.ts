@@ -61,7 +61,7 @@ describe('Verida auth tests', () => {
     })
     
     describe('Handle token expiry', function() {
-        this.timeout(10000)
+        this.timeout(100000)
 
         it('can handle accessToken expiry for an encrypted database', async function() {
             // Create a working connection
