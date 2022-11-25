@@ -2,7 +2,7 @@ require('dotenv').config();
 
 import {getVeridaContract, VeridaContract} from '../src/index';
 import {JsonRpcProvider} from '@ethersproject/providers';
-import {ethers, Wallet} from 'ethers';
+import {BigNumber, ethers, Wallet} from 'ethers';
 import EncryptionUtils from '@verida/encryption-utils';
 
 const PORT = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5021;
@@ -48,6 +48,10 @@ export function getVeridaWeb3Instance(
       address: CONTRACT_ADDRESS,
       provider: provider,
       signer: txSigner,
+
+      // fixedGasPerMethod: new Map([['register', BigNumber.from(500000)]]),
+      // fixedGasFee: BigNumber.from(400000),
+      maxGasFee: BigNumber.from(450000),
     });
   } else {
     contract = getVeridaContract('gasless', {

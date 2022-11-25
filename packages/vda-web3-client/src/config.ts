@@ -30,6 +30,10 @@ export interface VeridaSelfTransactionConfig {
     provider?: Provider
     rpcUrl?: string
     web3?: any
+
+    maxGasFee?: BigNumber
+    fixedGasFee?: BigNumber
+    fixedGasPerMethod?: Map<string, BigNumber>//Map<string, Map<string, BigNumber>>
 }
 
 /** Configuration type for gasless mode */

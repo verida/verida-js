@@ -62,6 +62,10 @@ export class VeridaContract {
     /** Need such fields to add sub methods in constructor */
     [key: string]: any
 
+    /** Configuration for web3 mode */
+    protected web3Config? : VeridaSelfTransactionConfig
+
+    /** Configuration for gasless mode */
     protected gaslessServerConfig? : VeridaGaslessRequestConfig
     protected gaslessPostConfig? : VeridaGaslessPostConfig
 
@@ -109,6 +113,8 @@ export class VeridaContract {
                     }
                 }
             })
+
+            this.web3Config = web3Config
         } else {
             if (!isVeridaContract(config.address)) {
                 throw new Error(`Not a Verida contract address (${config.address})`)
@@ -203,16 +209,29 @@ export class VeridaContract {
                 if (methodType === 'view') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
-                    let { gasPrice } = await contract.provider.getFeeData()
-                    gasPrice = gasPrice!.mul(BigNumber.from(11)).div(BigNumber.from(10))
+                    // let { gasPrice } = await contract.provider.getFeeData()
+                    // gasPrice = gasPrice!.mul(BigNumber.from(11)).div(BigNumber.from(10))
 
-                    let gasLimit = await contract.estimateGas[methodName](...params);
-                    gasLimit = gasLimit.mul(BigNumber.from(11)).div(BigNumber.from(10)) // Multiply 1.1
+                    // let gasLimit = await contract.estimateGas[methodName](...params);
+                    // gasLimit = gasLimit.mul(BigNumber.from(15)).div(BigNumber.from(10)) // Multiply 1.1
+                    // console.log(gasLimit.toString())
 
-                    const transaction = await contract.functions[methodName](...params, {
-                        gasLimit,
-                        gasPrice
-                    })
+                    const gasConfig : Record<string, any> = {}
+                    // {
+                    //     gasLimit: 500000 // gasLimit,
+                    //     // gasPrice
+                    // }
+                    if (this.web3Config?.fixedGasPerMethod?.has(methodName)) {
+                        gasConfig.gasLimit = this.web3Config?.fixedGasPerMethod?.get(methodName)
+                    } else if (this.web3Config?.fixedGasFee !== undefined) {
+                        gasConfig.gasLimit = this.web3Config?.fixedGasFee
+                    } else if (this.web3Config?.maxGasFee !== undefined) {
+                        gasConfig.gasLimit = this.web3Config?.maxGasFee
+                    }
+
+                    // console.log("Gas Config : ", gasConfig)
+
+                    const transaction = await contract.functions[methodName](...params, gasConfig)
 
                     const transactionRecipt = await transaction.wait(1)
                     // console.log('Transaction Receipt = ', transactionRecipt)
