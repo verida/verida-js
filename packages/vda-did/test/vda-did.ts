@@ -21,7 +21,9 @@ const DID2 = `did:vda:testnet:${DID_ADDRESS2}`
 const DID_PK2 = wallet2.publicKey
 
 console.log(`DID1: ${DID}`)
-console.log(`DID2: ${DID2}`)
+console.log(`DID1 PRIVATE_KEY: ${DID_PRIVATE_KEY}`)
+console.log(`DID1: ${DID2}`)
+console.log(`DID2 PRIVATE_KEY:: ${DID_PRIVATE_KEY2}`)
 
 const vdaDidResolver = getResolver()
 // @ts-ignore
