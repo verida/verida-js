@@ -4,7 +4,7 @@ import { v1 as uuidv1 } from "uuid";
 
 import { VeridaDatabaseConfig } from "./interfaces";
 import Database from "../../../database";
-import { PermissionsConfig } from "../../../interfaces";
+import { EndpointUsage, PermissionsConfig } from "../../../interfaces";
 import Utils from "./utils";
 import { Context } from "../../../..";
 import { DbRegistryEntry } from "../../../db-registry";
@@ -455,6 +455,14 @@ class BaseDb extends EventEmitter implements Database {
 
   public async close(): Promise<any> {
     throw new Error("Not implemented");
+  }
+
+  public getEndpoints() {
+    return this.endpoints
+  }
+
+  public async usage(): Promise<EndpointUsage> {
+    return await this.endpoints[Object.keys(this.endpoints)[0]].getUsage()
   }
   
 }

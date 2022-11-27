@@ -3,7 +3,7 @@ import DatastoreServerClient from './client'
 import { ServiceEndpoint } from 'did-resolver'
 import { Account, AuthContext, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
-import { PermissionsConfig } from "../../../interfaces";
+import { EndpointUsage, PermissionsConfig } from "../../../interfaces";
 import Utils from "./utils";
 
 import * as PouchDBFind from "pouchdb-find";
@@ -251,6 +251,18 @@ export default class Endpoint extends EventEmitter {
         const auth = await client.getContextAuth();
         return auth*/
     }
+
+    public async getUsage(): Promise<EndpointUsage> {
+        return this.client.getUsage()
+      }
+    
+      public async getDatabases() {
+        return this.client.getDatabases()
+      }
+    
+      public async getDatabaseInfo(databaseName: string) {
+        return this.client.getDatabaseInfo(databaseName)
+      }
 
     public logout() {
         this.client = new DatastoreServerClient(

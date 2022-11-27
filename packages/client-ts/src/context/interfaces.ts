@@ -134,3 +134,9 @@ export interface MessageSendConfig {
   recipientContextName?: string;
   openUrl?: string
 }
+
+export interface EndpointUsage {
+  databases: number
+  bytes: number
+  storageLimit: number
+}

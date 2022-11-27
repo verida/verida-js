@@ -15,7 +15,7 @@ export default class NotificationEngineVerida implements BaseNotification {
         this.context = context
         
         // For now, just use the first server
-        this.serverUrl = serverUrl[0].endsWith("/") ? serverUrl : serverUrl + "/";
+        this.serverUrl = <string> (serverUrl[0].endsWith("/") ? serverUrl : serverUrl + "/")
     }
     
     public async init(): Promise<void> {

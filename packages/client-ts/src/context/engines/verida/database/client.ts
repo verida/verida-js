@@ -1,6 +1,7 @@
 import Axios from "axios";
 import { VeridaDatabaseAuthContext } from "@verida/account";
 import { ServiceEndpoint } from 'did-resolver'
+import { EndpointUsage } from '../../../interfaces'
 
 /**
  * Interface for RemoteClientAuthentication
@@ -56,6 +57,20 @@ export class DatastoreServerClient {
       did: did,
       databaseName: databaseName,
       options: config,
+    });
+  }
+
+  public async getUsage(): Promise<EndpointUsage> {
+    return <EndpointUsage> await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/usage");
+  }
+
+  public async getDatabases() {
+    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databases");
+  }
+
+  public async getDatabaseInfo(databaseName: string) {
+    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databaseInfo", {
+      databaseName
     });
   }
 
