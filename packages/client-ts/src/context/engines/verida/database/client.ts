@@ -61,17 +61,37 @@ export class DatastoreServerClient {
   }
 
   public async getUsage(): Promise<EndpointUsage> {
-    return <EndpointUsage> await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/usage");
+    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/usage");
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get usage info (${result.data.message})`)
+    }
+
+    return <EndpointUsage> result.data.result
   }
 
   public async getDatabases() {
-    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databases");
+    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databases");
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get database list (${result.data.message})`)
+    }
+
+    return result.data.result
+
+    return 
   }
 
   public async getDatabaseInfo(databaseName: string) {
-    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databaseInfo", {
+    const result: any = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databaseInfo", {
       databaseName
     });
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get database info (${result.data.message})`)
+    }
+
+    return result.data.result
   }
 
   private getAxios(accessToken?: string) {

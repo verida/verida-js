@@ -67,7 +67,7 @@ export default class Endpoint extends EventEmitter {
         }
 
         const dbConfig: any = {
-            skip_setup: true,
+            skip_setup: true
         }
 
         if (this.auth && !this.usePublic) {
@@ -193,7 +193,7 @@ export default class Endpoint extends EventEmitter {
         this.client.setAuthContext(authContext)
     }
 
-    public async createDb(databaseName: string, did: string, permissions: PermissionsConfig,) {
+    public async createDb(databaseName: string, did: string, permissions: PermissionsConfig) {
         const options = {
             permissions
         };

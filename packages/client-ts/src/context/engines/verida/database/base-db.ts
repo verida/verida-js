@@ -12,6 +12,11 @@ import { RecordSignature } from "../../../utils"
 import StorageEngineVerida from "./engine"
 import Endpoint from "./endpoint";
 
+import * as PouchDBFind from "pouchdb-find";
+import * as PouchDBLib from "pouchdb"
+const { default: PouchDB } = PouchDBLib as any;
+PouchDB.plugin(PouchDBFind);
+
 /**
  * @category
  * Modules
