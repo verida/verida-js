@@ -4,14 +4,21 @@ import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import { StorageLink } from '@verida/storage-link'
 import { DIDDocument } from '@verida/did-document'
+import Utils from "../src/context/engines/verida/database/utils";
 //import { Wallet } from 'ethers'
 import CONFIG from './config'
 
-const TEST_DB_NAME = 'TestDb_1_5'
+const TEST_DB_NAME = 'TestDb_3'
+const TEST_DB_NAME_USERS = 'TestDb_Users_3'
+const TEST_DB_NAME_PUBLIC = 'TestDb_Public_3'
 const TEST_CONTEXT_NAME = 'Verida Test: Storage Endpoint Tests 1'
 
 const ENDPOINT_1 = 'http://192.168.68.118:5000/'
 const ENDPOINT_2 = 'http://192.168.68.117:5000/'
+
+const PRIVATE_KEY = '0x6ea94649d8a826ddda7992c1200ccf632577f91245b920d8f2468fd18c969cd0'
+const DID1 = 'did:vda:testnet:0xf00C7801FDD9CA3A73E054a3E76520d9aa139217'
+const DID2 = 'did:vda:testnet:0x7A7d42d4b79B801C41ED34117BcED36319818A78'
 
 const DEFAULT_ENDPOINTS = {
     defaultDatabaseServer: {
@@ -33,8 +40,6 @@ export function sleep(ms) {
 // @TODO: Create new DID
 //const wallet = Wallet.createRandom()
 //const address = wallet.address.toLowerCase()
-
-const PRIVATE_KEY = '0x6ea94649d8a826ddda7992c1200ccf632577f91245b920d8f2468fd18c969cd0'
 //const did = `did:vda:testnet:${address}`
 
 /**
@@ -155,11 +160,95 @@ describe('Storage endpoint tests', () => {
             //assert.deepEqual(usage[ENDPOINT_1], usage[ENDPOINT_2], 'Endpoints have the same usage stats')
         })
 
-        // @todo: check permission updates propogate correctly
+        it('can write data to second endpoint and it syncs', async function() {
+            const database = await context.openDatabase(TEST_DB_NAME_PUBLIC, {
+                permissions: {
+                    read: 'public',
+                    write: 'public'
+                }
+            })
+
+            // write data to both nodes
+            const rows = await database.getMany()
+            if (rows.length == 0) {
+                console.log('No data in users database, populating...')
+                await database.save({'hello': 'world'})
+                //console.log('Delay for 5 seconds, giving time to sync')
+                await sleep(5 * 1000)
+            }
+
+            // determine primary and secondary connections
+            const connections = database.dbConnections
+            const primaryConnection = database.db
+            let secondaryConnection
+            for (let i in connections) {
+                if (connections[i] != primaryConnection) {
+                    secondaryConnection = connections[i]
+                    break
+                }
+            }
+
+            const docs1 = await primaryConnection.allDocs({include_docs: true})
+            const docs2 = await secondaryConnection.allDocs({include_docs: true})
+
+            assert.deepEqual(docs1.rows, docs2.rows, 'Rows on both databases match')
+
+            // Write random data to the second endpoint and perform tests across all the endpoints
+            const randInt = Utils.getRandomInt(0, 1000000)
+            const res = await secondaryConnection.post({'second': randInt})
+            await sleep(5*1000)
+            
+            const res1 = await primaryConnection.get(res.id)
+            const res2 = await secondaryConnection.get(res.id)
+
+            assert.deepEqual(res1, res2, 'Rows on both databases match')
+        })
+
+        it('can update permissions and they propogate correctly', async function() {
+            const database = await context.openDatabase(TEST_DB_NAME_USERS, {
+                permissions: {
+                    read: 'users',
+                    write: 'users',
+                    readList: [],
+                    writeList: [],
+                }
+            })
+
+            await database.updateUsers([DID1], [DID1])
+
+            const endpoints = database.endpoints
+            const dbInfo1 = await endpoints[ENDPOINT_1].getDatabaseInfo(TEST_DB_NAME_USERS)
+            const dbInfo2 = await endpoints[ENDPOINT_2].getDatabaseInfo(TEST_DB_NAME_USERS)
+
+            delete dbInfo1['info']
+            delete dbInfo2['info']
+
+            assert.deepEqual(dbInfo1, dbInfo2, 'Database info, including permissions, are equal')
+            assert.deepEqual(dbInfo1.permissions, {
+                read: 'users',
+                write: 'users',
+                readList: [DID1],
+                writeList: [DID1]
+            }, 'Permissions have a single DID')
+
+            await database.updateUsers([DID1, DID2], [DID1, DID2])
+
+            const dbInfo3 = await endpoints[ENDPOINT_1].getDatabaseInfo(TEST_DB_NAME_USERS)
+            const dbInfo4 = await endpoints[ENDPOINT_2].getDatabaseInfo(TEST_DB_NAME_USERS)
+
+            delete dbInfo3['info']
+            delete dbInfo4['info']
+
+            assert.deepEqual(dbInfo3, dbInfo4, 'Database info, including permissions, are equal')
+            assert.deepEqual(dbInfo3.permissions, {
+                read: 'users',
+                write: 'users',
+                readList: [DID1, DID2],
+                writeList: [DID1, DID2]
+            }, 'Permissions have two DIDs')
+        })
 
         // @todo: add a new endpoint, let it sync then perform the same tests across all the endpoints
-
-        // @todo: write data to the second endpoint and perform tests across all the endpoints
         
     })
 })
