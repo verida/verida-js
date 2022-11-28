@@ -1,5 +1,7 @@
 import Axios from "axios";
-import { Account, VeridaDatabaseAuthContext } from "@verida/account";
+import { VeridaDatabaseAuthContext } from "@verida/account";
+import { ServiceEndpoint } from 'did-resolver'
+import { EndpointUsage } from '../../../interfaces'
 
 /**
  * Interface for RemoteClientAuthentication
@@ -18,9 +20,9 @@ export class DatastoreServerClient {
 
   private authContext?: VeridaDatabaseAuthContext
   private storageContext: string;
-  private serviceEndpoint: string;
+  private serviceEndpoint: ServiceEndpoint;
 
-  constructor(storageContext: string, serviceEndpoint: string, authContext?: VeridaDatabaseAuthContext) {
+  constructor(storageContext: string, serviceEndpoint: ServiceEndpoint, authContext?: VeridaDatabaseAuthContext) {
     this.authContext = authContext
     this.storageContext = storageContext;
     this.serviceEndpoint = serviceEndpoint
@@ -56,6 +58,40 @@ export class DatastoreServerClient {
       databaseName: databaseName,
       options: config,
     });
+  }
+
+  public async getUsage(): Promise<EndpointUsage> {
+    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/usage");
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get usage info (${result.data.message})`)
+    }
+
+    return <EndpointUsage> result.data.result
+  }
+
+  public async getDatabases() {
+    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databases");
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get database list (${result.data.message})`)
+    }
+
+    return result.data.result
+
+    return 
+  }
+
+  public async getDatabaseInfo(databaseName: string) {
+    const result: any = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databaseInfo", {
+      databaseName
+    });
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get database info (${result.data.message})`)
+    }
+
+    return result.data.result
   }
 
   private getAxios(accessToken?: string) {

@@ -30,6 +30,7 @@
     "bs58": "^4.0.1",
     "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git#feature/support-key-import",
     "did-jwt": "5.7.0",
+    "did-resolver": "^4.0.1",
     "json-schema-ref-parser": "^9.0.9",
     "json-schema-resolve-allof": "^1.5.0",
     "lodash": "^4.17.21",

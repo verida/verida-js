@@ -4,14 +4,18 @@ import { v1 as uuidv1 } from "uuid";
 
 import { VeridaDatabaseConfig } from "./interfaces";
 import Database from "../../../database";
-import { PermissionsConfig } from "../../../interfaces";
-import DatastoreServerClient from "./client";
+import { EndpointUsage, PermissionsConfig } from "../../../interfaces";
 import Utils from "./utils";
 import { Context } from "../../../..";
 import { DbRegistryEntry } from "../../../db-registry";
-import EncryptionUtils from "@verida/encryption-utils";
 import { RecordSignature } from "../../../utils"
 import StorageEngineVerida from "./engine"
+import Endpoint from "./endpoint";
+
+import * as PouchDBFind from "pouchdb-find";
+import * as PouchDBLib from "pouchdb"
+const { default: PouchDB } = PouchDBLib as any;
+PouchDB.plugin(PouchDBFind);
 
 /**
  * @category
@@ -20,32 +24,27 @@ import StorageEngineVerida from "./engine"
 class BaseDb extends EventEmitter implements Database {
   protected databaseName: string;
   protected did: string;
-  protected dsn: string;
-  protected token?: string;
+  protected endpoints: Record<string, Endpoint>
   protected storageContext: string;
   protected engine: StorageEngineVerida
 
-  protected permissions?: PermissionsConfig;
+  protected permissions: PermissionsConfig;
   protected isOwner?: boolean;
 
   protected signContext: Context;
   protected signData?: boolean;
   protected signContextName: string;
 
-  protected databaseHash: string;
-
-  protected client: DatastoreServerClient;
+  protected dbConnections: Record<string, any> = {}
 
   // PouchDb instance for this database
   protected db?: any;
 
   constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
     super();
-    this.client = config.client;
+    this.endpoints = config.endpoints
     this.databaseName = config.databaseName;
     this.did = config.did.toLowerCase();
-    this.dsn = config.dsn;
-    this.token = config.token;
     this.storageContext = config.storageContext;
     this.engine = engine
 
@@ -71,27 +70,11 @@ class BaseDb extends EventEmitter implements Database {
     );
 
     this.readOnly = this.config.readOnly ? true : false;
-
-    this.databaseHash = this.buildDatabaseHash();
     this.db = null;
   }
 
   public getEngine() {
     return this.engine
-  }
-
-  // DID + context name + DB Name + readPerm + writePerm
-  private buildDatabaseHash() {
-    let text = [
-      this.did.toLowerCase(),
-      this.storageContext,
-      this.databaseName,
-    ].join("/");
-
-    const hash = EncryptionUtils.hash(text).substring(2);
-
-    // Database name in CouchDB must start with a letter, so prepend a `v`
-    return "v" + hash;
   }
 
   /**
@@ -117,7 +100,8 @@ class BaseDb extends EventEmitter implements Database {
    * @returns {boolean} Boolean indicating if the save was successful. If not successful `this.errors` will be populated.
    */
   public async save(data: any, options: any = {}): Promise<boolean> {
-    await this.init();
+    const db = await this.getDb();
+
     if (this.readOnly) {
       throw new Error("Unable to save. Database is read only.");
     }
@@ -179,7 +163,7 @@ class BaseDb extends EventEmitter implements Database {
       this.emit("beforeUpdate", data);
     }
 
-    let response = await this.db.put(data, options);
+    let response = await db.put(data, options);
 
     if (insert) {
       this._afterInsert(data, options);
@@ -217,7 +201,7 @@ class BaseDb extends EventEmitter implements Database {
     filter: any = {},
     options: any = {}
   ): Promise<object[]> {
-    await this.init();
+    const db = await this.getDb();
 
     filter = filter || {};
     let defaults = {
@@ -234,7 +218,7 @@ class BaseDb extends EventEmitter implements Database {
       options.selector = _.merge(options.selector, filter);
     }
 
-    let docs = await this.db.find(options);
+    let docs = await db.find(options);
     if (docs) {
       return raw ? docs : docs.docs;
     }
@@ -248,7 +232,7 @@ class BaseDb extends EventEmitter implements Database {
       throw "Unable to delete. Read only.";
     }
 
-    await this.init();
+    await this.init()
 
     let defaults = {};
     options = _.merge(defaults, options);
@@ -278,12 +262,12 @@ class BaseDb extends EventEmitter implements Database {
   }
 
   public async get(docId: string, options: any = {}) {
-    await this.init();
+    const db = await this.getDb();
 
     let defaults = {};
     options = _.merge(defaults, options);
 
-    return await this.db.get(docId, options);
+    return await db.get(docId, options);
   }
 
   /**
@@ -311,7 +295,55 @@ class BaseDb extends EventEmitter implements Database {
   }
 
   // This will be extended by sub-classes to initialize the database connection
-  public async init() {}
+  public async init() {
+    if (this.db) {
+      return
+    }
+
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      this.dbConnections[i] = await endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
+    }
+
+    // Randomly choose a "primary" connection
+    const primaryIndex = Utils.getRandomInt(0, Object.keys(this.endpoints).length)
+    const primaryEndpointUri = Object.keys(this.endpoints)[primaryIndex]
+    const primaryConnection = this.dbConnections[primaryEndpointUri]
+    this.db = primaryConnection
+
+    // Sync changes from primaryConnection to all the other connections
+    for (let i in this.dbConnections) {
+      if (i === primaryEndpointUri) {
+        continue
+      }
+
+      const connection = this.dbConnections[i]
+      const instance = this
+      PouchDB.sync(connection, this.db, {
+        live: true,
+        retry: true,
+        // Dont sync design docs
+        filter: function (doc: any) {
+          return doc._id.indexOf("_design") !== 0;
+        },
+      })
+        .on("error", function (err: any) {
+          // raise database connection error event
+          instance.emit('dbEndpointWarning', `Error syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`)
+          console.error(
+            `Error syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`
+          );
+          console.error(err);
+        })
+        .on("denied", function (err: any) {
+          instance.emit('dbEndpointWarning', `Permission denied syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`)
+          console.error(
+            `Permission denied syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`
+          );
+          console.error(err);
+        });
+    }
+  }
 
   /**
    * Update the users that can access the database
@@ -369,7 +401,8 @@ class BaseDb extends EventEmitter implements Database {
    * @returns {PouchDB}
    */
   public async getDb(): Promise<any> {
-    throw new Error("Not implemented");
+    await this.init()
+    return this.db
   }
 
   /**
@@ -413,20 +446,6 @@ class BaseDb extends EventEmitter implements Database {
     })
   }
 
-  protected async createDb() {
-    const options = {
-      permissions: this.permissions,
-    };
-
-    try {
-      await this.client.createDatabase(this.did, this.databaseName, options);
-      // There's an odd timing issue that needs a deeper investigation
-      await Utils.sleep(1000);
-    } catch (err) {
-      throw new Error("User doesn't exist or unable to create user database");
-    }
-  }
-
   public getAccessToken() {
     return this.token
   }
@@ -441,6 +460,14 @@ class BaseDb extends EventEmitter implements Database {
 
   public async close(): Promise<any> {
     throw new Error("Not implemented");
+  }
+
+  public getEndpoints() {
+    return this.endpoints
+  }
+
+  public async usage(): Promise<EndpointUsage> {
+    return await this.endpoints[Object.keys(this.endpoints)[0]].getUsage()
   }
   
 }

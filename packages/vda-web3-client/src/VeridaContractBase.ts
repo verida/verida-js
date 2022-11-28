@@ -59,6 +59,8 @@ export class VeridaContract {
     /** endpoint url : Need to be defined in sub class constructor */
     protected endPoint? : string
 
+    private logPerformance: boolean
+
     /** Need such fields to add sub methods in constructor */
     [key: string]: any
 
@@ -72,6 +74,7 @@ export class VeridaContract {
      */
     constructor(type: CallType, config: VeridaWeb3Config) {
         this.type = type;
+        this.logPerformance = config.logPerformance ? true : false
         if (type === 'web3') {
             if (!config) {
                 throw new Error('Input configuration parameters');
@@ -203,18 +206,40 @@ export class VeridaContract {
                 if (methodType === 'view') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
+                    if (this.logPerformance) {
+                        console.log('Node endpoint: ' + (<JsonRpcProvider> contract.provider).connection.url)
+                    }
+
+                    let time1 = (new Date()).getTime()
                     let { gasPrice } = await contract.provider.getFeeData()
+                    let time2 = (new Date()).getTime()
+                    if (this.logPerformance) {
+                        console.log(`getFeeData(): ${(time2-time1)}`)
+                    }
                     gasPrice = gasPrice!.mul(BigNumber.from(11)).div(BigNumber.from(10))
 
                     let gasLimit = await contract.estimateGas[methodName](...params);
+                    let time3 = (new Date()).getTime()
+                    if (this.logPerformance) {
+                        console.log(`estimateGas(): ${(time3-time2)}`)
+                    }
                     gasLimit = gasLimit.mul(BigNumber.from(11)).div(BigNumber.from(10)) // Multiply 1.1
 
                     const transaction = await contract.functions[methodName](...params, {
                         gasLimit,
                         gasPrice
                     })
+                    let time4 = (new Date()).getTime()
+                    if (this.logPerformance) {
+                        console.log(`${methodName}(${params}): ${(time4-time3)}`)
+                    }
 
                     const transactionRecipt = await transaction.wait(1)
+                    let time5 = (new Date()).getTime()
+                    if (this.logPerformance) {
+                        console.log(`transaction.wait(): ${(time5-time4)}`)
+                    }
+
                     // console.log('Transaction Receipt = ', transactionRecipt)
 
                     ret = transactionRecipt

@@ -25,8 +25,6 @@ export default class StorageLink {
             // DID not found
             return []
         }
-
-        
     }
 
     /**
@@ -63,6 +61,8 @@ export default class StorageLink {
         let didDocument
         try {
             didDocument = await didClient.get(did)
+
+            // Remove existing context if it exists
             const existing = await StorageLink.getLink(didClient, did, storageConfig.id)
             if (existing) {
                 await StorageLink.unlink(didClient, storageConfig.id)
@@ -86,11 +86,10 @@ export default class StorageLink {
         }
 
         await didDocument.addContext(storageConfig.id, keyring, privateKey, endpoints)
-
         return await didClient.save(didDocument)
     }
 
-    static async setContextService(didClient: DIDClient, contextName: string, endpointType: Interfaces.EndpointType, serverType: string, endpointUri: string): Promise<VdaDidEndpointResponses> {
+    static async setContextService(didClient: DIDClient, contextName: string, endpointType: Interfaces.EndpointType, serverType: string, endpointUris: string[]): Promise<VdaDidEndpointResponses> {
         const did = didClient.getDid()
         if (!did) {
             throw new Error("DID client is not authenticated")
@@ -109,9 +108,9 @@ export default class StorageLink {
         const contextHash = DIDDocument.generateContextHash(did, contextName)
 
         // Add the context service
-        await didDocument.addContextService(contextHash, endpointType, serverType, StorageLink.standardizeUrl(endpointUri))
+        await didDocument.addContextService(contextHash, endpointType, serverType, StorageLink.standardizeUrls(endpointUris))
 
-        return await didClient.save(didDocument)
+        return didClient.save(didDocument)
     }
 
     static async unlink(didClient: DIDClient, contextName: string): Promise<VdaDidEndpointResponses | boolean> {
@@ -201,11 +200,11 @@ export default class StorageLink {
                 services: {
                     databaseServer: {
                         type: databaseService!.type,
-                        endpointUri: StorageLink.standardizeUrl(databaseService!.serviceEndpoint)
+                        endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> databaseService!.serviceEndpoint)
                     },
                     messageServer: {
                         type: messageService!.type,
-                        endpointUri: StorageLink.standardizeUrl(messageService!.serviceEndpoint)
+                        endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> messageService!.serviceEndpoint)
                     }
                 }
             }
@@ -213,14 +212,14 @@ export default class StorageLink {
             if (storageService) {
                 config.services.storageServer = {
                     type: storageService!.type,
-                    endpointUri: StorageLink.standardizeUrl(storageService!.serviceEndpoint)
+                    endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> storageService!.serviceEndpoint)
                 }
             }
 
             if (notificationService) {
                 config.services.notificationServer = {
                     type: notificationService!.type,
-                    endpointUri: StorageLink.standardizeUrl(notificationService!.serviceEndpoint)
+                    endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> notificationService!.serviceEndpoint)
                 }
             }
 
@@ -236,12 +235,14 @@ export default class StorageLink {
      * @param endpoint ServiceEndpoint | ServiceEndpoint[]
      * @returns 
      */
-    public static standardizeUrl(endpoint: ServiceEndpoint | ServiceEndpoint[]): string {
-        if (typeof(endpoint) == 'string') {
-            return <ServiceEndpoint> endpoint.replace(/\/$/, '') + '/'
+    public static standardizeUrls(endpoints: ServiceEndpoint[]): ServiceEndpoint[] {
+        const finalEndpoints = []
+
+        for (let i in endpoints) {
+            finalEndpoints.push(endpoints[i].replace(/\/$/, '') + '/')
         }
 
-        throw new Error('Non-string service endpoints are not currently supported')
+        return finalEndpoints
     }
 
 }

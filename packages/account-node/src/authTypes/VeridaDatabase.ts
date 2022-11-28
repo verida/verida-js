@@ -2,13 +2,14 @@ import Axios from "axios";
 import AutoAccount from "../auto";
 import { Interfaces } from '@verida/storage-link'
 import { Account, VeridaDatabaseAuthContext, AuthType, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError } from "@verida/account";
+import { ServiceEndpoint } from 'did-resolver'
 
 export default class VeridaDatabaseAuthType extends AuthType {
 
   protected contextAuth?: VeridaDatabaseAuthContext
   protected account: AutoAccount
 
-  public constructor(account: Account, contextName: string, serviceEndpoint: Interfaces.SecureContextEndpoint, signKey: Interfaces.SecureContextPublicKey) {
+  public constructor(account: Account, contextName: string, serviceEndpoint: ServiceEndpoint, signKey: Interfaces.SecureContextPublicKey) {
     super(account, contextName, serviceEndpoint, signKey)
     this.account = <AutoAccount> account
   }
@@ -17,7 +18,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
     deviceId: "Test device",
     force: false
   }): Promise<VeridaDatabaseAuthContext> {
-    const serverUrl = config && config.endpointUri ? config.endpointUri : this.serviceEndpoint.endpointUri
+    const serverUrl = config && config.endpointUri ? config.endpointUri : this.serviceEndpoint
 
     // If we have an invalid access token, clear it
     if (this.contextAuth && config.invalidAccessToken) {
