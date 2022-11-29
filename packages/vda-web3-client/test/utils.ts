@@ -5,8 +5,42 @@ import {JsonRpcProvider} from '@ethersproject/providers';
 import {BigNumber, ethers, Wallet} from 'ethers';
 import EncryptionUtils from '@verida/encryption-utils';
 
+// import Axios from "axios";
+
 const PORT = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5021;
 const SERVER_URL = `http://localhost:${PORT}`;
+
+/*
+export async function getMaticFee(isProd: boolean) {
+  let maxFeePerGas = ethers.BigNumber.from(40000000000); // fallback to 40 gwei
+  let maxPriorityFeePerGas = ethers.BigNumber.from(40000000000); // fallback to 40 gwei
+  const gasLimit = ethers.BigNumber.from(50000000000); // fallback to 50 gwei
+
+  try {
+    const { data } = await Axios({
+      method: 'get',
+      url: isProd
+        ? 'https://gasstation-mainnet.matic.network/v2'
+        : 'https://gasstation-mumbai.matic.today/v2',
+    });
+    console.log('Matic data : ', data);
+
+    maxFeePerGas = ethers.utils.parseUnits(
+      Math.ceil(data.fast.maxFee) + '',
+      'gwei'
+    );
+    maxPriorityFeePerGas = ethers.utils.parseUnits(
+      Math.ceil(data.fast.maxPriorityFee) + '',
+      'gwei'
+    );
+  } catch {
+    // ignore
+    console.log('Error in get gasfee');
+  }
+
+  return { maxFeePerGas, maxPriorityFeePerGas, gasLimit };
+}
+*/
 
 export function getVeridaWeb3Instance(
   contractName: 'DidRegistry' | 'NameRegistry'
@@ -49,9 +83,17 @@ export function getVeridaWeb3Instance(
       provider: provider,
       signer: txSigner,
 
-      // fixedGasPerMethod: new Map([['register', BigNumber.from(500000)]]),
-      // fixedGasFee: BigNumber.from(400000),
-      maxGasFee: BigNumber.from(450000),
+      gasLimit: BigNumber.from(450000),
+      maxFeePerGas: BigNumber.from(40000000000),
+      maxPriorityFeePerGas: BigNumber.from(40000000000),
+
+      methodDefaults: {
+        register: {
+          gasLimit: BigNumber.from(500000),
+          maxFeePerGas: BigNumber.from(45000000000),
+          maxPriorityFeePerGas: BigNumber.from(43000000000),
+        },
+      },
     });
   } else {
     contract = getVeridaContract('gasless', {

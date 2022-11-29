@@ -16,6 +16,19 @@ export interface ContractInfo {
     address: string
 }
 
+/** Gas configuration */
+export interface VeridaWeb3GasConfiguration {
+    maxFeePerGas?: BigNumber
+    maxPriorityFeePerGas?: BigNumber
+    gasLimit?: BigNumber
+}
+
+export function isVeridaWeb3GasConfiguration(obj : Object) {
+    return ('maxFeePerGas' in obj)
+        || ('maxPriorityFeePerGas' in obj)
+        || ('gasLimit' in obj)
+}
+
 /**
  * Configuration type for Web3 mode
  *
@@ -24,16 +37,14 @@ export interface ContractInfo {
  * rpcUrl - optinal - a JSON-RPC URL that can be used to connect to an ethereum network. At least one of `signer`, `provider`, or `rpcUrl` is required
  * web3 - optional - Can use provider or web.currentProvider as a provider.
  */
-export interface VeridaSelfTransactionConfig {
+export interface VeridaSelfTransactionConfig extends VeridaWeb3GasConfiguration {
     signer?: Signer
     privateKey?: string
     provider?: Provider
     rpcUrl?: string
     web3?: any
 
-    maxGasFee?: BigNumber
-    fixedGasFee?: BigNumber
-    fixedGasPerMethod?: Map<string, BigNumber>//Map<string, Map<string, BigNumber>>
+    methodDefaults?: Record<string, VeridaWeb3GasConfiguration>
 }
 
 /** Configuration type for gasless mode */

@@ -1,4 +1,4 @@
-import {ethers, Wallet} from 'ethers';
+import {BigNumber, ethers, Wallet} from 'ethers';
 
 import {getVeridaWeb3Instance, getVeridaSignWithNonce} from './utils';
 import {expect} from 'chai';
@@ -400,6 +400,49 @@ describe('DidRegistry Test', () => {
         false,
         'Rejected for revoked DID'
       );
+    });
+  });
+
+  describe('Manual gas configuration test', () => {
+    const did = Wallet.createRandom();
+    it('Failed by less gas', async () => {
+      const gasConfig = {
+        gasLimit: BigNumber.from(10),
+        maxFeePerGas: BigNumber.from(10),
+        maxPriorityFeePerGas: BigNumber.from(10),
+      };
+      const signature = await getRegisterSignature(
+        did.address,
+        endPoints_A,
+        did.privateKey
+      );
+      const response = await didRegistry.register(
+        did.address,
+        endPoints_A,
+        signature,
+        gasConfig
+      );
+      expect(response.success).to.be.equal(false, 'Failed by insufficient gas');
+    });
+
+    it('Success with enough gas', async () => {
+      const gasConfig = {
+        gasLimit: BigNumber.from(500000),
+        maxFeePerGas: BigNumber.from(46000000000),
+        maxPriorityFeePerGas: BigNumber.from(46000000000),
+      };
+      const signature = await getRegisterSignature(
+        did.address,
+        endPoints_A,
+        did.privateKey
+      );
+      const response = await didRegistry.register(
+        did.address,
+        endPoints_A,
+        signature,
+        gasConfig
+      );
+      expect(response.success).to.be.equal(true, 'Success');
     });
   });
 });

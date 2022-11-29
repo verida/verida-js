@@ -6,7 +6,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 
 import { isVeridaContract } from './utils'
 
-import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, getContractForNetwork } from './config'
+import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, getContractForNetwork, isVeridaWeb3GasConfiguration } from './config'
 import { VeridaGaslessPostConfig, VeridaGaslessRequestConfig } from './config'
 // import { gaslessDefaultServerConfig, gaslessDefaultPostConfig } from './config'
 
@@ -209,29 +209,43 @@ export class VeridaContract {
                 if (methodType === 'view') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
-                    // let { gasPrice } = await contract.provider.getFeeData()
-                    // gasPrice = gasPrice!.mul(BigNumber.from(11)).div(BigNumber.from(10))
+                    let gasConfig : Record<string, any> | undefined = {}
+                    // console.log("Params : ", params)
 
-                    // let gasLimit = await contract.estimateGas[methodName](...params);
-                    // gasLimit = gasLimit.mul(BigNumber.from(15)).div(BigNumber.from(10)) // Multiply 1.1
-                    // console.log(gasLimit.toString())
+                    const paramLen = params.length
+                    if (params !== undefined
+                        && paramLen > 0
+                        && typeof params[paramLen-1] === 'object'
+                        && params[paramLen - 1].constructor.name === 'Object'
+                        && isVeridaWeb3GasConfiguration(params[paramLen - 1]))
+                    { // Use gas configuration in the params
+                        gasConfig = undefined
+                    } else if (this.web3Config?.methodDefaults !== undefined && (methodName in this.web3Config?.methodDefaults)) {
+                        // Use gas configuration in the methodDefaults
+                        gasConfig = Object.assign({}, this.web3Config.methodDefaults[methodName])
+                    } else if (this.web3Config !== undefined) {
+                        // Use gas configuration in the global configuration
+                        if ('maxFeePerGas' in this.web3Config) {
+                            gasConfig['maxFeePerGas'] = this.web3Config['maxFeePerGas']
+                        }
 
-                    const gasConfig : Record<string, any> = {}
-                    // {
-                    //     gasLimit: 500000 // gasLimit,
-                    //     // gasPrice
-                    // }
-                    if (this.web3Config?.fixedGasPerMethod?.has(methodName)) {
-                        gasConfig.gasLimit = this.web3Config?.fixedGasPerMethod?.get(methodName)
-                    } else if (this.web3Config?.fixedGasFee !== undefined) {
-                        gasConfig.gasLimit = this.web3Config?.fixedGasFee
-                    } else if (this.web3Config?.maxGasFee !== undefined) {
-                        gasConfig.gasLimit = this.web3Config?.maxGasFee
+                        if ('maxPriorityFeePerGas' in this.web3Config) {
+                            gasConfig['maxPriorityFeePerGas'] = this.web3Config['maxPriorityFeePerGas']
+                        }
+
+                        if ('gasLimit' in this.web3Config) {
+                            gasConfig['gasLimit'] = this.web3Config['gasLimit']
+                        }
                     }
 
-                    // console.log("Gas Config : ", gasConfig)
+                    // console.log('Gas Config : ', gasConfig)
 
-                    const transaction = await contract.functions[methodName](...params, gasConfig)
+                    let transaction: any
+                    if (gasConfig === undefined) { //Gas configuration is in the params
+                        transaction = await contract.functions[methodName](...params)
+                    } else { // Need to use manual gas configuration
+                        transaction = await contract.functions[methodName](...params, gasConfig)
+                    }
 
                     const transactionRecipt = await transaction.wait(1)
                     // console.log('Transaction Receipt = ', transactionRecipt)
