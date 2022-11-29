@@ -1,4 +1,5 @@
 import { DbRegistryEntry } from "./db-registry";
+import { EndpointUsage } from './interfaces'
 
 /**
  * Interface for any database returned from a storage engine
@@ -17,5 +18,6 @@ import { DbRegistryEntry } from "./db-registry";
     info(): Promise<any>
     registryEntry(): Promise<DbRegistryEntry>
     close(): Promise<void>
+    usage(): Promise<EndpointUsage>
 
 }

@@ -81,11 +81,17 @@ export class DIDClient {
             throw new Error('Web3 transactions must specify `web3config.privateKey`')
         }
 
+        // @ts-ignore
+        let rpcUrl = web3Config.rpcUrl || this.config.rpcUrl
+        if (callType == 'web3' && !rpcUrl) {
+            throw new Error('Web3 transactions must specify `web3config.rpcUrl`')
+        }
+
         const _web3Config: VeridaWeb3ConfigurationOptions = callType === 'gasless' ?
             <VeridaMetaTransactionConfig>web3Config :
             <VeridaSelfTransactionConfig>{
                 ...<VeridaSelfTransactionConfigPart>web3Config,
-                rpcUrl: this.config.rpcUrl
+                rpcUrl
             }
 
         this.vdaDid = new VdaDid({

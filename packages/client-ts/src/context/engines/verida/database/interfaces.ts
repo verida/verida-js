@@ -1,6 +1,7 @@
 import { Context } from "../../../..";
 import { PermissionsConfig } from "../../../interfaces";
 import DatastoreServerClient from "./client";
+import Endpoint from "./endpoint";
 
 /**
  * Interface for VeridaDatabaseConfig
@@ -8,8 +9,7 @@ import DatastoreServerClient from "./client";
 export interface VeridaDatabaseConfig {
   databaseName: string;
   did: string;
-  dsn: string;
-  token?: string;
+  dsn?: string | string[];
   storageContext: string;
 
   permissions?: PermissionsConfig;
@@ -23,5 +23,5 @@ export interface VeridaDatabaseConfig {
 
   saveDatabase: boolean;
 
-  client: DatastoreServerClient;
+  endpoints: Record<string, Endpoint>;
 }

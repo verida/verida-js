@@ -1,8 +1,9 @@
-import { Account, AuthContext, AuthTypeConfig } from "@verida/account";
+import { EventEmitter } from 'events'
+import { Account } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 
 import BaseStorageEngine from "./engines/base";
-import { StorageEngineTypes } from "./interfaces";
+import { EngineType, StorageEngineTypes } from "./interfaces";
 import DIDContextManager from "../did-context-manager";
 import { DatabaseEngines } from "../interfaces";
 import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig } from "./interfaces";
@@ -47,7 +48,7 @@ const NOTIFICATION_ENGINES: StorageEngineTypes = {
  * @category
  * Modules
  */
-class Context {
+class Context extends EventEmitter {
   private client: Client;
   private account?: Account;
   private messagingEngine?: Messaging;
@@ -76,6 +77,8 @@ class Context {
     didContextManager: DIDContextManager,
     account?: Account
   ) {
+    super()
+
     this.client = client;
     this.contextName = contextName;
     this.didContextManager = didContextManager;
@@ -346,7 +349,8 @@ class Context {
         false,
         config.contextName ? config.contextName : this.contextName
       );
-      config.dsn = contextConfig.services.databaseServer.endpointUri;
+
+      config.dsn = <string> contextConfig.services.databaseServer.endpointUri[0];
     }
 
     config = _.merge(
@@ -432,7 +436,7 @@ class Context {
     return this.dbRegistry;
   }
 
-  public async getAuthContext(authConfig?: AuthTypeConfig, authType?: string): Promise<AuthContext> {
+  /*public async getAuthContext(authConfig?: AuthTypeConfig, authType?: string): Promise<AuthContext> {
     if (!this.account) {
       throw new Error("No authenticated user");
     }
@@ -441,7 +445,40 @@ class Context {
     const contextConfig = await this.getContextConfig(did, false)
 
     return this.account!.getAuthContext(this.contextName, contextConfig, authConfig, authType)
+  }*/
+
+  /**
+   * Emits `progress` event when adding the endpoint has progressed (ie: replicating databases to the new endpoint).
+   * 
+   * @param engineType 
+   * @param endpointUri 
+   */
+  public async addEndpoint(engineType: EngineType, endpointUri: string) {
+    if (!this.account) {
+      throw new Error('Unable to add endpoint. No account connected.')
+    }
+
+    // For now, only support adding replication to database endpoints
+    if (engineType == 'database') {
+      const did = await this.account!.did();
+      const engine = await this.getDatabaseEngine(did, false)
+      const success = await engine.addEndpoint(this, endpointUri)
+      if (!success) {
+        throw new Error(`Adding endpoint failed with unknown error`)
+      }
+    }
+    else {
+      throw new Error(`Adding endpoint for ${engineType} is not supported`)
+    }
+
+    // 3. Update DID Document with the new endpoint
+      // get the current did document
+      // add the endpoint
+
+    // 4. Close any open databases (or re-open them all ignoring the cache?)
+    // See this.openDatabase()
   }
+
 }
 
 export default Context;

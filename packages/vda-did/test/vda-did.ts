@@ -21,7 +21,9 @@ const DID2 = `did:vda:testnet:${DID_ADDRESS2}`
 const DID_PK2 = wallet2.publicKey
 
 console.log(`DID1: ${DID}`)
-console.log(`DID2: ${DID2}`)
+console.log(`DID1 PRIVATE_KEY: ${DID_PRIVATE_KEY}`)
+console.log(`DID1: ${DID2}`)
+console.log(`DID2 PRIVATE_KEY:: ${DID_PRIVATE_KEY2}`)
 
 const vdaDidResolver = getResolver()
 // @ts-ignore
@@ -44,6 +46,7 @@ const VDA_DID_CONFIG2 = {
 }
 
 const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
+const ENDPOINT = ENDPOINTS[0].toLowerCase()
 
 // Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
 const ENDPOINTS_FAIL = [`http://localhost:5000/did/${DID2}`, `http://localhost:7000/did/${DID2}`]
@@ -118,7 +121,6 @@ describe("VdaDid tests", function() {
                 assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS_FAIL, 'Response for all endpoints')
                 assert.equal(publishedEndpoints[ENDPOINTS_FAIL[1]].status, 'fail', 'Second endpoint failed')
             } catch (err) {
-                //console.log(err)
                 assert.fail(`Failed: ${err.message}`)
             }
         })
@@ -129,9 +131,6 @@ describe("VdaDid tests", function() {
             try {
                 const response = await didResolver.resolve(DID)
                 const didDocument = <DIDDocument> response.didDocument
-
-                // console.log(didDocument!.export())
-                // console.log(masterDidDoc.export())
 
                 assert.deepEqual(didDocument!.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {

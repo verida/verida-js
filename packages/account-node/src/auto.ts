@@ -1,14 +1,14 @@
 import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { Account, AccountConfig, VeridaDatabaseAuthTypeConfig, AuthType, AuthContext } from '@verida/account'
-import { NodeAccountConfig } from './interfaces'
+import { Account, AccountConfig, AuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
+import { NodeAccountConfig, } from './interfaces'
 
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import { Interfaces as DIDDocumentInterfaces } from "@verida/did-document"
-import { Wallet as EthersWallet } from "ethers"
-import { JsonRpcProvider } from '@ethersproject/providers'
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
+import { ServiceEndpoint } from 'did-resolver'
+import { VdaDidEndpointResponses } from '@verida/vda-did'
 
 /**
  * An Authenticator that automatically signs everything
@@ -20,7 +20,7 @@ export default class AutoAccount extends Account {
     private wallet: Wallet
     protected accountConfig: AccountConfig
     protected autoConfig: NodeAccountConfig
-    protected contextAuths: Record<string, AuthType> = {}
+    protected contextAuths: Record<string, Record<string, VeridaDatabaseAuthType>> = {}
 
     constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
         super()
@@ -84,10 +84,19 @@ export default class AutoAccount extends Account {
      * 
      * @param storageConfig 
      */
-     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
+     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<boolean> {
         this.ensureAuthenticated()
         const keyring = await this.keyring(storageConfig.id)
-        await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
+        const result = await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
+
+        for (let i in result) {
+            const response = result[i]
+            if (response.status !== 'success') {
+                return false
+            }
+        }
+
+        return true
      }
 
      /**
@@ -97,16 +106,38 @@ export default class AutoAccount extends Account {
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         this.ensureAuthenticated()
-        return await StorageLink.unlink(this.didClient, contextName)
+        let result = await StorageLink.unlink(this.didClient, contextName)
+        if (!result) {
+            return false
+        }
+
+        result = <VdaDidEndpointResponses> result
+        for (let i in result) {
+            const response = result[i]
+            if (response.status !== 'success') {
+                return false
+            }
+        }
+
+        return true
     }
 
     /**
      * Link storage context service endpoint
      * 
      */
-    public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUri: string) {
+    public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
         this.ensureAuthenticated()
-        return await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUri)
+        const result = await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUris)
+
+        for (let i in result) {
+            const response = result[i]
+            if (response.status !== 'success') {
+                return false
+            }
+        }
+
+        return true
     }
 
     public getDidClient() {
@@ -114,12 +145,14 @@ export default class AutoAccount extends Account {
         return this.didClient
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig = {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: VeridaDatabaseAuthTypeConfig = {
         force: false
-    }, authType = "database"): Promise<AuthContext> {
+    }, authType: string = "database"): Promise<AuthContext> {
+        endpointUri = <string> endpointUri
+
         // Use existing context auth instance if it exists
-        if (this.contextAuths[contextName] && !authConfig.force) {
-            return this.contextAuths[contextName].getAuthContext(authConfig)
+        if (this.contextAuths[contextName] && this.contextAuths[contextName][endpointUri]  && !authConfig.force && !authConfig.invalidAccessToken) {
+            return this.contextAuths[contextName][endpointUri].getAuthContext()
         }
 
         const signKey = contextConfig.publicKeys.signKey
@@ -128,8 +161,14 @@ export default class AutoAccount extends Account {
         const serviceEndpoint = contextConfig.services.databaseServer
 
         if (serviceEndpoint.type == "VeridaDatabase") {
-            this.contextAuths[contextName] = new VeridaDatabaseAuthType(this, contextName, serviceEndpoint, signKey)
-            return this.contextAuths[contextName].getAuthContext(authConfig)
+            if (!this.contextAuths[contextName]) {
+                this.contextAuths[contextName] = {}
+            }
+
+            const authType = new VeridaDatabaseAuthType(this, contextName, endpointUri, signKey)
+            this.contextAuths[contextName][endpointUri] = authType
+
+            return authType.getAuthContext(authConfig)
         }
 
         throw new Error(`Unknown auth context type (${authType})`)
@@ -140,7 +179,15 @@ export default class AutoAccount extends Account {
             throw new Error(`Context not connected ${contextName}`)
         }
 
-        return this.contextAuths[contextName].disconnectDevice(deviceId)
+        let success = true
+        const contextAuths = this.contextAuths[contextName]
+        for (let i in contextAuths) {
+            if (!(await contextAuths[i].disconnectDevice(deviceId))) {
+                success = false
+            }
+        }
+
+        return success
     }
 
     private ensureAuthenticated() {
@@ -148,7 +195,8 @@ export default class AutoAccount extends Account {
             this.didClient.authenticate(
                 this.wallet.privateKey,
                 this.autoConfig.didClientConfig.callType,
-                this.autoConfig.didClientConfig.web3Config
+                this.autoConfig.didClientConfig.web3Config,
+                this.autoConfig.didClientConfig.didEndpoints
             )
         }
     }

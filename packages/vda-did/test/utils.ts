@@ -65,7 +65,8 @@ export function getBlockchainAPIConfiguration() {
 
   let configuration = {
     callType: testMode,
-    web3Options: {}
+    web3Options: {
+    }
   }
 
   if (testMode === 'web3') {
@@ -82,7 +83,8 @@ export function getBlockchainAPIConfiguration() {
       // signer?: Signer;
       privateKey,
       // provider?: Provider;
-      rpcUrl: rpcURL
+      rpcUrl: rpcURL,
+      logPerformance: true
       // web3?: any;
     }
   } else {

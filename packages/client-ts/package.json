@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "2.0.0-rc3",
+  "version": "2.0.0-rc4",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,19 +17,20 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/account": "^2.0.0-rc3",
-    "@verida/account-node": "^2.0.0-rc3",
-    "@verida/did-client": "^2.0.0-rc3",
-    "@verida/did-document": "^2.0.0-rc3",
+    "@verida/account": "^2.0.0-rc4",
+    "@verida/account-node": "^2.0.0-rc4",
+    "@verida/did-client": "^2.0.0-rc4",
+    "@verida/did-document": "^2.0.0-rc4",
     "@verida/encryption-utils": "^2.0.0-rc1",
     "@verida/keyring": "^2.0.0-rc1",
-    "@verida/storage-link": "^2.0.0-rc3",
+    "@verida/storage-link": "^2.0.0-rc4",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.2",
     "bs58": "^4.0.1",
     "crypto-pouch": "git+https://github.com/tahpot/crypto-pouch.git#feature/support-key-import",
     "did-jwt": "5.7.0",
+    "did-resolver": "^4.0.1",
     "json-schema-ref-parser": "^9.0.9",
     "json-schema-resolve-allof": "^1.5.0",
     "lodash": "^4.17.21",

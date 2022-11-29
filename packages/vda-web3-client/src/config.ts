@@ -14,6 +14,7 @@ export type CallType = 'web3' | 'gasless'
 export interface ContractInfo {
     abi: any
     address: string
+    logPerformance?: boolean
 }
 
 /** Gas configuration */

@@ -23,8 +23,6 @@ export async function lookup(didAddress: string, network: string, rpcUrl: string
     try {
         data = await contract.callStatic.lookup(didAddress);
     } catch (e: any) {
-        //console.log(e)
-        // console.log('Error in transaction', e);
         throw new Error('DID not found');
     }
 

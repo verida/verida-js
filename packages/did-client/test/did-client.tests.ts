@@ -47,17 +47,12 @@ describe('DID Client tests', () => {
 
     describe('Basic tests', function() {
         it('can create an empty document', async function() {
-            try {
-                const doc  = new DIDDocument(did, wallet.publicKey)
-                const endpointResponses = await didClient.save(doc)
+            const doc  = new DIDDocument(did, wallet.publicKey)
+            const endpointResponses = await didClient.save(doc)
 
-                assert.ok(endpointResponses, 'Saved response')
-                for (let i in endpointResponses) {
-                    assert.equal(endpointResponses[i].status, 'success', `${i} success`)
-                }
-            } catch (err) {
-                console.log(err)
-                console.log(err.response.data)
+            assert.ok(endpointResponses, 'Saved response')
+            for (let i in endpointResponses) {
+                assert.equal(endpointResponses[i].status, 'success', `${i} success`)
             }
         })
 

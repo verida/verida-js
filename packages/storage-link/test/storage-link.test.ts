@@ -12,6 +12,10 @@ import { DIDClient } from '@verida/did-client'
 
 const wallet = Wallet.createRandom()
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const CONTEXT_NAME = 'Test App'
 
 const address = wallet.address.toLowerCase()
@@ -33,11 +37,11 @@ const testConfig: SecureContextConfig = {
     services: {
         databaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'https://storage.endpoint'
+            endpointUri: ['https://storage.endpoint']
         },
         messageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'https://message.endpoint'
+            endpointUri: ['https://message.endpoint']
         }
     }
 }
@@ -56,11 +60,11 @@ const expectedConfig: SecureContextConfig = {
     services: {
         databaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'https://storage.endpoint/'
+            endpointUri: ['https://storage.endpoint/']
         },
         messageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'https://message.endpoint/'
+            endpointUri: ['https://message.endpoint/']
         }
     }
 }
@@ -70,7 +74,7 @@ let didClient: DIDClient, keyring1: Keyring, keyring2: Keyring
 
 async function buildKeyring(did: string, contextName: string) {
     did = did.toLowerCase()
-    const consentMessage = `Do you wish to unlock this storage context: "${CONTEXT_NAME}"?\n\n${did}`
+    const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?\n\n${did}`
     const signature = await EncryptionUtils.signData(consentMessage, Buffer.from(wallet.privateKey.substring(2), 'hex'))
     return new Keyring(signature)
 }
@@ -106,12 +110,18 @@ describe('Storage Link', () => {
         })
 
         it('can link a DID to multiple secure storage contexts', async function() {
+            await sleep(1000)
             let storageConfig = Object.assign({}, expectedConfig)
             storageConfig.id = TEST_APP_NAME2
             await StorageLink.setLink(didClient, storageConfig, keyring2, wallet.privateKey)
 
             const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, TEST_APP_NAME2)
             storageConfig.id = DIDDocument.generateContextHash(DID, TEST_APP_NAME2)
+
+            const keys = await keyring2.publicKeys()
+            storageConfig.publicKeys.signKey.publicKeyHex = keys.signPublicKeyHex
+            storageConfig.publicKeys.asymKey.publicKeyHex = keys.asymPublicKeyHex
+
             assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the submitted storage config')
 
             const allConfigs = await StorageLink.getLinks(didClient, DID)
@@ -119,6 +129,7 @@ describe('Storage Link', () => {
         })
 
         it('can unlink secure storage contexts from a DID', async function() {
+            await sleep(1000)
             const removed = await StorageLink.unlink(didClient, TEST_APP_NAME2)
             assert.ok(removed, 'Successfully unlinked storage context')
 
