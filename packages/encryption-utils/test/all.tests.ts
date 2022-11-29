@@ -106,6 +106,30 @@ describe('Encryption tests', () => {
             const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
             assert.ok(isValid, 'Signature is valid')
         })
+
+        it('can create and verify signatures of JSON in different order', async () => {
+            const input1 = {
+                hello: 'world',
+                goodbye: 'world',
+                level2: {
+                    test: 'world',
+                    fail: 'value'
+                }
+            }
+
+            const input2 = {
+                goodbye: 'world',
+                level2: {
+                    fail: 'value',
+                    test: 'world'
+                },
+                hello: 'world'
+            }
+
+            const signature = EncryptionUtils.signData(input1, signingKey.privateKey)
+            const isValid = EncryptionUtils.verifySig(input2, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
+        })
     })
 
 })
