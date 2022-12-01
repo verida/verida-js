@@ -156,14 +156,12 @@ export default class DIDDocument {
         const didAddress = this.id.match(/0x[0-9a-z]*/i)![0].toLowerCase()
 
         // Generate a proof that the DID controls the context public signing key that can be used on chain
-        const proofRawMsg = ethers.utils.solidityPack(
-            ["address", "address"],
-            [didAddress, keys.signPublicAddress]
-        )
+        const proofString = `${didAddress}${keys.signPublicAddress}`.toLowerCase()
         const privateKeyArray = new Uint8Array(
             Buffer.from(privateKey.slice(2), "hex")
         )
-        const proof = EncryptionUtils.signData(proofRawMsg, privateKeyArray)
+
+        const proof = EncryptionUtils.signData(proofString, privateKeyArray)
 
         // Add keys to DID document
         this.addContextSignKey(contextHash, keys.signPublicKeyHex, proof)
