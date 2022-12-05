@@ -6,7 +6,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 
 import { isVeridaContract } from './utils'
 
-import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, getContractForNetwork, isVeridaWeb3GasConfiguration } from './config'
+import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, getContractForNetwork, isVeridaWeb3GasConfiguration, VeridaWeb3GasConfiguration } from './config'
 import { VeridaGaslessPostConfig, VeridaGaslessRequestConfig } from './config'
 // import { gaslessDefaultServerConfig, gaslessDefaultPostConfig } from './config'
 
@@ -109,7 +109,38 @@ export class VeridaContract {
             methods.forEach((item: any) => {
                 if (item.type === 'function') {
                     this[item.name] = async(...params : any[]) : Promise<VdaTransactionResult> => {
-                        return this.callMethod(item.name, item.stateMutability, params)
+
+                        let gasConfig : VeridaWeb3GasConfiguration | undefined = undefined
+
+                        const paramLen = params.length
+                        if (params !== undefined
+                            && paramLen > 0
+                            && typeof params[paramLen-1] === 'object'
+                            && params[paramLen - 1].constructor.name === 'Object'
+                            && isVeridaWeb3GasConfiguration(params[paramLen - 1]))
+                        { // Use gas configuration in the params
+                            gasConfig = <VeridaWeb3GasConfiguration>params[paramLen-1]
+                            params = params.slice(0, paramLen - 1)
+                        } else if (this.web3Config?.methodDefaults !== undefined && (item.name in this.web3Config?.methodDefaults)) {
+                            // Use gas configuration in the methodDefaults
+                            gasConfig = Object.assign({}, this.web3Config.methodDefaults[item.name])
+                        } else if (this.web3Config !== undefined) {
+                            // Use gas configuration in the global configuration
+                            gasConfig = {}
+                            if ('maxFeePerGas' in this.web3Config) {
+                                gasConfig['maxFeePerGas'] = this.web3Config['maxFeePerGas']
+                            }
+
+                            if ('maxPriorityFeePerGas' in this.web3Config) {
+                                gasConfig['maxPriorityFeePerGas'] = this.web3Config['maxPriorityFeePerGas']
+                            }
+
+                            if ('gasLimit' in this.web3Config) {
+                                gasConfig['gasLimit'] = this.web3Config['gasLimit']
+                            }
+                        }
+
+                        return this.callMethod(item.name, item.stateMutability, params, gasConfig)
                     }
                 }
             })
@@ -195,9 +226,10 @@ export class VeridaContract {
      * @param methodName - Calling method name of smart contract. From ABI.
      * @param methodType - Method type. Shows whether method in smart contract is Call function or not.
      * @param params - Parameters used to make interaction with smart contract : Array
+     * @param gasConfig - Gas configuration. Only available for non-view functions in Web3 mode
      * @returns - Response from smart contract interaction
      */
-    protected callMethod = async (methodName: string, methodType: string, params: any ) : Promise<VdaTransactionResult> =>  {
+    protected callMethod = async (methodName: string, methodType: string, params: any, gasConfig? : VeridaWeb3GasConfiguration) : Promise<VdaTransactionResult> =>  {
         if (this.type === 'web3') {
             let ret;
 
@@ -209,35 +241,6 @@ export class VeridaContract {
                 if (methodType === 'view') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
-                    let gasConfig : Record<string, any> | undefined = {}
-                    // console.log("Params : ", params)
-
-                    const paramLen = params.length
-                    if (params !== undefined
-                        && paramLen > 0
-                        && typeof params[paramLen-1] === 'object'
-                        && params[paramLen - 1].constructor.name === 'Object'
-                        && isVeridaWeb3GasConfiguration(params[paramLen - 1]))
-                    { // Use gas configuration in the params
-                        gasConfig = undefined
-                    } else if (this.web3Config?.methodDefaults !== undefined && (methodName in this.web3Config?.methodDefaults)) {
-                        // Use gas configuration in the methodDefaults
-                        gasConfig = Object.assign({}, this.web3Config.methodDefaults[methodName])
-                    } else if (this.web3Config !== undefined) {
-                        // Use gas configuration in the global configuration
-                        if ('maxFeePerGas' in this.web3Config) {
-                            gasConfig['maxFeePerGas'] = this.web3Config['maxFeePerGas']
-                        }
-
-                        if ('maxPriorityFeePerGas' in this.web3Config) {
-                            gasConfig['maxPriorityFeePerGas'] = this.web3Config['maxPriorityFeePerGas']
-                        }
-
-                        if ('gasLimit' in this.web3Config) {
-                            gasConfig['gasLimit'] = this.web3Config['gasLimit']
-                        }
-                    }
-
                     // console.log('Gas Config : ', gasConfig)
 
                     let transaction: any

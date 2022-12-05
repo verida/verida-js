@@ -1,9 +1,11 @@
 require('dotenv').config();
 
-import {getVeridaContract, VeridaContract} from '../src/index';
+import {getVeridaContract, VeridaContract, VeridaSelfTransactionConfig, VeridaWeb3Config, VeridaWeb3GasConfiguration} from '../src/index';
 import {JsonRpcProvider} from '@ethersproject/providers';
 import {BigNumber, ethers, Wallet} from 'ethers';
 import EncryptionUtils from '@verida/encryption-utils';
+
+const _ = require('lodash');
 
 // import Axios from "axios";
 
@@ -43,25 +45,27 @@ export async function getMaticFee(isProd: boolean) {
 */
 
 export function getVeridaWeb3Instance(
-  contractName: 'DidRegistry' | 'NameRegistry'
+  contractName: 'DidRegistry' | 'NameRegistry',
+  globalGasConfiguration?: VeridaWeb3GasConfiguration,
+  methodDefaults?: Record<string, VeridaWeb3GasConfiguration>
 ) {
   const args = process.argv.slice(2);
   // console.log("ARGS : ", args);
   const testMode = args.length > 0 && args.includes('gasless') ? 'gasless' : 'direct';
   // args.length > 0 && args[0] === 'direct' ? args[0] : 'gasless';
-  console.log('Test mode : ', testMode);
+  // console.log('Test mode : ', testMode);
 
   const TARGET_NET = process.env.RPC_TARGET_NET;
   if (TARGET_NET === undefined) {
     throw new Error('RPC_TARGET_NET not defiend in env');
   }
-  console.log('Target Net : ', TARGET_NET);
+  // console.log('Target Net : ', TARGET_NET);
 
   const RPC_URL = process.env[TARGET_NET];
   if (RPC_URL === undefined) {
     throw new Error('RPC url not defined in env');
   }
-  console.log('RPC URL : ', RPC_URL);
+  // console.log('RPC URL : ', RPC_URL);
 
   const CONTRACT_ADDRESS =
     process.env[`CONTRACT_ADDRESS_${TARGET_NET}_${contractName}`];
@@ -77,24 +81,23 @@ export function getVeridaWeb3Instance(
   let contract;
 
   if (testMode === 'direct') {
-    contract = getVeridaContract('web3', {
+    let configuration: VeridaWeb3Config = {
       abi: contractABI,
       address: CONTRACT_ADDRESS,
       provider: provider,
       signer: txSigner,
+    };
 
-      gasLimit: BigNumber.from(450000),
-      maxFeePerGas: BigNumber.from(40000000000),
-      maxPriorityFeePerGas: BigNumber.from(40000000000),
+    if (globalGasConfiguration !== undefined) {
+      configuration = _.merge(configuration, globalGasConfiguration);
+    }
 
-      methodDefaults: {
-        register: {
-          gasLimit: BigNumber.from(500000),
-          maxFeePerGas: BigNumber.from(45000000000),
-          maxPriorityFeePerGas: BigNumber.from(43000000000),
-        },
-      },
-    });
+    if (methodDefaults !== undefined) {
+      (<VeridaSelfTransactionConfig>configuration).methodDefaults =
+        methodDefaults;
+    }
+
+    contract = getVeridaContract('web3', configuration);
   } else {
     contract = getVeridaContract('gasless', {
       abi: contractABI,
