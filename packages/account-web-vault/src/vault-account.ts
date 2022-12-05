@@ -2,6 +2,8 @@ import { Account, VeridaDatabaseAuthContext, AuthTypeConfig, AuthContext, Verida
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
+import { ServiceEndpoint } from 'did-resolver'
+
 import Axios from "axios";
 const jwt = require('jsonwebtoken');
 
@@ -240,7 +242,7 @@ export default class VaultAccount extends Account {
      *
      * @param storageConfig
      */
-     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<void> {
+     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<boolean> {
         throw new Error("Link storage is not supported. Vault needs to have already created the storage.")
      }
 
@@ -258,7 +260,7 @@ export default class VaultAccount extends Account {
         store.remove(VERIDA_AUTH_CONTEXT)
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
         if (authConfig.force || !this.contextCache[contextName]) {

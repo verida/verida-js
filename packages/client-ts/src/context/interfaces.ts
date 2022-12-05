@@ -19,7 +19,7 @@ export interface DatabaseOpenConfig {
   /**
    * Specify a database connection string to use when opening the database.
    */
-  dsn?: string;
+  dsn?: string | string[];
 
   /**
    * Specify a JWT token to use when opening the database.
@@ -103,6 +103,12 @@ export interface StorageEngineTypes {
   [key: string]: any;
 }
 
+export enum EngineType {
+  Database = 'database',
+  Notification = 'notification',
+  Messsaging = 'messaging'
+}
+
 /**
  * Interface for any PermissionsConfig
  */
@@ -127,4 +133,10 @@ export interface MessageSendConfig {
   expiry?: Number;
   recipientContextName?: string;
   openUrl?: string
+}
+
+export interface EndpointUsage {
+  databases: number
+  bytes: number
+  storageLimit: number
 }

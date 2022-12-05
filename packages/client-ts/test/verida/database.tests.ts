@@ -317,7 +317,7 @@ describe('Verida database tests', () => {
 
             const result = await promise
 
-            assert.deepEqual(result, new Error('Permission denied to access remote database.'))
+            assert.deepEqual(result, new Error('Database not found: Permission denied to access remote database.'))
         })
 
         it(`can't write an external database with write=users and user no access`, async function() {
@@ -332,7 +332,7 @@ describe('Verida database tests', () => {
             })
 
             const result = await promise
-            assert.deepEqual(result, new Error('Permission denied to access remote database.'))
+            assert.deepEqual(result, new Error('Database not found: Permission denied to access remote database.'))
         })
 
         it(`can't open an external users database without an encryption key`, async function() {
@@ -365,31 +365,35 @@ describe('Verida database tests', () => {
         })
 
         it(`can't write an external database where a did has read access, but not write access`, async () => {
-            const ownerDatabase = await context.openDatabase(DB_NAME_USER_3, {
-                permissions: {
-                    read: 'users',
-                    readList: [did1, did2],
-                    write: 'owner'
-                }
-            })
-            const info = await ownerDatabase.info()
-            const encryptionKey = info.encryptionKey
+            try {
+                const ownerDatabase = await context.openDatabase(DB_NAME_USER_3, {
+                    permissions: {
+                        read: 'users',
+                        readList: [did1, did2],
+                        write: 'owner'
+                    }
+                })
+                const info = await ownerDatabase.info()
+                const encryptionKey = info.encryptionKey
 
-            const did2Database = await context2.openExternalDatabase(DB_NAME_USER_3, did1, {
-                permissions: {
-                    read: 'users',
-                    readList: [did1, did2],
-                    write: 'owner'
-                },
-                encryptionKey: encryptionKey
-            })
+                const did2Database = await context2.openExternalDatabase(DB_NAME_USER_3, did1, {
+                    permissions: {
+                        read: 'users',
+                        readList: [did1, did2],
+                        write: 'owner'
+                    },
+                    encryptionKey: encryptionKey
+                })
 
-            const promise = new Promise((resolve, rejects) => {
-                did2Database.save({'write': 'from valid external user DID'}).then(rejects, resolve)
-            })
+                const promise = new Promise((resolve, rejects) => {
+                    did2Database.save({'write': 'from valid external user DID'}).then(rejects, resolve)
+                })
 
-            const result = await promise
-            assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
+                const result = await promise
+                assert.deepEqual(result, new Error('Unable to save. Database is read only.'))
+            } catch (err) {
+                console.log(err.message)
+            }
         })
 
     })

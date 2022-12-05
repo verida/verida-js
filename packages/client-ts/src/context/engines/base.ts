@@ -6,6 +6,7 @@ import Datastore from "../datastore";
 import DbRegistry from "../db-registry";
 import ContextNotFoundError from "./ContextNotFoundError";
 import { Interfaces } from "@verida/storage-link";
+import Context from '../context';
 
 /**
  * @category
@@ -14,7 +15,6 @@ import { Interfaces } from "@verida/storage-link";
 class BaseStorageEngine {
   protected storageContext: string;
   protected dbRegistry: DbRegistry;
-  protected endpointUri: string;
   protected contextConfig: Interfaces.SecureContextConfig;
 
   protected account?: Account;
@@ -27,8 +27,19 @@ class BaseStorageEngine {
   ) {
     this.storageContext = storageContext;
     this.dbRegistry = dbRegistry;
-    this.endpointUri = contextConfig.services.databaseServer.endpointUri;
     this.contextConfig = contextConfig
+  }
+
+  public getKeyring() {
+    return this.keyring
+  }
+
+  public getContextConfig() {
+    return this.contextConfig
+  }
+
+  public getAccount() {
+    return this.account
   }
 
   public async connectAccount(account: Account) {
@@ -62,6 +73,10 @@ class BaseStorageEngine {
   public logout() {
     this.account = undefined;
     this.keyring = undefined;
+  }
+
+  public addEndpoint(context: Context, uri: string): Promise<boolean> {
+    throw new Error('Not implemented')
   }
 }
 

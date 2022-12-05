@@ -1,8 +1,8 @@
 import { Keyring } from '@verida/keyring'
-import { DIDDocument as DocInterface} from 'did-resolver'
+import { DIDDocument as DocInterface, ServiceEndpoint, Service } from 'did-resolver'
 import { Endpoints, EndpointType, VerificationMethodTypes } from './interfaces'
 import EncryptionUtils from '@verida/encryption-utils'
-import { ServiceEndpoint, VerificationMethod } from 'did-resolver'
+import { VerificationMethod } from 'did-resolver'
 import { knownNetworks, strip0x } from './helpers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { computeAddress } from "@ethersproject/transactions";
@@ -17,6 +17,7 @@ export interface ProofInterface {
     proofValue: string
 }
 
+/* Replace service with our custom one that supports array of serviceEndpoint */
 export interface VeridaDocInterface extends DocInterface {
     versionId: number
     created?: string
@@ -198,7 +199,7 @@ export default class DIDDocument {
         })
         
         // Remove services
-        this.doc.service = this.doc.service!.filter((entry: ServiceEndpoint) => {
+        this.doc.service = this.doc.service!.filter((entry: Service) => {
             return !entry.id.match(`${this.doc.id}\\?context=${contextHash}`)
         })
 
@@ -221,7 +222,7 @@ export default class DIDDocument {
         return this.doc
     }
 
-    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUri: string) {
+    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUris: ServiceEndpoint[]) {
         if (!this.doc.service) {
             this.doc.service = []
         }
@@ -229,7 +230,8 @@ export default class DIDDocument {
         this.doc.service.push({
             id: `${this.doc.id}?context=${contextHash}&type=${endpointType}`,
             type: serviceType,
-            serviceEndpoint: endpointUri
+            // @ts-ignore
+            serviceEndpoint: endpointUris
         })
     }
 
