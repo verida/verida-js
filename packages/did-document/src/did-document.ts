@@ -324,6 +324,20 @@ export default class DIDDocument {
         return this.doc.service!.find(entry => entry.id == expectedEndpointId)
     }
 
+    public locateContextProof(contextName: string): string | undefined {
+        const did = this.doc.id
+        const contextHash = DIDDocument.generateContextHash(did, contextName)
+        const verificationMethod = this.doc.verificationMethod?.find((item: any) => {
+            return item.id.match(`${did}\\?context=${contextHash}&type=sign`)
+        })
+
+        // @ts-ignore
+        if (verificationMethod && verificationMethod.proof) {
+            // @ts-ignore
+            return verificationMethod.proof
+        }
+    }
+
     public signProof(privateKey: Uint8Array | string) {
         if (privateKey == 'string') {
             privateKey = new Uint8Array(Buffer.from(privateKey.substr(2),'hex'))
