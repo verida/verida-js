@@ -6,7 +6,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 
 import { isVeridaContract } from './utils'
 
-import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, getContractForNetwork } from './config'
+import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, getContractForNetwork, isVeridaWeb3GasConfiguration, VeridaWeb3GasConfiguration } from './config'
 import { VeridaGaslessPostConfig, VeridaGaslessRequestConfig } from './config'
 // import { gaslessDefaultServerConfig, gaslessDefaultPostConfig } from './config'
 
@@ -59,11 +59,13 @@ export class VeridaContract {
     /** endpoint url : Need to be defined in sub class constructor */
     protected endPoint? : string
 
-    private logPerformance: boolean
-
     /** Need such fields to add sub methods in constructor */
     [key: string]: any
 
+    /** Configuration for web3 mode */
+    protected web3Config? : VeridaSelfTransactionConfig
+
+    /** Configuration for gasless mode */
     protected gaslessServerConfig? : VeridaGaslessRequestConfig
     protected gaslessPostConfig? : VeridaGaslessPostConfig
 
@@ -74,7 +76,6 @@ export class VeridaContract {
      */
     constructor(type: CallType, config: VeridaWeb3Config) {
         this.type = type;
-        this.logPerformance = config.logPerformance ? true : false
         if (type === 'web3') {
             if (!config) {
                 throw new Error('Input configuration parameters');
@@ -108,10 +109,43 @@ export class VeridaContract {
             methods.forEach((item: any) => {
                 if (item.type === 'function') {
                     this[item.name] = async(...params : any[]) : Promise<VdaTransactionResult> => {
-                        return this.callMethod(item.name, item.stateMutability, params)
+
+                        let gasConfig : VeridaWeb3GasConfiguration | undefined = undefined
+
+                        const paramLen = params.length
+                        if (params !== undefined
+                            && paramLen > 0
+                            && typeof params[paramLen-1] === 'object'
+                            && params[paramLen - 1].constructor.name === 'Object'
+                            && isVeridaWeb3GasConfiguration(params[paramLen - 1]))
+                        { // Use gas configuration in the params
+                            gasConfig = <VeridaWeb3GasConfiguration>params[paramLen-1]
+                            params = params.slice(0, paramLen - 1)
+                        } else if (this.web3Config?.methodDefaults !== undefined && (item.name in this.web3Config?.methodDefaults)) {
+                            // Use gas configuration in the methodDefaults
+                            gasConfig = Object.assign({}, this.web3Config.methodDefaults[item.name])
+                        } else if (this.web3Config !== undefined) {
+                            // Use gas configuration in the global configuration
+                            gasConfig = {}
+                            if ('maxFeePerGas' in this.web3Config) {
+                                gasConfig['maxFeePerGas'] = this.web3Config['maxFeePerGas']
+                            }
+
+                            if ('maxPriorityFeePerGas' in this.web3Config) {
+                                gasConfig['maxPriorityFeePerGas'] = this.web3Config['maxPriorityFeePerGas']
+                            }
+
+                            if ('gasLimit' in this.web3Config) {
+                                gasConfig['gasLimit'] = this.web3Config['gasLimit']
+                            }
+                        }
+
+                        return this.callMethod(item.name, item.stateMutability, params, gasConfig)
                     }
                 }
             })
+
+            this.web3Config = web3Config
         } else {
             if (!isVeridaContract(config.address)) {
                 throw new Error(`Not a Verida contract address (${config.address})`)
@@ -192,9 +226,10 @@ export class VeridaContract {
      * @param methodName - Calling method name of smart contract. From ABI.
      * @param methodType - Method type. Shows whether method in smart contract is Call function or not.
      * @param params - Parameters used to make interaction with smart contract : Array
+     * @param gasConfig - Gas configuration. Only available for non-view functions in Web3 mode
      * @returns - Response from smart contract interaction
      */
-    protected callMethod = async (methodName: string, methodType: string, params: any ) : Promise<VdaTransactionResult> =>  {
+    protected callMethod = async (methodName: string, methodType: string, params: any, gasConfig? : VeridaWeb3GasConfiguration) : Promise<VdaTransactionResult> =>  {
         if (this.type === 'web3') {
             let ret;
 
@@ -206,40 +241,16 @@ export class VeridaContract {
                 if (methodType === 'view') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
-                    if (this.logPerformance) {
-                        console.log('Node endpoint: ' + (<JsonRpcProvider> contract.provider).connection.url)
-                    }
+                    // console.log('Gas Config : ', gasConfig)
 
-                    let time1 = (new Date()).getTime()
-                    let { gasPrice } = await contract.provider.getFeeData()
-                    let time2 = (new Date()).getTime()
-                    if (this.logPerformance) {
-                        console.log(`getFeeData(): ${(time2-time1)}`)
-                    }
-                    gasPrice = gasPrice!.mul(BigNumber.from(11)).div(BigNumber.from(10))
-
-                    let gasLimit = await contract.estimateGas[methodName](...params);
-                    let time3 = (new Date()).getTime()
-                    if (this.logPerformance) {
-                        console.log(`estimateGas(): ${(time3-time2)}`)
-                    }
-                    gasLimit = gasLimit.mul(BigNumber.from(11)).div(BigNumber.from(10)) // Multiply 1.1
-
-                    const transaction = await contract.functions[methodName](...params, {
-                        gasLimit,
-                        gasPrice
-                    })
-                    let time4 = (new Date()).getTime()
-                    if (this.logPerformance) {
-                        console.log(`${methodName}(${params}): ${(time4-time3)}`)
+                    let transaction: any
+                    if (gasConfig === undefined) { //Gas configuration is in the params
+                        transaction = await contract.functions[methodName](...params)
+                    } else { // Need to use manual gas configuration
+                        transaction = await contract.functions[methodName](...params, gasConfig)
                     }
 
                     const transactionRecipt = await transaction.wait(1)
-                    let time5 = (new Date()).getTime()
-                    if (this.logPerformance) {
-                        console.log(`transaction.wait(): ${(time5-time4)}`)
-                    }
-
                     // console.log('Transaction Receipt = ', transactionRecipt)
 
                     ret = transactionRecipt

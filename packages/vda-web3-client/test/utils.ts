@@ -1,33 +1,71 @@
 require('dotenv').config();
 
-import {getVeridaContract, VeridaContract} from '../src/index';
+import {getVeridaContract, VeridaContract, VeridaSelfTransactionConfig, VeridaWeb3Config, VeridaWeb3GasConfiguration} from '../src/index';
 import {JsonRpcProvider} from '@ethersproject/providers';
-import {ethers, Wallet} from 'ethers';
+import {BigNumber, ethers, Wallet} from 'ethers';
 import EncryptionUtils from '@verida/encryption-utils';
+
+const _ = require('lodash');
+
+// import Axios from "axios";
 
 const PORT = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5021;
 const SERVER_URL = `http://localhost:${PORT}`;
 
+/*
+export async function getMaticFee(isProd: boolean) {
+  let maxFeePerGas = ethers.BigNumber.from(40000000000); // fallback to 40 gwei
+  let maxPriorityFeePerGas = ethers.BigNumber.from(40000000000); // fallback to 40 gwei
+  const gasLimit = ethers.BigNumber.from(50000000000); // fallback to 50 gwei
+
+  try {
+    const { data } = await Axios({
+      method: 'get',
+      url: isProd
+        ? 'https://gasstation-mainnet.matic.network/v2'
+        : 'https://gasstation-mumbai.matic.today/v2',
+    });
+    console.log('Matic data : ', data);
+
+    maxFeePerGas = ethers.utils.parseUnits(
+      Math.ceil(data.fast.maxFee) + '',
+      'gwei'
+    );
+    maxPriorityFeePerGas = ethers.utils.parseUnits(
+      Math.ceil(data.fast.maxPriorityFee) + '',
+      'gwei'
+    );
+  } catch {
+    // ignore
+    console.log('Error in get gasfee');
+  }
+
+  return { maxFeePerGas, maxPriorityFeePerGas, gasLimit };
+}
+*/
+
 export function getVeridaWeb3Instance(
-  contractName: 'DidRegistry' | 'NameRegistry'
+  contractName: 'DidRegistry' | 'NameRegistry',
+  globalGasConfiguration?: VeridaWeb3GasConfiguration,
+  methodDefaults?: Record<string, VeridaWeb3GasConfiguration>
 ) {
   const args = process.argv.slice(2);
   // console.log("ARGS : ", args);
   const testMode = args.length > 0 && args.includes('gasless') ? 'gasless' : 'direct';
   // args.length > 0 && args[0] === 'direct' ? args[0] : 'gasless';
-  console.log('Test mode : ', testMode);
+  // console.log('Test mode : ', testMode);
 
   const TARGET_NET = process.env.RPC_TARGET_NET;
   if (TARGET_NET === undefined) {
     throw new Error('RPC_TARGET_NET not defiend in env');
   }
-  console.log('Target Net : ', TARGET_NET);
+  // console.log('Target Net : ', TARGET_NET);
 
   const RPC_URL = process.env[TARGET_NET];
   if (RPC_URL === undefined) {
     throw new Error('RPC url not defined in env');
   }
-  console.log('RPC URL : ', RPC_URL);
+  // console.log('RPC URL : ', RPC_URL);
 
   const CONTRACT_ADDRESS =
     process.env[`CONTRACT_ADDRESS_${TARGET_NET}_${contractName}`];
@@ -43,12 +81,23 @@ export function getVeridaWeb3Instance(
   let contract;
 
   if (testMode === 'direct') {
-    contract = getVeridaContract('web3', {
+    let configuration: VeridaWeb3Config = {
       abi: contractABI,
       address: CONTRACT_ADDRESS,
       provider: provider,
       signer: txSigner,
-    });
+    };
+
+    if (globalGasConfiguration !== undefined) {
+      configuration = _.merge(configuration, globalGasConfiguration);
+    }
+
+    if (methodDefaults !== undefined) {
+      (<VeridaSelfTransactionConfig>configuration).methodDefaults =
+        methodDefaults;
+    }
+
+    contract = getVeridaContract('web3', configuration);
   } else {
     contract = getVeridaContract('gasless', {
       abi: contractABI,
