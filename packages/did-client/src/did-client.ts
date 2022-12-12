@@ -160,7 +160,15 @@ export class DIDClient {
                 return `${item}${document.id}`
             })
 
-            endpointResponse = await this.vdaDid!.create(document, endpoints)
+            try {
+                endpointResponse = await this.vdaDid!.create(document, endpoints)
+            } catch (err: any) {
+                if (err.message == 'Unable to create DID: All endpoints failed to accept the DID Document') {
+                    this.endpointErrors = this.vdaDid!.getLastEndpointErrors()
+                }
+
+                throw err
+            }
         } else {
             // Doc exists, need to update
             const doc = document.export()
