@@ -50,6 +50,7 @@ export default class VdaDid {
 
         // Submit to all the endpoints
         const finalEndpoints: VdaDidEndpointResponses = {}
+        const successEndpoints: string[] = []
         let successCount = 0
         for (let i in endpoints) {
             const endpoint = endpoints[i]
@@ -61,6 +62,8 @@ export default class VdaDid {
                 finalEndpoints[endpoint] = {
                     status: 'success'
                 }
+
+                successEndpoints.push(endpoint)
                 
                 successCount++
             } catch (err: any) {
@@ -77,7 +80,7 @@ export default class VdaDid {
         }
 
         // Publish final endpoints on-chain
-        await this.blockchain.register(Object.keys(finalEndpoints))
+        await this.blockchain.register(successEndpoints)
 
         return finalEndpoints
     }
