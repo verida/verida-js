@@ -1,9 +1,9 @@
-import {ethers, Wallet} from 'ethers';
+import {BigNumber, ethers, Wallet} from 'ethers';
 
 import {getVeridaWeb3Instance, getVeridaSignWithNonce} from './utils';
 import {expect} from 'chai';
 
-const didRegistry = getVeridaWeb3Instance('DidRegistry');
+let didRegistry = getVeridaWeb3Instance('DidRegistry');
 
 // Test Datas
 const did = Wallet.createRandom();
@@ -119,287 +119,458 @@ const checkSetController = async (
   expect(response.success).to.be.equal(expectedResult, msg);
 };
 describe('DidRegistry Test', () => {
-  describe('Register', () => {
-    it('Should reject for invalid signature', async () => {
-      await checkRegister(
-        did.address,
-        endPoints_A,
-        badSigner.privateKey,
-        false,
-        'Rejected for invalid signature'
-      );
+  describe('DidRegistry feature Test', () => {
+    describe('Register', () => {
+      it('Should reject for invalid signature', async () => {
+        await checkRegister(
+          did.address,
+          endPoints_A,
+          badSigner.privateKey,
+          false,
+          'Rejected for invalid signature'
+        );
+      });
+
+      it('Success', async () => {
+        await checkRegister(
+          did.address,
+          endPoints_A,
+          did.privateKey,
+          true,
+          'Registered successfully'
+        );
+      });
+
+      it('Should update for already registered DID address', async () => {
+        // Check registered data
+        // await checkLookup(did.address, true, '', endPoints_A);
+
+        // Update for registered DID
+        await checkRegister(
+          did.address,
+          endPoints_B,
+          did.privateKey,
+          true,
+          'Updated successfully'
+        );
+      });
+
+      it('Should reject for revoked DID address', async () => {
+        const tempDID = Wallet.createRandom();
+
+        // Register
+        await checkRegister(
+          tempDID.address,
+          endPoints_A,
+          tempDID.privateKey,
+          true
+        );
+
+        // Revoke
+        await checkRevoke(tempDID.address, tempDID.privateKey, true);
+
+        // Should register failed
+        await checkRegister(
+          tempDID.address,
+          endPoints_B,
+          tempDID.privateKey,
+          false,
+          'Should reject for revoked DID address'
+        );
+      });
     });
 
-    it('Success', async () => {
-      await checkRegister(
-        did.address,
-        endPoints_A,
-        did.privateKey,
-        true,
-        'Registered successfully'
-      );
+    describe('Lookup', () => {
+      it('Get endpoints registered', async () => {
+        await checkRegister(did.address, endPoints_B, did.privateKey, true);
+        await checkLookup(did.address, true, '', endPoints_B);
+      });
+
+      it('Should reject for unregistered DIDs', async () => {
+        const testDID = Wallet.createRandom();
+        await checkLookup(
+          testDID.address,
+          false,
+          'Rejected for unregistered DID address'
+        );
+      });
+
+      it('Should return empty array for empty endpoints', async () => {
+        const testDID = Wallet.createRandom();
+
+        await checkRegister(
+          testDID.address,
+          endPoints_Empty,
+          testDID.privateKey,
+          true
+        );
+
+        await checkLookup(
+          testDID.address,
+          true,
+          '',
+          endPoints_Empty,
+          'Get empty endpoings'
+        );
+      });
+
+      it('Should reject for revoked DID', async () => {
+        const testDID = Wallet.createRandom();
+
+        // Register
+        await checkRegister(
+          testDID.address,
+          endPoints_A,
+          testDID.privateKey,
+          true
+        );
+
+        // Revoke
+        await checkRevoke(testDID.address, testDID.privateKey, true);
+
+        // Should reject for revoked DID address
+        await checkLookup(testDID.address, false, 'Rejected for revoked DID');
+      });
     });
 
-    it('Should update for already registered DID address', async () => {
-      // Check registered data
-      // await checkLookup(did.address, true, '', endPoints_A);
+    describe('Set controller', () => {
+      it('Should reject for unregistered address', async () => {
+        const testDID = Wallet.createRandom();
+        const controller = Wallet.createRandom();
+        await checkSetController(
+          testDID.address,
+          controller.address,
+          testDID.privateKey,
+          false,
+          'Rejected for unregistered address'
+        );
+      });
 
-      // Update for registered DID
-      await checkRegister(
-        did.address,
-        endPoints_B,
-        did.privateKey,
-        true,
-        'Updated successfully'
-      );
+      it('Should reject for invalid signature', async () => {
+        const controller = Wallet.createRandom();
+        await checkSetController(
+          did.address,
+          controller.address,
+          badSigner.privateKey,
+          false,
+          'Rejected for invalid signature'
+        );
+      });
+
+      it('Change controller for registered one', async () => {
+        // Check original controller
+        await checkGetController(did.address, did.address);
+
+        const controller = Wallet.createRandom();
+        await checkSetController(
+          did.address,
+          controller.address,
+          did.privateKey,
+          true,
+          'Successfully changed the controller'
+        );
+
+        // Check updated controller
+        await checkGetController(
+          did.address,
+          controller.address,
+          'Get updated controller'
+        );
+
+        // Restore controller for later tests
+        await checkSetController(
+          did.address,
+          did.address,
+          controller.privateKey,
+          true,
+          'Restore controller to original'
+        );
+      });
     });
 
-    it('Should reject for revoked DID address', async () => {
-      const tempDID = Wallet.createRandom();
+    describe('Get controller', () => {
+      it('Should return did itself for unchanged DID', async () => {
+        await checkGetController(
+          did.address,
+          did.address,
+          'Controller is DID itself'
+        );
+      });
 
-      // Register
-      await checkRegister(
-        tempDID.address,
-        endPoints_A,
-        tempDID.privateKey,
-        true
-      );
+      it('Should return did itself for unregistered DID', async () => {
+        const testDID = Wallet.createRandom();
+        await checkGetController(
+          testDID.address,
+          testDID.address,
+          'Controller is DID itself'
+        );
+      });
 
-      // Revoke
-      await checkRevoke(tempDID.address, tempDID.privateKey, true);
+      it('Should return updated one for controller changed DID', async () => {
+        // Check original controller
+        await checkGetController(
+          did.address,
+          did.address,
+          'Get original controller'
+        );
 
-      // Should register failed
-      await checkRegister(
-        tempDID.address,
-        endPoints_B,
-        tempDID.privateKey,
-        false,
-        'Should reject for revoked DID address'
-      );
+        // Update controller
+        const controller = Wallet.createRandom();
+        await checkSetController(
+          did.address,
+          controller.address,
+          did.privateKey,
+          true,
+          'Controller changed'
+        );
+
+        // Check updated controller
+        await checkGetController(
+          did.address,
+          controller.address,
+          'Get updated controller'
+        );
+
+        // Restore controller to original for later tests
+        await checkSetController(
+          did.address,
+          did.address,
+          controller.privateKey,
+          true
+        );
+      });
+    });
+
+    describe('Revoke', () => {
+      const controller = Wallet.createRandom();
+
+      before(async () => {
+        // Register did & update controller for revoke test
+        await checkRegister(did.address, endPoints_A, did.privateKey, true);
+        await checkSetController(
+          did.address,
+          controller.address,
+          did.privateKey,
+          true
+        );
+
+        await checkGetController(did.address, controller.address);
+      });
+
+      it('Should reject for unregistered DID', async () => {
+        const testDID = Wallet.createRandom();
+        await checkRevoke(
+          testDID.address,
+          testDID.privateKey,
+          false,
+          'Rejected for unregistered DID'
+        );
+      });
+
+      it('Should reject for invalid signature - bad signer', async () => {
+        await checkRevoke(
+          did.address,
+          badSigner.privateKey,
+          false,
+          'Invalid signature'
+        );
+      });
+
+      it('Should reject for invalid signature - not a controller', async () => {
+        await checkRevoke(
+          did.address,
+          did.privateKey,
+          false,
+          'Invalid signature'
+        );
+      });
+
+      it('Revoked successfully', async () => {
+        await checkRevoke(
+          did.address,
+          controller.privateKey,
+          true,
+          'Revoked successfully'
+        );
+      });
+
+      it('Should reject for revoked DID', async () => {
+        await checkRevoke(
+          did.address,
+          controller.privateKey,
+          false,
+          'Rejected for revoked DID'
+        );
+      });
     });
   });
 
-  describe('Lookup', () => {
-    it('Get endpoints registered', async () => {
-      await checkRegister(did.address, endPoints_B, did.privateKey, true);
-      await checkLookup(did.address, true, '', endPoints_B);
+  describe('Gas configuration test', () => {
+    const did = Wallet.createRandom();
+
+    describe('No gas configuration', () => {
+      it('Call with no gas configuration', async () => {
+        didRegistry = getVeridaWeb3Instance('DidRegistry');
+
+        await checkRegister(
+          did.address,
+          endPoints_A,
+          did.privateKey,
+          true,
+          'Registered successfully'
+        );
+      });
     });
 
-    it('Should reject for unregistered DIDs', async () => {
-      const testDID = Wallet.createRandom();
-      await checkLookup(
-        testDID.address,
-        false,
-        'Rejected for unregistered DID address'
-      );
+    describe('Call with global gas configuration', () => {
+      it('Should reject for insufficient global gas configuration', async () => {
+        didRegistry = getVeridaWeb3Instance('DidRegistry', {
+          gasLimit: BigNumber.from(10),
+          maxFeePerGas: BigNumber.from(10),
+          maxPriorityFeePerGas: BigNumber.from(10),
+        });
+
+        await checkRegister(
+          did.address,
+          endPoints_A,
+          did.privateKey,
+          false,
+          'Failed by insufficient gas configuration'
+        );
+      });
+
+      it('Call success with global gas configuration', async () => {
+        didRegistry = getVeridaWeb3Instance('DidRegistry', {
+          gasLimit: BigNumber.from(450000),
+          maxFeePerGas: BigNumber.from(40000000000),
+          maxPriorityFeePerGas: BigNumber.from(40000000000),
+        });
+
+        await checkRegister(
+          did.address,
+          endPoints_A,
+          did.privateKey,
+          true,
+          'Registered successfully'
+        );
+      });
     });
 
-    it('Should return empty array for empty endpoints', async () => {
-      const testDID = Wallet.createRandom();
+    describe('Call with method default gas configuration', () => {
+      it('Should reject for insufficient methodDefaults gas configuration', async () => {
+        didRegistry = getVeridaWeb3Instance(
+          'DidRegistry',
+          {
+            gasLimit: BigNumber.from(450000),
+            maxFeePerGas: BigNumber.from(40000000000),
+            maxPriorityFeePerGas: BigNumber.from(40000000000),
+          },
+          {
+            register: {
+              gasLimit: BigNumber.from(10),
+              maxFeePerGas: BigNumber.from(10),
+              maxPriorityFeePerGas: BigNumber.from(10),
+            },
+          }
+        );
 
-      await checkRegister(
-        testDID.address,
-        endPoints_Empty,
-        testDID.privateKey,
-        true
-      );
+        await checkRegister(
+          did.address,
+          endPoints_A,
+          did.privateKey,
+          false,
+          'Failed by insufficient gas configuration'
+        );
+      });
 
-      await checkLookup(
-        testDID.address,
-        true,
-        '',
-        endPoints_Empty,
-        'Get empty endpoings'
-      );
+      it('Call success with methodDefaults gas configuration', async () => {
+        didRegistry = getVeridaWeb3Instance(
+          'DidRegistry',
+          {
+            gasLimit: BigNumber.from(450000),
+            maxFeePerGas: BigNumber.from(40000000000),
+            maxPriorityFeePerGas: BigNumber.from(40000000000),
+          },
+          {
+            register: {
+              gasLimit: BigNumber.from(500000),
+              maxFeePerGas: BigNumber.from(45000000000),
+              maxPriorityFeePerGas: BigNumber.from(43000000000),
+            },
+          }
+        );
+
+        await checkRegister(
+          did.address,
+          endPoints_A,
+          did.privateKey,
+          true,
+          'Registered successfully'
+        );
+      });
     });
 
-    it('Should reject for revoked DID', async () => {
-      const testDID = Wallet.createRandom();
+    describe('Call with manual gas configuration', () => {
+      before(() => {
+        didRegistry = getVeridaWeb3Instance(
+          'DidRegistry',
+          {
+            gasLimit: BigNumber.from(450000),
+            maxFeePerGas: BigNumber.from(40000000000),
+            maxPriorityFeePerGas: BigNumber.from(40000000000),
+          },
+          {
+            register: {
+              gasLimit: BigNumber.from(500000),
+              maxFeePerGas: BigNumber.from(45000000000),
+              maxPriorityFeePerGas: BigNumber.from(43000000000),
+            },
+          }
+        );
+      });
 
-      // Register
-      await checkRegister(
-        testDID.address,
-        endPoints_A,
-        testDID.privateKey,
-        true
-      );
+      it('Failed by less gas', async () => {
+        const gasConfig = {
+          gasLimit: BigNumber.from(10),
+          maxFeePerGas: BigNumber.from(10),
+          maxPriorityFeePerGas: BigNumber.from(10),
+        };
+        const signature = await getRegisterSignature(
+          did.address,
+          endPoints_A,
+          did.privateKey
+        );
+        const response = await didRegistry.register(
+          did.address,
+          endPoints_A,
+          signature,
+          gasConfig
+        );
+        expect(response.success).to.be.equal(
+          false,
+          'Failed by insufficient gas'
+        );
+      });
 
-      // Revoke
-      await checkRevoke(testDID.address, testDID.privateKey, true);
-
-      // Should reject for revoked DID address
-      await checkLookup(testDID.address, false, 'Rejected for revoked DID');
-    });
-  });
-
-  describe('Set controller', () => {
-    it('Should reject for unregistered address', async () => {
-      const testDID = Wallet.createRandom();
-      const controller = Wallet.createRandom();
-      await checkSetController(
-        testDID.address,
-        controller.address,
-        testDID.privateKey,
-        false,
-        'Rejected for unregistered address'
-      );
-    });
-
-    it('Should reject for invalid signature', async () => {
-      const controller = Wallet.createRandom();
-      await checkSetController(
-        did.address,
-        controller.address,
-        badSigner.privateKey,
-        false,
-        'Rejected for invalid signature'
-      );
-    });
-
-    it('Change controller for registered one', async () => {
-      // Check original controller
-      await checkGetController(did.address, did.address);
-
-      const controller = Wallet.createRandom();
-      await checkSetController(
-        did.address,
-        controller.address,
-        did.privateKey,
-        true,
-        'Successfully changed the controller'
-      );
-
-      // Check updated controller
-      await checkGetController(
-        did.address,
-        controller.address,
-        'Get updated controller'
-      );
-
-      // Restore controller for later tests
-      await checkSetController(
-        did.address,
-        did.address,
-        controller.privateKey,
-        true,
-        'Restore controller to original'
-      );
-    });
-  });
-
-  describe('Get controller', () => {
-    it('Should return did itself for unchanged DID', async () => {
-      await checkGetController(
-        did.address,
-        did.address,
-        'Controller is DID itself'
-      );
-    });
-
-    it('Should return did itself for unregistered DID', async () => {
-      const testDID = Wallet.createRandom();
-      await checkGetController(
-        testDID.address,
-        testDID.address,
-        'Controller is DID itself'
-      );
-    });
-
-    it('Should return updated one for controller changed DID', async () => {
-      // Check original controller
-      await checkGetController(
-        did.address,
-        did.address,
-        'Get original controller'
-      );
-
-      // Update controller
-      const controller = Wallet.createRandom();
-      await checkSetController(
-        did.address,
-        controller.address,
-        did.privateKey,
-        true,
-        'Controller changed'
-      );
-
-      // Check updated controller
-      await checkGetController(
-        did.address,
-        controller.address,
-        'Get updated controller'
-      );
-
-      // Restore controller to original for later tests
-      await checkSetController(
-        did.address,
-        did.address,
-        controller.privateKey,
-        true
-      );
-    });
-  });
-
-  describe('Revoke', () => {
-    const controller = Wallet.createRandom();
-
-    before(async () => {
-      // Register did & update controller for revoke test
-      await checkRegister(did.address, endPoints_A, did.privateKey, true);
-      await checkSetController(
-        did.address,
-        controller.address,
-        did.privateKey,
-        true
-      );
-
-      await checkGetController(did.address, controller.address);
-    });
-
-    it('Should reject for unregistered DID', async () => {
-      const testDID = Wallet.createRandom();
-      await checkRevoke(
-        testDID.address,
-        testDID.privateKey,
-        false,
-        'Rejected for unregistered DID'
-      );
-    });
-
-    it('Should reject for invalid signature - bad signer', async () => {
-      await checkRevoke(
-        did.address,
-        badSigner.privateKey,
-        false,
-        'Invalid signature'
-      );
-    });
-
-    it('Should reject for invalid signature - not a controller', async () => {
-      await checkRevoke(
-        did.address,
-        did.privateKey,
-        false,
-        'Invalid signature'
-      );
-    });
-
-    it('Revoked successfully', async () => {
-      await checkRevoke(
-        did.address,
-        controller.privateKey,
-        true,
-        'Revoked successfully'
-      );
-    });
-
-    it('Should reject for revoked DID', async () => {
-      await checkRevoke(
-        did.address,
-        controller.privateKey,
-        false,
-        'Rejected for revoked DID'
-      );
+      it('Success with manual gas configuration', async () => {
+        const gasConfig = {
+          gasLimit: BigNumber.from(500000),
+          maxFeePerGas: BigNumber.from(46000000000),
+          maxPriorityFeePerGas: BigNumber.from(46000000000),
+        };
+        const signature = await getRegisterSignature(
+          did.address,
+          endPoints_A,
+          did.privateKey
+        );
+        const response = await didRegistry.register(
+          did.address,
+          endPoints_A,
+          signature,
+          gasConfig
+        );
+        expect(response.success).to.be.equal(true, 'Success');
+      });
     });
   });
 });
