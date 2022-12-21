@@ -24,7 +24,7 @@ PouchDB.plugin(PouchDBFind);
 class BaseDb extends EventEmitter implements Database {
   protected databaseName: string;
   protected did: string;
-  protected endpoints: Record<string, Endpoint>
+  protected endpoint: Endpoint
   protected storageContext: string;
   protected engine: StorageEngineVerida
 
@@ -42,7 +42,7 @@ class BaseDb extends EventEmitter implements Database {
 
   constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
     super();
-    this.endpoints = config.endpoints
+    this.endpoint = config.endpoint
     this.databaseName = config.databaseName;
     this.did = config.did.toLowerCase();
     this.storageContext = config.storageContext;
@@ -300,49 +300,7 @@ class BaseDb extends EventEmitter implements Database {
       return
     }
 
-    for (let i in this.endpoints) {
-      const endpoint = this.endpoints[i]
-      this.dbConnections[i] = await endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
-    }
-
-    // Randomly choose a "primary" connection
-    const primaryIndex = Utils.getRandomInt(0, Object.keys(this.endpoints).length)
-    const primaryEndpointUri = Object.keys(this.endpoints)[primaryIndex]
-    const primaryConnection = this.dbConnections[primaryEndpointUri]
-    this.db = primaryConnection
-
-    // Sync changes from primaryConnection to all the other connections
-    for (let i in this.dbConnections) {
-      if (i === primaryEndpointUri) {
-        continue
-      }
-
-      const connection = this.dbConnections[i]
-      const instance = this
-      PouchDB.sync(connection, this.db, {
-        live: true,
-        retry: true,
-        // Dont sync design docs
-        filter: function (doc: any) {
-          return doc._id.indexOf("_design") !== 0;
-        },
-      })
-        .on("error", function (err: any) {
-          // raise database connection error event
-          instance.emit('dbEndpointWarning', `Error syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`)
-          console.error(
-            `Error syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`
-          );
-          console.error(err);
-        })
-        .on("denied", function (err: any) {
-          instance.emit('dbEndpointWarning', `Permission denied syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`)
-          console.error(
-            `Permission denied syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`
-          );
-          console.error(err);
-        });
-    }
+    this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
   }
 
   /**

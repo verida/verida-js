@@ -4,6 +4,7 @@ import { ServiceEndpoint } from 'did-resolver'
 import { Account, AuthContext, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 import { EndpointUsage, PermissionsConfig } from "../../../interfaces";
+import StorageEngineVerida from './engine'
 import Utils from "./utils";
 
 import * as PouchDBFind from "pouchdb-find";
@@ -20,6 +21,7 @@ export default class Endpoint extends EventEmitter {
     private endpointUri: ServiceEndpoint
     private client: DatastoreServerClient
     private contextConfig: Interfaces.SecureContextConfig
+    private storageEngine: StorageEngineVerida
 
     private account?: Account
     private auth?: VeridaDatabaseAuthContext
@@ -27,9 +29,10 @@ export default class Endpoint extends EventEmitter {
     private usePublic: boolean = false
     private databases: Record<string, any> = {}
 
-    constructor(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint) {
+    constructor(storageEngine: StorageEngineVerida, contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint) {
         super()
 
+        this.storageEngine = storageEngine
         this.contextName = contextName
         this.endpointUri = endpointUri
         this.contextConfig = contextConfig
@@ -185,6 +188,10 @@ export default class Endpoint extends EventEmitter {
         await this.client.setAuthContext(this.auth)
     }
 
+    public async getStatus() {
+        await this.client.getStatus()
+    }
+
     public async getAccessToken() {
         return this.auth!.accessToken!
     }
@@ -205,6 +212,8 @@ export default class Endpoint extends EventEmitter {
         } catch (err) {
             throw new Error("User doesn't exist or unable to create user database");
         }
+
+        await this.storageEngine.checkReplication()
     }
 
     public async updateDatabase(did: string, databaseName: string, options: any): Promise<void> {
@@ -219,21 +228,32 @@ export default class Endpoint extends EventEmitter {
 
             throw new Error(`Unable to update database configuration: ${message}`);
         }
+
+        await this.storageEngine.checkReplication()
     }
 
-  /**
-   * When connecting to a CouchDB server for an external user, the current user may not
-   * have access to read/write.
-   *
-   * Take the external user's `endpointUri` that points to their CouchDB server. Establish
-   * a connection to the Verida Middleware (DatastoreServerClient) as the current user
-   * (accountDid) and create a new account if required.
-   *
-   * Return the current user's DSN which provides authenticated access to the external
-   * user's CouchDB server for the current user.
-   *
-   * @returns {string}
-   */
+    public async checkReplication(databaseName?: string) {
+        try {
+            await this.client.checkReplication(databaseName);
+        } catch (err: any) {
+            const message = err.response ? err.response.data.message : err.message
+            throw new Error(`Replication checks failed on ${this.endpointUri}: ${message}`);
+        }
+    }
+
+    /**
+     * When connecting to a CouchDB server for an external user, the current user may not
+     * have access to read/write.
+     *
+     * Take the external user's `endpointUri` that points to their CouchDB server. Establish
+     * a connection to the Verida Middleware (DatastoreServerClient) as the current user
+     * (accountDid) and create a new account if required.
+     *
+     * Return the current user's DSN which provides authenticated access to the external
+     * user's CouchDB server for the current user.
+     *
+     * @returns {string}
+     */
     protected async buildExternalAuth(): Promise<VeridaDatabaseAuthContext> {
         if (!this.account) {
             throw new Error('Unable to connect to external storage node. No account connected.')

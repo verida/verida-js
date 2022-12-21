@@ -1,17 +1,15 @@
 import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
 import Database from "../../../database";
-import { DatabaseOpenConfig } from "../../../interfaces";
-import { DatastoreServerClient } from "./client";
+import { DatabaseOpenConfig, PermissionsConfig } from "../../../interfaces";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
 import { Interfaces } from "@verida/storage-link";
-import { VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from "@verida/account"
-import BaseDb from "./base-db";
 import EndpointReplicator from "./endpoint-replicator";
 import Context from '../../../context';
 import Endpoint from "./endpoint";
+import Utils from "./utils";
 
 const _ = require("lodash");
 
@@ -28,6 +26,7 @@ const _ = require("lodash");
 class StorageEngineVerida extends BaseStorageEngine {
   private accountDid?: string;
   private endpoints: Record<string, Endpoint>
+  private activeEndpoint?: Endpoint
 
   // @todo: specify device id // deviceId: string="Test device"
   constructor(
@@ -40,29 +39,66 @@ class StorageEngineVerida extends BaseStorageEngine {
     this.endpoints = {}
     for (let i in contextConfig.services.databaseServer.endpointUri) {
       const endpointUri = <string> contextConfig.services.databaseServer.endpointUri[i]
-      this.endpoints[endpointUri] = new Endpoint(this.storageContext, this.contextConfig, endpointUri)
+      this.endpoints[endpointUri] = new Endpoint(this, this.storageContext, this.contextConfig, endpointUri)
     }
+  }
+
+  private async locateAvailableEndpoint(endpoints: Record<string, Endpoint>): Promise<Endpoint> {
+    // Maintain a list of failed endpoints
+    const failedEndpoints = []
+
+    // Randomly choose a "primary" connection
+    let primaryIndex = Utils.getRandomInt(0, Object.keys(endpoints).length)
+    let primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
+
+    console.log('primaryIndex', primaryIndex)
+
+    while (failedEndpoints.length < Object.keys(endpoints).length) {
+      // Verify the endpoint is active
+      try {
+        const status = await endpoints[primaryEndpointUri].getStatus()
+        console.log('endpoint status: ')
+        console.log(status)
+        return endpoints[primaryEndpointUri]
+      } catch (err) {
+        // endpoint is not available, so set it to fail
+        this.emit('endpointUnavailable', primaryEndpointUri)
+        failedEndpoints.push(primaryEndpointUri)
+        primaryIndex++
+        primaryIndex = primaryIndex % Object.keys(endpoints).length
+      }
+    }
+
+    throw new Error('Unable to locate an available endpoint')
+  }
+
+  /**
+   * Get an active endpoint
+   */
+  protected async getActiveEndpoint() {
+    if (this.activeEndpoint) {
+      return this.activeEndpoint
+    }
+
+    this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints)
+    return this.activeEndpoint
   }
 
   public async connectAccount(account: Account) {
     try {
       await super.connectAccount(account);
 
-      // @todo: do we need to authenticate to confirm the context exists?
-      /*const authContexts = await account.getAuthContext(this.storageContext, this.contextConfig)
-      this.authContexts = <VeridaDatabaseAuthContext[]> authContexts
-
-      for (let i in authContexts) {
-        const authContext = this.authContexts[i]
-        this.endpoints[<string> authContext.endpointUri].setAuthContext(authContext)
-      }*/
-
+      // Authenticate with all endpoints
       for (let i in this.endpoints) {
         const endpoint = this.endpoints[i]
         await endpoint.connectAccount(account)
       }
 
       this.accountDid = await this.account!.did();
+
+      // call checkReplication() to ensure replication is working correctly on all
+      // the endpoints and perform any necessary auto-repair actions
+      await this.checkReplication()
     } catch (err: any) {
       if (err.name == "ContextNotFoundError") {
         return
@@ -134,7 +170,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       }
     }
 
-    let endpoints = this.endpoints
+    let endpoint: Endpoint
     if (!config.isOwner) {
       // Not the owner, so need the dsn and token to have been specified in the config
       if (!config.dsn) {
@@ -143,16 +179,22 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       let endpointUris = <string[]> (typeof(config.dsn) == 'object' ? config.dsn : [<string> config.dsn])
 
-      endpoints = {}
+      const endpoints: Record<string, Endpoint> = {}
       for (let i in endpointUris) {
         const endpointUri = <string> endpointUris[i]
-        endpoints[endpointUri] = new Endpoint(this.storageContext, this.contextConfig, endpointUri)
+        endpoints[endpointUri] = new Endpoint(this, this.storageContext, this.contextConfig, endpointUri)
 
         // connect account to the endpoint if we are connected
         if (this.account) {
           await endpoints[endpointUri].connectAccount(this.account, false)
+          // No need for await as this can occur in the background
+          endpoints[endpointUri].checkReplication(databaseName)
         }
       }
+
+      endpoint = await this.locateAvailableEndpoint(endpoints)
+    } else {
+      endpoint = await this.getActiveEndpoint()
     }
 
     // force read only access if the current user doesn't have write access
@@ -193,7 +235,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           permissions: config.permissions,
           readOnly: config.readOnly,
           encryptionKey,
-          endpoints,
+          endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
@@ -206,9 +248,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       // If we aren't the owner of this database use the public credentials
       // to access this database
       if (!config.isOwner) {
-        for (let i in endpoints) {
-          await endpoints[i].setUsePublic()
-        }
+        endpoint.setUsePublic()
 
         if (config.permissions!.write != "public") {
           config.readOnly = true;
@@ -222,7 +262,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         signContext: options.signingContext!,
         permissions: config.permissions,
         readOnly: config.readOnly,
-        endpoints,
+        endpoint,
         isOwner: config.isOwner,
         saveDatabase: config.saveDatabase,
       }, this);
@@ -261,7 +301,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           permissions: config.permissions,
           readOnly: config.readOnly,
           encryptionKey,
-          endpoints,
+          endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
@@ -305,6 +345,21 @@ class StorageEngineVerida extends BaseStorageEngine {
 
   public async addEndpoint(context: Context, endpointUri: string): Promise<boolean> {
     return await EndpointReplicator.replicate(this, context, endpointUri)
+  }
+
+  /**
+   * Call checkReplication() on all the endpoints
+   */
+  public async checkReplication() {
+    console.log(`Checking replication for the database on all endpoints`)
+    const promises = []
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      promises.push(endpoint.checkReplication())
+    }
+
+    // No need for await as this can occur in the background
+    Promise.all(promises)
   }
 
 }

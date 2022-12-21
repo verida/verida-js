@@ -223,9 +223,7 @@ class EncryptedDatabase extends BaseDb {
       permissions: this.permissions,
     };
 
-    for (let i in this.endpoints) {
-      await this.endpoints[i].updateDatabase(this.did, this.databaseName, options);
-    }
+    await this.endpoint.updateDatabase(this.did, this.databaseName, options);
 
     if (this.config.saveDatabase !== false) {
       await this.engine.getDbRegistry().saveDb(this);
@@ -268,16 +266,11 @@ class EncryptedDatabase extends BaseDb {
       };
     }
 
-    const endpoints = []
-    for (let i in this.endpoints) {
-      endpoints.push(this.endpoints[i].toString())
-    }
-
     const info = {
       type: "VeridaDatabase",
       privacy: "encrypted",
       did: this.did,
-      endpoints: endpoints,
+      endpoint: this.endpoint.toString(),
       permissions: this.permissions!,
       storageContext: this.storageContext,
       databaseName: this.databaseName,
