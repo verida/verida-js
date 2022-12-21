@@ -420,12 +420,8 @@ class BaseDb extends EventEmitter implements Database {
     throw new Error("Not implemented");
   }
 
-  public getEndpoints() {
-    return this.endpoints
-  }
-
   public async usage(): Promise<EndpointUsage> {
-    return await this.endpoints[Object.keys(this.endpoints)[0]].getUsage()
+    return await this.endpoint.getUsage()
   }
   
 }

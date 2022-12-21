@@ -34,7 +34,7 @@ describe('Profile tests', () => {
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
-            await client1.connect(account1) 
+            await client1.connect(account1)
             context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
 
             profile1 = await context1.openProfile()

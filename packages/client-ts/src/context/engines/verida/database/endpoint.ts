@@ -189,7 +189,7 @@ export default class Endpoint extends EventEmitter {
     }
 
     public async getStatus() {
-        await this.client.getStatus()
+        return this.client.getStatus()
     }
 
     public async getAccessToken() {

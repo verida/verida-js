@@ -51,17 +51,18 @@ class StorageEngineVerida extends BaseStorageEngine {
     let primaryIndex = Utils.getRandomInt(0, Object.keys(endpoints).length)
     let primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
 
-    console.log('primaryIndex', primaryIndex)
-
     while (failedEndpoints.length < Object.keys(endpoints).length) {
       // Verify the endpoint is active
       try {
         const status = await endpoints[primaryEndpointUri].getStatus()
-        console.log('endpoint status: ')
-        console.log(status)
+        if (status.data.status != 'success') {
+          throw new Error()
+        }
+
         return endpoints[primaryEndpointUri]
       } catch (err) {
         // endpoint is not available, so set it to fail
+        //console.log('endpoint is unavailable!')
         this.emit('endpointUnavailable', primaryEndpointUri)
         failedEndpoints.push(primaryEndpointUri)
         primaryIndex++
@@ -248,7 +249,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       // If we aren't the owner of this database use the public credentials
       // to access this database
       if (!config.isOwner) {
-        endpoint.setUsePublic()
+        await endpoint.setUsePublic()
 
         if (config.permissions!.write != "public") {
           config.readOnly = true;
@@ -351,7 +352,7 @@ class StorageEngineVerida extends BaseStorageEngine {
    * Call checkReplication() on all the endpoints
    */
   public async checkReplication() {
-    console.log(`Checking replication for the database on all endpoints`)
+    //console.log(`Checking replication on all endpoints`)
     const promises = []
     for (let i in this.endpoints) {
       const endpoint = this.endpoints[i]
@@ -359,7 +360,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     }
 
     // No need for await as this can occur in the background
-    Promise.all(promises)
+    await Promise.all(promises)
   }
 
 }
