@@ -25,7 +25,7 @@ const CONTEXT_2 = "Verida Tests: Messaging Application 2"
  * 
  */
 describe('Verida messaging tests', () => {
-    let context1, did1
+    let context1
     let context2, did2
     let context3, did3
 
@@ -181,6 +181,12 @@ describe('Verida messaging tests', () => {
 
             assert.ok(messages.length, "At least one message exists")
         })
+    })
+
+    after(async () => {
+        await context1.close()
+        await context2.close()
+        await context3.close()
     })
 
 })

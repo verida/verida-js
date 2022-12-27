@@ -150,6 +150,11 @@ describe('Verida datastore tests', () => {
         })
     })
 
+    after(async () => {
+        await context.close()
+        await context2.close()
+    })
+
     // @todo need a way to know which users that have access to a particular database
 
 })

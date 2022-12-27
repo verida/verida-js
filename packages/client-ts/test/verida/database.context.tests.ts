@@ -5,7 +5,7 @@ import { Client } from '../../src/index'
 import { LimitedAccount } from '@verida/account-node'
 import CONFIG from '../config'
 
-const DB_NAME_PUBLIC_WRITE = 'ContextPublicWriteTestDb'
+const DB_NAME_PUBLIC_WRITE = 'ContextPublicWriteTestDb-3'
 
 const CONTEXT_1 = "Verida Testing: App 1"
 const CONTEXT_2 = "Verida Testing: App 2"
@@ -112,7 +112,10 @@ describe('Verida database tests relating to contexts', () => {
             const originalDbRow = await db1.get(result.id)
             assert.ok(originalDbRow && originalDbRow.write == 'from external DID', 'Result has expected value')
         })
-        
     })
 
+    after(async () => {
+        await context.close()
+        await context2.close()
+    })
 })

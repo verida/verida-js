@@ -58,6 +58,7 @@ const validateDidDocument = async(account: AutoAccount, context: Context, did: s
  * 
  */
 describe('Verida notification tests', () => {
+    let context, context2, context3
     const client = new Client({
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: {
@@ -84,7 +85,7 @@ describe('Verida notification tests', () => {
     describe('Sending messages', function() {
         this.timeout(200 * 1000)
 
-        it('can specify a notification server when creating a new account context', async () => {
+        it.only('can specify a notification server when creating a new account context', async () => {
             // Initialize account 1
             const account = new AutoAccount(ENDPOINT_CONFIG, {
                 privateKey: wallet.privateKey,
@@ -94,7 +95,7 @@ describe('Verida notification tests', () => {
             const did = await account.did()
             VDA_DID = did
             await client.connect(account)
-            const context = await client.openContext(CONTEXT_1, true)
+            context = await client.openContext(CONTEXT_1, true)
 
             const notificationService = await context!.getNotification()
             assert.ok(notificationService, 'Have a notification service instance')
@@ -106,7 +107,7 @@ describe('Verida notification tests', () => {
             assert.equal(success, true, 'Unlinked storage context from account')
         })
 
-        it('can force add a notification server to an existing account context', async () => {
+        it.only('can force add a notification server to an existing account context', async () => {
             // Initialize account 1 without a notification server
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: wallet.privateKey,
@@ -116,7 +117,7 @@ describe('Verida notification tests', () => {
             VDA_ACCOUNT = account
             const did = await account.did()
             await client2.connect(account)
-            const context = await client2.openContext(CONTEXT_1, true)
+            context = await client2.openContext(CONTEXT_1, true)
 
             const accountStorageConfig = await context.getContextConfig()
             assert.ok(!accountStorageConfig.services.notificationServer, `Don't have notification service endpoint in DID document`)
@@ -130,7 +131,7 @@ describe('Verida notification tests', () => {
 
             // Use a new client (the old context config is cached in the existing client)
             await client3.connect(account)
-            const context2 = await client3.openContext(CONTEXT_1, false)
+            context2 = await client3.openContext(CONTEXT_1, false)
 
             const notificationService2 = await context2.getNotification()
             assert.ok(notificationService2, 'Have a notification service instance')
@@ -138,15 +139,15 @@ describe('Verida notification tests', () => {
             await validateDidDocument(account, context2, did)
         })
 
-        it('can ping a notification server when sending a message', async () => {
+        it.only('can ping a notification server when sending a message', async () => {
             const account = new AutoAccount(ENDPOINT_CONFIG, {
                 privateKey: wallet.privateKey,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             });
             const did = await account.did()
-            const context = await client3.openContext(CONTEXT_1, false)
-            const messaging = await context.getMessaging()
+            context = await client3.openContext(CONTEXT_1, false)
+            let messaging = await context.getMessaging()
             
             await validateDidDocument(VDA_ACCOUNT, context, VDA_DID)
 
@@ -161,12 +162,16 @@ describe('Verida notification tests', () => {
             assert.ok(notificationService, 'Have a notification service')
             
             const errors = notificationService.getErrors()
+            messaging = null
             // Note: If you aren't running a notification service, this will always fail
             // As such, this is commented out
             //assert.ok(errors.length == 0, 'No ping errors')
         })
+    })
 
-        
+    after(async () => {
+        await context.close()
+        await context2.close()
     })
 
 })

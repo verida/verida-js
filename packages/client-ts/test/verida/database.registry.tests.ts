@@ -110,7 +110,9 @@ describe('Verida database registry tests', () => {
             assert.equal(dbRegistryDatabase.dbHash, dbInfo.databaseHash,'Expected database hash')
             assert.equal(dbRegistryDatabase.dbName, dbInfo.databaseName,'Expected database name')
         })
-        
     })
 
+    after(async () => {
+        await context.close()
+    })
 })
