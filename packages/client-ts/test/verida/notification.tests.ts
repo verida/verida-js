@@ -85,7 +85,7 @@ describe('Verida notification tests', () => {
     describe('Sending messages', function() {
         this.timeout(200 * 1000)
 
-        it.only('can specify a notification server when creating a new account context', async () => {
+        it('can specify a notification server when creating a new account context', async () => {
             // Initialize account 1
             const account = new AutoAccount(ENDPOINT_CONFIG, {
                 privateKey: wallet.privateKey,
@@ -107,7 +107,7 @@ describe('Verida notification tests', () => {
             assert.equal(success, true, 'Unlinked storage context from account')
         })
 
-        it.only('can force add a notification server to an existing account context', async () => {
+        it('can force add a notification server to an existing account context', async () => {
             // Initialize account 1 without a notification server
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: wallet.privateKey,
@@ -139,7 +139,7 @@ describe('Verida notification tests', () => {
             await validateDidDocument(account, context2, did)
         })
 
-        it.only('can ping a notification server when sending a message', async () => {
+        it('can ping a notification server when sending a message', async () => {
             const account = new AutoAccount(ENDPOINT_CONFIG, {
                 privateKey: wallet.privateKey,
                 environment: CONFIG.ENVIRONMENT,
