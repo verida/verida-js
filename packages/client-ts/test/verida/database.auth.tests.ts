@@ -13,8 +13,7 @@ const INVALID_CONTEXT = 'Verida Testing: Authentication - Invalid'
 
 
 /**
- * 
- *
+ * Note: These tests will fail unless they are run against a localhost storage node server
  */
 describe('Verida auth tests', () => {
     let invalidContext, invalidDid

@@ -6,6 +6,8 @@ import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from './config'
 
+import { sleep } from './utils'
+
 const DATA = {
     name: "Jane"
 }
