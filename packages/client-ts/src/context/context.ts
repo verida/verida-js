@@ -436,17 +436,6 @@ class Context extends EventEmitter {
     return this.dbRegistry;
   }
 
-  /*public async getAuthContext(authConfig?: AuthTypeConfig, authType?: string): Promise<AuthContext> {
-    if (!this.account) {
-      throw new Error("No authenticated user");
-    }
-
-    const did = await this.account!.did()
-    const contextConfig = await this.getContextConfig(did, false)
-
-    return this.account!.getAuthContext(this.contextName, contextConfig, authConfig, authType)
-  }*/
-
   /**
    * Emits `progress` event when adding the endpoint has progressed (ie: replicating databases to the new endpoint).
    * 

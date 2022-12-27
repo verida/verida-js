@@ -76,18 +76,18 @@ export default class Endpoint extends EventEmitter {
         if (this.auth && !this.usePublic) {
             const instance = this
             dbConfig['fetch'] = async function (url: string, opts: any) {
-                const accessToken = await instance.getAccessToken()
+                let accessToken = await instance.getAccessToken()
                 opts.headers.set('Authorization', `Bearer ${accessToken}`)
-                const result = await PouchDB.fetch(url, opts.headers)
+                let result = await PouchDB.fetch(url, opts)
                 if (result.status == 401) {
                     // Unauthorized, most likely due to an invalid access token
                     // Fetch new credentials and try again
                     await instance.authenticate(isOwner)
 
-                    const accessToken = await instance.getAccessToken()
+                    accessToken = await instance.getAccessToken()
                     opts.headers.set('Authorization', `Bearer ${accessToken}`)
 
-                    const result = await PouchDB.fetch(url, opts)
+                    result = await PouchDB.fetch(url, opts)
 
                     if (result.status == 401) {
                         throw new Error(`Permission denied to access server: ${instance.toString()}`)
