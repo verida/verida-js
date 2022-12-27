@@ -468,6 +468,18 @@ class Context extends EventEmitter {
     // See this.openDatabase()
   }
 
+  /**
+   * Close this context.
+   * 
+   * Closes all open database connections, returns resources, cancels event listeners
+   */
+  public async close(): Promise<void> {
+    for (let d in this.databaseCache) {
+      const database = await this.databaseCache[d]
+      await database.close()
+    }
+  }
+
 }
 
 export default Context;

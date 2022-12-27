@@ -416,8 +416,8 @@ class BaseDb extends EventEmitter implements Database {
     throw new Error("Not implemented");
   }
 
-  public async close(): Promise<any> {
-    throw new Error("Not implemented");
+  public async close() {
+    await this.db.close();
   }
 
   public async usage(): Promise<EndpointUsage> {
