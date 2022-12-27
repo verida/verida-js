@@ -50,6 +50,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     // Randomly choose a "primary" connection
     let primaryIndex = Utils.getRandomInt(0, Object.keys(endpoints).length)
     let primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
+    //console.log(`primaryEndpointUri: ${primaryEndpointUri} for ${this.storageContext} / ${this.accountDid}`)
 
     while (failedEndpoints.length < Object.keys(endpoints).length) {
       // Verify the endpoint is active
@@ -62,7 +63,6 @@ class StorageEngineVerida extends BaseStorageEngine {
         return endpoints[primaryEndpointUri]
       } catch (err) {
         // endpoint is not available, so set it to fail
-        //console.log('endpoint is unavailable!')
         this.emit('endpointUnavailable', primaryEndpointUri)
         failedEndpoints.push(primaryEndpointUri)
         primaryIndex++
@@ -351,16 +351,30 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Call checkReplication() on all the endpoints
    */
-  public async checkReplication() {
-    //console.log(`Checking replication on all endpoints`)
+  public async checkReplication(databaseName?: string) {
     const promises = []
     for (let i in this.endpoints) {
       const endpoint = this.endpoints[i]
-      promises.push(endpoint.checkReplication())
+      promises.push(endpoint.checkReplication(databaseName))
     }
 
     // No need for await as this can occur in the background
     await Promise.all(promises)
+  }
+
+  /**
+   * Call createDb() on all the endpoints
+   */
+  public async createDb(databaseName: string, did: string, permissions: PermissionsConfig) {
+    const promises = []
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      promises.push(endpoint.createDb(databaseName, did, permissions))
+    }
+
+    // No need for await as this can occur in the background
+    await Promise.all(promises)
+    await this.checkReplication(databaseName)
   }
 
 }

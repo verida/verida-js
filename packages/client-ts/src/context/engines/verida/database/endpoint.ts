@@ -108,9 +108,9 @@ export default class Endpoint extends EventEmitter {
             let info = await db.info();
             if (info.error && info.error == "not_found") {
                 if (isOwner) {
-                    await this.createDb(databaseName, did, permissions);
+                    await this.storageEngine.createDb(databaseName, did, permissions)
                 } else {
-                    throw new Error(`Database not found: ${databaseName}`);
+                    throw new Error(`Database not found: ${databaseName} / ${databaseHash}`);
                 }
             }
 
@@ -119,7 +119,7 @@ export default class Endpoint extends EventEmitter {
             }
         } catch (err: any) {
             if (isOwner) {
-                await this.createDb(databaseName, did, permissions);
+                await this.storageEngine.createDb(databaseName, did, permissions)
             } else {
                 throw new Error(`Database not found: ${err.message}`);
             }
@@ -212,8 +212,6 @@ export default class Endpoint extends EventEmitter {
         } catch (err) {
             throw new Error("User doesn't exist or unable to create user database");
         }
-
-        await this.storageEngine.checkReplication()
     }
 
     public async updateDatabase(did: string, databaseName: string, options: any): Promise<void> {
@@ -237,7 +235,7 @@ export default class Endpoint extends EventEmitter {
             await this.client.checkReplication(databaseName);
         } catch (err: any) {
             const message = err.response ? err.response.data.message : err.message
-            throw new Error(`Replication checks failed on ${this.endpointUri}: ${message}`);
+            this.storageEngine.emit('endpointWarning',`Replication checks failed on ${this.endpointUri}: ${message}`)
         }
     }
 
