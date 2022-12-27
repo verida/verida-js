@@ -121,6 +121,7 @@ class EncryptedDatabase extends BaseDb {
         err.message == "Could not decrypt!"
       ) {
         // Clear the instantiated PouchDb instances and throw a more useful exception
+        await this.close()
         this._localDb = this._localDbEncrypted = this.db = null;
         throw new Error(`Invalid encryption key supplied`);
       }
@@ -203,9 +204,22 @@ class EncryptedDatabase extends BaseDb {
    * This will remove all event listeners.
    */
   public async close() {
-    this._sync.cancel();
-    await this._localDbEncrypted.close();
-    await this.db.close();
+    if (this._sync) {
+      this._sync.cancel();
+    }
+
+    try {
+      await this._localDbEncrypted.close();
+    } catch (err) {
+      // may already be closed
+    }
+    
+    try {
+      await this.db.close();
+    } catch (err) {
+      // may already be closed
+    }
+
     this._sync = null;
     this._syncError = null;
   }

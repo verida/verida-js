@@ -417,7 +417,11 @@ class BaseDb extends EventEmitter implements Database {
   }
 
   public async close() {
-    await this.db.close();
+    try {
+      await this.db.close();
+    } catch (err) {
+      // may already be closed
+    }
   }
 
   public async usage(): Promise<EndpointUsage> {

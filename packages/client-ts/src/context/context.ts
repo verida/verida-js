@@ -60,6 +60,7 @@ class Context extends EventEmitter {
   private dbRegistry: DbRegistry;
 
   private databaseCache: Record<string, Database | Promise<Database>> = {}
+  private externalDatabaseCache: Database[] = []
 
   /**
    * Instantiate a new context.
@@ -382,7 +383,12 @@ class Context extends EventEmitter {
     }
 
     const databaseEngine = await this.getDatabaseEngine(did);
-    return databaseEngine.openDatabase(databaseName, config);
+    
+    const database = await databaseEngine.openDatabase(databaseName, config);
+
+    // Maintain an array of database instances so they can be closed
+    this.externalDatabaseCache.push(database)
+    return database
   }
 
   /**
@@ -476,6 +482,11 @@ class Context extends EventEmitter {
   public async close(): Promise<void> {
     for (let d in this.databaseCache) {
       const database = await this.databaseCache[d]
+      await database.close()
+    }
+
+    for (let d in this.externalDatabaseCache) {
+      const database = await this.externalDatabaseCache[d]
       await database.close()
     }
   }
