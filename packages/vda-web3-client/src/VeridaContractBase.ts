@@ -259,7 +259,8 @@ export class VeridaContract {
                 // console.log('Error in transaction', e)
                 return Promise.resolve({
                     success: false,
-                    error: e.toString()
+                    errorMessage: e.toString(),
+                    error: e
                 })
             }
 
