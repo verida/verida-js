@@ -2220,6 +2220,15 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
+"@verida/encryption-utils@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@verida/encryption-utils/-/encryption-utils-1.1.3.tgz#e2c2f4918027f3e53d938fb3bc3966ebf1571249"
+  integrity sha512-qxLH0Tt4ufgE0I3aJFZfwjS2jACROy+X9oocUtvMInTTZNshHCt0uoyr7BVsnY6Ihifk6lkf9jjs18y9wN2xyA==
+  dependencies:
+    ethers "^5.5.1"
+    tweetnacl "^1.0.3"
+    tweetnacl-util "^0.15.1"
+
 "@zkochan/cmd-shim@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@zkochan/cmd-shim/-/cmd-shim-3.1.0.tgz#2ab8ed81f5bb5452a85f25758eb9b8681982fd2e"
@@ -6233,6 +6242,11 @@ load-json-file@^5.3.0:
     pify "^4.0.1"
     strip-bom "^3.0.0"
     type-fest "^0.3.0"
+
+loadsh@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/loadsh/-/loadsh-0.0.4.tgz#5314babd12bb13315dde024a4ca70758c5489d2d"
+  integrity sha512-U+wLL8InpfRalWrr+0SuhWgGt10M4OyAk6G8xCYo2rwpiHtxZkWiFpjei0vO463ghW8LPCdhqQxXlMy2qicAEw==
 
 locate-path@^2.0.0:
   version "2.0.0"
