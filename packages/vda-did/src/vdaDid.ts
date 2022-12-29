@@ -67,9 +67,19 @@ export default class VdaDid {
                 
                 successCount++
             } catch (err: any) {
+                const message = err.response ? err.response.data.message : err.message
+                if (message.match('DID Document already exists')) {
+                    // DID document exists on the nodes, but not on the blockchain -- this shouldn't happen
+                    // but we will cleanup by removing from the nodes and trying again
+                    await this.deleteFromEndpoints(endpoints)
+
+                    // try again
+                    return await this.create(didDocument, endpoints)
+                }
+
                 finalEndpoints[endpoint] = {
                     status: 'fail',
-                    message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
+                    message,
                 }
             }
         }
@@ -80,7 +90,13 @@ export default class VdaDid {
         }
 
         // Publish final endpoints on-chain
-        await this.blockchain.register(successEndpoints)
+        try {
+            await this.blockchain.register(successEndpoints)
+        } catch (err: any) {
+            // blockchain write failed, so roll back endpoint DID document storage on the endpoints
+            await this.deleteFromEndpoints(successEndpoints)
+            throw new Error(`Unable to save DID to blockchain: ${err.message}`)
+        }
 
         return finalEndpoints
     }
@@ -125,7 +141,7 @@ export default class VdaDid {
             // Ensure new controller in the DID Document matches the private key
             const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey)
             if ((<string> didDocument.export().controller!).toLowerCase() !== `did:vda:${this.options.chainNameOrId}:${controllerAddress}`) {
-                console.log((<string> didDocument.export().controller!).toLowerCase(), `did:vda:${this.options.chainNameOrId}:${controllerAddress}`)
+                //console.log((<string> didDocument.export().controller!).toLowerCase(), `did:vda:${this.options.chainNameOrId}:${controllerAddress}`)
                 throw new Error(`Unable to update DID Document. Changing controller, but private key doens't match controller in DID Document`)
             }
 
@@ -169,6 +185,45 @@ export default class VdaDid {
         return finalEndpoints
     }
 
+    private async deleteFromEndpoints(endpoints: string[]): Promise<any> {
+        const did = this.options.identifier.toLowerCase()
+        const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
+        const proofString = `Delete DID Document ${did} at ${nowInMinutes}`
+        const privateKey = new Uint8Array(Buffer.from(this.options.signKey.substr(2),'hex'))
+        const signature = EncryptionUtils.signData(proofString, privateKey)
+
+        // Delete DID Document from all the endpoints
+        const finalEndpoints: VdaDidEndpointResponses = {}
+        let successCount = 0
+        for (let i in endpoints) {
+            const endpoint = endpoints[i]
+            try {
+                const response = await Axios.delete(`${endpoint}`, {
+                    headers: {
+                        signature
+                    }
+                });
+
+                finalEndpoints[endpoint] = {
+                    status: 'success'
+                }
+                successCount++
+            } catch (err: any) {
+                console.error('endpoint error!!')
+                console.error(err.response.data)
+                finalEndpoints[endpoint] = {
+                    status: 'fail',
+                    message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
+                }
+            }
+        }
+
+        return {
+            successCount,
+            finalEndpoints
+        }
+    }
+
     public async delete(): Promise<VdaDidEndpointResponses> {
         if (!this.options.signKey) {
             throw new Error(`Unable to delete DID. No private key specified in config.`)
@@ -183,36 +238,11 @@ export default class VdaDid {
         await this.blockchain.revoke()
 
         // 2. Call DELETE on all endpoints
-        const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
-        const proofString = `Delete DID Document ${did} at ${nowInMinutes}`
-        const privateKey = new Uint8Array(Buffer.from(this.options.signKey.substr(2),'hex'))
-        const signature = EncryptionUtils.signData(proofString, privateKey)
+        const {
+            successCount,
+            finalEndpoints
+        } = await this.deleteFromEndpoints(response.endpoints)
 
-        // Delete DID Document from all the endpoints
-        const finalEndpoints: VdaDidEndpointResponses = {}
-        let successCount = 0
-        for (let i in response.endpoints) {
-            const endpoint = response.endpoints[i]
-            try {
-                const response = await Axios.delete(`${endpoint}`, {
-                    headers: {
-                        signature
-                    }
-                });
-
-                finalEndpoints[endpoint] = {
-                    status: 'success'
-                }
-                successCount++
-            } catch (err: any) {
-                //console.error('endpoint error!!')
-                //console.error(err.response.data)
-                finalEndpoints[endpoint] = {
-                    status: 'fail',
-                    message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
-                }
-            }
-        }
 
         if (successCount === 0) {
             this.lastEndpointErrors = finalEndpoints

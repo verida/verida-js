@@ -98,7 +98,7 @@ describe('Verida database tests', () => {
             DB_USER_ENCRYPTION_KEY = info.encryptionKey
 
             // Grant read / write access to DID_3 for future tests relating to read / write of user databases
-            const updateResponse = await database.updateUsers([did3], [did3])
+            await database.updateUsers([did3], [did3])
 
             const result = await database.save({'hello': 'world'})
             const data = await database.get(result.id)
@@ -178,7 +178,7 @@ describe('Verida database tests', () => {
     })
 
     describe('Access public databases', function() {
-        this.timeout(100000)
+        this.timeout(100*1000)
         
         // We initialize a second account and have it attempt to access the
         // databases created earlier in this set of tests (see above)
@@ -395,6 +395,11 @@ describe('Verida database tests', () => {
                 console.log(err.message)
             }
         })
+    })
 
+    after(async () => {
+        await context.close()
+        await context2.close()
+        await context3.close()
     })
 })

@@ -24,6 +24,7 @@ export interface DbRegistryEntry {
   contextName: string;
   permissions: PermissionsConfig;
   encryptionKey?: DbRegistryEntryEncryptionKey;
+  endpoint: string
 }
 
 /**

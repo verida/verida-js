@@ -82,6 +82,7 @@ export default class BlockchainApi {
         signKey: string
     ) {
         let rawMsg = ethers.utils.solidityPack(['address', 'string'], [did.toLowerCase(), '/']);
+        const nonce = await this.nonceFN()
         
         for (let i = 0; i < endpoints.length; i++) {
             rawMsg = ethers.utils.solidityPack(
@@ -89,7 +90,8 @@ export default class BlockchainApi {
             [rawMsg, endpoints[i], '/']
             );
         }
-        return await getVeridaSignWithNonce(rawMsg, signKey, await this.nonceFN());
+
+        return await getVeridaSignWithNonce(rawMsg, signKey, nonce);
     };
 
     /**

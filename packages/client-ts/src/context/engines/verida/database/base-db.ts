@@ -23,8 +23,9 @@ PouchDB.plugin(PouchDBFind);
  */
 class BaseDb extends EventEmitter implements Database {
   protected databaseName: string;
+  protected databaseHash: string;
   protected did: string;
-  protected endpoints: Record<string, Endpoint>
+  protected endpoint: Endpoint
   protected storageContext: string;
   protected engine: StorageEngineVerida
 
@@ -42,7 +43,7 @@ class BaseDb extends EventEmitter implements Database {
 
   constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
     super();
-    this.endpoints = config.endpoints
+    this.endpoint = config.endpoint
     this.databaseName = config.databaseName;
     this.did = config.did.toLowerCase();
     this.storageContext = config.storageContext;
@@ -51,9 +52,9 @@ class BaseDb extends EventEmitter implements Database {
     this.isOwner = config.isOwner;
     this.signContext = config.signContext;
 
-    // Signing user will be the logged in user
-    const account = this.signContext.getAccount();
+    this.databaseHash = Utils.buildDatabaseHash(this.databaseName, this.storageContext, this.did)
 
+    // Signing user will be the logged in user
     this.signData = config.signData === false ? false : true;
     this.signContextName = this.signContext.getContextName();
 
@@ -300,49 +301,7 @@ class BaseDb extends EventEmitter implements Database {
       return
     }
 
-    for (let i in this.endpoints) {
-      const endpoint = this.endpoints[i]
-      this.dbConnections[i] = await endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
-    }
-
-    // Randomly choose a "primary" connection
-    const primaryIndex = Utils.getRandomInt(0, Object.keys(this.endpoints).length)
-    const primaryEndpointUri = Object.keys(this.endpoints)[primaryIndex]
-    const primaryConnection = this.dbConnections[primaryEndpointUri]
-    this.db = primaryConnection
-
-    // Sync changes from primaryConnection to all the other connections
-    for (let i in this.dbConnections) {
-      if (i === primaryEndpointUri) {
-        continue
-      }
-
-      const connection = this.dbConnections[i]
-      const instance = this
-      PouchDB.sync(connection, this.db, {
-        live: true,
-        retry: true,
-        // Dont sync design docs
-        filter: function (doc: any) {
-          return doc._id.indexOf("_design") !== 0;
-        },
-      })
-        .on("error", function (err: any) {
-          // raise database connection error event
-          instance.emit('dbEndpointWarning', `Error syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`)
-          console.error(
-            `Error syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`
-          );
-          console.error(err);
-        })
-        .on("denied", function (err: any) {
-          instance.emit('dbEndpointWarning', `Permission denied syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`)
-          console.error(
-            `Permission denied syncing between endpoints (${i}) <-> (${primaryEndpointUri}): ${err.message}`
-          );
-          console.error(err);
-        });
-    }
+    this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
   }
 
   /**
@@ -458,16 +417,16 @@ class BaseDb extends EventEmitter implements Database {
     throw new Error("Not implemented");
   }
 
-  public async close(): Promise<any> {
-    throw new Error("Not implemented");
-  }
-
-  public getEndpoints() {
-    return this.endpoints
+  public async close() {
+    try {
+      await this.db.close();
+    } catch (err) {
+      // may already be closed
+    }
   }
 
   public async usage(): Promise<EndpointUsage> {
-    return await this.endpoints[Object.keys(this.endpoints)[0]].getUsage()
+    return await this.endpoint.getUsage()
   }
   
 }
