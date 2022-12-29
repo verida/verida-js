@@ -49,8 +49,8 @@ export default class Endpoint extends EventEmitter {
         this.usePublic = true
     }
 
-    public toString() {
-        return this.endpointUri
+    public toString(): string {
+        return <string> this.endpointUri
     }
 
     public async connectAccount(account: Account, isOwner: boolean = true) {

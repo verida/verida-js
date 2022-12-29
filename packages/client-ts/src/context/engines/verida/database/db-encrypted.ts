@@ -42,7 +42,6 @@ class EncryptedDatabase extends BaseDb {
     super(config, engine);
 
     this.encryptionKey = config.encryptionKey!;
-    this.databaseHash = Utils.buildDatabaseHash(this.databaseName, this.storageContext, this.did)
 
     // PouchDB sync object
     this._sync = null;
@@ -310,6 +309,7 @@ class EncryptedDatabase extends BaseDb {
         type: "x25519-xsalsa20-poly1305",
         key: this.password!,
       },
+      endpoint: this.endpoint.toString()
     };
   }
 }

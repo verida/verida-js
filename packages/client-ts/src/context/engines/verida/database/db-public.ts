@@ -34,6 +34,7 @@ class PublicDatabase extends BaseDb {
       did: this.did,
       contextName: this.storageContext,
       permissions: this.permissions!,
+      endpoint: this.endpoint.toString()
     };
   }
 }

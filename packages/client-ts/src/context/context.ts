@@ -12,6 +12,7 @@ import Datastore from "./datastore";
 import Messaging from "./messaging";
 import Client from "../client";
 import { Profile } from "./profiles/profile";
+import { getRandomInt } from './utils';
 
 const _ = require("lodash");
 
@@ -351,7 +352,11 @@ class Context extends EventEmitter {
         config.contextName ? config.contextName : this.contextName
       );
 
-      config.dsn = <string> contextConfig.services.databaseServer.endpointUri[0];
+      // @todo: Improve this to support getting the health of the endpoint to ensure
+      // only healthy endpoints are selected
+      const endpoints = contextConfig.services.databaseServer.endpointUri
+      const endpointIndex = getRandomInt(0, endpoints.length)
+      config.dsn = <string> contextConfig.services.databaseServer.endpointUri[endpointIndex]
     }
 
     config = _.merge(

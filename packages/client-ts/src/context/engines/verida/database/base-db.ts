@@ -23,6 +23,7 @@ PouchDB.plugin(PouchDBFind);
  */
 class BaseDb extends EventEmitter implements Database {
   protected databaseName: string;
+  protected databaseHash: string;
   protected did: string;
   protected endpoint: Endpoint
   protected storageContext: string;
@@ -51,9 +52,9 @@ class BaseDb extends EventEmitter implements Database {
     this.isOwner = config.isOwner;
     this.signContext = config.signContext;
 
-    // Signing user will be the logged in user
-    const account = this.signContext.getAccount();
+    this.databaseHash = Utils.buildDatabaseHash(this.databaseName, this.storageContext, this.did)
 
+    // Signing user will be the logged in user
     this.signData = config.signData === false ? false : true;
     this.signContextName = this.signContext.getContextName();
 

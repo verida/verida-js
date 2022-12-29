@@ -9,7 +9,7 @@ import { Interfaces } from "@verida/storage-link";
 import EndpointReplicator from "./endpoint-replicator";
 import Context from '../../../context';
 import Endpoint from "./endpoint";
-import Utils from "./utils";
+import { getRandomInt } from "../../../utils";
 
 const _ = require("lodash");
 
@@ -47,8 +47,12 @@ class StorageEngineVerida extends BaseStorageEngine {
     // Maintain a list of failed endpoints
     const failedEndpoints = []
 
+    if (Object.keys(endpoints).length == 0) {
+      throw new Error('No endpoints specified')
+    }
+
     // Randomly choose a "primary" connection
-    let primaryIndex = Utils.getRandomInt(0, Object.keys(endpoints).length)
+    let primaryIndex = getRandomInt(0, Object.keys(endpoints).length)
     let primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
     //console.log(`primaryEndpointUri: ${primaryEndpointUri} for ${this.storageContext} / ${this.accountDid}`)
 
