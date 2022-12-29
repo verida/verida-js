@@ -12,11 +12,6 @@ export interface NameClientConfig {
     network: string
     rpcUrl: string
 
-    // Hex string representation of the Verida DID private key
-    privateKey: string
-    // Verida DID associated with the private key
-    did: string
-
     callType: CallType;
     web3Options: VeridaWeb3ConfigurationOptions;
 }

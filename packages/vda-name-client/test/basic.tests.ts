@@ -12,17 +12,20 @@ const DID = `did:vda:testnet:${DID_ADDRESS}`
 const DID_PK = wallet.publicKey
 
 const CONFIG: NameClientConfig = {
-    did: DID,
     network: 'testnet',
     rpcUrl: baseConfig.rpcUrl,
-    privateKey: DID_PRIVATE_KEY,
     callType: baseConfig.callType,
     web3Options: baseConfig.web3Options
 }
 
 console.log(CONFIG)
+console.log({
+    DID,
+    DID_PRIVATE_KEY
+})
 
 const nameService = new NameClient(CONFIG)
+nameService.authenticate(DID, DID_PRIVATE_KEY)
 
 const goodUsername = ['dave123.verida', 'jane-123.verida']
 const badUsername = {

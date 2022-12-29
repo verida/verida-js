@@ -9,12 +9,13 @@ export class NameClient {
 
     private config: NameClientConfig
     private vdaWeb3Client: VeridaContract
-    private didAddress: string
+
+    private did?: string
+    private didAddress?: string
+    private privateKey?: string
 
     public constructor(config: NameClientConfig) {
         this.config = config
-        const didParts = this.parseDid(config.did)
-        this.didAddress = didParts.address
 
         const contractInfo = this.buildContractInfo()
 
@@ -29,7 +30,18 @@ export class NameClient {
             ...config.web3Options});
     }
 
+    public authenticate(did: string, privateKey: string) {
+        this.did = did
+        this.privateKey = privateKey
+        const didParts = this.parseDid(did)
+        this.didAddress = didParts.address
+    }
+
     public async register(username: string): Promise<void> {
+        if (!this.privateKey) {
+            throw new Error('Not authenticated')
+        }
+
         const signature = await this.signRegister(username)
 
         // Register a name against a DID
@@ -37,18 +49,22 @@ export class NameClient {
         try {
             result = await this.vdaWeb3Client.register(username, this.didAddress, signature);
         } catch (err: any) {
-            throw new NameClientError(`Unable to register name for DID (${this.config.did})`, err.message)
+            throw new NameClientError(`Unable to register name for DID (${this.did})`, err.message)
         }
 
         if (!result.success) {
             const reason = this.getBlockchainErrorReason(result.error)
-            throw new NameClientError(`Unable to register name for DID (${this.config.did})`, reason)
+            throw new NameClientError(`Unable to register name for DID (${this.did})`, reason)
         }
 
         return result
     }
 
     public async unregister(username: string): Promise<void> {
+        if (!this.privateKey) {
+            throw new Error('Not authenticated')
+        }
+
         const signature = await this.signRegister(username)
 
         // Register a name against a DID
@@ -56,12 +72,12 @@ export class NameClient {
         try {
             result = await this.vdaWeb3Client.unregister(username, this.didAddress, signature);
         } catch (err: any) {
-            throw new NameClientError(`Unable to unregister name for DID (${this.config.did})`, err.message)
+            throw new NameClientError(`Unable to unregister name for DID (${this.did})`, err.message)
         }
 
         if (!result.success) {
             const reason = this.getBlockchainErrorReason(result.error)
-            throw new NameClientError(`Unable to unregister name for DID (${this.config.did})`, reason)
+            throw new NameClientError(`Unable to unregister name for DID (${this.did})`, reason)
         }
 
         return result
@@ -127,16 +143,6 @@ export class NameClient {
         return require(`./abi/NameRegistry.json`);
     }
 
-    private buildContract(): Contract {
-        const abi = this.buildContractAbi()
-        const provider = new JsonRpcProvider(this.config.rpcUrl);
-        const address = this.buildContractAddress()
-
-        return ContractFactory.fromSolidity(abi)
-            .attach(address!)
-            .connect(provider);
-    }
-
     private buildContractInfo(): {
         address: string,
         abi: object
@@ -148,6 +154,10 @@ export class NameClient {
     }
 
     private async signRegister(name: string) {
+        if (!this.privateKey) {
+            throw new Error('Not authenticated')
+        }
+
         const rawMsg = ethers.utils.solidityPack(
             ["string", "address"],
             [name, this.didAddress]
@@ -160,9 +170,9 @@ export class NameClient {
         console.log([rawMsg, nonce])
         const wrappedMsg = ethers.utils.solidityPack(["bytes", "uint256"], [rawMsg, nonce]);
 
-        console.log(this.config.privateKey.slice(2))
+        console.log(this.privateKey.slice(2))
         const privateKeyArray = new Uint8Array(
-            Buffer.from(this.config.privateKey.slice(2), "hex")
+            Buffer.from(this.privateKey.slice(2), "hex")
         );
 
         console.log([wrappedMsg, privateKeyArray])
