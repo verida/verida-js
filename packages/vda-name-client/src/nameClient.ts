@@ -33,38 +33,38 @@ export class NameClient {
         const signature = await this.signRegister(username)
 
         // Register a name against a DID
+        let result
         try {
-            const result = await this.vdaWeb3Client.register(username, this.didAddress, signature);
-
-            if (!result.success) {
-                const reason = this.getBlockchainErrorReason(result.error)
-                throw new NameClientError(`Unable to register name for DID (${this.config.did})`, reason)
-            }
-
-            return result
+            result = await this.vdaWeb3Client.register(username, this.didAddress, signature);
         } catch (err: any) {
-            // @throws new Error(`DID not found.`)
-            // @throws new Error(`DID has too many usernames.`)=
             throw new NameClientError(`Unable to register name for DID (${this.config.did})`, err.message)
         }
+
+        if (!result.success) {
+            const reason = this.getBlockchainErrorReason(result.error)
+            throw new NameClientError(`Unable to register name for DID (${this.config.did})`, reason)
+        }
+
+        return result
     }
 
     public async unregister(username: string): Promise<void> {
         const signature = await this.signRegister(username)
 
         // Register a name against a DID
+        let result
         try {
-            const result = await this.vdaWeb3Client.unregister(username, this.didAddress, signature);
-
-            if (!result.success) {
-                const reason = this.getBlockchainErrorReason(result.error)
-                throw new NameClientError(`Unable to unregister name for DID (${this.config.did})`, reason)
-            }
-
-            return result
+            result = await this.vdaWeb3Client.unregister(username, this.didAddress, signature);
         } catch (err: any) {
             throw new NameClientError(`Unable to unregister name for DID (${this.config.did})`, err.message)
         }
+
+        if (!result.success) {
+            const reason = this.getBlockchainErrorReason(result.error)
+            throw new NameClientError(`Unable to unregister name for DID (${this.config.did})`, reason)
+        }
+
+        return result
     }
 
     /**
@@ -75,18 +75,19 @@ export class NameClient {
      * @returns string DID address (ie: 0xabc123...)
      */
     public async getDidAddress(username: string): Promise<string> {
+        let result
         try {
-            const result = await this.vdaWeb3Client.findDID(username);
-            
-            if (!result.success) {
-                const reason = this.getBlockchainErrorReason(result.error)
-                throw new NameClientError(`Unable to find DID for name (${username})`, reason)
-            }
-
-            return result
+            result = await this.vdaWeb3Client.findDID(username);
         } catch (err: any) {
             throw new Error(`Unable to find DID for name (${username}): ${err.message}`)
         }
+            
+        if (!result.success) {
+            const reason = this.getBlockchainErrorReason(result.error)
+            throw new NameClientError(`Unable to find DID for name (${username})`, reason)
+        }
+
+        return result
     }
 
     /**
@@ -99,22 +100,23 @@ export class NameClient {
     public async getUsernames(did: string): Promise<string[]> {
         const didParts = this.parseDid(did)
 
+        let result
         try {
-            const result = await this.vdaWeb3Client.getUserNameList(didParts.address);
-            
-            if (!result.success) {
-                const reason = this.getBlockchainErrorReason(result.error)
-                if (reason == 'No registered DID') {
-                    return []
-                }
-
-                throw new NameClientError(`Unable to find usernames for DID (${did})`, reason)
-            }
-
-            return result
+            result = await this.vdaWeb3Client.getUserNameList(didParts.address);
         } catch (err: any) {
             throw new Error(`Unable to find usernames for DID (${did}): ${err.message}`)
         }
+            
+        if (!result.success) {
+            const reason = this.getBlockchainErrorReason(result.error)
+            if (reason == 'No registered DID') {
+                return []
+            }
+
+            throw new NameClientError(`Unable to find usernames for DID (${did})`, reason)
+        }
+
+        return result
     }
 
     private buildContractAddress(): string {
