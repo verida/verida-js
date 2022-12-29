@@ -28,7 +28,7 @@ describe('Profile tests', () => {
     let vaultContext
 
     describe("Public profiles", function() {
-        this.timeout(20 * 1000)
+        this.timeout(60 * 1000)
 
         it('can initialise own profile', async () => {
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {

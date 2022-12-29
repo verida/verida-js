@@ -82,7 +82,7 @@ describe('Verida notification tests', () => {
 
     let VDA_DID, VDA_ACCOUNT
 
-    describe('Sending messages', function() {
+    describe.skip('Sending messages', function() {
         this.timeout(200 * 1000)
 
         it('can specify a notification server when creating a new account context', async () => {
