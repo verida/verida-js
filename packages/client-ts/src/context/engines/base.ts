@@ -7,12 +7,13 @@ import DbRegistry from "../db-registry";
 import ContextNotFoundError from "./ContextNotFoundError";
 import { Interfaces } from "@verida/storage-link";
 import Context from '../context';
+import { EventEmitter } from 'events'
 
 /**
  * @category
  * Modules
  */
-class BaseStorageEngine {
+class BaseStorageEngine extends EventEmitter {
   protected storageContext: string;
   protected dbRegistry: DbRegistry;
   protected contextConfig: Interfaces.SecureContextConfig;
@@ -25,6 +26,7 @@ class BaseStorageEngine {
     dbRegistry: DbRegistry,
     contextConfig: Interfaces.SecureContextConfig,
   ) {
+    super()
     this.storageContext = storageContext;
     this.dbRegistry = dbRegistry;
     this.contextConfig = contextConfig

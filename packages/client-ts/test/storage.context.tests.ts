@@ -81,6 +81,9 @@ describe('Storage context tests', () => {
                 assert.ok(db1 !== db2, 'Returned databases are not the same')
             })
         })
-        
+    })
+
+    after(async () => {
+        await context.close()
     })
 })

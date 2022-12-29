@@ -42,7 +42,6 @@ class EncryptedDatabase extends BaseDb {
     super(config, engine);
 
     this.encryptionKey = config.encryptionKey!;
-    this.databaseHash = Utils.buildDatabaseHash(this.databaseName, this.storageContext, this.did)
 
     // PouchDB sync object
     this._sync = null;
@@ -121,6 +120,7 @@ class EncryptedDatabase extends BaseDb {
         err.message == "Could not decrypt!"
       ) {
         // Clear the instantiated PouchDb instances and throw a more useful exception
+        await this.close()
         this._localDb = this._localDbEncrypted = this.db = null;
         throw new Error(`Invalid encryption key supplied`);
       }
@@ -203,9 +203,22 @@ class EncryptedDatabase extends BaseDb {
    * This will remove all event listeners.
    */
   public async close() {
-    this._sync.cancel();
-    await this._localDbEncrypted.close();
-    await this.db.close();
+    if (this._sync) {
+      this._sync.cancel();
+    }
+
+    try {
+      await this._localDbEncrypted.close();
+    } catch (err) {
+      // may already be closed
+    }
+    
+    try {
+      await this.db.close();
+    } catch (err) {
+      // may already be closed
+    }
+
     this._sync = null;
     this._syncError = null;
   }
@@ -223,9 +236,7 @@ class EncryptedDatabase extends BaseDb {
       permissions: this.permissions,
     };
 
-    for (let i in this.endpoints) {
-      await this.endpoints[i].updateDatabase(this.did, this.databaseName, options);
-    }
+    await this.endpoint.updateDatabase(this.did, this.databaseName, options);
 
     if (this.config.saveDatabase !== false) {
       await this.engine.getDbRegistry().saveDb(this);
@@ -268,16 +279,11 @@ class EncryptedDatabase extends BaseDb {
       };
     }
 
-    const endpoints = []
-    for (let i in this.endpoints) {
-      endpoints.push(this.endpoints[i].toString())
-    }
-
     const info = {
       type: "VeridaDatabase",
       privacy: "encrypted",
       did: this.did,
-      endpoints: endpoints,
+      endpoint: this.endpoint.toString(),
       permissions: this.permissions!,
       storageContext: this.storageContext,
       databaseName: this.databaseName,
@@ -303,6 +309,7 @@ class EncryptedDatabase extends BaseDb {
         type: "x25519-xsalsa20-poly1305",
         key: this.password!,
       },
+      endpoint: this.endpoint.toString()
     };
   }
 }

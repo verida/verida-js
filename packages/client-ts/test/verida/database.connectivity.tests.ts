@@ -4,6 +4,7 @@ const assert = require('assert')
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
+import { sleep } from '../utils'
 
 const DB_NAME = 'SyncTestDb'
 
@@ -53,16 +54,10 @@ describe('Verida database connectivity tests', () => {
 
             // Save a record and then fetch all to trigger active, change, paused events
             await database.save({'hello': 'world'})
-            const results = await database.getMany()
+            await database.getMany()
 
             // Timeout for 10 seconds to give events time to fire
-            const promise: Promise<void> = new Promise((resolve, rejects) => {
-                setTimeout(function() {
-                    resolve()
-                }, 10*1000)
-            })
-
-            await promise
+            await sleep(10000)
 
             // Confirm expected events are triggered
             assert.equal(eventsTriggered.active.triggered, true, 'Active event triggered')
@@ -81,16 +76,10 @@ describe('Verida database connectivity tests', () => {
 
             // Save a record and then fetch all to trigger active, change, paused events
             await database.save({'hello': 'world'})
-            const results = await database.getMany()
+            await database.getMany()
 
             // Timeout for 10 seconds to give events time to fire
-            const promise: Promise<void> = new Promise((resolve, rejects) => {
-                setTimeout(function() {
-                    resolve()
-                }, 10*1000)
-            })
-
-            await promise
+            await sleep(10000)
 
             // Confirm expected events are triggered
             assert.equal(eventsTriggered.change.triggered, false, 'Change event not triggered')
@@ -103,9 +92,11 @@ describe('Verida database connectivity tests', () => {
             assert.ok(info.sync, 'Info contains sync info')
             assert.ok(info.sync.pull, 'Info contains sync pull info')
             assert.ok(info.sync.push, 'Info contains sync push info')
-            
-            await database.close()
         })
+    })
+
+    after(async () => {
+        await context.close()
     })
 
 })

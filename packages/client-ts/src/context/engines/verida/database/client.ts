@@ -36,6 +36,10 @@ export class DatastoreServerClient {
     return this.getAxios().get(this.serviceEndpoint + "auth/public");
   }
 
+  public async getStatus() {
+    return this.getAxios().get(this.serviceEndpoint + "status");
+  }
+
   public async createDatabase(
     did: string,
     databaseName: string,
@@ -46,6 +50,16 @@ export class DatastoreServerClient {
       databaseName: databaseName,
       options: config,
     });
+  }
+
+  public async checkReplication(
+    databaseName?: string
+  ) {
+    const opts: any = {}
+    if (databaseName) {
+      opts.databaseName = databaseName
+    }
+    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/checkReplication", opts);
   }
 
   public async updateDatabase(

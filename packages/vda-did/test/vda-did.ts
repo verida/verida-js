@@ -8,8 +8,8 @@ import { getBlockchainAPIConfiguration } from "./utils"
 
 import VdaDid from '../src/vdaDid'
 
-const DID_PRIVATE_KEY = `0x${randomBytes(32).toString('hex')}`
-const wallet = new ethers.Wallet(DID_PRIVATE_KEY)
+const wallet = ethers.Wallet.createRandom()
+const DID_PRIVATE_KEY = wallet.privateKey
 const DID_ADDRESS = wallet.address
 const DID = `did:vda:testnet:${DID_ADDRESS}`
 const DID_PK = wallet.publicKey
@@ -23,7 +23,8 @@ const DID_PK2 = wallet2.publicKey
 console.log(`DID1: ${DID}`)
 console.log(`DID1 PRIVATE_KEY: ${DID_PRIVATE_KEY}`)
 console.log(`DID1: ${DID2}`)
-console.log(`DID2 PRIVATE_KEY:: ${DID_PRIVATE_KEY2}`)
+console.log(`DID2 PRIVATE_KEY: ${DID_PRIVATE_KEY2}`)
+console.log(`MNEMONIC: ${wallet.mnemonic.phrase}`)
 
 const vdaDidResolver = getResolver()
 // @ts-ignore
@@ -45,16 +46,20 @@ const VDA_DID_CONFIG2 = {
     web3Options: baseConfig.web3Options
 }
 
-const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
-const ENDPOINT = ENDPOINTS[0].toLowerCase()
+//const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
+const ENDPOINTS = [
+    `https://acacia-dev1.tn.verida.tech/did/${DID}`,
+    `https://acacia-dev2.tn.verida.tech/did/${DID}`,
+    `https://acacia-dev3.tn.verida.tech/did/${DID}`
+]
 
 // Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
-const ENDPOINTS_FAIL = [`http://localhost:5000/did/${DID2}`, `http://localhost:7000/did/${DID2}`]
+const ENDPOINTS_FAIL = [ENDPOINTS[0], `http://localhost:7000/did/${DID2}`]
 
 const veridaApi = new VdaDid(VDA_DID_CONFIG)
 const veridaApi2 = new VdaDid(VDA_DID_CONFIG2)
 
-let masterDidDoc, masterDidDoc2
+let masterDidDoc
 
 const NOW = new Date()
 const LATER = new Date(NOW.getTime() + 60000)
@@ -64,7 +69,9 @@ describe("VdaDid tests", function() {
     })
 
     describe("Create", () => {
-        it("Success", async () => {
+        this.timeout(200 * 1000)
+        
+        it.only("Success", async () => {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
                 doc.setAttributes({

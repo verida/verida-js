@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { CallType, ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, VeridaWeb3Config } from './config'
+import { CallType, ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, VeridaWeb3Config, VeridaWeb3GasConfiguration } from './config'
 import { VeridaContract, VdaTransactionResult } from './VeridaContractBase'
 
 /**
@@ -15,5 +15,5 @@ export function getVeridaContract(type: CallType, config: VeridaWeb3Config) {
     )
 }
 
-export { CallType, VdaTransactionResult, VeridaContract, VeridaWeb3Config }
+export { CallType, VdaTransactionResult, VeridaContract, VeridaWeb3Config, VeridaWeb3GasConfiguration }
 export { ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig }

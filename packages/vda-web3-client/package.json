@@ -1,6 +1,6 @@
 {
   "name": "@verida/web3",
-  "version": "2.0.0-rc3",
+  "version": "2.0.0-rc4",
   "description": "",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -11,7 +11,7 @@
   "keywords": [],
   "scripts": {
     "tests": "ts-mocha './test/**/*.test.ts'",
-    "test": "ts-mocha --timeout 200000",
+    "test": "ts-mocha --timeout 100000",
     "lint": "gts lint",
     "clean": "gts clean",
     "copy": "cd src/contract && find . -name \"*.json\" | xargs cp --parents -t ../../build/src/contract && cd ../../",
@@ -28,12 +28,12 @@
     "copyfiles": "^2.4.1",
     "dotenv": "^16.0.3",
     "gts": "^3.1.0",
+    "loadsh": "^0.0.4",
     "mocha": "^10.1.0",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.4"
   },
   "dependencies": {
-    "axios": "^0.27.2",
     "ethers": "^5.7.0"
   }
 }

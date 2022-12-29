@@ -12,6 +12,7 @@ import Datastore from "./datastore";
 import Messaging from "./messaging";
 import Client from "../client";
 import { Profile } from "./profiles/profile";
+import { getRandomInt } from './utils';
 
 const _ = require("lodash");
 
@@ -60,6 +61,7 @@ class Context extends EventEmitter {
   private dbRegistry: DbRegistry;
 
   private databaseCache: Record<string, Database | Promise<Database>> = {}
+  private externalDatabaseCache: Database[] = []
 
   /**
    * Instantiate a new context.
@@ -350,7 +352,11 @@ class Context extends EventEmitter {
         config.contextName ? config.contextName : this.contextName
       );
 
-      config.dsn = <string> contextConfig.services.databaseServer.endpointUri[0];
+      // @todo: Improve this to support getting the health of the endpoint to ensure
+      // only healthy endpoints are selected
+      const endpoints = contextConfig.services.databaseServer.endpointUri
+      const endpointIndex = getRandomInt(0, endpoints.length)
+      config.dsn = <string> contextConfig.services.databaseServer.endpointUri[endpointIndex]
     }
 
     config = _.merge(
@@ -382,7 +388,12 @@ class Context extends EventEmitter {
     }
 
     const databaseEngine = await this.getDatabaseEngine(did);
-    return databaseEngine.openDatabase(databaseName, config);
+    
+    const database = await databaseEngine.openDatabase(databaseName, config);
+
+    // Maintain an array of database instances so they can be closed
+    this.externalDatabaseCache.push(database)
+    return database
   }
 
   /**
@@ -436,17 +447,6 @@ class Context extends EventEmitter {
     return this.dbRegistry;
   }
 
-  /*public async getAuthContext(authConfig?: AuthTypeConfig, authType?: string): Promise<AuthContext> {
-    if (!this.account) {
-      throw new Error("No authenticated user");
-    }
-
-    const did = await this.account!.did()
-    const contextConfig = await this.getContextConfig(did, false)
-
-    return this.account!.getAuthContext(this.contextName, contextConfig, authConfig, authType)
-  }*/
-
   /**
    * Emits `progress` event when adding the endpoint has progressed (ie: replicating databases to the new endpoint).
    * 
@@ -477,6 +477,23 @@ class Context extends EventEmitter {
 
     // 4. Close any open databases (or re-open them all ignoring the cache?)
     // See this.openDatabase()
+  }
+
+  /**
+   * Close this context.
+   * 
+   * Closes all open database connections, returns resources, cancels event listeners
+   */
+  public async close(): Promise<void> {
+    for (let d in this.databaseCache) {
+      const database = await this.databaseCache[d]
+      await database.close()
+    }
+
+    for (let d in this.externalDatabaseCache) {
+      const database = await this.externalDatabaseCache[d]
+      await database.close()
+    }
   }
 
 }
