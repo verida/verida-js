@@ -29,24 +29,41 @@ export class NameClient {
             ...config.web3Options});
     }
 
-    public async register(username: string) {
+    public async register(username: string): Promise<void> {
         const signature = await this.signRegister(username)
 
         // Register a name against a DID
         try {
             const result = await this.vdaWeb3Client.register(username, this.didAddress, signature);
-            //console.log('register result', result)
 
             if (!result.success) {
                 const reason = this.getBlockchainErrorReason(result.error)
-                return new NameClientError(`Unable to register name for DID (${this.config.did})`, reason)
+                throw new NameClientError(`Unable to register name for DID (${this.config.did})`, reason)
             }
 
             return result
         } catch (err: any) {
             // @throws new Error(`DID not found.`)
             // @throws new Error(`DID has too many usernames.`)=
-            return new NameClientError(`Unable to register name for DID (${this.config.did})`, err.message)
+            throw new NameClientError(`Unable to register name for DID (${this.config.did})`, err.message)
+        }
+    }
+
+    public async unregister(username: string): Promise<void> {
+        const signature = await this.signRegister(username)
+
+        // Register a name against a DID
+        try {
+            const result = await this.vdaWeb3Client.unregister(username, this.didAddress, signature);
+
+            if (!result.success) {
+                const reason = this.getBlockchainErrorReason(result.error)
+                throw new NameClientError(`Unable to unregister name for DID (${this.config.did})`, reason)
+            }
+
+            return result
+        } catch (err: any) {
+            throw new NameClientError(`Unable to unregister name for DID (${this.config.did})`, err.message)
         }
     }
 
@@ -60,11 +77,15 @@ export class NameClient {
     public async getDidAddress(username: string): Promise<string> {
         try {
             const result = await this.vdaWeb3Client.findDID(username);
-            console.log('findDID result', result)
+            
+            if (!result.success) {
+                const reason = this.getBlockchainErrorReason(result.error)
+                throw new NameClientError(`Unable to find DID for name (${username})`, reason)
+            }
+
             return result
         } catch (err: any) {
-            throw new Error(`Unable to find name for DID (${this.config.did}): ${err.message}`)
-            // @throws new Error(`Username not found.`)
+            throw new Error(`Unable to find DID for name (${username}): ${err.message}`)
         }
     }
 
@@ -80,14 +101,19 @@ export class NameClient {
 
         try {
             const result = await this.vdaWeb3Client.getUserNameList(didParts.address);
-            console.log('getUserNameList result', result)
-            return result
-        } catch (err: any) {
-            if (err.message == 'No registered DID') {
-                return []
+            
+            if (!result.success) {
+                const reason = this.getBlockchainErrorReason(result.error)
+                if (reason == 'No registered DID') {
+                    return []
+                }
+
+                throw new NameClientError(`Unable to find usernames for DID (${did})`, reason)
             }
 
-            throw new Error(`Unknown error finding usernames for DID (${this.config.did}): ${err.message}`)
+            return result
+        } catch (err: any) {
+            throw new Error(`Unable to find usernames for DID (${did}): ${err.message}`)
         }
     }
 
@@ -125,23 +151,29 @@ export class NameClient {
             [name, this.didAddress]
         );
 
-        const contract = this.buildContract()
-        const nonce = (await contract.nonce(this.didAddress)).toNumber()
+        console.log([name, this.didAddress])
+
+        const nonce = await this.getNonce()
+
+        console.log([rawMsg, nonce])
         const wrappedMsg = ethers.utils.solidityPack(["bytes", "uint256"], [rawMsg, nonce]);
+
+        console.log(this.config.privateKey.slice(2))
         const privateKeyArray = new Uint8Array(
             Buffer.from(this.config.privateKey.slice(2), "hex")
         );
 
+        console.log([wrappedMsg, privateKeyArray])
         return EncryptionUtils.signData(wrappedMsg, privateKeyArray);
     }
 
-    private async getNonce() {
+    private async getNonce(): Promise<Number> {
         const response = await this.vdaWeb3Client.nonce(this.didAddress);
         if (response.data === undefined) {
             throw new Error('Error in getting nonce');
         }
 
-        return response.data;
+        return response.data
     }
 
     private parseDid(did: string): {

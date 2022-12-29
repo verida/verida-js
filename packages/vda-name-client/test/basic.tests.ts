@@ -20,9 +20,11 @@ const CONFIG: NameClientConfig = {
     web3Options: baseConfig.web3Options
 }
 
+console.log(CONFIG)
+
 const nameService = new NameClient(CONFIG)
 
-const goodUsername = ['dave123.vda', 'jane-123.vda']
+const goodUsername = ['dave123.verida', 'jane-123.verida']
 const badUsername = {
     'hello': 'No Suffix',
     'a.vda': 'Too short',
@@ -40,6 +42,16 @@ describe("Name client tests", function() {
         it("Success", async () => {
             const username = goodUsername[0]
             const result = await nameService.register(username)
+            console.log(result)
+        })
+    })
+
+    describe("Unregister", () => {
+        this.timeout(20 * 1000)
+        
+        it("Success", async () => {
+            const username = goodUsername[0]
+            const result = await nameService.unregister(username)
             console.log(result)
         })
     })

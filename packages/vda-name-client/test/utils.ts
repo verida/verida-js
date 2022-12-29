@@ -1,11 +1,5 @@
 require('dotenv').config();
 
-export function sleep(ms) {
-  return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-  });
-}
-
 export function getBlockchainAPIConfiguration() {
   const args = process.argv.slice(2);
   // console.log("ARGS : ", args);
