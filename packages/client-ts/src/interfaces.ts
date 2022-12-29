@@ -19,7 +19,7 @@ export interface ClientConfig {
 	 */
 	environment?: EnvironmentType;
 
-	didClientConfig?: Omit<DIDClientConfig, 'network'>
+	rpcUrl: string;
 
 	/**
 	 * Specify custom schema paths (typicaly for local development).

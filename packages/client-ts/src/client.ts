@@ -2,6 +2,7 @@ import { Account, EnvironmentType } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 import { Profile } from "./context/profiles/profile";
 import { DIDClient } from "@verida/did-client";
+import { NameClient } from "@verida/vda-name-client"
 
 import { ClientConfig, DefaultClientConfig } from "./interfaces";
 import Context from "./context/context";
@@ -19,6 +20,11 @@ class Client {
    * Connection to the Verida DID Registry
    */
   public didClient: DIDClient;
+
+  /**
+   * Connection to the Verida Name Registry
+   */
+  public nameClient: NameClient;
 
   /**
    * Helper instance to manage DID contexts
@@ -60,10 +66,13 @@ class Client {
       : {};
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
-    userConfig.didClientConfig = userConfig.didClientConfig ? userConfig.didClientConfig : {}
-
     this.didClient = new DIDClient({
-      ...userConfig.didClientConfig,
+      rpcUrl: userConfig.rpcUrl,
+      network: <'testnet' | 'mainnet'> this.environment
+    });
+
+    this.nameClient = new NameClient({
+      rpcUrl: userConfig.rpcUrl,
       network: <'testnet' | 'mainnet'> this.environment
     });
 
@@ -157,6 +166,7 @@ class Client {
    * @returns 
    */
   public async openExternalContext(contextName: string, did: string) {
+    did = await this.getDidFromName(did)
     const contextConfig = await this.didContextManager.getDIDContextConfig(
       did,
       contextName,
@@ -209,6 +219,8 @@ class Client {
     profileName: string = "basicProfile",
     fallbackContext: string | null = "Verida: Vault"
   ): Promise<Profile | undefined> {
+    did = await this.getDidFromName(did)
+
     let context: Context | undefined;
     try {
       context = await this.openExternalContext(contextName, did);
@@ -245,6 +257,10 @@ class Client {
     if (!data.signatures) {
       // no signatures
       return [];
+    }
+
+    if (did) {
+      did = await this.getDidFromName(did)
     }
 
     let _data = _.merge({}, data);
@@ -285,6 +301,25 @@ class Client {
     }
 
     return validSignatures;
+  }
+
+  /**
+   * Get the DID from a Verida name.
+   * 
+   * If the DID is already a Verida DID, then it is returned without modification.
+   * 
+   * @param did 
+   */
+  public async getDidFromName(did: string) {
+    if (did.substring(0,7) == 'did:vda') {
+      return did
+    }
+
+    if (did.substr(-7) == '.verida') {
+      return await this.nameClient.getDidAddress(did)
+    }
+
+    throw new Error(`Invalid name or DID: ${did}`)
   }
 
   /**

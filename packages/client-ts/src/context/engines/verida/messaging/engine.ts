@@ -69,6 +69,7 @@ class MessagingEngineVerida implements BaseMessage {
     message: string,
     config: MessageSendConfig
   ): Promise<object | null> {
+    did = await this.context.getClient().getDidFromName(did)
     const outbox = await this.getOutbox();
     const response = await outbox.send(did, type, data, message, config);
 
