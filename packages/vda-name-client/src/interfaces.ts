@@ -9,7 +9,7 @@ export type VeridaWeb3ConfigurationOptions =
     | VeridaSelfTransactionConfig;
 
 export interface NameClientConfig {
-    network: string
+    network: 'testnet' | 'mainnet'
     rpcUrl: string
 
     callType: CallType;

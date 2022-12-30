@@ -72,7 +72,7 @@ describe("Name client tests", function() {
         this.timeout(20 * 1000)
         
         it("Success", async () => {
-            const result = await nameService.getUsernames(CONFIG.did)
+            const result = await nameService.getUsernames(DID)
             console.log(result)
         })
     })

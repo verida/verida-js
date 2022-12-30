@@ -19,7 +19,7 @@ export interface ClientConfig {
 	 */
 	environment?: EnvironmentType;
 
-	rpcUrl: string;
+	rpcUrl?: string;
 
 	/**
 	 * Specify custom schema paths (typicaly for local development).
@@ -83,4 +83,5 @@ export interface DefaultClientConfig extends DefaultEnvironmentConfig {
 	environment: EnvironmentType
 	environments: Record<string, DefaultEnvironmentConfig>
 	vaultAppName: string
+	rpcUrls: Record<EnvironmentType, string>
 }

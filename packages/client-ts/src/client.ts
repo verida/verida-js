@@ -66,13 +66,17 @@ class Client {
       : {};
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
+    const rpcUrl = userConfig.rpcUrl ? userConfig.rpcUrl : DEFAULT_CONFIG.rpcUrls[<EnvironmentType> this.environment]
+
     this.didClient = new DIDClient({
-      rpcUrl: userConfig.rpcUrl,
+      rpcUrl: rpcUrl,
       network: <'testnet' | 'mainnet'> this.environment
     });
 
     this.nameClient = new NameClient({
-      rpcUrl: userConfig.rpcUrl,
+      web3Options: {},
+      callType: 'web3',
+      rpcUrl,
       network: <'testnet' | 'mainnet'> this.environment
     });
 
