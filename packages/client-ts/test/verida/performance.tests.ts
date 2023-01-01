@@ -61,7 +61,7 @@ describe('Performance tests', () => {
     describe('Basic tests', function() {
         this.timeout(120 * 1000)
 
-        it.only('can create a new account in a performant way', async () => {
+        it('can create a new account in a performant way', async () => {
             const tCreateAccount = performance.now()
             // Creates a new DID
             await client1.connect(account1)
