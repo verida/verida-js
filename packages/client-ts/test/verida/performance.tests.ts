@@ -21,6 +21,14 @@ const TEST_CONTEXT_NAME_2 = 'Verida Tests: Performance2'
 const TEST_DB_NAME = 'Test Db'
 const TEST_DB_NAME_2 = 'Test Db2'
 
+/**
+ * Notes:
+ * 
+ * 1. Opening a context on a new DID takes a long time as the DID needs to be created (add to blockchain and endpoints)
+ * 2. Opening a context on an existing DID takes time because the DID doc needs to be updated on all endpoints to specify the new context
+ * 3. Opening a new database takes time (connect account, check account replication, create database on all endpoints,
+ *      initialise replication, check database info, get records to confirm encryption key is correct)
+ */
 describe('Performance tests', () => {
     const client1 = new Client({
         environment: CONFIG.ENVIRONMENT,
@@ -53,7 +61,7 @@ describe('Performance tests', () => {
     describe('Basic tests', function() {
         this.timeout(120 * 1000)
 
-        it('can create a new account in a performant way', async () => {
+        it.only('can create a new account in a performant way', async () => {
             const tCreateAccount = performance.now()
             // Creates a new DID
             await client1.connect(account1)
