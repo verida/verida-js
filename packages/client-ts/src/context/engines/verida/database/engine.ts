@@ -94,10 +94,14 @@ class StorageEngineVerida extends BaseStorageEngine {
       await super.connectAccount(account);
 
       // Authenticate with all endpoints
+      // Do async for increased speed
+      const promises = []
       for (let i in this.endpoints) {
         const endpoint = this.endpoints[i]
-        await endpoint.connectAccount(account)
+        promises.push(endpoint.connectAccount(account))
       }
+
+      await Promise.all(promises)
 
       this.accountDid = await this.account!.did();
 
