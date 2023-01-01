@@ -161,10 +161,12 @@ export default class Endpoint extends EventEmitter {
 
         let auth: AuthContext
         try {
+            //const now = (new Date()).getTime()
             // Attempt to re-authenticate using the refresh token and ignoring the access token (its invalid)
             auth = await this.account!.getAuthContext(this.contextName, this.contextConfig, this.endpointUri, <VeridaDatabaseAuthTypeConfig>{
                 invalidAccessToken: true
             })
+            //console.log(`endpoint.getAuthContext(${this.endpointUri}): ${(new Date()).getTime()-now}`)
         } catch (err: any) {
             if (err.name == 'ContextAuthorizationError') {
                 // The refresh token is invalid

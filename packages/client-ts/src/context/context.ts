@@ -306,6 +306,7 @@ class Context extends EventEmitter {
 
     const instance = this
     this.databaseCache[cacheKey] = new Promise(async (resolve, rejects) => {
+      //const now = (new Date()).getTime()
       try {
         const databaseEngine = await instance.getDatabaseEngine(
           config.did!,
@@ -322,6 +323,8 @@ class Context extends EventEmitter {
         }
     
         instance.databaseCache[cacheKey] = database;
+
+        //console.log(`openDatabase(${databaseName}, ${config.did}): ${(new Date()).getTime()-now}`)
         resolve(database);
       } catch (err: any) {
         rejects(err)

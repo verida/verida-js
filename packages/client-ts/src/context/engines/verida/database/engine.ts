@@ -95,6 +95,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       // Authenticate with all endpoints
       // Do async for increased speed
+      //const now = (new Date()).getTime()
       const promises = []
       for (let i in this.endpoints) {
         const endpoint = this.endpoints[i]
@@ -104,6 +105,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       await Promise.all(promises)
 
       this.accountDid = await this.account!.did();
+      //console.log(`connectAccount(${this.accountDid}): ${(new Date()).getTime()-now}`)
 
       // call checkReplication() to ensure replication is working correctly on all
       // the endpoints and perform any necessary auto-repair actions
@@ -194,6 +196,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         endpoints[endpointUri] = new Endpoint(this, this.storageContext, this.contextConfig, endpointUri)
 
         // connect account to the endpoint if we are connected
+        // @todo: make async for all endpoints
         if (this.account) {
           await endpoints[endpointUri].connectAccount(this.account, false)
           // No need for await as this can occur in the background
@@ -360,6 +363,7 @@ class StorageEngineVerida extends BaseStorageEngine {
    * Call checkReplication() on all the endpoints
    */
   public async checkReplication(databaseName?: string) {
+    //const now = (new Date()).getTime()
     const promises = []
     for (let i in this.endpoints) {
       const endpoint = this.endpoints[i]
@@ -368,12 +372,14 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     // No need for await as this can occur in the background
     await Promise.all(promises)
+    //console.log(`checkReplication(${databaseName}): ${(new Date()).getTime()-now}`)
   }
 
   /**
    * Call createDb() on all the endpoints
    */
   public async createDb(databaseName: string, did: string, permissions: PermissionsConfig) {
+    //const now = (new Date()).getTime()
     const promises = []
     for (let i in this.endpoints) {
       const endpoint = this.endpoints[i]
@@ -382,7 +388,8 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     // No need for await as this can occur in the background
     await Promise.all(promises)
-    await this.checkReplication(databaseName)
+    //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
+    this.checkReplication(databaseName)
   }
 
 }

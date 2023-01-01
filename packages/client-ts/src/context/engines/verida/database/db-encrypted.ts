@@ -52,7 +52,9 @@ class EncryptedDatabase extends BaseDb {
       return;
     }
 
+    //const now = (new Date()).getTime()
     await super.init();
+    //console.log(`Db.init-1(${this.databaseName}): ${(new Date()).getTime()-now}`)
 
     this._localDbEncrypted = new PouchDB(this.databaseHash);
     this._localDb = new PouchDBCrypt(this.databaseHash);
@@ -77,6 +79,7 @@ class EncryptedDatabase extends BaseDb {
 
     /* @ts-ignore */
     const instance = this;
+    //console.log(`Db.init-2(${databaseName}): ${(new Date()).getTime()-now}`)
 
     // Do a once off sync to ensure the local database pulls all data from remote server
     // before commencing live syncronisation between the two databases
@@ -112,6 +115,7 @@ class EncryptedDatabase extends BaseDb {
      */
     try {
       await this.getMany();
+      //console.log(`Db.init-3(${databaseName}): ${(new Date()).getTime()-now}`)
     } catch (err: any) {
       // This error message is thrown by the underlying decrypt library if the
       // data can't be decrypted
@@ -128,6 +132,8 @@ class EncryptedDatabase extends BaseDb {
       // Unknown error, rethrow
       throw err;
     }
+
+    //console.log(`Db.init-Final(${databaseName}): ${(new Date()).getTime()-now}`)
   }
 
   /**

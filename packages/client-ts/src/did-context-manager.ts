@@ -117,10 +117,12 @@ class DIDContextManager {
       const accountDid = await this.account.did();
       if (accountDid == did) {
         try {
+          //const now = (new Date()).getTime()
           storageConfig = await this.account.storageConfig(
             contextName,
             forceCreate
           );
+          //console.log(`getDIDContextConfig(${did}, ${contextName}): ${(new Date()).getTime()-now}`)
         } catch (err) {
           console.log(err)
           // account may not support context
