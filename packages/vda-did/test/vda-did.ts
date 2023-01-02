@@ -46,7 +46,7 @@ const VDA_DID_CONFIG2 = {
     web3Options: baseConfig.web3Options
 }
 
-//const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
+//const ENDPOINTS = [`http://192.168.68.115:5000/did/${DID}`, `http://192.168.68.128:5000/did/${DID}`]
 const ENDPOINTS = [
     `https://acacia-dev1.tn.verida.tech/did/${DID}`,
     `https://acacia-dev2.tn.verida.tech/did/${DID}`,
@@ -71,7 +71,7 @@ describe("VdaDid tests", function() {
     describe("Create", () => {
         this.timeout(200 * 1000)
         
-        it.only("Success", async () => {
+        it("Success", async () => {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
                 doc.setAttributes({
@@ -81,13 +81,16 @@ describe("VdaDid tests", function() {
                 doc.signProof(wallet.privateKey)
                 masterDidDoc = doc
 
-                const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
+                await veridaApi.create(doc, ENDPOINTS)
+                assert.ok('Succesfully published to all endpoints')
                 const time = (new Date()).getTime()
-                console.log(`DID creation time: ${(time-NOW)}`)
-
+                console.log(`DID creation time: ${(time-NOW.getTime())}`)
                 assert.ok(Object.keys(publishedEndpoints).length, 'At least one endpoint was published')
                 assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS, 'Succesfully published to all endpoints')
             } catch (err) {
+                console.log(err)
+                const errors = veridaApi.getLastEndpointErrors()
+                console.log(errors)
                 assert.fail(`Failed: ${err.message}`)
             }
         })
@@ -106,29 +109,7 @@ describe("VdaDid tests", function() {
 
                 assert.fail(`Document created, when it shouldn't`)
             } catch (err) {
-                assert.equal(err.message, 'Unable to create DID: All endpoints failed to accept the DID Document')
-                const errors = veridaApi.getLastEndpointErrors()
-                assert.equal(errors![ENDPOINTS[0]].message, 'DID Document already exists. Use PUT request to update.')
-            }
-        })
-
-        it("Success - One failed endpoint", async () => {
-            try {
-                const doc = new DIDDocument(DID2, DID_PK2)
-                doc.setAttributes({
-                    created: doc.buildTimestamp(NOW),
-                    updated: doc.buildTimestamp(NOW)
-                })
-                doc.signProof(DID_PRIVATE_KEY2)
-                //masterDidDoc2 = doc
-
-                const publishedEndpoints = await veridaApi2.create(doc, ENDPOINTS_FAIL)
-
-                assert.ok(Object.keys(publishedEndpoints).length, 'At least one endpoint was published')
-                assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS_FAIL, 'Response for all endpoints')
-                assert.equal(publishedEndpoints[ENDPOINTS_FAIL[1]].status, 'fail', 'Second endpoint failed')
-            } catch (err) {
-                assert.fail(`Failed: ${err.message}`)
+                assert.equal(err.message, 'Unable to create DID: Already exists')
             }
         })
     })

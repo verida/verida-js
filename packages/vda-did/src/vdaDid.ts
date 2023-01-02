@@ -49,26 +49,30 @@ export default class VdaDid {
         didDocument.signProof(this.options.signKey!)
 
         // Submit to all the endpoints
-        const finalEndpoints: VdaDidEndpointResponses = {}
-        const successEndpoints: string[] = []
-        let successCount = 0
+        const promises = []
         for (let i in endpoints) {
-            const endpoint = endpoints[i]
-            try {
-                const response = await Axios.post(`${endpoint}`, {
-                    document: didDocument.export()
-                });
+            promises.push(Axios.post(`${endpoints[i]}`, {
+                document: didDocument.export()
+            }))
+        }
 
-                finalEndpoints[endpoint] = {
+        // Verify all endpoints successfully created the DID Document
+        const finalEndpoints: any = {}
+        try {
+            // If any of the promises fail, the exception will be thrown
+            const results = await Promise.all(promises)
+
+            for (let i in endpoints) {
+                finalEndpoints[endpoints[i]] = {
                     status: 'success'
                 }
-
-                successEndpoints.push(endpoint)
-                
-                successCount++
-            } catch (err: any) {
-                const message = err.response ? err.response.data.message : err.message
-                if (message.match('DID Document already exists')) {
+            }
+        } catch (err: any) {
+            const message = err.response ? err.response.data.message : err.message
+            if (message.match('DID Document already exists')) {
+                try {
+                    const blockchainEntry = await this.blockchain.lookup(didDocument.id)
+                } catch (err: any) {
                     // DID document exists on the nodes, but not on the blockchain -- this shouldn't happen
                     // but we will cleanup by removing from the nodes and trying again
                     await this.deleteFromEndpoints(endpoints)
@@ -77,24 +81,19 @@ export default class VdaDid {
                     return await this.create(didDocument, endpoints)
                 }
 
-                finalEndpoints[endpoint] = {
-                    status: 'fail',
-                    message,
-                }
+                // DID already exists, so use update instead
+                throw new Error('Unable to create DID: Already exists')
             }
-        }
 
-        if (successCount === 0) {
-            this.lastEndpointErrors = finalEndpoints
-            throw new Error(`Unable to create DID: All endpoints failed to accept the DID Document`)
+            throw new Error(`Unable to create DID: Endpoints failed to accept the DID Document`)
         }
 
         // Publish final endpoints on-chain
         try {
-            await this.blockchain.register(successEndpoints)
+            await this.blockchain.register(endpoints)
         } catch (err: any) {
             // blockchain write failed, so roll back endpoint DID document storage on the endpoints
-            await this.deleteFromEndpoints(successEndpoints)
+            await this.deleteFromEndpoints(endpoints)
             throw new Error(`Unable to save DID to blockchain: ${err.message}`)
         }
 
@@ -149,25 +148,35 @@ export default class VdaDid {
         }
 
         // Update all the endpoints
+        const promises = []
+
+        for (let i in response.endpoints) {
+            const endpoint = response.endpoints[i]
+            promises.push(Axios.put(`${endpoint}`, {
+                document: didDocument.export()
+            }));
+        }
+
+        const results: any = await Promise.allSettled(promises)
         const finalEndpoints: VdaDidEndpointResponses = {}
         let successCount = 0
 
         for (let i in response.endpoints) {
+            const result = results[i]
             const endpoint = response.endpoints[i]
-            try {
-                const result = await Axios.put(`${endpoint}`, {
-                    document: didDocument.export()
-                });
 
-                finalEndpoints[endpoint] = {
-                    status: 'success'
-                }
-                successCount++
-            } catch (err: any) {
+            if (result.status == 'rejected') {
+                const err = result.reason   // @todo: is this correct
                 finalEndpoints[endpoint] = {
                     status: 'fail',
                     message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
                 }
+            } else {
+                finalEndpoints[endpoint] = {
+                    status: 'success'
+                }
+
+                successCount++
             }
         }
 
@@ -185,6 +194,7 @@ export default class VdaDid {
         return finalEndpoints
     }
 
+    // @todo: make async for all endpoints
     private async deleteFromEndpoints(endpoints: string[]): Promise<any> {
         const did = this.options.identifier.toLowerCase()
         const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
@@ -193,28 +203,36 @@ export default class VdaDid {
         const signature = EncryptionUtils.signData(proofString, privateKey)
 
         // Delete DID Document from all the endpoints
-        const finalEndpoints: VdaDidEndpointResponses = {}
-        let successCount = 0
+        const promises = []
         for (let i in endpoints) {
             const endpoint = endpoints[i]
-            try {
-                const response = await Axios.delete(`${endpoint}`, {
-                    headers: {
-                        signature
-                    }
-                });
-
-                finalEndpoints[endpoint] = {
-                    status: 'success'
+            promises.push(Axios.delete(`${endpoints[i]}`, {
+                headers: {
+                    signature
                 }
-                successCount++
-            } catch (err: any) {
-                console.error('endpoint error!!')
-                console.error(err.response.data)
+            }))
+        }
+
+        const results = await Promise.allSettled(promises)
+        const finalEndpoints: VdaDidEndpointResponses = {}
+        let successCount = 0
+
+        for (let i in endpoints) {
+            const endpoint = endpoints[i]
+            const result = results[i]
+
+            if (result.status == 'rejected') {
+                const err = result.reason   // @todo: is this correct
                 finalEndpoints[endpoint] = {
                     status: 'fail',
                     message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
                 }
+            } else {
+                finalEndpoints[endpoint] = {
+                    status: 'success'
+                }
+
+                successCount++
             }
         }
 
