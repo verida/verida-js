@@ -22,13 +22,15 @@ const keyring = new Keyring(wallet.mnemonic.phrase)
 const endpoints = {
     database: {
         type: EndpointType.DATABASE,
-        endpointUri: 'https://db.testnet.verida.io/1'
+        endpointUri: ['https://acacia-dev1.tn.verida.tech/', 'https://acacia-dev2.tn.verida.tech/', 'https://acacia-dev3.tn.verida.tech/']
     },
     messaging: {
         type: EndpointType.MESSAGING,
-        endpointUri: 'https://db.testnet.verida.io/2'
+        endpointUri: ['https://acacia-dev1.tn.verida.tech/', 'https://acacia-dev2.tn.verida.tech/', 'https://acacia-dev3.tn.verida.tech/']
     }
 }
+
+const didEndpoints = ['https://acacia-dev1.tn.verida.tech/did/', 'https://acacia-dev2.tn.verida.tech/did/', 'https://acacia-dev3.tn.verida.tech/did/']
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -42,7 +44,7 @@ let didClient, currentDoc
 describe('DID Client tests', () => {
 
     before(async () => {
-        didClient = await getDIDClient(wallet)
+        didClient = await getDIDClient(wallet, didEndpoints)
     })
 
     describe('Basic tests', function() {
@@ -90,7 +92,7 @@ describe('DID Client tests', () => {
                 assert.ok(actual)
                 assert.equal(actual.id, `${did}?context=${contextHash}&type=${type}`, "Endpoint ID matches hard coded value")
                 assert.equal(actual.type, type, "Type has expected value")
-                assert.equal(actual.serviceEndpoint, endpointUri, "Endpoint has expected value")
+                assert.deepEqual(actual.serviceEndpoint, endpointUri, `Endpoint (${actual.serviceEndpoint}) has expected value (${endpointUri})`)
             }
 
             const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)

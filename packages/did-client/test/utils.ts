@@ -15,7 +15,7 @@ if (rpcUrl === undefined) {
 }
 console.log('RPC URL :', rpcUrl)
 
-export async function getDIDClient(veridaAccount: Wallet) {
+export async function getDIDClient(veridaAccount: Wallet, didEndpoints: string[]) {
     const config: DIDClientConfig = {
         network: 'testnet',
         rpcUrl: rpcUrl!
@@ -30,7 +30,7 @@ export async function getDIDClient(veridaAccount: Wallet) {
         {
             privateKey,             // MATIC private key that will submit transaction
         },
-        ['http://localhost:5000/did/']
+        didEndpoints
     )
 
     // Configure authenticate to use meta transaction server
