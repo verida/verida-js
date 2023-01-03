@@ -1,8 +1,8 @@
 import { EnvironmentType } from "@verida/account"
 import { DIDClientConfig } from '@verida/account-node'
 
-//const ENDPOINTS = ['https://acacia-dev1.tn.verida.tech/', 'https://acacia-dev2.tn.verida.tech/', 'https://acacia-dev3.tn.verida.tech/']
-const ENDPOINTS = ['https://acacia-au-dev1.tn.verida.tech/', 'https://acacia-au-dev2.tn.verida.tech/', 'https://acacia-au-dev3.tn.verida.tech/']
+const ENDPOINTS = ['https://acacia-dev1.tn.verida.tech/', 'https://acacia-dev2.tn.verida.tech/', 'https://acacia-dev3.tn.verida.tech/']
+//const ENDPOINTS = ['https://acacia-au-dev1.tn.verida.tech/', 'https://acacia-au-dev2.tn.verida.tech/', 'https://acacia-au-dev3.tn.verida.tech/']
 
 const DID_ENDPOINTS: string[] = []
 for (let e in ENDPOINTS) {
