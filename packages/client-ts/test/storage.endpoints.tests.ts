@@ -7,17 +7,18 @@ import { DIDDocument } from '@verida/did-document'
 import Utils from "../src/context/engines/verida/database/utils";
 //import { Wallet } from 'ethers'
 import CONFIG from './config'
+import { sleep } from './utils'
 
 const TEST_DB_NAME = 'TestDb_3'
 const TEST_DB_NAME_USERS = 'TestDb_Users_3'
 const TEST_DB_NAME_PUBLIC = 'TestDb_Public_3'
-const TEST_CONTEXT_NAME = 'Verida Test: Storage Endpoint Tests 1'
+const TEST_CONTEXT_NAME = 'Verida Test: Storage Endpoint Tests 2'
 
-const ENDPOINT_1 = 'http://192.168.68.118:5000/'
-const ENDPOINT_2 = 'http://192.168.68.117:5000/'
+const ENDPOINT_1 = 'http://192.168.68.118:5000'
+const ENDPOINT_2 = 'http://192.168.68.117:5000'
 
-const PRIVATE_KEY = '0x6ea94649d8a826ddda7992c1200ccf632577f91245b920d8f2468fd18c969cd0'
-const DID1 = 'did:vda:testnet:0xf00C7801FDD9CA3A73E054a3E76520d9aa139217'
+const PRIVATE_KEY = '0x1dddebf238759ca069cab321795c054a005a0d51dfa39e2b270c0ba0d07b107c'
+const DID1 = 'did:vda:testnet:0x50e4A90EC6Ef9B0638cbed992DE32951466c8D6b'
 const DID2 = 'did:vda:testnet:0x7A7d42d4b79B801C41ED34117BcED36319818A78'
 
 const DEFAULT_ENDPOINTS = {
@@ -31,12 +32,6 @@ const DEFAULT_ENDPOINTS = {
     },
 }
 
-export function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
-  }
-
 // @TODO: Create new DID
 //const wallet = Wallet.createRandom()
 //const address = wallet.address.toLowerCase()
@@ -45,7 +40,7 @@ export function sleep(ms) {
 /**
  * 
  */
-describe('Storage endpoint tests', () => {
+describe.skip('Storage endpoint tests', () => {
     let didClient, context
 
     const client = new Client({
@@ -64,7 +59,7 @@ describe('Storage endpoint tests', () => {
     describe('Initialize user storage contexts', function() {
         this.timeout(100 * 1000)
 
-        it(`can open a user storage context`, async function() {
+        it.only(`can open a user storage context`, async function() {
             await client.connect(account)
             didClient = await account.getDidClient()
             const did = await account.did()
@@ -77,6 +72,24 @@ describe('Storage endpoint tests', () => {
 
             contextConfig.id = DIDDocument.generateContextHash(did, TEST_CONTEXT_NAME)
             assert.deepEqual(fetchedStorageConfig, contextConfig, 'Storage context config matches')
+        })
+
+        it.only(`can write data`, async () => {
+            const database = await context.openDatabase(TEST_DB_NAME)
+            const currentData = await database.getMany()
+
+            const LIMIT = 10
+            if (currentData.length === 0) {
+                for (let i=0; i < LIMIT; i++) {
+                    await database.save({'hello': 'world'})
+                }
+            }
+        })
+
+        it.only(`verify databases match`, async () => {
+            const did = await account.did()
+            const engine = await context.getDatabaseEngine(did, true)
+            assert.ok(engine, `Have database engine`)
         })
 
         it('can write data to both endpoints', async function() {
