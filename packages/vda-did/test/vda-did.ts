@@ -47,10 +47,15 @@ const VDA_DID_CONFIG2 = {
 }
 
 //const ENDPOINTS = [`http://192.168.68.115:5000/did/${DID}`, `http://192.168.68.128:5000/did/${DID}`]
-const ENDPOINTS = [
+/*const ENDPOINTS = [
     `https://acacia-dev1.tn.verida.tech/did/${DID}`,
     `https://acacia-dev2.tn.verida.tech/did/${DID}`,
     `https://acacia-dev3.tn.verida.tech/did/${DID}`
+]*/
+const ENDPOINTS = [
+    `https://acacia-au-dev1.tn.verida.tech/did/${DID}`,
+    `https://acacia-au-dev2.tn.verida.tech/did/${DID}`,
+    `https://acacia-au-dev3.tn.verida.tech/did/${DID}`
 ]
 
 // Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
@@ -81,7 +86,8 @@ describe("VdaDid tests", function() {
                 doc.signProof(wallet.privateKey)
                 masterDidDoc = doc
 
-                await veridaApi.create(doc, ENDPOINTS)
+                const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
+                console.log(publishedEndpoints)
                 assert.ok('Succesfully published to all endpoints')
                 const time = (new Date()).getTime()
                 console.log(`DID creation time: ${(time-NOW.getTime())}`)
