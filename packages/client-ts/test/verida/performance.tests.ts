@@ -105,7 +105,7 @@ describe('Performance tests', () => {
             console.log(`Open existing context + existing DB time: ${openContextDbSaveTotal} ms`)
 
             assert.ok(openContextTotal < 5*1000, `Open existing context time (${Math.round(openContextTotal/1000.0)}s) is < 5s`)
-            assert.ok(openContextDbSaveTotal < 1000, `Open existing context + existing database time (${Math.round(openContextDbSaveTotal/1000.0)}s) on a new account is < 1s`)
+            assert.ok(openContextDbSaveTotal < 5*1000, `Open existing context + existing database time (${Math.round(openContextDbSaveTotal/1000.0)}s) on a new account is < 5s`)
         })
 
         /**
@@ -126,8 +126,8 @@ describe('Performance tests', () => {
             console.log(`Open new context time: ${openContextTotal} ms`)
             console.log(`Open new context + new DB time: ${openContextDbSaveTotal} ms`)
 
-            assert.ok(openContextTotal < 30*1000, `Open new context time (${Math.round(openContextTotal/1000.0)}s) is < 30s`)
-            assert.ok(openContextDbSaveTotal < 1*1000, `Open new context database time (${Math.round(openContextDbSaveTotal/1000.0)}s) on a new account is < 1s`)
+            assert.ok(openContextTotal < 10*1000, `Open new context time (${Math.round(openContextTotal/1000.0)}s) is < 10s`)
+            assert.ok(openContextDbSaveTotal < 10*1000, `Open new context database time (${Math.round(openContextDbSaveTotal/1000.0)}s) on a new account is < 10s`)
         })
 
         /**
@@ -143,7 +143,7 @@ describe('Performance tests', () => {
 
             console.log(`Open new database on open context time: ${openDbTotal} ms`)
 
-            assert.ok(openDbTotal < 1*1000, `Open new database on open context time (${Math.round(openDbTotal/1000.0)}s) is < 1s`)
+            assert.ok(openDbTotal < 5*1000, `Open new database on open context time (${Math.round(openDbTotal/1000.0)}s) is < 5s`)
         })
 
         

@@ -52,7 +52,7 @@ class EncryptedDatabase extends BaseDb {
       return;
     }
 
-    //const now = (new Date()).getTime()
+    const now = (new Date()).getTime()
     await super.init();
     //console.log(`Db.init-1(${this.databaseName}): ${(new Date()).getTime()-now}`)
 
@@ -103,8 +103,10 @@ class EncryptedDatabase extends BaseDb {
         console.error(err);
       })
       .on("complete", function (info: any) {
+        //console.log(`Db.init-3(${databaseName}): ${(new Date()).getTime()-now}`)
         // Commence two-way, continuous, retrivable sync
         instance.sync();
+        //console.log(`Db.init-4(${databaseName}): ${(new Date()).getTime()-now}`)
       });
 
     /**
@@ -115,7 +117,7 @@ class EncryptedDatabase extends BaseDb {
      */
     try {
       await this.getMany();
-      //console.log(`Db.init-3(${databaseName}): ${(new Date()).getTime()-now}`)
+      //console.log(`Db.init-5(${databaseName}): ${(new Date()).getTime()-now}`)
     } catch (err: any) {
       // This error message is thrown by the underlying decrypt library if the
       // data can't be decrypted
