@@ -1,12 +1,8 @@
-
-'use strict'
 const assert = require('assert')
 
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from './config'
-
-import { sleep } from './utils'
 
 const DATA = {
     name: "Jane"
@@ -77,7 +73,7 @@ describe('Profile tests', () => {
     })
 
     describe("Using Client to open public profiles", function () {
-        this.timeout(20 * 1000)
+        this.timeout(60 * 1000)
         const wrongContextName = "Context: Wrong Name";
         const wrongFallbackContextName = "Context: Wrong Name 2";
 

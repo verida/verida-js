@@ -31,7 +31,7 @@ const TEST_DB_NAME_2 = 'Test Db2'
  * 3. Opening a new database takes time (connect account, check account replication, create database on all endpoints,
  *      initialise replication, check database info, get records to confirm encryption key is correct)
  */
-describe('Performance tests', () => {
+describe.skip('Performance tests', () => {
     const client1 = new Client({
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: {

@@ -59,7 +59,7 @@ describe.skip('Storage endpoint tests', () => {
     describe('Initialize user storage contexts', function() {
         this.timeout(100 * 1000)
 
-        it.only(`can open a user storage context`, async function() {
+        it(`can open a user storage context`, async function() {
             await client.connect(account)
             didClient = await account.getDidClient()
             const did = await account.did()
@@ -74,7 +74,7 @@ describe.skip('Storage endpoint tests', () => {
             assert.deepEqual(fetchedStorageConfig, contextConfig, 'Storage context config matches')
         })
 
-        it.only(`can write data`, async () => {
+        it(`can write data`, async () => {
             const database = await context.openDatabase(TEST_DB_NAME)
             const currentData = await database.getMany()
 
@@ -86,7 +86,7 @@ describe.skip('Storage endpoint tests', () => {
             }
         })
 
-        it.only(`verify databases match`, async () => {
+        it(`verify databases match`, async () => {
             const did = await account.did()
             const engine = await context.getDatabaseEngine(did, true)
             assert.ok(engine, `Have database engine`)

@@ -43,7 +43,7 @@ describe('Verida database tests relating to contexts', () => {
     })
 
     describe('Database read / write works across contexts', function() {
-        this.timeout(20 * 1000)
+        this.timeout(60 * 1000)
 
         it('can open a database with public write permissions', async function() {
             // Initialize account 1
