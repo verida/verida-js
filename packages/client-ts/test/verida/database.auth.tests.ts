@@ -13,9 +13,11 @@ const INVALID_CONTEXT = 'Verida Testing: Authentication - Invalid'
 
 
 /**
- * Note: These tests will fail unless they are run against a localhost storage node server
+ * Note: These tests will fail unless they are run against a localhost storage node server.
+ * 
+ * They are skipped by default
  */
-describe('Verida auth tests', () => {
+describe.skip('Verida auth tests', () => {
     let invalidContext, invalidDid
 
     const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {

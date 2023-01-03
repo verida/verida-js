@@ -22,7 +22,9 @@ const TEST_DB_NAME = 'Test Db'
 const TEST_DB_NAME_2 = 'Test Db2'
 
 /**
- * Notes:
+ * These tests were originally run in Australia, connecting to nodes in the US, which significantly impacts on performance.
+ * 
+ * Performance notes:
  * 
  * 1. Opening a context on a new DID takes a long time as the DID needs to be created (add to blockchain and endpoints)
  * 2. Opening a context on an existing DID takes time because the DID doc needs to be updated on all endpoints to specify the new context
