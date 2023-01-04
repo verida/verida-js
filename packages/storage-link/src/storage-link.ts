@@ -230,7 +230,7 @@ export default class StorageLink {
     }
 
     /**
-     * Ensure the URL has a trailing slash
+     * Ensure the URL has a trailing slash and appropriate port set
      * 
      * @param endpoint ServiceEndpoint | ServiceEndpoint[]
      * @returns 
@@ -239,7 +239,9 @@ export default class StorageLink {
         const finalEndpoints = []
 
         for (let i in endpoints) {
-            finalEndpoints.push(endpoints[i].replace(/\/$/, '') + '/')
+            const url = new Url(endpoints[i])
+            const port = url.port ? url.port : (url.protocol == 'https:' ? 443 : 80)
+            finalEndpoints.push(`${url.protocol}//${url.hostname}:${port}/`)
         }
 
         return finalEndpoints
