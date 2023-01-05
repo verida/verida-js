@@ -27,6 +27,7 @@ export function getResolver(
 export class VdaDidResolver {
 
     private options: ResolverConfigurationOptions
+    private defaultTimeout: number = 10000
 
     constructor(options: ResolverConfigurationOptions) {
         this.options = options
@@ -122,7 +123,9 @@ export class VdaDidResolver {
             const endpointUri = endpoints[i]
 
             try {
-                const response = await Axios.get(endpointUri);
+                const response = await Axios.get(endpointUri, {
+                    timeout: this.options.timeout ? this.options.timeout : this.defaultTimeout
+                });
                 if (response.data.status == 'success') {
                     const doc = new DIDDocument(response.data.data)
                     doc.import(response.data.data)

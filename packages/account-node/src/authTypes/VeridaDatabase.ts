@@ -8,6 +8,8 @@ export default class VeridaDatabaseAuthType extends AuthType {
 
   protected contextAuth?: VeridaDatabaseAuthContext
   protected account: AutoAccount
+  // 5 second request timeout
+  protected timeout: number = 10000
 
   public constructor(account: Account, contextName: string, serviceEndpoint: ServiceEndpoint, signKey: Interfaces.SecureContextPublicKey) {
     super(account, contextName, serviceEndpoint, signKey)
@@ -46,6 +48,8 @@ export default class VeridaDatabaseAuthType extends AuthType {
         const authJwtResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/generateAuthJwt",{
           did,
           contextName: this.contextName
+        }, {
+          timeout: this.timeout
         })
 
         authJwt = authJwtResponse.data.authJwt
@@ -65,6 +69,8 @@ export default class VeridaDatabaseAuthType extends AuthType {
           contextName: this.contextName,
           signature,
           deviceId: config.deviceId
+        }, {
+          timeout: this.timeout
         });
 
         //console.log('refresh response', refreshResponse.data)
@@ -100,6 +106,8 @@ export default class VeridaDatabaseAuthType extends AuthType {
           refreshToken: this.contextAuth.refreshToken,
           did,
           contextName: this.contextName
+        }, {
+          timeout: this.timeout
         });
 
         const accessToken = accessResponse.data.accessToken
@@ -135,6 +143,8 @@ export default class VeridaDatabaseAuthType extends AuthType {
           contextName: this.contextName,
           deviceId: deviceId,
           signature
+      }, {
+        timeout: this.timeout
       });
 
       return response.data.status == 'success'

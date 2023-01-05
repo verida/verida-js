@@ -22,6 +22,7 @@ export interface VeridaSelfTransactionConfigPart  {
 export interface DIDClientConfig {
     network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
     rpcUrl?: string                              // blockchain RPC URI to use
+    timeout?: number
 }
 
 export class DIDClient {
@@ -43,7 +44,9 @@ export class DIDClient {
     constructor(config: DIDClientConfig) {
         this.config = config
 
-        const resolverConfig: ResolverConfigurationOptions = {}
+        const resolverConfig: ResolverConfigurationOptions = {
+            timeout: config.timeout ? config.timeout : 10000
+        }
         
         if (this.config.rpcUrl) {
             resolverConfig.rpcUrl = this.config.rpcUrl
