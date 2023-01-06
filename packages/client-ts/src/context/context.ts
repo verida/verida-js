@@ -6,7 +6,7 @@ import BaseStorageEngine from "./engines/base";
 import { EngineType, StorageEngineTypes } from "./interfaces";
 import DIDContextManager from "../did-context-manager";
 import { DatabaseEngines } from "../interfaces";
-import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig, ContextStatus } from "./interfaces";
+import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig, ContextInfo } from "./interfaces";
 import Database from "./database";
 import Datastore from "./datastore";
 import Messaging from "./messaging";
@@ -448,14 +448,14 @@ class Context extends EventEmitter {
    * 
    * @returns 
    */
-  public async status(): Promise<ContextStatus> {
+  public async info(): Promise<ContextInfo> {
     if (!this.account) {
       throw new Error(`Unable to open database. No authenticated user.`);
     }
 
     const accountDid = await this.account!.did()
     const engine = await this.getDatabaseEngine(accountDid, false)
-    const databases = await engine.status()
+    const databases = await engine.info()
 
     return {
       databases

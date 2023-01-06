@@ -141,13 +141,13 @@ export interface EndpointUsage {
   storageLimit: number
 }
 
-export interface ContextDatabaseStatus {
+export interface ContextDatabaseInfo {
   name: string
   endpoints: Record<string, object>
   databases: Record<string, object>
   keys: any
 }
 
-export interface ContextStatus {
-  databases: ContextDatabaseStatus
+export interface ContextInfo {
+  databases: ContextDatabaseInfo
 }

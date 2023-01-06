@@ -1,7 +1,7 @@
 import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
 import Database from "../../../database";
-import { DatabaseOpenConfig, PermissionsConfig, ContextDatabaseStatus } from "../../../interfaces";
+import { DatabaseOpenConfig, PermissionsConfig, ContextDatabaseInfo } from "../../../interfaces";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
@@ -427,7 +427,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     this.checkReplication(databaseName)
   }
 
-  public async status(): Promise<ContextDatabaseStatus> {
+  public async info(): Promise<ContextDatabaseInfo> {
     const endpoints: any = {}
     let databases: any = {}
 

@@ -81,7 +81,7 @@ class BaseStorageEngine extends EventEmitter {
     throw new Error('Not implemented')
   }
 
-  public async status(): Promise<ContextDatabaseStatus> {
+  public async info(): Promise<ContextDatabaseStatus> {
     throw new Error('Not implemented')
   }
 }
