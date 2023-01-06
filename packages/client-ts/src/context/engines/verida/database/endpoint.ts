@@ -234,7 +234,7 @@ export default class Endpoint extends EventEmitter {
 
     public async checkReplication(databaseName?: string) {
         try {
-            await this.client.checkReplication(databaseName);
+            return this.client.checkReplication(databaseName);
         } catch (err: any) {
             const message = err.response ? err.response.data.message : err.message
             this.storageEngine.emit('endpointWarning',`Replication checks failed on ${this.endpointUri}: ${message}`)

@@ -1,6 +1,6 @@
 import { Account } from "@verida/account";
 import { Keyring } from "@verida/keyring";
-import { DatabaseOpenConfig, DatastoreOpenConfig } from "../interfaces";
+import { ContextDatabaseStatus, DatabaseOpenConfig, DatastoreOpenConfig } from "../interfaces";
 import Database from "../database";
 import Datastore from "../datastore";
 import DbRegistry from "../db-registry";
@@ -78,6 +78,10 @@ class BaseStorageEngine extends EventEmitter {
   }
 
   public addEndpoint(context: Context, uri: string): Promise<boolean> {
+    throw new Error('Not implemented')
+  }
+
+  public async status(): Promise<ContextDatabaseStatus> {
     throw new Error('Not implemented')
   }
 }
