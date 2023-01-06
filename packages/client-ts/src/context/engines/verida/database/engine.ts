@@ -445,9 +445,13 @@ class StorageEngineVerida extends BaseStorageEngine {
       }
     }
 
+    const keys = await this.keyring!.getKeys()
+
     return {
+      name: this.storageContext,
       endpoints,
-      databases
+      databases,
+      keys
     }
   }
 }
