@@ -6,7 +6,6 @@ import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
 import { Interfaces } from "@verida/storage-link";
-import EndpointReplicator from "./endpoint-replicator";
 import Context from '../../../context';
 import Endpoint from "./endpoint";
 import { getRandomInt } from "../../../utils";
@@ -20,8 +19,8 @@ const _ = require("lodash");
  */
 
 /**
- * @category
- * Modules
+ * @emits EndpointUnavailable
+ * @emits EndpointWarning
  */
 class StorageEngineVerida extends BaseStorageEngine {
   private accountDid?: string;
@@ -36,10 +35,16 @@ class StorageEngineVerida extends BaseStorageEngine {
   ) {
     super(storageContext, dbRegistry, contextConfig);
 
+    const engine = this
     this.endpoints = {}
     for (let i in contextConfig.services.databaseServer.endpointUri) {
       const endpointUri = <string> contextConfig.services.databaseServer.endpointUri[i]
       this.endpoints[endpointUri] = new Endpoint(this, this.storageContext, this.contextConfig, endpointUri)
+
+      // Catch and re-throw endpoint warnings
+      this.endpoints[endpointUri].on('EndpointWarning', (message) => {
+        engine.emit('EndpointWarning', endpointUri, message)
+      })
     }
   }
 
@@ -71,7 +76,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         return endpoints[primaryEndpointUri]
       } catch (err) {
         // endpoint is not available, so set it to fail
-        this.emit('endpointUnavailable', primaryEndpointUri)
+        this.emit('EndpointUnavailable', primaryEndpointUri)
         failedEndpoints.push(primaryEndpointUri)
         primaryIndex++
         primaryIndex = primaryIndex % Object.keys(endpoints).length
@@ -84,13 +89,17 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Get an active endpoint
    */
-  protected async getActiveEndpoint() {
+  public async getActiveEndpoint() {
     if (this.activeEndpoint) {
       return this.activeEndpoint
     }
 
     this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints)
     return this.activeEndpoint
+  }
+
+  public getEndpoint(endpintUri: string): Endpoint {
+    return this.endpoints[endpintUri]
   }
 
   public async connectAccount(account: Account) {
@@ -117,7 +126,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         if (result.status == 'fulfilled') {
           finalEndpoints[i] = endpoint
         } else {
-          this.emit('endpointUnavailable', i)
+          this.emit('EndpointUnavailable', i)
         }
       }
 
@@ -388,10 +397,6 @@ class StorageEngineVerida extends BaseStorageEngine {
     for (let i in this.endpoints) {
       this.endpoints[i].logout()
     }
-  }
-
-  public async addEndpoint(context: Context, endpointUri: string): Promise<boolean> {
-    return await EndpointReplicator.replicate(this, context, endpointUri)
   }
 
   /**

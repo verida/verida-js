@@ -170,6 +170,16 @@ class Context extends EventEmitter {
       await databaseEngine.connectAccount(this.account);
     }
 
+    // Listen and re-emit endpoint warnings and errors
+    const context = this
+    databaseEngine.on('EndpointUnavailable', (endpointUri: string) => {
+      context.emit('EndpointWarning', endpointUri)
+    })
+
+    databaseEngine.on('EndpointWarning', (endpointUri: string, message: string) => {
+      context.emit('EndpointWarning', endpointUri, message)
+    })
+
     // cache storage engine for this did and context
     this.databaseEngines[did] = databaseEngine;
     return databaseEngine;

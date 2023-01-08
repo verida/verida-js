@@ -15,6 +15,9 @@ const { default: PouchDB } = PouchDBLib as any;
 
 PouchDB.plugin(PouchDBFind);
 
+/**
+ * @emits EndpointWarning
+ */
 export default class Endpoint extends EventEmitter {
 
     private contextName: string
@@ -237,7 +240,7 @@ export default class Endpoint extends EventEmitter {
             return this.client.checkReplication(databaseName);
         } catch (err: any) {
             const message = err.response ? err.response.data.message : err.message
-            this.storageEngine.emit('endpointWarning',`Replication checks failed on ${this.endpointUri}: ${message}`)
+            this.storageEngine.emit('EndpointWarning',`Replication checks failed on ${this.endpointUri}: ${message}`)
         }
     }
 
