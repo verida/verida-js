@@ -143,6 +143,7 @@ export interface EndpointUsage {
 
 export interface ContextDatabaseInfo {
   name: string
+  activeEndpoint?: string,
   endpoints: Record<string, object>
   databases: Record<string, object>
   keys: any

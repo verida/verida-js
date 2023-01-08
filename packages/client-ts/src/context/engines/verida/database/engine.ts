@@ -449,6 +449,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     return {
       name: this.storageContext,
+      activeEndpoint: this.activeEndpoint?.toString(),
       endpoints,
       databases,
       keys
