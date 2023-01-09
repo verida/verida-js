@@ -260,7 +260,7 @@ export default class VaultAccount extends Account {
         store.remove(VERIDA_AUTH_CONTEXT)
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: AuthTypeConfig = {
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
         if (authConfig.force || !this.contextCache[contextName]) {
@@ -270,13 +270,18 @@ export default class VaultAccount extends Account {
 
         const serviceEndpoint = contextConfig.services.databaseServer
         if (serviceEndpoint.type == "VeridaDatabase") {
+            const veridaDatabaseConfig = <VeridaDatabaseAuthTypeConfig> authConfig
+            if (typeof(veridaDatabaseConfig.endpointUri) == 'undefined') {
+                throw new Error('Endpoint must be specified when getting auth context')
+            }
+
             // If we have an invalid access token (detected by the internal libraries)
             // then attempt to re-authenticate using the refreshToken
-            if ((<VeridaDatabaseAuthTypeConfig> authConfig).invalidAccessToken) {
+            if (veridaDatabaseConfig.invalidAccessToken) {
                 const did = await this.did()
 
                 try {
-                    const accessResponse = await this.getAxios(contextName).post(serviceEndpoint.endpointUri + "auth/connect",{
+                    const accessResponse = await this.getAxios(contextName).post(veridaDatabaseConfig.endpointUri + "auth/connect",{
                         refreshToken: this.contextCache[contextName].contextAuth.refreshToken,
                         did,
                         contextName: contextName
