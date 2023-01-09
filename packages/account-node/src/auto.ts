@@ -145,10 +145,16 @@ export default class AutoAccount extends Account {
         return this.didClient
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: VeridaDatabaseAuthTypeConfig = {
-        force: false
-    }, authType: string = "database"): Promise<AuthContext> {
-        endpointUri = <string> endpointUri
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig, authType: string = "database"): Promise<AuthContext> {
+        if (typeof(authConfig.force) == 'undefined') {
+            authConfig.force = false
+        }
+
+        if (typeof(authConfig.endpointUri) == 'undefined') {
+            throw new Error('Endpoint must be specified when getting auth context')
+        }
+
+        const endpointUri = authConfig.endpointUri
 
         // Use existing context auth instance if it exists
         if (this.contextAuths[contextName] && this.contextAuths[contextName][endpointUri]  && !authConfig.force && !authConfig.invalidAccessToken) {

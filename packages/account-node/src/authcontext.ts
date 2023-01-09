@@ -41,8 +41,8 @@ export default class AuthContextAccount extends LimitedAccount {
 
     }
     
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint, authConfig: AuthTypeConfig, authType = "database"): Promise<AuthContext> {
-        return super.getAuthContext(contextName, contextConfig, endpointUri, authConfig, authType)
+    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig, authType = "database"): Promise<AuthContext> {
+        return super.getAuthContext(contextName, contextConfig, authConfig, authType)
     }
 
 }

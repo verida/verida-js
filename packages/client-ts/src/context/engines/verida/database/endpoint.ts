@@ -166,7 +166,8 @@ export default class Endpoint extends EventEmitter {
         try {
             //const now = (new Date()).getTime()
             // Attempt to re-authenticate using the refresh token and ignoring the access token (its invalid)
-            auth = await this.account!.getAuthContext(this.contextName, this.contextConfig, this.endpointUri, <VeridaDatabaseAuthTypeConfig>{
+            auth = await this.account!.getAuthContext(this.contextName, this.contextConfig, <VeridaDatabaseAuthTypeConfig>{
+                endpointUri: this.endpointUri,
                 invalidAccessToken: true
             })
             //console.log(`endpoint.getAuthContext(${this.endpointUri}): ${(new Date()).getTime()-now}`)
@@ -175,7 +176,8 @@ export default class Endpoint extends EventEmitter {
                 // The refresh token is invalid
                 // Force a new connection, this will cause a new single sign in popup if in a web environment
                 // and using account-web-vault
-                auth = await this.account!.getAuthContext(this.contextName, this.contextConfig, this.endpointUri, <VeridaDatabaseAuthTypeConfig>{
+                auth = await this.account!.getAuthContext(this.contextName, this.contextConfig, <VeridaDatabaseAuthTypeConfig>{
+                    endpointUri: this.endpointUri,
                     force: true
                 })
             } else {
@@ -262,7 +264,7 @@ export default class Endpoint extends EventEmitter {
             throw new Error('Unable to connect to external storage node. No account connected.')
         }
 
-        const auth = await this.account!.getAuthContext(this.contextName, this.contextConfig, this.endpointUri, <VeridaDatabaseAuthTypeConfig>{
+        const auth = await this.account!.getAuthContext(this.contextName, this.contextConfig, <VeridaDatabaseAuthTypeConfig>{
             endpointUri: this.endpointUri
         })
 

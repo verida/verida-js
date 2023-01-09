@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { Account } from "@verida/account";
+import { Account, AuthTypeConfig, AuthContext } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 
 import BaseStorageEngine from "./engines/base";
@@ -470,6 +470,15 @@ class Context extends EventEmitter {
     return {
       databases
     }
+  }
+
+  public async getAuthContext(authConfig?: AuthTypeConfig, authType?: string): Promise<AuthContext> {
+    if (!this.account) {
+      throw new Error("No authenticated user");
+    }
+    const did = await this.account!.did()
+    const contextConfig = await this.getContextConfig(did, false)
+    return this.account!.getAuthContext(this.contextName, contextConfig, authConfig, authType)
   }
   
   /**
