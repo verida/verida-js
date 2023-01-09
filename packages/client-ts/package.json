@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "2.0.0-rc6",
+  "version": "2.0.0-rc7",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,8 +17,8 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/account": "^2.0.0-rc6",
-    "@verida/account-node": "^2.0.0-rc6",
+    "@verida/account": "^2.0.0-rc7",
+    "@verida/account-node": "^2.0.0-rc7",
     "@verida/did-client": "^2.0.0-rc6",
     "@verida/did-document": "^2.0.0-rc5",
     "@verida/encryption-utils": "^2.0.0-rc5",
