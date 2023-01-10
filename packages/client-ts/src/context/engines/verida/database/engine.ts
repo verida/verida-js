@@ -102,6 +102,10 @@ class StorageEngineVerida extends BaseStorageEngine {
     return this.endpoints[endpintUri]
   }
 
+  public getEndpoints(): Record<string, Endpoint> {
+    return this.endpoints
+  }
+
   public async connectAccount(account: Account) {
     try {
       await super.connectAccount(account);

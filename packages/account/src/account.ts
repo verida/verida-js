@@ -2,8 +2,7 @@ import { Keyring } from '@verida/keyring'
 import { Interfaces } from '@verida/storage-link'
 import { createJWT, ES256KSigner } from 'did-jwt'
 import { encodeBase64 } from "tweetnacl-util"
-import { AuthContext, AuthTypeConfig } from './interfaces'
-import { ServiceEndpoint } from 'did-resolver'
+import { AuthContext, AuthTypeConfig, AccountConfig } from './interfaces'
 
 const _ = require('lodash')
 
@@ -64,6 +63,10 @@ export default class Account {
     }
 
     getDidClient() {
+        throw new Error("Not implemented")
+    }
+
+    public setAccountConfig(accountConfig: AccountConfig) {
         throw new Error("Not implemented")
     }
 

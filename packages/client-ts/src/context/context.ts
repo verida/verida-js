@@ -139,7 +139,7 @@ class Context extends EventEmitter {
    * @param did
    * @returns {BaseStorageEngine}
    */
-  private async getDatabaseEngine(
+  public async getDatabaseEngine(
     did: string,
     createContext?: boolean
   ): Promise<BaseStorageEngine> {
