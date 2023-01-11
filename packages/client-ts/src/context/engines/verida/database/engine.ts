@@ -60,8 +60,6 @@ class StorageEngineVerida extends BaseStorageEngine {
     let primaryIndex = getRandomInt(0, Object.keys(endpoints).length)
     let primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
 
-    console.log('primaryindex', primaryIndex, Object.keys(endpoints).length)
-
     if (!checkStatus) {
       return endpoints[primaryEndpointUri]
     }
