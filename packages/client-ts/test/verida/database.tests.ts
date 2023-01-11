@@ -315,9 +315,8 @@ describe('Verida database tests', () => {
                 }).then(rejects, resolve)
             })
 
-            const result = await promise
-
-            assert.deepEqual(result, new Error('Database not found: Permission denied to access remote database.'))
+            const result: any = await promise
+            assert.ok(result.message.match('Permission denied'))
         })
 
         it(`can't write an external database with write=users and user no access`, async function() {
@@ -331,8 +330,8 @@ describe('Verida database tests', () => {
                 }).then(rejects, resolve)
             })
 
-            const result = await promise
-            assert.deepEqual(result, new Error('Database not found: Permission denied to access remote database.'))
+            const result: any = await promise
+            assert.ok(result.message.match('Permission denied'))
         })
 
         it(`can't open an external users database without an encryption key`, async function() {

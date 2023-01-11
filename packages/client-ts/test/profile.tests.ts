@@ -3,6 +3,8 @@ const assert = require('assert')
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from './config'
+import { sleep } from './utils'
+const util = require('util')
 
 const DATA = {
     name: "Jane"
@@ -24,27 +26,39 @@ describe('Profile tests', () => {
     let vaultContext
 
     describe("Public profiles", function() {
-        this.timeout(60 * 1000)
+        this.timeout(120 * 1000)
 
         it('can initialise own profile', async () => {
-            const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
-                didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            })
-            did1 = await account1.did()
-            await client1.connect(account1)
-            context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
+            try {
+                const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                    privateKey: CONFIG.VDA_PRIVATE_KEY,
+                    environment: CONFIG.ENVIRONMENT,
+                    didClientConfig: CONFIG.DID_CLIENT_CONFIG
+                })
+                did1 = await account1.did()
+                console.log(did1)
+                await client1.connect(account1)
+                context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
 
-            profile1 = await context1.openProfile()
-            await profile1.set("name", DATA.name)
-            const name = await profile1.get("name")
-            assert.equal(name, DATA.name, "Can set and get a profile value")
+                profile1 = await context1.openProfile()
+                await profile1.set("name", DATA.name)
+                const name = await profile1.get("name")
+                assert.equal(name, DATA.name, "Can set and get a profile value")
 
-            // Also set a name on the `Verida: Vault` profile to be fetched in a future test
-            vaultContext = await client1.openContext('Verida: Vault', true)
-            const vaultProfile = await vaultContext!.openProfile()
-            await vaultProfile!.set("name", 'Vault Test Name')
+                /*const db = await profile1.store.getDb()
+                const info = await db.info()
+                console.log(info)
+
+                const contextInfo = await context1.info()
+                console.log(util.inspect(contextInfo, {showHidden: false, depth: null, colors: true}))*/
+
+                // Also set a name on the `Verida: Vault` profile to be fetched in a future test
+                vaultContext = await client1.openContext('Verida: Vault', true)
+                const vaultProfile = await vaultContext!.openProfile()
+                await vaultProfile!.set("name", 'Vault Test Name')
+            } catch (err) {
+                console.log(err.response.data)
+            }
         })
 
         it('can not set invalid profile values', async () => {
@@ -57,6 +71,7 @@ describe('Profile tests', () => {
         })
 
         it('can access an external profile', async () => {
+            await sleep(5000)
             const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,

@@ -74,11 +74,9 @@ class StorageEngineVerida extends BaseStorageEngine {
           throw new Error()
         }
 
-        //console.log(`primaryEndpointUri: ${primaryEndpointUri} for ${this.storageContext} / ${this.accountDid}`)
         return endpoints[primaryEndpointUri]
       } catch (err) {
         // endpoint is not available, so set it to fail
-        //console.log(`endpoint unavailable`, primaryEndpointUri)
         this.emit('EndpointUnavailable', primaryEndpointUri)
         failedEndpoints.push(primaryEndpointUri)
         primaryIndex++
@@ -257,10 +255,8 @@ class StorageEngineVerida extends BaseStorageEngine {
       // If we have an account we would have already attepmted to connect to the storage node
       // and removed it if it was unavailable, so don't need to check the endpoint status
       endpoint = await this.locateAvailableEndpoint(endpoints, this.account ? true : false)
-      //console.log('not owner', endpoint.toString())
     } else {
       endpoint = await this.getActiveEndpoint()
-      //console.log('owner', endpoint.toString())
     }
 
     // force read only access if the current user doesn't have write access

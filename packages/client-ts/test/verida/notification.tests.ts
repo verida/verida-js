@@ -167,11 +167,11 @@ describe('Verida notification tests', () => {
             // As such, this is commented out
             //assert.ok(errors.length == 0, 'No ping errors')
         })
-    })
 
-    after(async () => {
-        await context.close()
-        await context2.close()
+        after(async () => {
+            await context.close()
+            await context2.close()
+        })
     })
 
 })
