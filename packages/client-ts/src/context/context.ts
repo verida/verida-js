@@ -396,7 +396,6 @@ class Context extends EventEmitter {
     }
 
     const databaseEngine = await this.getDatabaseEngine(did);
-    
     const database = await databaseEngine.openDatabase(databaseName, config);
 
     // Maintain an array of database instances so they can be closed

@@ -124,7 +124,7 @@ export default class Endpoint extends EventEmitter {
             if (isOwner) {
                 await this.storageEngine.createDb(databaseName, did, permissions)
             } else {
-                throw new Error(`Database not found: ${err.message}`);
+                throw new Error(`Database (${databaseName} / ${databaseHash}) not found on ${this.endpointUri}: ${err.message}`);
             }
         }
 
@@ -239,9 +239,10 @@ export default class Endpoint extends EventEmitter {
 
     public async checkReplication(databaseName?: string) {
         try {
-            return this.client.checkReplication(databaseName);
+            return await this.client.checkReplication(databaseName);
         } catch (err: any) {
             const message = err.response ? err.response.data.message : err.message
+            //console.log(`Replication checks failed on ${this.endpointUri}: ${message}`)
             this.storageEngine.emit('EndpointWarning',`Replication checks failed on ${this.endpointUri}: ${message}`)
         }
     }

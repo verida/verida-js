@@ -244,7 +244,7 @@ class EncryptedDatabase extends BaseDb {
       permissions: this.permissions,
     };
 
-    await this.endpoint.updateDatabase(this.did, this.databaseName, options);
+    await this.engine.updateDatabase(this.did, this.databaseName, options);
 
     if (this.config.saveDatabase !== false) {
       await this.engine.getDbRegistry().saveDb(this);
