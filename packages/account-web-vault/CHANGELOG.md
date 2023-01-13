@@ -1,3 +1,11 @@
+2022-01-13 (v2.0.0)
+-------------------
+
+- Support wallet connect configuration
+- Support ignoring an existing session
+- Support updated account dependencies
+- Support multiple endpoints for contexts
+- Support getting auth context directly
 
 2022-05-27 (v1.1.12)
 -------------------

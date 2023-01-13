@@ -1,3 +1,10 @@
+2022-01-13 (v2.0.0)
+-------------------
+
+- Support blockchain based DID lookup
+- Support blockchain read/write via native web3 or via Verida meta transaction server (via `@verida/web3-client`)
+- Support URL based DID document retrieval
+- Support multiple service endpoints
 
 2022-03-10 (v0.1.8)
 -------------------

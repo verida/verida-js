@@ -1,3 +1,7 @@
+2022-01-13 (v2.0.0)
+-------------------
+
+- Improve support for JSON data so it can be verified on-chain
 
 2022-03-10 (v1.1.3)
 -------------------
