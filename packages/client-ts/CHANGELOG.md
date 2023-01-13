@@ -11,7 +11,6 @@
 - Support blockchain enabled Verida DID Method
 - Support getting context information
 - Support getting database information
-- Support database deletion
 - Cleanup config to remove deprecated default options
 - Support caching auth contexts
 - Support context events (`EndpointUnavailable`, `EndpointWarning`)
