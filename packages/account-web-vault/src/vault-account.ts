@@ -1,8 +1,7 @@
-import { Account, VeridaDatabaseAuthContext, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, AccountConfig } from '@verida/account'
+import { Account, VeridaDatabaseAuthContext, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, AccountConfig, EnvironmentType } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
-import { ServiceEndpoint } from 'did-resolver'
 
 import Axios from "axios";
 const jwt = require('jsonwebtoken');
@@ -15,9 +14,13 @@ const VERIDA_AUTH_TOKEN_QUERY_KEY = '_verida_auth'
 
 import { VaultAccountConfig } from "./interfaces"
 
-const CONFIG_DEFAULTS = {
-    loginUri: 'https://vault.verida.io/request',
-    serverUri: 'wss://auth-server.testnet.verida.io:7002',
+const CONFIG_DEFAULTS: Record<EnvironmentType, VaultAccountConfig> = {
+    local: {},
+    mainnet: {},
+    testnet: {
+        loginUri: 'https://vault.verida.io/request',
+        serverUri: `wss://auth.testnet.verida.io`
+    }
 }
 
 /**
@@ -76,6 +79,10 @@ export default class VaultAccount extends Account {
         this.config = config
         this.config.request = this.config.request ? this.config.request : {}
         this.config.request.userAgent = navigator.userAgent
+
+        if (!this.config.environment) {
+            this.config.environment = EnvironmentType.TESTNET
+        }
     }
 
     public async connectContext(contextName: string, ignoreSession: boolean = false) {
@@ -87,6 +94,8 @@ export default class VaultAccount extends Account {
                 return contextConfig
             }
         }
+
+        const CONFIG = CONFIG_DEFAULTS[this.config.environment!]
 
         const promise = new Promise<boolean>((resolve, reject) => {
             const cb = async (response: any, saveSession: boolean) => {
@@ -105,7 +114,7 @@ export default class VaultAccount extends Account {
                 resolve(true)
             }
 
-            const config: VaultAccountConfig = _.merge(CONFIG_DEFAULTS, this.config, {
+            const config: VaultAccountConfig = _.merge(CONFIG, this.config, {
                 callback: cb,
                 callbackRejected: function() {
                     resolve(false)
