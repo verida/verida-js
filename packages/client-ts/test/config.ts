@@ -1,7 +1,7 @@
 import { EnvironmentType } from "@verida/account"
 import { DIDClientConfig } from '@verida/account-node'
 
-const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech/', 'https://node2-apse2.devnet.verida.tech/', 'https://node3-apse2.devnet.verida.tech/']
+const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech:443/', 'https://node2-apse2.devnet.verida.tech:443/', 'https://node3-apse2.devnet.verida.tech:443/']
 
 const DID_ENDPOINTS: string[] = []
 for (let e in ENDPOINTS) {
