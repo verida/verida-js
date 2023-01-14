@@ -3,7 +3,7 @@ import { Account, AuthTypeConfig, AuthContext } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 
 import BaseStorageEngine from "./engines/base";
-import { DatabaseDeleteConfig, EngineType, StorageEngineTypes } from "./interfaces";
+import { ContextCloseOptions, DatabaseCloseOptions, DatabaseDeleteConfig, EngineType, StorageEngineTypes } from "./interfaces";
 import DIDContextManager from "../did-context-manager";
 import { DatabaseEngines } from "../interfaces";
 import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig, ContextInfo } from "./interfaces";
@@ -524,10 +524,13 @@ class Context extends EventEmitter {
    * 
    * Closes all open database connections, returns resources, cancels event listeners
    */
-  public async close(): Promise<void> {
+  public async close(options: ContextCloseOptions = {
+    clearLocal: false
+  }): Promise<void> {
+    // close all the other databases
     for (let d in this.databaseCache) {
       const database = await this.databaseCache[d]
-      await database.close()
+      await database.close(<DatabaseCloseOptions> options)
     }
   }
 

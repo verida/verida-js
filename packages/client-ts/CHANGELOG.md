@@ -16,6 +16,7 @@
 - Support context events (`EndpointUnavailable`, `EndpointWarning`)
 - Support caching context database connections
 - Support closing all open database connections for a context
+- Support deleting databases
 - Support fetching endpoint usage information
 - Migrate away from `dns` based connections to `StorageEndpoint` based connections
 - Extensive updates to unit tests for new functionality

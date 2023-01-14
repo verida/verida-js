@@ -185,7 +185,9 @@ describe('Verida basic database tests', () => {
         })
 
         this.afterAll(async () => {
-            await context1.close()
+            await context1.close({
+                clearLocal: true
+            })
         })
     })
 })

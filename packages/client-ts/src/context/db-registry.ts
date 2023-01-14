@@ -111,7 +111,7 @@ class DbRegistry {
     return true
   }
 
-  public async getMany(filter: any, options: any) {
+  public async getMany(filter: any = {}, options: any = {}) {
     await this.init();
 
     return this.dbStore!.getMany(filter, options);

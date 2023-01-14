@@ -4,7 +4,7 @@ import { v1 as uuidv1 } from "uuid";
 
 import { VeridaDatabaseConfig } from "./interfaces";
 import Database from "../../../database";
-import { DatabaseDeleteConfig, EndpointUsage, PermissionsConfig } from "../../../interfaces";
+import { DatabaseCloseOptions, DatabaseDeleteConfig, EndpointUsage, PermissionsConfig } from "../../../interfaces";
 import Utils from "./utils";
 import { Context } from "../../../..";
 import { DbRegistryEntry } from "../../../db-registry";
@@ -417,7 +417,9 @@ class BaseDb extends EventEmitter implements Database {
     throw new Error("Not implemented");
   }
 
-  public async close() {
+  public async close(options: DatabaseCloseOptions = {
+    clearLocal: false
+  }) {
     try {
       await this.db.close();
       await this.engine.closeDatabase(this.did, this.databaseName)

@@ -16,7 +16,7 @@ import * as PouchDBFindLib from "pouchdb-find";
 const { default: PouchDBFind } = PouchDBFindLib as any;
 
 import * as CryptoPouch from "crypto-pouch";
-import { DatabaseDeleteConfig } from "../../../interfaces";
+import { DatabaseCloseOptions, DatabaseDeleteConfig } from "../../../interfaces";
 
 PouchDBCrypt.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBFind);
@@ -228,7 +228,15 @@ class EncryptedDatabase extends BaseDb {
    *
    * This will remove all event listeners.
    */
-  public async close() {
+  public async close(options: DatabaseCloseOptions) {
+    if (options.clearLocal) {
+      await this.destroy({
+        localOnly: true
+      })
+
+      return
+    }
+
     if (this._sync) {
       this._sync.cancel();
     }
@@ -248,13 +256,14 @@ class EncryptedDatabase extends BaseDb {
     this._sync = null;
     this._syncError = null;
     await this.engine.closeDatabase(this.did, this.databaseName)
+    this.emit('closed', this.databaseName)
   }
 
   public async destroy(options: DatabaseDeleteConfig = {
     localOnly: false
   }): Promise<void> {
     // Need to ensure any database sync to remote server has completed
-    if (this._syncStatus != 'paused') {
+    if (this._sync && this._syncStatus != 'paused') {
       const instance = this
       // Create a promise that resolves when the sync status returns to `paused`
       const promise: Promise<void> = new Promise((resolve) => {
@@ -283,7 +292,9 @@ class EncryptedDatabase extends BaseDb {
         await this.engine.deleteDatabase(this.databaseName)
       }
      
-      await this.close()
+      await this.close({
+        clearLocal: false
+      })
     } catch (err) {
       console.error(err)
     }
