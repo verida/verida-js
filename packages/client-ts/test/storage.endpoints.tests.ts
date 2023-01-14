@@ -32,13 +32,8 @@ const DEFAULT_ENDPOINTS = {
     },
 }
 
-// @TODO: Create new DID
-//const wallet = Wallet.createRandom()
-//const address = wallet.address.toLowerCase()
-//const did = `did:vda:testnet:${address}`
-
 /**
- * 
+ * These tests are skipped because they are designed to be run against a local set of storage nodes
  */
 describe.skip('Storage endpoint tests', () => {
     let didClient, context
