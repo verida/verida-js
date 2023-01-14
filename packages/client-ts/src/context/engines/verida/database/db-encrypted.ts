@@ -265,11 +265,14 @@ class EncryptedDatabase extends BaseDb {
     localOnly: false
   }): Promise<void> {
     // Need to ensure any database sync to remote server has completed
-    if (this._sync && this._syncStatus != 'paused') {
+    if (this._sync && this._syncStatus != 'paused' && this._syncStatus != 'complete') {
       const instance = this
       // Create a promise that resolves when the sync status returns to `paused`
       const promise: Promise<void> = new Promise((resolve) => {
         instance._sync.on('paused', async () => {
+          resolve()
+        })
+        instance._sync.on('complete', async () => {
           resolve()
         })
       })
