@@ -1,6 +1,6 @@
 {
   "name": "@verida/account",
-  "version": "2.0.0-rc7",
+  "version": "2.0.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,8 +17,8 @@
     "node": "^14.0.0"
   },
   "dependencies": {
-    "@verida/keyring": "^2.0.0-rc5",
-    "@verida/storage-link": "^2.0.0-rc6",
+    "@verida/keyring": "^2.0.0",
+    "@verida/storage-link": "^2.0.0",
     "did-jwt": "5.7.0",
     "did-resolver": "^4.0.1",
     "lodash": "^4.17.21",
