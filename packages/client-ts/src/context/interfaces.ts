@@ -71,6 +71,11 @@ export interface DatabaseOpenConfig {
   ignoreCache?: boolean
 }
 
+export interface DatabaseDeleteConfig {
+  // Only delete local copies / caches of databases
+  localOnly?: boolean
+}
+
 // @todo: Same as DatabaseOpenConfig
 
 /**

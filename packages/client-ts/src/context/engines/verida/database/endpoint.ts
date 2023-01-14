@@ -3,7 +3,7 @@ import DatastoreServerClient from './client'
 import { ServiceEndpoint } from 'did-resolver'
 import { Account, AuthContext, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
-import { EndpointUsage, PermissionsConfig } from "../../../interfaces";
+import { DatabaseDeleteConfig, EndpointUsage, PermissionsConfig } from "../../../interfaces";
 import StorageEngineVerida from './engine'
 import Utils from "./utils";
 
@@ -65,6 +65,7 @@ export default class Endpoint extends EventEmitter {
     public async connectDb(did: string, databaseName: string, permissions: PermissionsConfig, isOwner: boolean) {
         const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
         if (this.databases[databaseHash]) {
+            console.log('returning cache from endpoint')
             return this.databases[databaseHash];
         }
 
@@ -130,6 +131,13 @@ export default class Endpoint extends EventEmitter {
 
         this.databases[databaseHash] = db
         return db
+    }
+
+    public async disconnectDatabase(did: string, databaseName: string) {
+        const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
+        if (this.databases[databaseHash]) {
+            delete this.databases[databaseHash]
+        }
     }
 
     /**
@@ -207,23 +215,23 @@ export default class Endpoint extends EventEmitter {
         this.client.setAuthContext(authContext)
     }
 
-    public async createDb(databaseName: string, did: string, permissions: PermissionsConfig) {
+    public async createDb(databaseName: string, permissions: PermissionsConfig) {
         const options = {
             permissions
         };
 
         try {
-            const response = await this.client.createDatabase(did, databaseName, options);
+            await this.client.createDatabase(databaseName, options);
             // There's an odd timing issue that needs a deeper investigation
             await Utils.sleep(1000);
         } catch (err) {
-            throw new Error("User doesn't exist or unable to create user database");
+            throw new Error(`User doesn't exist or unable to create user database (${databaseName})`);
         }
     }
 
-    public async updateDatabase(did: string, databaseName: string, options: any): Promise<void> {
+    public async updateDatabase(databaseName: string, options: any): Promise<void> {
         try {
-            await this.client.updateDatabase(did, databaseName, options)
+            await this.client.updateDatabase(databaseName, options)
         }
         catch (err: any) {
             let message = err.message
@@ -231,7 +239,23 @@ export default class Endpoint extends EventEmitter {
                 message = err.response.data.message
             }
 
-            throw new Error(`Unable to update database configuration: ${message}`);
+            throw new Error(`Unable to update database configuration (${databaseName}): ${message}`);
+        }
+
+        await this.storageEngine.checkReplication()
+    }
+
+    public async deleteDatabase(databaseName: string): Promise<void> {
+        try {
+            await this.client.deleteDatabase(databaseName)
+        }
+        catch (err: any) {
+            let message = err.message
+            if (err.response && err.response.data && err.response.data.message) {
+                message = err.response.data.message
+            }
+
+            throw new Error(`Unable to delete database (${databaseName}): ${message}`);
         }
 
         await this.storageEngine.checkReplication()

@@ -1,7 +1,7 @@
 import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
 import Database from "../../../database";
-import { DatabaseOpenConfig, PermissionsConfig, ContextDatabaseInfo } from "../../../interfaces";
+import { DatabaseOpenConfig, PermissionsConfig, ContextDatabaseInfo, DatabaseDeleteConfig } from "../../../interfaces";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
@@ -29,11 +29,11 @@ class StorageEngineVerida extends BaseStorageEngine {
 
   // @todo: specify device id // deviceId: string="Test device"
   constructor(
-    storageContext: string,
+    context: Context,
     dbRegistry: DbRegistry,
     contextConfig: Interfaces.SecureContextConfig,
   ) {
-    super(storageContext, dbRegistry, contextConfig);
+    super(context, dbRegistry, contextConfig);
 
     const engine = this
     this.endpoints = {}
@@ -135,7 +135,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
       this.endpoints = finalEndpoints
       this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints, false)
-      this.accountDid = await this.account!.did();
+      this.accountDid = (await this.account!.did()).toLowerCase();
       //console.log(`connectAccount(${this.accountDid}): ${(new Date()).getTime()-now}`)
 
       // call checkReplication() to ensure replication is working correctly on all
@@ -427,7 +427,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     const promises = []
     for (let i in this.endpoints) {
       const endpoint = this.endpoints[i]
-      promises.push(endpoint.createDb(databaseName, did, permissions))
+      promises.push(endpoint.createDb(databaseName, permissions))
     }
 
     // No need for await as this can occur in the background?
@@ -441,13 +441,31 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Call updateDb() on all the endpoints
    */
-  public async updateDatabase(did: string, databaseName: string, options: any): Promise<void> {
+  public async updateDatabase(databaseName: string, options: any): Promise<void> {
     //const now = (new Date()).getTime()
     const promises = []
     for (let i in this.endpoints) {
       const endpoint = this.endpoints[i]
-      promises.push(endpoint.updateDatabase(did, databaseName, options))
+      promises.push(endpoint.updateDatabase(databaseName, options))
     }
+
+    // No need for await as this can occur in the background?
+    const result = await Promise.all(promises)
+    //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
+  }
+
+  /**
+   * Call deleteDatabase() on all the endpoints
+   */
+  public async deleteDatabase(databaseName: string): Promise<void> {
+    //const now = (new Date()).getTime()
+    const promises = []
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      promises.push(endpoint.deleteDatabase(databaseName))
+    }
+
+    // delete from database registry
 
     // No need for await as this can occur in the background?
     const result = await Promise.all(promises)
@@ -481,6 +499,17 @@ class StorageEngineVerida extends BaseStorageEngine {
       databases,
       keys
     }
+  }
+
+  public async closeDatabase(did: string, databaseName: string) {
+    // delete from cache
+    await this.context.clearDatabaseCache(did, databaseName)
+
+    for (let e in this.endpoints) {
+      this.endpoints[e].disconnectDatabase(did, databaseName)
+    }
+    
+    // @todo delete from registry
   }
 }
 

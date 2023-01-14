@@ -1,5 +1,6 @@
 import BaseDb from "./base-db";
 import { DbRegistryEntry } from "../../../db-registry";
+import { DatabaseDeleteConfig } from "../../../interfaces";
 
 /**
  * @category
@@ -36,6 +37,19 @@ class PublicDatabase extends BaseDb {
       permissions: this.permissions!,
       endpoint: this.endpoint.toString()
     };
+  }
+
+  public async destroy(options: DatabaseDeleteConfig = {
+    localOnly: false
+  }): Promise<void> {
+    if (options.localOnly) {
+      return
+    }
+    
+    await this.db.destroy()
+
+    await this.engine.deleteDatabase(this.databaseName)
+    await this.close()
   }
 }
 

@@ -16,6 +16,7 @@ import * as PouchDBFindLib from "pouchdb-find";
 const { default: PouchDBFind } = PouchDBFindLib as any;
 
 import * as CryptoPouch from "crypto-pouch";
+import { DatabaseDeleteConfig } from "../../../interfaces";
 
 PouchDBCrypt.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBFind);
@@ -30,6 +31,7 @@ class EncryptedDatabase extends BaseDb {
   protected password?: string;
 
   private _sync: any;
+  private _syncStatus?: string;
   private _localDbEncrypted: any;
   private _localDb: any;
 
@@ -163,6 +165,22 @@ class EncryptedDatabase extends BaseDb {
         return doc._id.indexOf("_design") !== 0;
       },
     })
+      .on("change", function (info: any) {
+        instance._syncStatus = 'change'
+        instance._syncInfo = info
+      })
+      .on("paused", function (err: any) {
+        instance._syncStatus = 'paused'
+        instance._syncInfo = err
+      })
+      .on("active", function () {
+        instance._syncStatus = 'active'
+        instance._syncInfo = undefined
+      })
+      .on("complete", function (info: any) {
+        instance._syncStatus = 'complete'
+        instance._syncInfo = info
+      })
       .on("error", function (err: any) {
         instance._syncError = err;
         console.error(
@@ -229,6 +247,46 @@ class EncryptedDatabase extends BaseDb {
 
     this._sync = null;
     this._syncError = null;
+    await this.engine.closeDatabase(this.did, this.databaseName)
+  }
+
+  public async destroy(options: DatabaseDeleteConfig = {
+    localOnly: false
+  }): Promise<void> {
+    // Need to ensure any database sync to remote server has completed
+    if (this._syncStatus != 'paused') {
+      const instance = this
+      // Create a promise that resolves when the sync status returns to `paused`
+      const promise: Promise<void> = new Promise((resolve) => {
+        instance._sync.on('paused', async () => {
+          resolve()
+        })
+      })
+      
+      // Wait until sync completes
+      await promise
+    }
+
+    // Actually perform database deletion
+    await this._destroy(options)
+  }
+
+  private async _destroy(options: DatabaseDeleteConfig = {
+    localOnly: false
+  }): Promise<void> {
+    try {
+      // Destory the local pouch database (this deletes this._local and this._localDbEncrypted as they share the same underlying data source)
+      await this._localDbEncrypted.destroy()
+
+      if (!options.localOnly) {
+        // Only delete remote database if required
+        await this.engine.deleteDatabase(this.databaseName)
+      }
+     
+      await this.close()
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   public async updateUsers(
@@ -244,7 +302,7 @@ class EncryptedDatabase extends BaseDb {
       permissions: this.permissions,
     };
 
-    await this.engine.updateDatabase(this.did, this.databaseName, options);
+    await this.engine.updateDatabase(this.databaseName, options);
 
     if (this.config.saveDatabase !== false) {
       await this.engine.getDbRegistry().saveDb(this);

@@ -3,7 +3,7 @@ import { Account, AuthTypeConfig, AuthContext } from "@verida/account";
 import { Interfaces } from "@verida/storage-link";
 
 import BaseStorageEngine from "./engines/base";
-import { EngineType, StorageEngineTypes } from "./interfaces";
+import { DatabaseDeleteConfig, EngineType, StorageEngineTypes } from "./interfaces";
 import DIDContextManager from "../did-context-manager";
 import { DatabaseEngines } from "../interfaces";
 import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig, ContextInfo } from "./interfaces";
@@ -60,7 +60,6 @@ class Context extends EventEmitter {
   private dbRegistry: DbRegistry;
 
   private databaseCache: Record<string, Database | Promise<Database>> = {}
-  private externalDatabaseCache: Database[] = []
 
   /**
    * Instantiate a new context.
@@ -158,7 +157,7 @@ class Context extends EventEmitter {
 
     const engine = DATABASE_ENGINES[engineType]; // @todo type cast correctly
     const databaseEngine = new engine(
-      this.contextName,
+      this,
       this.dbRegistry,
       contextConfig
     );
@@ -307,6 +306,8 @@ class Context extends EventEmitter {
       config.did = accountDid;
     }
 
+    config.did = config.did.toLowerCase()
+
     const cacheKey = `${config.did}/${databaseName}`
 
     if (this.databaseCache[cacheKey] && !config.ignoreCache) {
@@ -356,6 +357,12 @@ class Context extends EventEmitter {
     did: string,
     config: DatabaseOpenConfig = {}
   ): Promise<Database> {
+    did = did.toLowerCase()
+    const cacheKey = `${did}/${databaseName}`
+    if (this.databaseCache[cacheKey] && !config.ignoreCache) {
+      return this.databaseCache[cacheKey]
+    }
+
     let contextConfig;
     if (!config.endpoints) {
       contextConfig = await this.getContextConfig(
@@ -398,8 +405,8 @@ class Context extends EventEmitter {
     const databaseEngine = await this.getDatabaseEngine(did);
     const database = await databaseEngine.openDatabase(databaseName, config);
 
-    // Maintain an array of database instances so they can be closed
-    this.externalDatabaseCache.push(database)
+    // Add to cache of databases
+    this.databaseCache[cacheKey] = database
     return database
   }
 
@@ -522,10 +529,12 @@ class Context extends EventEmitter {
       const database = await this.databaseCache[d]
       await database.close()
     }
+  }
 
-    for (let d in this.externalDatabaseCache) {
-      const database = await this.externalDatabaseCache[d]
-      await database.close()
+  public async clearDatabaseCache(did: string, databaseName: string) {
+    const cacheKey = `${did}/${databaseName}`
+    if (this.databaseCache[cacheKey]) {
+      delete this.databaseCache[cacheKey]
     }
   }
 
