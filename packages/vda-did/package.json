@@ -1,0 +1,36 @@
+{
+  "name": "@verida/vda-did",
+  "version": "2.0.0-rc6",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "repository": "https://github.com/verida/verida-js.git",
+  "scripts": {
+    "tests": "ts-mocha './test/**/*.ts'",
+    "test": "ts-mocha --timeout 100000",
+    "copy-files": "copyfiles -u 1 src/**/*.json dist/",
+    "build": "rm -rf dist; tsc && yarn copy-files "
+  },
+  "engines": {
+    "node": "^14.0.0"
+  },
+  "dependencies": {
+    "@verida/did-document": "^2.0.0-rc5",
+    "@verida/encryption-utils": "^2.0.0-rc5",
+    "@verida/vda-did-resolver": "^2.0.0-rc6",
+    "@verida/web3": "^2.0.0-rc5",
+    "axios": "1.2.0-alpha.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.2",
+    "mocha": "7.0.0",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}

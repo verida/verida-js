@@ -11,9 +11,11 @@ export default class NotificationEngineVerida implements BaseNotification {
 
     protected errors: string[] = []
 
-    constructor(context: Context, serverUrl: string) {
+    constructor(context: Context, serverUrl: string[]) {
         this.context = context
-        this.serverUrl = serverUrl.endsWith("/") ? serverUrl : serverUrl + "/";
+        
+        // For now, just use the first server
+        this.serverUrl = <string> (serverUrl[0].endsWith("/") ? serverUrl : serverUrl + "/")
     }
     
     public async init(): Promise<void> {

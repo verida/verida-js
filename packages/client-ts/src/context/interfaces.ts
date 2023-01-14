@@ -17,9 +17,14 @@ export interface DatabaseOpenConfig {
   did?: string;
 
   /**
-   * Specify a specific database connection string to use when opening the database.
+   * Specify an array of possible database connection strings to use when opening the database.
    */
-  dsn?: string;
+  endpoints?: string | string[];
+
+  /**
+   * Specify a JWT token to use when opening the database.
+   */
+  token?: string;
 
   /**
    * Save this database into the user's master list of opened databases.
@@ -59,7 +64,24 @@ export interface DatabaseOpenConfig {
    * Optionally specify the context used to sign data
    */
   signingContext?: Context;
+
+  /**
+   * Ignore any cached instance already created
+   */
+  ignoreCache?: boolean
 }
+
+export interface DatabaseDeleteConfig {
+  // Only delete local copies / caches of databases
+  localOnly?: boolean
+}
+
+export interface ContextCloseOptions {
+  // Clear any local database caches
+  clearLocal?: boolean
+}
+
+export interface DatabaseCloseOptions extends ContextCloseOptions {}
 
 // @todo: Same as DatabaseOpenConfig
 
@@ -93,6 +115,12 @@ export interface StorageEngineTypes {
   [key: string]: any;
 }
 
+export enum EngineType {
+  Database = 'database',
+  Notification = 'notification',
+  Messsaging = 'messaging'
+}
+
 /**
  * Interface for any PermissionsConfig
  */
@@ -117,4 +145,22 @@ export interface MessageSendConfig {
   expiry?: Number;
   recipientContextName?: string;
   openUrl?: string
+}
+
+export interface EndpointUsage {
+  databases: number
+  bytes: number
+  storageLimit: number
+}
+
+export interface ContextDatabaseInfo {
+  name: string
+  activeEndpoint?: string,
+  endpoints: Record<string, object>
+  databases: Record<string, object>
+  keys: any
+}
+
+export interface ContextInfo {
+  databases: ContextDatabaseInfo
 }

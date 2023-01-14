@@ -21,11 +21,33 @@ const keyring = new Keyring(wallet.mnemonic.phrase)
 const endpoints: Endpoints = {
     database: {
         type: EndpointType.DATABASE,
-        endpointUri: 'https://db.testnet.verida.io/1'
+        endpointUri: ['https://db.testnet.verida.io/1']
     },
     messaging: {
         type: EndpointType.MESSAGING,
-        endpointUri: 'https://db.testnet.verida.io/2'
+        endpointUri: ['https://db.testnet.verida.io/2']
+    }
+}
+
+const endpointsMultiple: Endpoints = {
+    database: {
+        type: EndpointType.DATABASE,
+        endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
+    },
+    messaging: {
+        type: EndpointType.MESSAGING,
+        endpointUri: ['https://db.testnet.verida.io/2', 'https://db2.testnet.verida.io/2']
+    }
+}
+
+const endpointsMultiple: Endpoints = {
+    database: {
+        type: EndpointType.DATABASE,
+        endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
+    },
+    messaging: {
+        type: EndpointType.MESSAGING,
+        endpointUri: ['https://db.testnet.verida.io/2', 'https://db2.testnet.verida.io/2']
     }
 }
 
@@ -45,14 +67,14 @@ describe('DID document tests', () => {
 
         it('can add a context', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const data = doc.export()
 
             // Validate service endpoints
-            assert.equal(data.service.length, 2, "Have two service entries")
+            assert.equal(data.service?.length, 2, "Have two service entries")
             function validateServiceEndpoint(type, endpointUri, actual: ServiceEndpoint) {
-                assert.equal(actual.id, `did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694?context=0x2d23fba7467f275904b4bc474c816ff37056ae8436ddfc555747613945034a91#${type}`, "Endpoint ID matches hard coded value")
+                assert.equal(actual.id, `did:vda:0xb194a2809b5b3b8aae350d85233439d32b361694?context=0x2d23fba7467f275904b4bc474c816ff37056ae8436ddfc555747613945034a91&type=${type}`, "Endpoint ID matches hard coded value")
                 assert.equal(actual.type, type, "Type has expected value")
                 assert.equal(actual.serviceEndpoint, endpointUri, "Endpoint has expected value")
             }
@@ -64,7 +86,11 @@ describe('DID document tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
+            assert.equal(data.verificationMethod?.length, 4, "Have four verificationMethod entries")
+
+            // @todo: verify proof
+            const proofVerificationMethod = data.verificationMethod![2]
+            assert.ok((proofVerificationMethod as any).proof && proofVerificationMethod.type == 'EcdsaSecp256k1VerificationKey2019', 'Proof property is set on the signing verification method')
 
             // @todo: validate signing key
 
@@ -75,11 +101,11 @@ describe('DID document tests', () => {
     describe('Document changes', function() {
         it('can add multiple contexts', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-            await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc.addContext(CONTEXT_NAME_2, keyring, wallet.privateKey, endpoints)
 
             const data = doc.export()
-            assert.equal(data.service.length, 4, "Have four service entries")
+            assert.equal(data.service?.length, 4, "Have four service entries")
 
             // Check we have both endpoints for context 1
             const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
@@ -94,17 +120,31 @@ describe('DID document tests', () => {
             assert.ok(endpoint4, "Have messaging endpoint for context 2")
 
             // @todo: validate verification method
-            assert.equal(data.verificationMethod.length, 5, "Have five verificationMethod entries")
+            assert.equal(data.verificationMethod!.length, 6, "Have six verificationMethod entries")
+        })
+
+        it('can add a context with multiple endpoints', async function() {
+            const doc = new DIDDocument(did, wallet.publicKey)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpointsMultiple)
+
+            const data = doc.export()
+            assert.ok(data.service, 'Service exists')
+            assert.equal(data.service!.length, 2, 'Service has four entries')
+            assert.equal(data.service![0].serviceEndpoint.length, 2, 'First service has two endpoints')
+            assert.equal(data.service![1].serviceEndpoint.length, 2, 'Second service has two endpoints')
         })
 
         it('can remove a context', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-            await doc.addContext(CONTEXT_NAME_2, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc.addContext(CONTEXT_NAME_2, keyring, wallet.privateKey, endpoints)
 
             // Confirm we have two contexts
             const data2 = doc.export()
-            assert.equal(data2.service.length, 4, "Have four service entries")
+            assert.equal(data2.service!.length, 4, "Have four service entries after adding a service")
+            assert.equal(data2.verificationMethod!.length, 6, "Have six verificationMethod entries after adding a service")
+            assert.equal(data2.assertionMethod!.length, 6, "Have six assertionMethod entries after adding a service")
+            assert.equal(data2.keyAgreement!.length, 2, 'Have two keyAgreements after adding a service')
 
             // Remove a context
             const success = await doc.removeContext(CONTEXT_NAME)
@@ -112,28 +152,33 @@ describe('DID document tests', () => {
             const data = doc.export()
 
             // Confirm we have the correct number of entries
-            assert.equal(data.service.length, 2, "Have two service entries")
-            assert.equal(data.verificationMethod.length, 3, "Have three verificationMethod entries")
+            assert.equal(data.service!.length, 2, "Have two service entries after removing a service")
+            assert.equal(data.verificationMethod!.length, 4, "Have four verificationMethod entries after removing a service")
+            assert.equal(data.assertionMethod!.length, 4, "Have four assertionMethod entries after removing a service")
+            assert.equal(data.keyAgreement!.length, 1, 'Have two keyAgreements after removing a service')
 
             // @todo deeper validation of signatures and service endpoints
+        })
+
+        it('can replace an existing context, not add again', async function() {
+            const doc = new DIDDocument(did, wallet.publicKey)
+
+            // Add the same context twice in a row
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+
+            const data = doc.export()
+            assert.equal(data.service!.length, 2, "Have two service entries")
+            assert.equal(data.verificationMethod?.length, 4, 'Have four verification methods')
+            assert.equal(data.assertionMethod?.length, 4, 'Have four assertionMethods')
+            assert.equal(data.keyAgreement?.length, 1, 'Have one keyAgreement')
         })
     })
 
     describe('Document signing and verification', function() {
-        it('can sign and verify a proof', async function() {
-            const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
-
-            doc.signProof(wallet.privateKey)
-            assert.ok(doc.verifyProof(), "Proof is valid")
-
-            const data = doc.export()
-            assert.ok(data.proof, "Proof still exists after verification")
-        })
-
         it('can sign and verify any context data', async function() {
             const doc = new DIDDocument(did, wallet.publicKey)
-            await doc.addContext(CONTEXT_NAME, keyring, endpoints)
+            await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
 
             const signData = {
                 hello: 'world'

@@ -6,8 +6,8 @@ import {
   decodeBase64
 } from "tweetnacl-util";
 import { ethers, utils } from 'ethers'
-import util = require("tweetnacl-util");
 import { isHexString } from "ethers/lib/utils";
+JSON.stringify = require('json.sortify')
 
 const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
@@ -108,6 +108,12 @@ export default class EncryptionUtils {
     }
 
     static signData(data: any, privateKeyBytes: Uint8Array) {
+        // Ensure deterministic order of data so signature matches regardless
+        // of the attribute order
+        if (typeof(data) == 'object') {
+            data = JSON.stringify(data)
+        }
+
         const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signingKey = new utils.SigningKey(privateKeyBytes)
         const signature = signingKey.signDigest(messageHashBytes)
@@ -122,6 +128,12 @@ export default class EncryptionUtils {
      * @returns 
      */
     static verifySig(data: any, signature: string, publicKey: string) {
+        // Ensure deterministic order of data so signature matches regardless
+        // of the attribute order
+        if (typeof(data) == 'object') {
+            data = JSON.stringify(data)
+        }
+
         const expectedAddress = utils.computeAddress(publicKey)
         const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signerAddress = utils.recoverAddress(messageHashBytes, signature)

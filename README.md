@@ -67,5 +67,7 @@ Update all the CHANGELOG.md files in each package to include entries for all the
 
 ```
 $ npx lerna run build
-$ npx lerna publish
+$ npx lerna publish --dist-tag next
 ```
+
+Use tag `next` for an upcoming release or `latest` for the latest version.

@@ -3,7 +3,7 @@ import { Account } from "@verida/account";
 import { StorageLink } from "@verida/storage-link";
 
 import { DIDClient } from "@verida/did-client";
-import { DIDDocument } from "@verida/did-document";
+import { DIDDocument, Interfaces as DIDDocInterfaces } from "@verida/did-document";
 import { Interfaces } from "@verida/storage-link";
 
 /**
@@ -34,7 +34,7 @@ class DIDContextManager {
     did: string,
     contextName: string,
     forceCreate: boolean = true
-  ): Promise<Interfaces.SecureContextEndpoint> {
+  ): Promise<DIDDocInterfaces.SecureContextEndpoint> {
     const contextConfig = await this.getDIDContextConfig(
       did,
       contextName,
@@ -47,7 +47,7 @@ class DIDContextManager {
     did: string,
     contextName: string,
     forceCreate: boolean = true
-  ): Promise<Interfaces.SecureContextEndpoint> {
+  ): Promise<DIDDocInterfaces.SecureContextEndpoint> {
     const contextConfig = await this.getDIDContextConfig(
       did,
       contextName,
@@ -64,7 +64,7 @@ class DIDContextManager {
     did: string,
     contextName: string,
     forceCreate: boolean = true
-  ): Promise<Interfaces.SecureContextEndpoint> {
+  ): Promise<DIDDocInterfaces.SecureContextEndpoint> {
     const contextConfig = await this.getDIDContextConfig(
       did,
       contextName,
@@ -117,11 +117,14 @@ class DIDContextManager {
       const accountDid = await this.account.did();
       if (accountDid == did) {
         try {
+          //const now = (new Date()).getTime()
           storageConfig = await this.account.storageConfig(
             contextName,
             forceCreate
           );
-        } catch {
+          //console.log(`getDIDContextConfig(${did}, ${contextName}): ${(new Date()).getTime()-now}`)
+        } catch (err) {
+          console.log(err)
           // account may not support context
           // @todo: create error instance for this specific type of error
         }

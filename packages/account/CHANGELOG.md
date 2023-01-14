@@ -1,3 +1,9 @@
+2022-01-13 (v2.0.0)
+-------------------
+
+- Support multiple endpoints for contexts
+- Support getting auth context directly
+- Support disconnecting a specific device
 
 2022-03-10 (v1.1.9)
 -------------------

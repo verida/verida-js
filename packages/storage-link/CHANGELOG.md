@@ -1,3 +1,8 @@
+2022-01-13 (v2.0.0)
+-------------------
+
+- Support blockchain enabled Verida DID Method
+- Support multiple endpoints per context
 
 2022-03-10 (v1.1.8)
 -------------------

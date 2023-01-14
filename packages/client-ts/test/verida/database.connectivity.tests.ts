@@ -4,6 +4,7 @@ const assert = require('assert')
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
+import { sleep } from '../utils'
 
 const DB_NAME = 'SyncTestDb'
 
@@ -14,22 +15,24 @@ describe('Verida database connectivity tests', () => {
     let context, did1, database
 
     const network = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     let eventsTriggered: any = {}
-    const eventTypes = ['change', 'paused', 'active', 'canceled', 'denied', 'complete', 'error']
+    const eventTypes = ['change', 'paused', 'active', 'complete']
 
     describe('Manage databases for the authenticated user', function() {
-        this.timeout(200000)
+        this.timeout(20*1000)
         
         it('can listen for sync events', async function() {
             // Initialize account 1
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
             await network.connect(account1)
@@ -51,16 +54,10 @@ describe('Verida database connectivity tests', () => {
 
             // Save a record and then fetch all to trigger active, change, paused events
             await database.save({'hello': 'world'})
-            const results = await database.getMany()
+            await database.getMany()
 
             // Timeout for 10 seconds to give events time to fire
-            const promise: Promise<void> = new Promise((resolve, rejects) => {
-                setTimeout(function() {
-                    resolve()
-                }, 10*1000)
-            })
-
-            await promise
+            await sleep(10000)
 
             // Confirm expected events are triggered
             assert.equal(eventsTriggered.active.triggered, true, 'Active event triggered')
@@ -79,16 +76,10 @@ describe('Verida database connectivity tests', () => {
 
             // Save a record and then fetch all to trigger active, change, paused events
             await database.save({'hello': 'world'})
-            const results = await database.getMany()
+            await database.getMany()
 
             // Timeout for 10 seconds to give events time to fire
-            const promise: Promise<void> = new Promise((resolve, rejects) => {
-                setTimeout(function() {
-                    resolve()
-                }, 10*1000)
-            })
-
-            await promise
+            await sleep(10000)
 
             // Confirm expected events are triggered
             assert.equal(eventsTriggered.change.triggered, false, 'Change event not triggered')
@@ -101,8 +92,12 @@ describe('Verida database connectivity tests', () => {
             assert.ok(info.sync, 'Info contains sync info')
             assert.ok(info.sync.pull, 'Info contains sync pull info')
             assert.ok(info.sync.push, 'Info contains sync push info')
-            
-            await database.close()
+        })
+
+        after(async () => {
+            await context.close({
+                clearLocal: true
+            })
         })
     })
 

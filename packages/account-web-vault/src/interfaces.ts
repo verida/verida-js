@@ -1,4 +1,11 @@
+import { EnvironmentType } from '@verida/account'
 import { Interfaces } from '@verida/storage-link'
+
+export interface WalletConnectConfig {
+    version: string,
+    uri: string,
+    chainId: string
+}
 
 export interface VaultAccountRequest {
     logoUrl?: string,       // Optional URL that will be displayed as part of the login process
@@ -8,6 +15,7 @@ export interface VaultAccountRequest {
         uri: string,        // Required, WalletConnect connector URI
         chainId: string     // Required, CAIP compliant chainId
     }
+    userAgent?: string      // User Agent that originated the request
 }
 
 export interface VaultAccountConfig {
@@ -17,6 +25,7 @@ export interface VaultAccountConfig {
     schemeUri?: string,
     deeplinkId?: string,
     request?: VaultAccountRequest,
+    environment?: EnvironmentType,
     callback?(response: AuthResponse): void        // callback function (called when auth response received)
     callbackRejected?(): void   // callback function (called when user rejects / cancels the login by closing the modal)
 }

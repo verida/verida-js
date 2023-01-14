@@ -1,109 +1,133 @@
 import Axios from "axios";
-import { Account } from "@verida/account";
+import { VeridaDatabaseAuthContext } from "@verida/account";
+import { ServiceEndpoint } from 'did-resolver'
+import { EndpointUsage } from '../../../interfaces'
 
 /**
  * Interface for RemoteClientAuthentication
  */
-interface RemoteClientAuthentication {
-  username: string;
-  signature: string;
+export interface ContextAuth {
+  refreshToken: string;
+  accessToken: string;
+  host: string;
 }
 
 /**
  * @category
  * Modules
  */
-class DatastoreServerClient {
-  private serverUrl: string;
+export class DatastoreServerClient {
 
+  private authContext?: VeridaDatabaseAuthContext
   private storageContext: string;
-  private authentication?: RemoteClientAuthentication;
-  private account?: Account;
+  private serviceEndpoint: ServiceEndpoint;
 
-  constructor(storageContext: string, serverUrl: string) {
+  constructor(storageContext: string, serviceEndpoint: ServiceEndpoint, authContext?: VeridaDatabaseAuthContext) {
+    this.authContext = authContext
     this.storageContext = storageContext;
-    this.serverUrl = serverUrl;
+    this.serviceEndpoint = serviceEndpoint
   }
 
-  public async setAccount(account: Account) {
-    this.account = account;
-    const did = await account.did();
-    const keyring = await account.keyring(this.storageContext);
-
-    this.authentication = {
-      username: did.toLowerCase(),
-      signature: keyring.getSeed(),
-    };
-  }
-
-  public async getUser(did: string) {
-    return this.getAxios(true).get(this.serverUrl + "user/get?did=" + did);
+  public async setAuthContext(authContext: VeridaDatabaseAuthContext) {
+    this.authContext = authContext
   }
 
   public async getPublicUser() {
-    return this.getAxios(false).get(this.serverUrl + "user/public");
+    return this.getAxios().get(this.serviceEndpoint + "auth/public");
   }
 
-  public async createUser() {
-    if (!this.account) {
-      throw new Error(
-        "Unable to create storage account. No Verida account connected."
-      );
-    }
-
-    const did = await this.account!.did();
-    return this.getAxios(true).post(this.serverUrl + "user/create", {
-      did: did,
-    });
+  public async getStatus() {
+    return this.getAxios().get(this.serviceEndpoint + "status");
   }
 
   public async createDatabase(
-    did: string,
     databaseName: string,
     config: any = {}
   ) {
-    return this.getAxios(true).post(this.serverUrl + "user/createDatabase", {
-      did: did,
+    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
       databaseName: databaseName,
       options: config,
     });
+  }
+
+  public async checkReplication(
+    databaseName?: string
+  ) {
+    const opts: any = {}
+    if (databaseName) {
+      opts.databaseName = databaseName
+    }
+    return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/checkReplication", opts);
   }
 
   public async updateDatabase(
-    did: string,
     databaseName: string,
     config: any = {}
   ) {
-    return this.getAxios(true).post(this.serverUrl + "user/updateDatabase", {
-      did: did,
+    return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/updateDatabase", {
       databaseName: databaseName,
       options: config,
     });
   }
 
-  private getAxios(includeAuth: boolean) {
+  public async deleteDatabase(
+    databaseName: string
+  ) {
+    return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/deleteDatabase", {
+      databaseName
+  });
+  }
+
+  public async getUsage(): Promise<EndpointUsage> {
+    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/usage");
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get usage info (${result.data.message})`)
+    }
+
+    return <EndpointUsage> result.data.result
+  }
+
+  public async getDatabases() {
+    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databases");
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get database list (${result.data.message})`)
+    }
+
+    return result.data.result
+
+    return 
+  }
+
+  public async getDatabaseInfo(databaseName: string) {
+    const result: any = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databaseInfo", {
+      databaseName
+    });
+
+    if (result.data.status !== 'success') {
+      throw new Error(`${this.serviceEndpoint}: Unable to get database info (${result.data.message})`)
+    }
+
+    return result.data.result
+  }
+
+  private getAxios(accessToken?: string) {
     let config: any = {
       headers: {
         // @todo: Application-Name needs to become Storage-Context
         "Application-Name": this.storageContext,
       },
+      timeout: 5000,
     };
 
-    if (includeAuth) {
-      if (!this.authentication) {
-        throw new Error(
-          "Unable to authenticate as there is no authentication defined"
-        );
-      }
-
-      config["auth"] = {
-        username: this.authentication.username.replace(/:/g, "_"),
-        password: this.authentication.signature,
-      };
+    if (accessToken) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`
     }
 
     return Axios.create(config);
   }
+
 }
 
 export default DatastoreServerClient;

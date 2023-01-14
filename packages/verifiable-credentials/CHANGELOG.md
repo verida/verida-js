@@ -1,3 +1,7 @@
+2022-01-13 (v2.0.0)
+-------------------
+
+- Updates to support break changes as part of v2.0.0 release of the protocol
 
 2022-05-27 (v0.1.6)
 -------------------

@@ -1,90 +1,218 @@
-import Axios from 'axios'
-import { DIDDocument, Interfaces } from "@verida/did-document"
-import Wallet from "./wallet"
+import { DIDDocument } from "@verida/did-document"
 
-export default class DIDClient {
+import { default as VeridaWallet } from "./wallet"
+import { getResolver } from '@verida/vda-did-resolver'
+import { VdaDid, VdaDidEndpointResponses, VeridaWeb3ConfigurationOptions } from '@verida/vda-did'
+import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
+import { ResolverConfigurationOptions } from "@verida/vda-did-resolver"
 
-    private endpointUrl: string
+import { Resolver } from 'did-resolver'
+import { Signer } from '@ethersproject/abstract-signer';
 
-    private privateKey?: Uint8Array
-    private did?: string
-    private wallet?: Wallet
+// Part of VeridaSelfTransactionConfig
+export interface VeridaSelfTransactionConfigPart  {
+    signer?: Signer         // Pre-built transaction signer that is configured to pay for gas
+    privateKey?: string     // MATIC private key that will pay for gas
+}
 
-    constructor(endpointUrl: string) {
-        // Strip any trailing slash
-        this.endpointUrl = endpointUrl.replace(/\/$/,'')
+/**
+ * veridaPrivateKey, callType, web3Config can be provided later by authenticate
+ */
+
+export interface DIDClientConfig {
+    network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
+    rpcUrl?: string                              // blockchain RPC URI to use
+    timeout?: number
+}
+
+export class DIDClient {
+
+    private config: DIDClientConfig
+
+    // vda-did resolver
+    private didResolver: Resolver
+
+    private vdaDid?: VdaDid
+
+    // Verida Wallet Info
+    private veridaWallet: VeridaWallet | undefined
+
+    private defaultEndpoints?: string[]
+
+    private endpointErrors?: VdaDidEndpointResponses
+
+    constructor(config: DIDClientConfig) {
+        this.config = config
+
+        const resolverConfig: ResolverConfigurationOptions = {
+            timeout: config.timeout ? config.timeout : 10000
+        }
+        
+        if (this.config.rpcUrl) {
+            resolverConfig.rpcUrl = this.config.rpcUrl
+        }
+
+        const vdaDidResolver = getResolver(resolverConfig)
+        // @ts-ignore
+        this.didResolver = new Resolver(vdaDidResolver)
     }
 
     /**
-     * Authenticate using a privateKey or seed phrase.
+     * Unlock save() function by providing verida signing key.
      * 
-     * This allows the DIDClient to sign DIDDocuments before saving
-     * 
-     * @param privateKey {string} Hex representation of the private key or a mnemonic
+     * @param veridaPrivateKey Private key of a Verida Account. Used to sign transactions in the DID Registry to verify the request originated from the DID owner / controller
+     * @param callType Blockchain interaction mode. 'web3' | 'gasless'
+     * @param web3Config Web3 configuration. If `web3`, you must provide `privateKey` (MATIC private key that will pay for gas). If `gasless` you must specify `endpointUrl` (URL of the meta transaction server) and any appropriate `serverConfig` and `postConfig`.
      */
-    public authenticate(privateKey: string) {
-        this.wallet = new Wallet(privateKey)
-        this.privateKey = this.wallet.privateKeyBuffer
-        this.did = this.wallet.did
+    public authenticate(
+        veridaPrivateKey: string,
+        callType: CallType,
+        web3Config: VeridaSelfTransactionConfigPart | VeridaMetaTransactionConfig,
+        defaultEndpoints: string[]
+    ) {
+        this.defaultEndpoints = defaultEndpoints
+
+        this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.network)
+
+        // @ts-ignore
+        if (callType == 'gasless' && !web3Config.endpointUrl) {
+            throw new Error('Gasless transactions must specify `web3config.endpointUrl`')
+        }
+
+        // @ts-ignore
+        if (callType == 'web3' && !web3Config.privateKey) {
+            throw new Error('Web3 transactions must specify `web3config.privateKey`')
+        }
+
+        // @ts-ignore
+        let rpcUrl = web3Config.rpcUrl || this.config.rpcUrl
+        if (callType == 'web3' && !rpcUrl) {
+            throw new Error('Web3 transactions must specify `web3config.rpcUrl`')
+        }
+
+        const _web3Config: VeridaWeb3ConfigurationOptions = callType === 'gasless' ?
+            <VeridaMetaTransactionConfig>web3Config :
+            <VeridaSelfTransactionConfig>{
+                ...<VeridaSelfTransactionConfigPart>web3Config,
+                rpcUrl
+            }
+
+        this.vdaDid = new VdaDid({
+            identifier: this.veridaWallet.did,
+            signKey: this.veridaWallet.privateKey,
+            chainNameOrId: this.config.network,
+            callType: callType,
+            web3Options: _web3Config
+        })
     }
 
+    public authenticated(): boolean {
+        return this.veridaWallet !== undefined
+    }
+    
     public getDid(): string | undefined {
-        return this.did
-    }
+        // Add the network into the DID, if not specified
+        if (this.veridaWallet === undefined) {
+            return undefined
+        }
+        
+        if (this.veridaWallet.did.substring(0,10) == 'did:vda:0x') {
+            return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.config.network}:`)
+        }
 
-    public getPublicKey(): string {
-        return this.wallet!.publicKey
+        return this.veridaWallet.did
+    }
+    
+    public getPublicKey(): string | undefined {
+        if (this.veridaWallet !== undefined) {
+            return this.veridaWallet.publicKey
+        }
+
+        return undefined
     }
 
     /**
-     * Save a DID document
+     * Save DIDDocument to the chain
      * 
-     * @param document 
-     * @returns 
+     * @param document Updated DIDDocuent
+     * @returns true if success.
      */
-    public async save(document: DIDDocument): Promise<boolean> {
-        if (!this.privateKey) {
+    public async save(document: DIDDocument): Promise<VdaDidEndpointResponses> {
+        if (!this.authenticated()) {
             throw new Error("Unable to save DIDDocument. No private key.")
         }
 
-        document.signProof(this.privateKey)
-
+        // Fetch the existing doc. This creates a new, empty doc if not found
+        let existingDoc
         try {
-            const response = await Axios.post(`${this.endpointUrl}/commit`, {
-                params: {
-                    document: document.export()
-                }
+            existingDoc = await this.get(document!.id)
+        } catch (err: any) {
+            if (!err.message.match('DID resolution error')) {
+                throw err
+            }
+        }
+
+        let endpointResponse
+        if (!existingDoc) {
+            // Need to create the DID Doc
+            if (!this.defaultEndpoints || this.defaultEndpoints.length === 0) {
+                throw new Error('Default DID Document endpoints not specified')
+            }
+
+            const endpoints = this.defaultEndpoints!.map(item => {
+                return `${item}${document.id}`
             })
 
-            return true
-        } catch (err: any) {
-            if (err.response && typeof err.response.data && err.response.data.status == 'fail') {
-                throw new Error(err.response.data.message)
-            }
-
-            throw err
-        }
-    }
-
-    public async get(did: string): Promise<DIDDocument | undefined> {
-        try {
-            const response: any = await Axios.get(`${this.endpointUrl}/load?did=${did}`);
-            const documentData: Interfaces.DIDDocumentStruct = response.data.data.document
-            const doc = new DIDDocument(documentData)
-
-            return doc
-        } catch (err: any) {
-            if (err.response && typeof err.response.data && err.response.data.status == 'fail') {
-                if (err.response.data.message == `Invalid DID or not found`) {
-                    // Return undefined if not found
-                    return
+            try {
+                endpointResponse = await this.vdaDid!.create(document, endpoints)
+            } catch (err: any) {
+                if (err.message == 'Unable to create DID: All endpoints failed to accept the DID Document') {
+                    this.endpointErrors = this.vdaDid!.getLastEndpointErrors()
                 }
 
-                throw new Error(err.response.data.message)
+                throw err
             }
+        } else {
+            // Doc exists, need to update
+            const doc = document.export()
 
-            throw err
+            document.setAttributes({
+                // Set updated timestamp
+                updated: document.buildTimestamp(new Date()),
+                // Increment version number
+                versionId: doc.versionId + 1
+            })
+
+            try {
+                endpointResponse = await this.vdaDid!.update(document)
+            } catch (err: any) {
+                if (err.message == 'Unable to update DID: All endpoints failed to accept the DID Document') {
+                    this.endpointErrors = this.vdaDid!.getLastEndpointErrors()
+                }
+
+                throw err
+            }
         }
+
+        return endpointResponse
     }
 
+    public getLastEndpointErrors() {
+        return this.endpointErrors
+    }
+
+    /**
+     * Get original document loaded from blockchain. Creates a new document if it didn't exist
+     * 
+     * @returns DID Document instance
+     */
+    public async get(did: string): Promise<DIDDocument> {
+        const resolutionResult = await this.didResolver.resolve(did.toLowerCase())
+
+        if (resolutionResult.didResolutionMetadata && resolutionResult.didResolutionMetadata.error) {
+            throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
+        }
+
+        return <DIDDocument> resolutionResult.didDocument
+    }
 }

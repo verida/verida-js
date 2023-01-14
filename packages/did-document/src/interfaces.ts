@@ -1,20 +1,9 @@
-import { DIDDocument as DD } from 'did-resolver'
+import { DIDDocument as DocInterface, Service, ServiceEndpoint } from 'did-resolver'
 
 export interface SecureContextEndpoint {
     type: string;
-    endpointUri: string;
+    endpointUri: ServiceEndpoint[];
     config?: object;
-}
-
-export interface Proof {
-    type: 'EcdsaSecp256k1VerificationKey2019',
-    verificationMethod: string,
-    proofPurpose: 'assertionMethod'
-    proofValue: string
-}
-
-export interface DIDDocumentStruct extends DD {
-    proof?: Proof
 }
 
 export interface Endpoints {
@@ -29,4 +18,18 @@ export enum EndpointType {
     MESSAGING = 'messaging',
     STORAGE = 'storage',
     NOTIFICATION = 'notification'
+}
+
+export interface ComparisonResult {
+    controller?: string | string[];
+    add: DocInterface;
+    remove: DocInterface;
+}
+
+export enum VerificationMethodTypes {
+    EcdsaSecp256k1VerificationKey2019 = "EcdsaSecp256k1VerificationKey2019",
+    EcdsaSecp256k1RecoveryMethod2020 = "EcdsaSecp256k1RecoveryMethod2020",
+    Ed25519VerificationKey2018 = "Ed25519VerificationKey2018",
+    RSAVerificationKey2018 = "RSAVerificationKey2018",
+    X25519KeyAgreementKey2019 = "X25519KeyAgreementKey2019",
 }

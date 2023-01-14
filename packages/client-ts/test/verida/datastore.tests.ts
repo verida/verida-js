@@ -12,45 +12,44 @@ const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/sche
  * 
  */
 describe('Verida datastore tests', () => {
-    let context, did1
-    let context2, did2
+    let context, account1, did1
+    let context2, account2, did2
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     const network2 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     describe('Manage datastores for the authenticated user', function() {
-        this.timeout(100000)
+        this.timeout(100*1000)
         
         it('can open a datastore with owner/owner permissions', async function() {
             // Initialize account 1
-            const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
 
-            // Initialize account 3
-            const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+            const datastore = await context.openDatastore(DS_CONTACTS, {
+                permissions: {
+                    read: 'users',
+                    write: 'users'
+                }
             })
-            did2 = await account2.did()
-            await network2.connect(account2)
-            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
-
-            const datastore = await context.openDatastore(DS_CONTACTS)
             const result1 = await datastore.save({'hello': 'world'})
             assert.ok(result1 === false, 'Unable to save due to validation error')
 
@@ -66,9 +65,20 @@ describe('Verida datastore tests', () => {
             const row = await datastore.get(result2.id)
             assert.ok(row, 'Able to fetch the inserted row')
             assert.ok(row.firstName == contact.firstName, 'Data matches')
+            await datastore.close({
+                clearLocal: true
+            })
         })
 
         it('can open a datastore with user permissions, as the owner', async function() {
+            // Initialize account 2
+            account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                privateKey: CONFIG.VDA_PRIVATE_KEY_2,
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
+            })
+            did2 = await account2.did()
+
             const datastore = await context.openDatastore(DS_CONTACTS, {
                 permissions: {
                     read: 'users',
@@ -79,8 +89,8 @@ describe('Verida datastore tests', () => {
             const info = await database.info()
             DB_USER_ENCRYPTION_KEY = info.encryptionKey
 
-            // Grant read / write access to DID_3 for future tests relating to read / write of user databases
-            const updateResponse = await datastore.updateUsers([did2], [did2])
+            // Grant read / write access to DID_2 for future tests relating to read / write of user databases
+            await datastore.updateUsers([did2], [did2])
 
             const contact = {
                 firstName: 'Jane',
@@ -92,9 +102,15 @@ describe('Verida datastore tests', () => {
             const data = await datastore.get(result.id)
 
             assert.ok(data.firstName == 'Jane', 'Row has expected value')
+            await database.close({
+                clearLocal: true
+            })
         })
 
         it('can open a datastore with user permissions, as an external user', async function() {
+            await network2.connect(account2)
+            context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
+
             const datastore = await context2.openExternalDatastore(DS_CONTACTS, did1, {
                 permissions: {
                     read: 'users',
@@ -106,6 +122,9 @@ describe('Verida datastore tests', () => {
             const data = await datastore.getMany()
 
             assert.ok(data.length, 'Results returned')
+            await datastore.close({
+                clearLocal: true
+            })
         })
 
         it(`data signatures correctly drop version information from signatures`, async function() {
@@ -138,6 +157,15 @@ describe('Verida datastore tests', () => {
 
                 assert.equal(Object.values(calculatedSig)[0], Object.values(versionlessSig)[0], `Versionless sig for schema "${schemaName}" matches sig for schema "${versionlessSchemaName}"`)
             }
+        })
+
+        after(async () => {
+            await context.close({
+                clearLocal: true
+            })
+            await context2.close({
+                clearLocal: true
+            })
         })
     })
 

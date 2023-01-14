@@ -10,6 +10,8 @@ const DB_NAME_PUBLIC_WRITE = 'ContextPublicWriteTestDb'
 const CONTEXT_1 = "Verida Testing: App 1"
 const CONTEXT_2 = "Verida Testing: App 2"
 
+import { sleep } from '../utils'
+
 /**
  * 
  */
@@ -20,34 +22,39 @@ describe('Verida database tests relating to contexts', () => {
     let db1
 
     const network = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     const network2 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     const network3 = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     describe('Database read / write works across contexts', function() {
-        this.timeout(200000)
+        this.timeout(60 * 1000)
 
         it('can open a database with public write permissions', async function() {
             // Initialize account 1
             const account1 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, [CONTEXT_1])
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONTEXT_1, true)
-            
             const database = db1 = await context.openDatabase(DB_NAME_PUBLIC_WRITE, {
                 permissions: {
                     read: 'public',
@@ -57,6 +64,7 @@ describe('Verida database tests relating to contexts', () => {
 
             const saveResult = await database.save({hello: 'world'})
             rowId = saveResult.id
+            const info = await database.info()
 
             assert.ok(saveResult, 'Have a valid save result')
             const data = await database.get(rowId)
@@ -64,11 +72,14 @@ describe('Verida database tests relating to contexts', () => {
         })
 
         it('can read from an external database from a different context', async function() {
+            console.log('Sleeping so replication can complete')
+            await sleep(5000)
+
             // Initialize account 2
             const account2 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, [CONTEXT_2])
             did2 = await account2.did()
             await network2.connect(account2)
@@ -103,11 +114,21 @@ describe('Verida database tests relating to contexts', () => {
             assert.ok(data, 'Fetched saved record')
             assert.ok(data.write == 'from external DID', 'Result has expected value')
 
+            console.log('Sleeping so replication can complete')
+            await sleep(5000)
+
             // Confirm the original database opened by DID1 & CONTEXT1 can access the saved row
             const originalDbRow = await db1.get(result.id)
             assert.ok(originalDbRow && originalDbRow.write == 'from external DID', 'Result has expected value')
         })
-        
     })
 
+    after(async () => {
+        await context.close({
+            clearLocal: true
+        })
+        await context2.close({
+            clearLocal: true
+        })
+    })
 })

@@ -1,7 +1,7 @@
 import { encodeBase64 } from 'tweetnacl-util';
 import { ES256KSigner } from 'did-jwt';
 import { Resolver } from 'did-resolver';
-import vdaResolver from '@verida/did-resolver';
+import { getResolver, ResolverConfigurationOptions } from '@verida/vda-did-resolver';
 import {
 	createVerifiableCredentialJwt,
 	createVerifiablePresentationJwt,
@@ -10,7 +10,7 @@ import {
 	JwtCredentialPayload,
 	Issuer,
 } from 'did-jwt-vc';
-import { Context, EnvironmentType } from '@verida/client-ts';
+import { Context } from '@verida/client-ts';
 import { CreateCredentialJWT } from './interfaces';
 
 const dayjs = require('dayjs')
@@ -85,8 +85,8 @@ export default class Credentials {
 	 * @param {string} vpJwt
 	 * @param {string} didRegistryEndpoint
 	 */
-	static async verifyPresentation(vpJwt: string, environment: EnvironmentType): Promise<any> {
-		const resolver = Credentials.getResolver(environment);
+	static async verifyPresentation(vpJwt: string, resolverConfig: ResolverConfigurationOptions): Promise<any> {
+		const resolver = Credentials.getResolver(resolverConfig);
 		return verifyPresentation(vpJwt, resolver);
 	}
 
@@ -97,9 +97,11 @@ export default class Credentials {
 	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string, environment: EnvironmentType, currentDateTime?: string): Promise<any> {
-		const resolver = Credentials.getResolver(environment);
+	async verifyCredential(vcJwt: string, resolverConfig: ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
+		this.errors = []
+		const resolver = Credentials.getResolver(resolverConfig);
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
+
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
 			const vc = payload.vc
@@ -241,8 +243,9 @@ export default class Credentials {
 		return data
 	}
 
-	private static getResolver(environment: EnvironmentType): any {
-		const resolver = vdaResolver.getResolver(environment);
+	private static getResolver(resolverConfig: ResolverConfigurationOptions): any {
+		const resolver = getResolver(resolverConfig);
+		// @ts-ignore
 		return new Resolver(resolver);
 	}
 

@@ -1,116 +1,154 @@
 import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
 import Database from "../../../database";
-import { DatabaseOpenConfig } from "../../../interfaces";
-import DatastoreServerClient from "./client";
+import { DatabaseOpenConfig, PermissionsConfig, ContextDatabaseInfo, DatabaseDeleteConfig } from "../../../interfaces";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
+import { Interfaces } from "@verida/storage-link";
+import Context from '../../../context';
+import Endpoint from "./endpoint";
+import { getRandomInt } from "../../../utils";
 
 const _ = require("lodash");
 
 /**
- * @category
- * Modules
+ * @todo
+ * 
+ * base -> database (new wrapper with same interface, handles sync between endpoints, exposes a single endpoint database) -> endpoints (old database with client and public database suport)
+ */
+
+/**
+ * @emits EndpointUnavailable
+ * @emits EndpointWarning
  */
 class StorageEngineVerida extends BaseStorageEngine {
-  private client: DatastoreServerClient;
-
-  private publicCredentials: any; // @todo
-
   private accountDid?: string;
-  private dsn?: string;
+  private endpoints: Record<string, Endpoint>
+  private activeEndpoint?: Endpoint
 
-  // @todo: dbmanager
+  // @todo: specify device id // deviceId: string="Test device"
   constructor(
-    storageContext: string,
+    context: Context,
     dbRegistry: DbRegistry,
-    endpointUri: string
+    contextConfig: Interfaces.SecureContextConfig,
   ) {
-    super(storageContext, dbRegistry, endpointUri);
-    this.client = new DatastoreServerClient(
-      this.storageContext,
-      this.endpointUri
-    );
+    super(context, dbRegistry, contextConfig);
+
+    const engine = this
+    this.endpoints = {}
+    for (let i in contextConfig.services.databaseServer.endpointUri) {
+      const endpointUri = <string> contextConfig.services.databaseServer.endpointUri[i]
+      this.endpoints[endpointUri] = new Endpoint(this, this.storageContext, this.contextConfig, endpointUri)
+
+      // Catch and re-throw endpoint warnings
+      this.endpoints[endpointUri].on('EndpointWarning', (message) => {
+        engine.emit('EndpointWarning', endpointUri, message)
+      })
+    }
+  }
+
+  private async locateAvailableEndpoint(endpoints: Record<string, Endpoint>, checkStatus = true): Promise<Endpoint> {
+    // Maintain a list of failed endpoints
+    const failedEndpoints = []
+
+    if (Object.keys(endpoints).length == 0) {
+      throw new Error('No endpoints specified')
+    }
+
+    // Randomly choose a "primary" connection
+    let primaryIndex = getRandomInt(0, Object.keys(endpoints).length)
+    let primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
+
+    if (!checkStatus) {
+      return endpoints[primaryEndpointUri]
+    }
+
+    while (failedEndpoints.length < Object.keys(endpoints).length) {
+      // Verify the endpoint is active
+      try {
+        const status = await endpoints[primaryEndpointUri].getStatus()
+        if (status.data.status != 'success') {
+          throw new Error()
+        }
+
+        return endpoints[primaryEndpointUri]
+      } catch (err) {
+        // endpoint is not available, so set it to fail
+        this.emit('EndpointUnavailable', primaryEndpointUri)
+        failedEndpoints.push(primaryEndpointUri)
+        primaryIndex++
+        primaryIndex = primaryIndex % Object.keys(endpoints).length
+      }
+    }
+
+    throw new Error('Unable to locate an available endpoint')
+  }
+
+  /**
+   * Get an active endpoint
+   */
+  public async getActiveEndpoint() {
+    if (this.activeEndpoint) {
+      return this.activeEndpoint
+    }
+
+    this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints)
+    return this.activeEndpoint
+  }
+
+  public getEndpoint(endpintUri: string): Endpoint {
+    return this.endpoints[endpintUri]
+  }
+
+  public getEndpoints(): Record<string, Endpoint> {
+    return this.endpoints
   }
 
   public async connectAccount(account: Account) {
     try {
       await super.connectAccount(account);
 
-      await this.client.setAccount(account);
-      this.accountDid = await this.account!.did();
+      // Authenticate with all endpoints
+      // Do async for increased speed
+      //const now = (new Date()).getTime()
+      const promises = []
+      for (let i in this.endpoints) {
+        const endpoint = this.endpoints[i]
+        promises.push(endpoint.connectAccount(account))
+      }
 
-      // Fetch user details from server
-      let response;
-      try {
-        response = await this.client.getUser(this.accountDid!);
-      } catch (err: any) {
-        if (
-          err.response &&
-          err.response.data.data &&
-          err.response.data.data.did == "Invalid DID specified"
-        ) {
-          // User doesn't exist, so create them
-          response = await this.client.createUser();
-        } else if (err.response && err.response.statusText == "Unauthorized") {
-          throw new Error(
-            "Invalid signature or permission to access DID server"
-          );
+      const results = await Promise.allSettled(promises)
+
+      const finalEndpoints: Record<string, Endpoint> = {}
+      let resultIndex = 0
+      for (let i in this.endpoints) {
+        const endpoint = this.endpoints[i]
+        const result = results[resultIndex++]
+
+        if (result.status == 'fulfilled') {
+          finalEndpoints[i] = endpoint
         } else {
-          // Unknown error
-          throw err;
+          this.emit('EndpointUnavailable', i)
         }
       }
 
-      const user = response.data.user;
-      this.dsn = user.dsn;
-    } catch (err: any) {
-      //console.log(err)
-      // Connecting the account may fail.
-      // For example, the user is connect via `account-web-vault` and doesn't have
-      // a keyring for the context associated with this storage engine
-    }
-  }
+      this.endpoints = finalEndpoints
+      this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints, false)
+      this.accountDid = (await this.account!.did()).toLowerCase();
+      //console.log(`connectAccount(${this.accountDid}): ${(new Date()).getTime()-now}`)
 
-  /**
-   * When connecting to a CouchDB server for an external user, the current user may not
-   * have access to read/write.
-   *
-   * Take the external user's `endpointUri` that points to their CouchDB server. Establish
-   * a connection to the Verida Middleware (DatastoreServerClient) as the current user
-   * (accountDid) and create a new account if required.
-   *
-   * Return the current user's DSN which provides authenticated access to the external
-   * user's CouchDB server for the current user.
-   *
-   * @param endpointUri
-   * @param did
-   * @returns {string}
-   */
-  protected async buildExternalDsn(endpointUri: string): Promise<string> {
-    const client = new DatastoreServerClient(this.storageContext, endpointUri);
-    await client.setAccount(this.account!);
-    let response;
-    try {
-      response = await client.getUser(this.accountDid!);
+      // call checkReplication() to ensure replication is working correctly on all
+      // the endpoints and perform any necessary auto-repair actions
+      // no need to async?
+      this.checkReplication()
     } catch (err: any) {
-      if (
-        err.response &&
-        err.response.data.data &&
-        err.response.data.data.did == "Invalid DID specified"
-      ) {
-        // User doesn't exist, so create on this endpointUri server
-        response = await client.createUser();
-      } else if (err.response && err.response.statusText == "Unauthorized") {
-        throw new Error("Invalid signature or permission to access DID server");
-      } else {
-        // Unknown error
-        throw err;
+      if (err.name == "ContextNotFoundError") {
+        return
       }
-    }
 
-    return response.data.user.dsn;
+      throw err
+    }
   }
 
   /**
@@ -136,8 +174,13 @@ class StorageEngineVerida extends BaseStorageEngine {
       options
     );
 
+    const contextName = config.contextName ? config.contextName : this.storageContext
+
     // Default to user's account did if not specified
-    config.isOwner = config.did == this.accountDid;
+    if (typeof(config.isOwner) == 'undefined') {
+      config.isOwner = config.did == this.accountDid;
+    }
+
     config.saveDatabase = config.isOwner; // always save this database to registry if user is the owner
     let did = config.did!.toLowerCase();
 
@@ -170,9 +213,48 @@ class StorageEngineVerida extends BaseStorageEngine {
       }
     }
 
-    let dsn = config.isOwner ? this.dsn! : config.dsn!;
-    if (!dsn) {
-      throw new Error("Unable to determine DSN for this user and this context");
+    let endpoint: Endpoint
+    if (!config.isOwner) {
+      // Not the owner, so need the endpoints to have been specified in the config
+      if (!config.endpoints) {
+        throw new Error(`Unable to determine endpoints for this user (${did}) and this context (${contextName})`);
+      }
+
+      let endpointUris = <string[]> (typeof(config.endpoints) == 'object' ? config.endpoints : [<string> config.endpoints])
+
+      const endpoints: Record<string, Endpoint> = {}
+      for (let i in endpointUris) {
+        const endpointUri = <string> endpointUris[i]
+        const endpoint = new Endpoint(this, this.storageContext, this.contextConfig, endpointUri)
+
+        // connect account to the endpoint if we are connected
+        // @todo: make async for all endpoints
+        if (this.account) {
+          try {
+            await endpoint.connectAccount(this.account, false)
+            endpoints[endpointUri] = endpoint
+
+            // No need for await as this can occur in the background
+            //endpoint.checkReplication(databaseName)
+          } catch (err: any) {
+            if (err.message.match('Unable to connect')) {
+              // storage node is unavailable, so ignore
+            } else {
+              throw err
+            }
+          }
+        } else {
+          // Unknown if this endpoint is valid, so include it in the pool and the status
+          // will be checked
+          endpoints[endpointUri] = endpoint
+        }
+      }
+
+      // If we have an account we would have already attepmted to connect to the storage node
+      // and removed it if it was unavailable, so don't need to check the endpoint status
+      endpoint = await this.locateAvailableEndpoint(endpoints, this.account ? true : false)
+    } else {
+      endpoint = await this.getActiveEndpoint()
     }
 
     // force read only access if the current user doesn't have write access
@@ -208,17 +290,16 @@ class StorageEngineVerida extends BaseStorageEngine {
         {
           databaseName,
           did,
-          storageContext: this.storageContext,
+          storageContext: contextName,
           signContext: options.signingContext!,
-          dsn,
           permissions: config.permissions,
           readOnly: config.readOnly,
           encryptionKey,
-          client: this.client,
+          endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
-        this.dbRegistry
+        this
       );
 
       await db.init();
@@ -227,8 +308,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       // If we aren't the owner of this database use the public credentials
       // to access this database
       if (!config.isOwner) {
-        const publicCreds = await this.getPublicCredentials();
-        dsn = publicCreds.dsn;
+        await endpoint.setUsePublic()
 
         if (config.permissions!.write != "public") {
           config.readOnly = true;
@@ -238,15 +318,14 @@ class StorageEngineVerida extends BaseStorageEngine {
       const db = new PublicDatabase({
         databaseName,
         did,
-        dsn,
-        storageContext: this.storageContext,
+        storageContext: contextName,
         signContext: options.signingContext!,
         permissions: config.permissions,
         readOnly: config.readOnly,
-        client: this.client,
+        endpoint,
         isOwner: config.isOwner,
         saveDatabase: config.saveDatabase,
-      });
+      }, this);
 
       await db.init();
       return db;
@@ -266,21 +345,6 @@ class StorageEngineVerida extends BaseStorageEngine {
         );
       }
 
-      /**
-       * We could be connecting to:
-       * - A database we own
-       *  - Need to connect using our dsn (this.dsn)
-       * - An database owned by another user
-       *  - Need to connect to the user's database server
-       *  - Need to authenticate as ourselves
-       *  - Need to talk to the db hash for the did that owns the database
-       */
-
-      if (!config.isOwner) {
-        // need to build a complete dsn
-        dsn = await this.buildExternalDsn(config.dsn!);
-      }
-
       const storageContextKey = await this.keyring!.getStorageContextKey(
         databaseName
       );
@@ -292,23 +356,22 @@ class StorageEngineVerida extends BaseStorageEngine {
         {
           databaseName,
           did,
-          storageContext: this.storageContext,
+          storageContext: contextName,
           signContext: options.signingContext!,
-          dsn,
           permissions: config.permissions,
           readOnly: config.readOnly,
           encryptionKey,
-          client: this.client,
+          endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
         },
-        this.dbRegistry
+        this
       );
 
       try {
         await db.init();
       } catch (err: any) {
-        if (err.status == 401 && err.code == 90) {
+        if ((err.status == 401 && err.code == 90) || err.message.match('Permission denied')) {
           throw new Error(
             `Unable to open database. Invalid credentials supplied.`
           );
@@ -323,31 +386,125 @@ class StorageEngineVerida extends BaseStorageEngine {
         "Unable to open database. Invalid permissions configuration."
       );
     }
-
-    // @todo Cache databases so we don't open the same one more than once
-    //let db = new Database(dbName, did, this.appName, this, config);
-
-    /*if (config.saveDatabase && db._originalDb && this.dbManager) {
-            this.dbManager.saveDb(dbName, did, this.appName, config.permissions, db._originalDb.encryptionKey);
-        }*/
   }
 
   public logout() {
     super.logout();
-    this.client = new DatastoreServerClient(
-      this.storageContext,
-      this.endpointUri
-    );
+    
+    for (let i in this.endpoints) {
+      this.endpoints[i].logout()
+    }
   }
 
-  private async getPublicCredentials() {
-    if (this.publicCredentials) {
-      return this.publicCredentials;
+  /**
+   * Call checkReplication() on all the endpoints
+   */
+  public async checkReplication(databaseName?: string) {
+    //const now = (new Date()).getTime()
+    const promises = []
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      promises.push(endpoint.checkReplication(databaseName))
     }
 
-    const response = await this.client.getPublicUser();
-    this.publicCredentials = response.data.user;
-    return this.publicCredentials;
+    // No need for await as this can occur in the background
+    await Promise.all(promises)
+    //console.log(`checkReplication(${databaseName}): ${(new Date()).getTime()-now}`)
+  }
+
+  /**
+   * Call createDb() on all the endpoints
+   */
+  public async createDb(databaseName: string, did: string, permissions: PermissionsConfig) {
+    //const now = (new Date()).getTime()
+    const promises = []
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      promises.push(endpoint.createDb(databaseName, permissions))
+    }
+
+    // No need for await as this can occur in the background?
+    const result = await Promise.all(promises)
+    //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
+
+    // Call check replication to ensure this new database gets replicated across all nodes
+    await this.checkReplication(databaseName)
+  }
+
+  /**
+   * Call updateDb() on all the endpoints
+   */
+  public async updateDatabase(databaseName: string, options: any): Promise<void> {
+    //const now = (new Date()).getTime()
+    const promises = []
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      promises.push(endpoint.updateDatabase(databaseName, options))
+    }
+
+    // No need for await as this can occur in the background?
+    const result = await Promise.all(promises)
+    //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
+  }
+
+  /**
+   * Call deleteDatabase() on all the endpoints
+   */
+  public async deleteDatabase(databaseName: string): Promise<void> {
+    //const now = (new Date()).getTime()
+    const promises = []
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      promises.push(endpoint.deleteDatabase(databaseName))
+    }
+
+    // delete from database registry
+
+    // No need for await as this can occur in the background?
+    const result = await Promise.all(promises)
+    const dbRegistry = this.context.getDbRegistry()
+    await dbRegistry.removeDb(databaseName, this.accountDid!, this.storageContext)
+    //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
+  }
+
+  public async info(): Promise<ContextDatabaseInfo> {
+    const endpoints: any = {}
+    let databases: any = {}
+
+    for (let e in this.endpoints) {
+      const endpoint = this.endpoints[e]
+      const usage = await endpoint.getUsage()
+
+      endpoints[endpoint.toString()] = {
+        endpointUri: endpoint.toString(),
+        usage
+      }
+
+      if (Object.keys(databases).length == 0) {
+        databases = await endpoint.getDatabases()
+      }
+    }
+
+    const keys = await this.keyring!.getKeys()
+
+    return {
+      name: this.storageContext,
+      activeEndpoint: this.activeEndpoint?.toString(),
+      endpoints,
+      databases,
+      keys
+    }
+  }
+
+  public async closeDatabase(did: string, databaseName: string) {
+    // delete from cache
+    await this.context.clearDatabaseCache(did, databaseName)
+
+    for (let e in this.endpoints) {
+      this.endpoints[e].disconnectDatabase(did, databaseName)
+    }
+    
+    // @todo delete from registry
   }
 }
 

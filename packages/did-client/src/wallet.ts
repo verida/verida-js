@@ -9,13 +9,16 @@ export default class Wallet {
     /* @ts-ignore */
     private _privateKey: string
 
-    public constructor(privateKey: string) {
+    private _network: string
+
+    public constructor(privateKey: string, network: string) {
+        this._network = network
         this.load(privateKey)
     }
 
-    public static createRandom() {
+    public static createRandom(network: string = 'testnet') {
         const wallet = EthersWallet.createRandom()
-        return new Wallet(wallet.privateKey)
+        return new Wallet(wallet.privateKey, network)
     }
 
     private load(privateKey: string) {
@@ -26,7 +29,7 @@ export default class Wallet {
             wallet = EthersWallet.fromMnemonic(privateKey)
         }
 
-        this._did = `did:vda:${wallet.address}`
+        this._did = `did:vda:${this._network}:${wallet.address}`
         this._privateKey = wallet.privateKey
         this._publicKey = wallet.publicKey
     }

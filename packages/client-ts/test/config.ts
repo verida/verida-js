@@ -1,22 +1,47 @@
 import { EnvironmentType } from "@verida/account"
+import { DIDClientConfig } from '@verida/account-node'
+
+const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech:443/', 'https://node2-apse2.devnet.verida.tech:443/', 'https://node3-apse2.devnet.verida.tech:443/']
+
+const DID_ENDPOINTS: string[] = []
+for (let e in ENDPOINTS) {
+    DID_ENDPOINTS.push(`${ENDPOINTS[e]}did/`)
+}
 
 export default {
-    DID_SERVER_URL: undefined,// 'http://localhost:5001',
     ENVIRONMENT: EnvironmentType.TESTNET,
-    VDA_PRIVATE_KEY:   '0x78d3b996ec98a9a536efdffbae40e5eaaf117765a587483c69195c9460165c37',
-    VDA_PRIVATE_KEY_2: '0x79d3b996ec98a9a536efdffbae40f5eaaf117765a587483c69195c9460165c37',
-    VDA_PRIVATE_KEY_3: '0x80d3b996ec98a91536efdffbae40f5eaaf117765a587483c69195c9460165c37',
+    VDA_PRIVATE_KEY:   '0x20d3b996ec98a9a536efdffbae10e5eaaf11a765a587483c69195c9460165d38',
+    VDA_PRIVATE_KEY_2: '0x20d3b996ec98a9a536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
+    VDA_PRIVATE_KEY_3: '0x20d3b996ec98a91536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
     CONTEXT_NAME: 'Verida Test: Test Application 1',
-    DATABASE_SERVER: 'https://db.testnet.verida.io:5002/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
-    MESSAGE_SERVER: 'https://db.testnet.verida.io:5002/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
+    DATABASE_SERVER: 'https://acacia-dev1.tn.verida.tech/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
+    MESSAGE_SERVER: 'https://acacia-dev1.tn.verida.tech/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
     DEFAULT_ENDPOINTS: {
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'https://db.testnet.verida.io:5002/'
+            endpointUri: ENDPOINTS
         },
         defaultMessageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'https://db.testnet.verida.io:5002/'
+            endpointUri: ENDPOINTS
+        },
+    },
+    DID_CLIENT_CONFIG: <DIDClientConfig> {
+        callType: 'web3',
+        web3Config: {
+            privateKey: '',
+            rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
+        },
+        didEndpoints: DID_ENDPOINTS
+    },
+    INVALID_ENDPOINTS: {    // endpoints that resolve to non-existant storage node
+        defaultDatabaseServer: {
+            type: 'VeridaDatabase',
+            endpointUri: ['http://192.168.68.128:6000/']
+        },
+        defaultMessageServer: {
+            type: 'VeridaMessage',
+            endpointUri: ['http://192.168.68.128:6000/']
         },
     }
 }

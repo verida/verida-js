@@ -1,7 +1,9 @@
 import { VeridaDatabaseConfig } from "./interfaces";
 import BaseDb from "./base-db";
-import DbRegistry, { DbRegistryEntry } from "../../../db-registry";
+import { DbRegistryEntry } from "../../../db-registry";
+import StorageEngineVerida from "./engine"
 import EncryptionUtils from "@verida/encryption-utils";
+import Utils from "./utils";
 
 import * as PouchDBCryptLib from "pouchdb";
 import * as PouchDBLib from "pouchdb";
@@ -14,12 +16,11 @@ import * as PouchDBFindLib from "pouchdb-find";
 const { default: PouchDBFind } = PouchDBFindLib as any;
 
 import * as CryptoPouch from "crypto-pouch";
+import { DatabaseCloseOptions, DatabaseDeleteConfig } from "../../../interfaces";
 
 PouchDBCrypt.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBFind);
 PouchDBCrypt.plugin(CryptoPouch);
-
-//db = new EncryptedDatabase(databaseName, did, this.dsn!, encryptionKey, config.permissions)
 
 /**
  * @category
@@ -29,28 +30,19 @@ class EncryptedDatabase extends BaseDb {
   protected encryptionKey: Buffer;
   protected password?: string;
 
-  private dbRegistry: DbRegistry;
   private _sync: any;
+  private _syncStatus?: string;
   private _localDbEncrypted: any;
   private _localDb: any;
-  private _remoteDbEncrypted: any;
 
   private _syncError = null;
 
   /**
    *
-   * @param {*} dbName
-   * @param {*} dataserver
-   * @param {string} encryptionKey Uint8Array(32) representing encryption key
-   * @param {*} remoteDsn
-   * @param {*} did
-   * @param {*} permissions
    */
-  //constructor(dbHumanName: string, dbName: string, dataserver: any, encryptionKey: string | Buffer, remoteDsn: string, did: string, permissions: PermissionsConfig) {
-  constructor(config: VeridaDatabaseConfig, dbRegistry: DbRegistry) {
-    super(config);
+  constructor(config: VeridaDatabaseConfig, engine: StorageEngineVerida) {
+    super(config, engine);
 
-    this.dbRegistry = dbRegistry;
     this.encryptionKey = config.encryptionKey!;
 
     // PouchDB sync object
@@ -58,11 +50,13 @@ class EncryptedDatabase extends BaseDb {
   }
 
   public async init() {
-    if (this._localDb) {
+    if (this.db) {
       return;
     }
 
+    const now = (new Date()).getTime()
     await super.init();
+    //console.log(`Db.init-1(${this.databaseName}): ${(new Date()).getTime()-now}`)
 
     this._localDbEncrypted = new PouchDB(this.databaseHash);
     this._localDb = new PouchDBCrypt(this.databaseHash);
@@ -83,39 +77,16 @@ class EncryptedDatabase extends BaseDb {
       // Setting to 1,000 -- Any higher and it takes too long on mobile devices
     });
 
-    this._remoteDbEncrypted = new PouchDB(this.dsn + this.databaseHash, {
-      skip_setup: true,
-    });
-
-    let info;
-    try {
-      info = await this._remoteDbEncrypted.info();
-
-      if (info.error && info.error == "not_found") {
-        // Remote dabase wasn't found, so attempt to create it
-        await this.createDb();
-      }
-    } catch (err: any) {
-      if (err.error && err.error == "not_found") {
-        // Remote database wasn't found, so attempt to create it
-        await this.createDb();
-      }
-
-      throw err;
-    }
-
-    if (info && info.error == "forbidden") {
-      throw new Error(`Permission denied to access remote database.`);
-    }
-
     const databaseName = this.databaseName;
-    const dsn = this.dsn;
+
+    /* @ts-ignore */
     const instance = this;
+    //console.log(`Db.init-2(${databaseName}): ${(new Date()).getTime()-now}`)
 
     // Do a once off sync to ensure the local database pulls all data from remote server
     // before commencing live syncronisation between the two databases
     await this._localDbEncrypted.replicate
-      .from(this._remoteDbEncrypted, {
+      .from(this.db, {
         // Dont sync design docs
         filter: function (doc: any) {
           return doc._id.indexOf("_design") !== 0;
@@ -123,22 +94,22 @@ class EncryptedDatabase extends BaseDb {
       })
       .on("error", function (err: any) {
         console.error(
-          `Unknown error occurred with replication snapshot from remote database: ${databaseName} (${dsn})`
+          `Unknown error occurred with replication snapshot from remote database: ${databaseName}`
         );
         console.error(err);
       })
       .on("denied", function (err: any) {
         console.error(
-          `Permission denied with replication snapshot from remote database: ${databaseName} (${dsn})`
+          `Permission denied with replication snapshot from remote database: ${databaseName})`
         );
         console.error(err);
       })
       .on("complete", function (info: any) {
+        //console.log(`Db.init-3(${databaseName}): ${(new Date()).getTime()-now}`)
         // Commence two-way, continuous, retrivable sync
         instance.sync();
+        //console.log(`Db.init-4(${databaseName}): ${(new Date()).getTime()-now}`)
       });
-
-    this.db = this._localDb;
 
     /**
      * We attempt to fetch some rows from the database.
@@ -148,6 +119,7 @@ class EncryptedDatabase extends BaseDb {
      */
     try {
       await this.getMany();
+      //console.log(`Db.init-5(${databaseName}): ${(new Date()).getTime()-now}`)
     } catch (err: any) {
       // This error message is thrown by the underlying decrypt library if the
       // data can't be decrypted
@@ -156,13 +128,15 @@ class EncryptedDatabase extends BaseDb {
         err.message == "Could not decrypt!"
       ) {
         // Clear the instantiated PouchDb instances and throw a more useful exception
-        this._localDb = this._localDbEncrypted = this._remoteDbEncrypted = null;
+        await this.close()
         throw new Error(`Invalid encryption key supplied`);
       }
 
       // Unknown error, rethrow
       throw err;
     }
+
+    //console.log(`Db.init-Final(${databaseName}): ${(new Date()).getTime()-now}`)
   }
 
   /**
@@ -181,9 +155,8 @@ class EncryptedDatabase extends BaseDb {
 
     const instance = this;
     const databaseName = this.databaseName;
-    const dsn = this.dsn;
 
-    this._sync = PouchDB.sync(this._localDbEncrypted, this._remoteDbEncrypted, {
+    this._sync = PouchDB.sync(this._localDbEncrypted, this.db, {
       live: true,
       retry: true,
       // Dont sync design docs
@@ -191,16 +164,32 @@ class EncryptedDatabase extends BaseDb {
         return doc._id.indexOf("_design") !== 0;
       },
     })
+      .on("change", function (info: any) {
+        instance._syncStatus = 'change'
+        instance._syncInfo = info
+      })
+      .on("paused", function (err: any) {
+        instance._syncStatus = 'paused'
+        instance._syncInfo = err
+      })
+      .on("active", function () {
+        instance._syncStatus = 'active'
+        instance._syncInfo = undefined
+      })
+      .on("complete", function (info: any) {
+        instance._syncStatus = 'complete'
+        instance._syncInfo = info
+      })
       .on("error", function (err: any) {
         instance._syncError = err;
         console.error(
-          `Unknown error occurred syncing with remote database: ${databaseName} (${dsn})`
+          `Unknown error occurred syncing with remote database: ${databaseName}`
         );
         console.error(err);
       })
       .on("denied", function (err: any) {
         console.error(
-          `Permission denied to sync with remote database: ${databaseName} (${dsn})`
+          `Permission denied to sync with remote database: ${databaseName}`
         );
         console.error(err);
       });
@@ -238,12 +227,81 @@ class EncryptedDatabase extends BaseDb {
    *
    * This will remove all event listeners.
    */
-  public async close() {
-    this._sync.cancel();
-    await this._localDbEncrypted.close();
-    await this._remoteDbEncrypted.close();
+  public async close(options: DatabaseCloseOptions = {
+    clearLocal: false
+  }) {
+    if (options.clearLocal) {
+      await this.destroy({
+        localOnly: true
+      })
+
+      return
+    }
+
+    if (this._sync) {
+      this._sync.cancel();
+    }
+
+    try {
+      await this._localDbEncrypted.close();
+    } catch (err) {
+      // may already be closed
+    }
+    
+    try {
+      await this.db.close();
+    } catch (err) {
+      // may already be closed
+    }
+
     this._sync = null;
     this._syncError = null;
+    await this.engine.closeDatabase(this.did, this.databaseName)
+    this.emit('closed', this.databaseName)
+  }
+
+  public async destroy(options: DatabaseDeleteConfig = {
+    localOnly: false
+  }): Promise<void> {
+    // Need to ensure any database sync to remote server has completed
+    if (this._sync && this._syncStatus != 'paused' && this._syncStatus != 'complete') {
+      const instance = this
+      // Create a promise that resolves when the sync status returns to `paused`
+      const promise: Promise<void> = new Promise((resolve) => {
+        instance._sync.on('paused', async () => {
+          resolve()
+        })
+        instance._sync.on('complete', async () => {
+          resolve()
+        })
+      })
+      
+      // Wait until sync completes
+      await promise
+    }
+
+    // Actually perform database deletion
+    await this._destroy(options)
+  }
+
+  private async _destroy(options: DatabaseDeleteConfig = {
+    localOnly: false
+  }): Promise<void> {
+    try {
+      // Destory the local pouch database (this deletes this._local and this._localDbEncrypted as they share the same underlying data source)
+      await this._localDbEncrypted.destroy()
+
+      if (!options.localOnly) {
+        // Only delete remote database if required
+        await this.engine.deleteDatabase(this.databaseName)
+      }
+     
+      await this.close({
+        clearLocal: false
+      })
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   public async updateUsers(
@@ -259,14 +317,10 @@ class EncryptedDatabase extends BaseDb {
       permissions: this.permissions,
     };
 
-    try {
-      this.client.updateDatabase(this.did, this.databaseHash, options);
+    await this.engine.updateDatabase(this.databaseName, options);
 
-      if (this.config.saveDatabase !== false) {
-        await this.dbRegistry.saveDb(this);
-      }
-    } catch (err: any) {
-      throw new Error("User doesn't exist or unable to create user database");
+    if (this.config.saveDatabase !== false) {
+      await this.engine.getDbRegistry().saveDb(this);
     }
   }
 
@@ -278,7 +332,7 @@ class EncryptedDatabase extends BaseDb {
 
   public async getRemoteEncrypted(): Promise<any> {
     await this.init();
-    return this._remoteDbEncrypted;
+    return this.db;
   }
 
   public async getLocalEncrypted(): Promise<any> {
@@ -310,7 +364,7 @@ class EncryptedDatabase extends BaseDb {
       type: "VeridaDatabase",
       privacy: "encrypted",
       did: this.did,
-      dsn: this.dsn,
+      endpoint: this.endpoint.toString(),
       permissions: this.permissions!,
       storageContext: this.storageContext,
       databaseName: this.databaseName,
@@ -336,6 +390,7 @@ class EncryptedDatabase extends BaseDb {
         type: "x25519-xsalsa20-poly1305",
         key: this.password!,
       },
+      endpoint: this.endpoint.toString()
     };
   }
 }

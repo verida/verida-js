@@ -1,4 +1,5 @@
 import { DbRegistryEntry } from "./db-registry";
+import { DatabaseCloseOptions, DatabaseDeleteConfig, EndpointUsage } from './interfaces'
 
 /**
  * Interface for any database returned from a storage engine
@@ -16,5 +17,8 @@ import { DbRegistryEntry } from "./db-registry";
     init(): Promise<void>
     info(): Promise<any>
     registryEntry(): Promise<DbRegistryEntry>
+    close(options: DatabaseCloseOptions): Promise<void>
+    destroy(options: DatabaseDeleteConfig): Promise<void>
+    usage(): Promise<EndpointUsage>
 
 }

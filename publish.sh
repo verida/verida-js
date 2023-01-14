@@ -1,2 +1,3 @@
 npx lerna run build
-npx lerna publish
+# Tag next=upcoming version, latest=current latest version
+npx lerna publish --dist-tag next

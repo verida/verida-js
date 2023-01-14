@@ -5,10 +5,10 @@ import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
 
-const DB_NAME_1 = 'Db_Registry_1'
-const DB_NAME_2 = 'Db_Registry_2'
-const DB_NAME_3 = 'Db_Registry_3'
-const DB_NAME_4 = 'Db_Registry_4'
+const DB_NAME_1 = 'DbRegistry_1'
+const DB_NAME_2 = 'DbRegistry_2'
+const DB_NAME_3 = 'DbRegistry_3'
+const DB_NAME_4 = 'DbRegistry_4'
 
 /**
  * 
@@ -17,8 +17,10 @@ describe('Verida database registry tests', () => {
     let context, did1
 
     const network = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     describe('Manage databases for the authenticated user', function() {
@@ -28,8 +30,8 @@ describe('Verida database registry tests', () => {
             // Initialize account 1
             const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
             await network.connect(account1)
@@ -108,7 +110,11 @@ describe('Verida database registry tests', () => {
             assert.equal(dbRegistryDatabase.dbHash, dbInfo.databaseHash,'Expected database hash')
             assert.equal(dbRegistryDatabase.dbName, dbInfo.databaseName,'Expected database name')
         })
-        
     })
 
+    after(async () => {
+        await context.close({
+            clearLocal: true
+        })
+    })
 })

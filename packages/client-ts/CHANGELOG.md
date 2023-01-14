@@ -1,3 +1,27 @@
+2022-01-13 (v2.0.0)
+-------------------
+
+- Support updated account dependencies
+- Support multiple endpoints for contexts
+- Support CouchDB refresh and access token auth for public and encrypted databases
+- Support authentication retry when access / refresh token expires
+- Support server side replication
+- Support triggering server side replication checks
+- Support disconnecting a specific device
+- Support blockchain enabled Verida DID Method
+- Support getting context information
+- Support getting database information
+- Cleanup config to remove deprecated default options
+- Support caching auth contexts
+- Support context events (`EndpointUnavailable`, `EndpointWarning`)
+- Support caching context database connections
+- Support closing all open database connections for a context
+- Support deleting databases
+- Support fetching endpoint usage information
+- Migrate away from `dns` based connections to `StorageEndpoint` based connections
+- Extensive updates to unit tests for new functionality
+- Add performance tests that provide deeper insight into the latency of important protocol operations
+- Update HTTP status code checks to match changes in storage-node
 
 2022-05-27 (v1.1.15)
 -------------------

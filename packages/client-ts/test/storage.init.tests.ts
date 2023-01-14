@@ -10,7 +10,6 @@ import CONFIG from './config'
 
 import { Wallet } from 'ethers'
 const wallet = Wallet.createRandom()
-const VDA_PRIVATE_KEY = wallet.privateKey
 
 /**
  * WARNING: These tests create a new DID and storage context everytime they run!
@@ -18,11 +17,14 @@ const VDA_PRIVATE_KEY = wallet.privateKey
 describe('Storage initialization tests', () => {
     let didClient, did
     const network = new Client({
-        didServerUrl: CONFIG.DID_SERVER_URL,
-        environment: CONFIG.ENVIRONMENT
+        environment: CONFIG.ENVIRONMENT,
+        didClientConfig: {
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        }
     })
 
     describe('Initialize user storage contexts', function () {
+        this.timeout(100 * 1000)
 
         it('can not force create a user storage context if not authenticated', async function () {
             const promise = new Promise((resolve, rejects) => {
@@ -35,9 +37,9 @@ describe('Storage initialization tests', () => {
 
         it('can authenticate a user', async function () {
             const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                privateKey: VDA_PRIVATE_KEY,
-                didServerUrl: CONFIG.DID_SERVER_URL,
-                environment: CONFIG.ENVIRONMENT
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                environment: CONFIG.ENVIRONMENT,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
 
             didClient = await account.getDidClient()
@@ -55,11 +57,11 @@ describe('Storage initialization tests', () => {
         it(`cant open a user storage context that doesn't exist, even if authenticated`, async function () {
             const promise = new Promise((resolve, rejects) => {
                 // open storage context without forcing it to be opened
-                network.openContext(CONFIG.CONTEXT_NAME, false).then(rejects, resolve)
+                network.openContext('Random, invalid context name', false).then(rejects, resolve)
             })
             const result = await promise
 
-            assert.deepEqual(result, new Error(`Unable to locate requested storage context (${CONFIG.CONTEXT_NAME}) for this DID (${did}) -- Storage context doesn't exist (try force create?)`))
+            assert.deepEqual(result, new Error(`Unable to locate requested storage context (Random, invalid context name) for this DID (${did}) -- Storage context doesn't exist (try force create?)`))
         })
 
         it(`can force open a user storage context that doesn't exist when authenticated`, async function () {
