@@ -31,7 +31,7 @@ describe('Verida datastore tests', () => {
     })
 
     describe('Manage datastores for the authenticated user', function() {
-        this.timeout(100000)
+        this.timeout(100*1000)
         
         it('can open a datastore with owner/owner permissions', async function() {
             // Initialize account 1
@@ -65,6 +65,9 @@ describe('Verida datastore tests', () => {
             const row = await datastore.get(result2.id)
             assert.ok(row, 'Able to fetch the inserted row')
             assert.ok(row.firstName == contact.firstName, 'Data matches')
+            await datastore.close({
+                clearLocal: true
+            })
         })
 
         it('can open a datastore with user permissions, as the owner', async function() {
@@ -99,6 +102,9 @@ describe('Verida datastore tests', () => {
             const data = await datastore.get(result.id)
 
             assert.ok(data.firstName == 'Jane', 'Row has expected value')
+            await database.close({
+                clearLocal: true
+            })
         })
 
         it('can open a datastore with user permissions, as an external user', async function() {
@@ -116,6 +122,9 @@ describe('Verida datastore tests', () => {
             const data = await datastore.getMany()
 
             assert.ok(data.length, 'Results returned')
+            await datastore.close({
+                clearLocal: true
+            })
         })
 
         it(`data signatures correctly drop version information from signatures`, async function() {
@@ -149,14 +158,14 @@ describe('Verida datastore tests', () => {
                 assert.equal(Object.values(calculatedSig)[0], Object.values(versionlessSig)[0], `Versionless sig for schema "${schemaName}" matches sig for schema "${versionlessSchemaName}"`)
             }
         })
-    })
 
-    after(async () => {
-        await context.close({
-            clearLocal: true
-        })
-        await context2.close({
-            clearLocal: true
+        after(async () => {
+            await context.close({
+                clearLocal: true
+            })
+            await context2.close({
+                clearLocal: true
+            })
         })
     })
 

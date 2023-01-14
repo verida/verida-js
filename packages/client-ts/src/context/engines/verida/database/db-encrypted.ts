@@ -129,7 +129,6 @@ class EncryptedDatabase extends BaseDb {
       ) {
         // Clear the instantiated PouchDb instances and throw a more useful exception
         await this.close()
-        this._localDb = this._localDbEncrypted = this.db = null;
         throw new Error(`Invalid encryption key supplied`);
       }
 

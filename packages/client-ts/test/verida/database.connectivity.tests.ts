@@ -22,10 +22,10 @@ describe('Verida database connectivity tests', () => {
     })
 
     let eventsTriggered: any = {}
-    const eventTypes = ['change', 'paused', 'active', 'canceled', 'denied', 'complete', 'error']
+    const eventTypes = ['change', 'paused', 'active', 'complete']
 
     describe('Manage databases for the authenticated user', function() {
-        this.timeout(200000)
+        this.timeout(20*1000)
         
         it('can listen for sync events', async function() {
             // Initialize account 1
@@ -93,11 +93,11 @@ describe('Verida database connectivity tests', () => {
             assert.ok(info.sync.pull, 'Info contains sync pull info')
             assert.ok(info.sync.push, 'Info contains sync push info')
         })
-    })
 
-    after(async () => {
-        await context.close({
-            clearLocal: true
+        after(async () => {
+            await context.close({
+                clearLocal: true
+            })
         })
     })
 
