@@ -1,5 +1,5 @@
 const _ = require("lodash");
-import { DatabaseOpenConfig, DatastoreOpenConfig } from "./interfaces";
+import { DatabaseCloseOptions, DatabaseOpenConfig, DatastoreOpenConfig } from "./interfaces";
 import Context from "./context";
 import Schema from "./schema";
 
@@ -259,6 +259,13 @@ class Datastore {
   ): Promise<void> {
     await this.init();
     await this.db.updateUsers(readList, writeList);
+  }
+
+  public async close(options: DatabaseCloseOptions = {
+    clearLocal: false
+  }) {
+    const db = await this.getDb()
+    await db.close(options)
   }
 }
 
