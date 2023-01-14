@@ -169,8 +169,12 @@ describe('Verida notification tests', () => {
         })
 
         after(async () => {
-            await context.close()
-            await context2.close()
+            await context.close({
+                clearLocal: true
+            })
+            await context2.close({
+                clearLocal: true
+            })
         })
     })
 

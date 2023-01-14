@@ -228,7 +228,9 @@ class EncryptedDatabase extends BaseDb {
    *
    * This will remove all event listeners.
    */
-  public async close(options: DatabaseCloseOptions) {
+  public async close(options: DatabaseCloseOptions = {
+    clearLocal: false
+  }) {
     if (options.clearLocal) {
       await this.destroy({
         localOnly: true

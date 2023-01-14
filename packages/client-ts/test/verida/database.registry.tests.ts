@@ -113,6 +113,8 @@ describe('Verida database registry tests', () => {
     })
 
     after(async () => {
-        await context.close()
+        await context.close({
+            clearLocal: true
+        })
     })
 })

@@ -96,7 +96,9 @@ describe('Verida database connectivity tests', () => {
     })
 
     after(async () => {
-        await context.close()
+        await context.close({
+            clearLocal: true
+        })
     })
 
 })

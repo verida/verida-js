@@ -150,8 +150,14 @@ describe.skip('Performance tests', () => {
     })
 
     after(async () => {
-        await context1.close()
-        await context2.close()
-        await context3.close()
+        await context1.close({
+            clearLocal: true
+        })
+        await context2.close({
+            clearLocal: true
+        })
+        await context3.close({
+            clearLocal: true
+        })
     })
 })

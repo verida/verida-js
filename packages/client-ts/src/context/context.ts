@@ -308,7 +308,7 @@ class Context extends EventEmitter {
 
     config.did = config.did.toLowerCase()
 
-    const cacheKey = `${config.did}/${databaseName}`
+    const cacheKey = `${config.did}/${databaseName}/internal`
 
     if (this.databaseCache[cacheKey] && !config.ignoreCache) {
       return this.databaseCache[cacheKey]
@@ -326,7 +326,6 @@ class Context extends EventEmitter {
         if (!config.signingContext) {
           config.signingContext = instance;
         }
-    
         const database = await databaseEngine.openDatabase(databaseName, config);
         if (config.saveDatabase !== false) {
           await instance.dbRegistry.saveDb(database, false);
@@ -358,7 +357,7 @@ class Context extends EventEmitter {
     config: DatabaseOpenConfig = {}
   ): Promise<Database> {
     did = did.toLowerCase()
-    const cacheKey = `${did}/${databaseName}`
+    const cacheKey = `${did}/${databaseName}/external`
     if (this.databaseCache[cacheKey] && !config.ignoreCache) {
       return this.databaseCache[cacheKey]
     }
@@ -399,7 +398,7 @@ class Context extends EventEmitter {
       );
       config.signingContext = this;
 
-      return context!.openDatabase(databaseName, config);
+      return await context!.openDatabase(databaseName, config);
     }
 
     const databaseEngine = await this.getDatabaseEngine(did);
@@ -535,9 +534,12 @@ class Context extends EventEmitter {
   }
 
   public async clearDatabaseCache(did: string, databaseName: string) {
-    const cacheKey = `${did}/${databaseName}`
-    if (this.databaseCache[cacheKey]) {
-      delete this.databaseCache[cacheKey]
+    const types = ['internal', 'external']
+    for (let t in types) {
+      const cacheKey = `${did.toLowerCase()}/${databaseName}/${types[t]}`
+      if (this.databaseCache[cacheKey]) {
+        delete this.databaseCache[cacheKey]
+      }
     }
   }
 

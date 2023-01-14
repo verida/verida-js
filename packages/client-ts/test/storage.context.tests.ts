@@ -84,6 +84,8 @@ describe('Storage context tests', () => {
     })
 
     after(async () => {
-        await context.close()
+        await context.close({
+            clearLocal: true
+        })
     })
 })

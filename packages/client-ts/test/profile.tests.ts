@@ -142,9 +142,15 @@ describe('Profile tests', () => {
     });
 
     after(async () => {
-        await context1.close()
-        await context2.close()
-        await vaultContext.close()
+        await context1.close({
+            clearLocal: true
+        })
+        await context2.close({
+            clearLocal: true
+        })
+        await vaultContext.close({
+            clearLocal: true
+        })
     })
 
     // @todo: add tests for private profiles

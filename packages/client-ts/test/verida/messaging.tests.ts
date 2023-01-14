@@ -194,10 +194,18 @@ describe('Verida messaging tests', () => {
     after(async () => {
         try {
             // @todo: get this to work so tests don't hang. there may be an issue in messaging (test #2 always causes hang)
-            await context1.close()
-            await context2.close()
-            await context3.close()
-            await newContext.close()
+            await context1.close({
+                clearLocal: true
+            })
+            await context2.close({
+                clearLocal: true
+            })
+            await context3.close({
+                clearLocal: true
+            })
+            await newContext.close({
+                clearLocal: true
+            })
         } catch (err) {}
     })
 

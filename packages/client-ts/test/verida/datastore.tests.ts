@@ -152,8 +152,12 @@ describe('Verida datastore tests', () => {
     })
 
     after(async () => {
-        await context.close()
-        await context2.close()
+        await context.close({
+            clearLocal: true
+        })
+        await context2.close({
+            clearLocal: true
+        })
     })
 
     // @todo need a way to know which users that have access to a particular database

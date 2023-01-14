@@ -371,7 +371,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       try {
         await db.init();
       } catch (err: any) {
-        if (err.status == 401 && err.code == 90) {
+        if ((err.status == 401 && err.code == 90) || err.message.match('Permission denied')) {
           throw new Error(
             `Unable to open database. Invalid credentials supplied.`
           );

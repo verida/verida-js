@@ -316,7 +316,7 @@ describe('Verida database tests', () => {
             })
 
             const result: any = await promise
-            assert.ok(result.message.match('Permission denied'))
+            assert.ok(result.message.match('Unable to open database'))
         })
 
         it(`can't write an external database with write=users and user no access`, async function() {
@@ -331,10 +331,12 @@ describe('Verida database tests', () => {
             })
 
             const result: any = await promise
-            assert.ok(result.message.match('Permission denied'))
+            assert.ok(result.message.match('Unable to open database'))
         })
 
         it(`can't open an external users database without an encryption key`, async function() {
+            // Clear the cache, so we don't load previously opened external database
+            await context3.clearDatabaseCache(did1, DB_NAME_USER)
             const promise = new Promise((resolve, rejects) => {
                 context3.openExternalDatabase(DB_NAME_USER, did1, {
                     permissions: {
@@ -344,8 +346,8 @@ describe('Verida database tests', () => {
                 }).then(rejects, resolve)
             })
 
-            const result = await promise
-            assert.deepEqual(result, new Error('Unable to open external database. No encryption key in config.'))
+            const result: any = await promise
+            assert.ok(result.message.match('Unable to open external database'))
         })
 
         it(`can't open an external users database with the wrong encryption key`, async function() {
@@ -359,8 +361,8 @@ describe('Verida database tests', () => {
                 }).then(rejects, resolve)
             })
 
-            const result = await promise
-            assert.deepEqual(result, new Error('Invalid encryption key supplied'))
+            const result: any = await promise
+            assert.ok(result.message.match('Invalid encryption key supplied'))
         })
 
         it(`can't write an external database where a did has read access, but not write access`, async () => {
@@ -397,8 +399,14 @@ describe('Verida database tests', () => {
     })
 
     after(async () => {
-        await context.close()
-        await context2.close()
-        await context3.close()
+        await context.close({
+            clearLocal: true
+        })
+        await context2.close({
+            clearLocal: true
+        })
+        await context3.close({
+            clearLocal: true
+        })
     })
 })
