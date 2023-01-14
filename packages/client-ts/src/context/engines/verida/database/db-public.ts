@@ -45,8 +45,6 @@ class PublicDatabase extends BaseDb {
     if (options.localOnly) {
       return
     }
-    
-    await this.db.destroy()
 
     await this.engine.deleteDatabase(this.databaseName)
     await this.close()

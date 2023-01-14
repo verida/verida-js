@@ -6,6 +6,7 @@ import CONFIG from '../config'
 import { assertIsValidDbResponse, sleep } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerBasicTestDb'
+const DB_NAME_PUBLIC = 'PublicBasicTestDb'
 
 /**
  * 
@@ -20,8 +21,8 @@ describe('Verida basic database tests', () => {
         }
     })
 
-    describe('Manage databases for the authenticated user', function() {
-        this.timeout(200000)
+    describe('Basic tests', function() {
+        this.timeout(100000)
         
         it('can open a database with owner/owner permissions', async function() {
             // Initialize account 1
@@ -35,7 +36,7 @@ describe('Verida basic database tests', () => {
             context1 = await network.openContext(CONFIG.CONTEXT_NAME, true)
 
             const database = await context1.openDatabase(DB_NAME_OWNER, {
-                saveDatabase: false
+                saveDatabase: true
             })
 
             await database.save({'hello': 'world'})
@@ -48,7 +49,7 @@ describe('Verida basic database tests', () => {
         it('can delete an encrypted database', async () => {
             // Open the database
             let database = await context1.openDatabase(DB_NAME_OWNER, {
-                saveDatabase: false
+                saveDatabase: true
             })
 
             // Get the total number of rows
@@ -63,7 +64,7 @@ describe('Verida basic database tests', () => {
 
             // Re-open the database
             database = await context1.openDatabase(DB_NAME_OWNER, {
-                saveDatabase: false
+                saveDatabase: true
             })
 
             // Get the total number of rows
@@ -78,9 +79,25 @@ describe('Verida basic database tests', () => {
                 localOnly: false
             })
 
+            // Check database has been removed from the database registry
+            const dbRegistry = context1.getDbRegistry()
+            let dbRemoved
+            try {
+                const record = await dbRegistry.get(DB_NAME_OWNER, did1, CONFIG.CONTEXT_NAME)
+                dbRemoved = false
+            } catch (err) {
+                if (err.reason == 'deleted') {
+                    dbRemoved = true
+                } else {
+                    assert.fail(err.message)
+                }
+            }
+
+            assert.ok(dbRemoved, 'Database removed from DbRegistry')
+
             // Re-open the database
             database = await context1.openDatabase(DB_NAME_OWNER, {
-                saveDatabase: false
+                saveDatabase: true
             })
 
             // Get the total number of rows
@@ -91,7 +108,81 @@ describe('Verida basic database tests', () => {
             assert.equal(totalRows3, 0, `No data in the database`)
         })
 
-        // do again with public database
+        it('can delete a public database', async () => {
+            const permissions = {
+                read: 'public',
+                write: 'owner'
+            }
+            // Open the database
+            let database = await context1.openDatabase(DB_NAME_PUBLIC, {
+                saveDatabase: true,
+                permissions
+            })
+
+            await database.save({'hello': 'world'})
+            const data = await database.getMany()
+
+            assertIsValidDbResponse(assert, data)
+            assert.ok(data[0].hello == 'world', 'First result has expected value')
+
+            // Get the total number of rows
+            const db = await database.getDb()
+            const docs = await db.allDocs()
+            const totalRows = docs.total_rows
+
+            // Locally destroy the database
+            await database.destroy({
+                localOnly: true
+            })
+
+            // Re-open the database
+            database = await context1.openDatabase(DB_NAME_PUBLIC, {
+                saveDatabase: true,
+                permissions
+            })
+
+            // Get the total number of rows
+            const db2 = await database.getDb()
+            const docs2 = await db2.allDocs()
+            const totalRows2 = docs2.total_rows
+
+            assert.equal(totalRows, totalRows2, `Total number of rows match indicating remote database wasn't deleted`)
+
+            // Destroy the database remotely
+            await database.destroy({
+                localOnly: false
+            })
+
+            // Check database has been removed from the database registry
+            const dbRegistry = context1.getDbRegistry()
+            let dbRemoved
+            try {
+                const record = await dbRegistry.get(DB_NAME_PUBLIC, did1, CONFIG.CONTEXT_NAME)
+                dbRemoved = false
+            } catch (err) {
+                if (err.reason == 'deleted') {
+                    dbRemoved = true
+                } else {
+                    assert.fail(err.message)
+                }
+            }
+
+            assert.ok(dbRemoved, 'Database removed from DbRegistry')
+
+            // Re-open the database
+            database = await context1.openDatabase(DB_NAME_PUBLIC, {
+                saveDatabase: true,
+                permissions
+            })
+
+            // Get the total number of rows
+            const db3 = await database.getDb()
+            const docs3 = await db3.allDocs()
+            const totalRows3 = docs3.total_rows
+
+            // Note: 1 document will exist as it's a design document for permissions
+            assert.equal(totalRows3, 1, `No data in the database`)
+        })
 
         this.afterAll(async () => {
             await context1.close()

@@ -386,13 +386,6 @@ class StorageEngineVerida extends BaseStorageEngine {
         "Unable to open database. Invalid permissions configuration."
       );
     }
-
-    // @todo Cache databases so we don't open the same one more than once
-    //let db = new Database(dbName, did, this.appName, this, config);
-
-    /*if (config.saveDatabase && db._originalDb && this.dbManager) {
-            this.dbManager.saveDb(dbName, did, this.appName, config.permissions, db._originalDb.encryptionKey);
-        }*/
   }
 
   public logout() {
@@ -469,6 +462,8 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     // No need for await as this can occur in the background?
     const result = await Promise.all(promises)
+    const dbRegistry = this.context.getDbRegistry()
+    await dbRegistry.removeDb(databaseName, this.accountDid!, this.storageContext)
     //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
   }
 

@@ -99,6 +99,18 @@ class DbRegistry {
     }
   }
 
+  public async removeDb(databaseName: string, did: string, contextName: string): Promise<boolean> {
+    await this.init();
+
+    const row = await this.get(databaseName, did, contextName)
+    if (!row) {
+      return false
+    }
+
+    const result = await this.dbStore!.delete(row._id)
+    return true
+  }
+
   public async getMany(filter: any, options: any) {
     await this.init();
 
