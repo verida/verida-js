@@ -35,7 +35,6 @@ export default class NotificationEngineVerida implements BaseNotification {
 
         try {
             // Returns the client context and the corresponding `DID`
-            this.serverUrl = 'http://192.168.68.124:5011/'
             await server.post(this.serverUrl + 'ping', {
                 data: {
                     did: this.did,
