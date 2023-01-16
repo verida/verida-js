@@ -91,7 +91,7 @@ class VeridaOutbox {
       );
     } catch (err) {
       throw new Error(
-        "Unable to send message. Recipient does not have an inbox for that context"
+        `Unable to send message. Recipient does not have an inbox for that context (${receivingContextName})`
       );
     }
 

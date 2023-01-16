@@ -20,7 +20,6 @@ class MessagingEngineVerida implements BaseMessage {
   private contextName: string;
   private maxItems: Number;
   private didContextManager: DIDContextManager;
-  private notificationService?: Notification
 
   private did?: string;
   private keyring?: Keyring;
@@ -28,12 +27,11 @@ class MessagingEngineVerida implements BaseMessage {
   private inbox?: Inbox;
   private outbox?: Outbox;
 
-  constructor(context: Context, config: MessagesConfig = {}, notificationService?: Notification) {
+  constructor(context: Context, config: MessagesConfig = {}) {
     this.context = context;
     this.contextName = this.context.getContextName();
     this.maxItems = config.maxItems ? config.maxItems : 50;
     this.didContextManager = context.getDidContextManager();
-    this.notificationService = notificationService
   }
 
   public async init(): Promise<void> {
@@ -75,10 +73,12 @@ class MessagingEngineVerida implements BaseMessage {
     let recipientContextName = config.recipientContextName ? 
       config.recipientContextName : this.context.getClient().getConfig().vaultAppName;
 
+    const notificationService = await this.context.getNotification(did, recipientContextName)
+
     // Ping the notification service if it exists
     // @todo: Make it configurable if the notification service is pinged
-    if (response && this.notificationService) {
-      await this.notificationService.ping(recipientContextName, did);
+    if (response && notificationService) {
+      await notificationService.ping(recipientContextName, did);
     }
 
     return response

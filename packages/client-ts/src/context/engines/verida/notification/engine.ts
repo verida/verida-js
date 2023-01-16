@@ -1,21 +1,25 @@
-import { Context } from '../../../..';
 import BaseNotification from '../../../notification'
 import Axios, { AxiosInstance } from 'axios'
-import { MessageSendConfig } from '../../../interfaces';
+import { Keyring } from '@verida/keyring';
 
 export default class NotificationEngineVerida implements BaseNotification {
 
-    protected context: Context
+    protected senderContextName: string
+    protected senderKeyring: Keyring
+    protected recipientContextName: string
     protected serverUrl: string
-    protected did?: string
+    protected did: string
 
     protected errors: string[] = []
 
-    constructor(context: Context, serverUrl: string[]) {
-        this.context = context
+    constructor(senderContextName: string, senderKeyring: Keyring, recipientContextName: string, did: string, serverUrls: string[]) {
+        this.senderContextName = senderContextName
+        this.senderKeyring = senderKeyring
+        this.recipientContextName = recipientContextName
+        this.did = did
         
         // For now, just use the first server
-        this.serverUrl = <string> (serverUrl[0].endsWith("/") ? serverUrl : serverUrl + "/")
+        this.serverUrl = <string> (serverUrls[0].endsWith("/") ? serverUrls[0] : serverUrls[0] + "/")
     }
     
     public async init(): Promise<void> {
@@ -26,15 +30,16 @@ export default class NotificationEngineVerida implements BaseNotification {
     /**
     * Ping a notification server to fetch new messages
     */
-    public async ping(recipientContextName: string, didToNotify: any): Promise<boolean> {
+    public async ping(): Promise<boolean> {
         const server = await this.getAxios();
 
         try {
             // Returns the client context and the corresponding `DID`
+            this.serverUrl = 'http://192.168.68.124:5011/'
             await server.post(this.serverUrl + 'ping', {
                 data: {
-                    did: didToNotify,
-                    context: recipientContextName
+                    did: this.did,
+                    context: this.recipientContextName
                 }
             })
         } catch (err: any) {
@@ -50,28 +55,16 @@ export default class NotificationEngineVerida implements BaseNotification {
     }
 
     protected async getAxios(): Promise<AxiosInstance> {
-        const contextName = this.context.getContextName()
         const config: any = {
             headers: {
-                "context-name": contextName,
+                "context-name": this.senderContextName,
             },
         }
 
-        if (!this.did) {
-            const account = this.context.getAccount()
-
-            if (!account) {
-                throw new Error("Unable to locate account in Notification engine.")
-            }
-            
-            this.did = await account.did()
-        }
-
         // Authenticate using the DID and a signed consent message
-        const keyring = await this.context.getAccount().keyring(contextName)
         const did = this.did!.toLowerCase()
-        const message = `Access the notification service using context: "${contextName}"?\n\n${did}`
-        const signature = await keyring.sign(message)
+        const message = `Access the notification service using context: "${this.senderContextName}"?\n\n${did}`
+        const signature = await this.senderKeyring.sign(message)
 
         config["auth"] = {
             username: did.replace(/:/g, "_"),

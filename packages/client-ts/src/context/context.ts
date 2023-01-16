@@ -212,30 +212,27 @@ class Context extends EventEmitter {
       );
     }
     const engine = MESSAGING_ENGINES[engineType]; // @todo type cast correctly
-    const notificationServer = await this.getNotification()
 
     this.messagingEngine = new engine(
       this,
-      messageConfig,
-      notificationServer
+      messageConfig
     );
     await this.messagingEngine!.connectAccount(this.account!);
 
     return this.messagingEngine!;
   }
 
-  public async getNotification(): Promise<Notification | undefined> {
-    if (this.notificationEngine) {
-      return this.notificationEngine
-    }
-
+  public async getNotification(did: string, contextName: string): Promise<Notification | undefined> {
     if (!this.account) {
       throw new Error(`Unable to open notification. No authenticated user.`);
     }
 
-    const did = await this.account!.did();
+    const contextConfig = await this.didContextManager.getDIDContextConfig(
+      did,
+      contextName,
+      false
+    );
 
-    const contextConfig = await this.getContextConfig(did, false);
     if (!contextConfig || !contextConfig.services.notificationServer) {
       // User doesn't have a notification service
       return
@@ -251,7 +248,10 @@ class Context extends EventEmitter {
     const engine = NOTIFICATION_ENGINES[engineType];
 
     this.notificationEngine = new engine(
-      this,
+      this.contextName,
+      await this.account.keyring(this.contextName),
+      contextName,
+      did,
       contextConfig.services.notificationServer.endpointUri
     );
 
