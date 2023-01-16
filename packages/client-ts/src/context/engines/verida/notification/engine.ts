@@ -7,7 +7,7 @@ export default class NotificationEngineVerida implements BaseNotification {
     protected senderContextName: string
     protected senderKeyring: Keyring
     protected recipientContextName: string
-    protected serverUrl: string
+    protected serverUrls: string[]
     protected did: string
 
     protected errors: string[] = []
@@ -17,9 +17,7 @@ export default class NotificationEngineVerida implements BaseNotification {
         this.senderKeyring = senderKeyring
         this.recipientContextName = recipientContextName
         this.did = did
-        
-        // For now, just use the first server
-        this.serverUrl = <string> (serverUrls[0].endsWith("/") ? serverUrls[0] : serverUrls[0] + "/")
+        this.serverUrls = serverUrls
     }
     
     public async init(): Promise<void> {
@@ -33,20 +31,25 @@ export default class NotificationEngineVerida implements BaseNotification {
     public async ping(): Promise<boolean> {
         const server = await this.getAxios();
 
-        try {
-            // Returns the client context and the corresponding `DID`
-            await server.post(this.serverUrl + 'ping', {
-                data: {
-                    did: this.did,
-                    context: this.recipientContextName
-                }
-            })
-        } catch (err: any) {
-            this.errors.push(err.message)
-            return false
+        let success = true
+        for (let s in this.serverUrls) {
+            const serverUrl = this.serverUrls[s]
+
+            try {
+                // Returns the client context and the corresponding `DID`
+                await server.post(serverUrl + 'ping', {
+                    data: {
+                        did: this.did,
+                        context: this.recipientContextName
+                    }
+                })
+            } catch (err: any) {
+                this.errors.push(err.message)
+                success = false
+            }
         }
 
-        return true
+        return success
     }
 
     public getErrors(): string[] {
