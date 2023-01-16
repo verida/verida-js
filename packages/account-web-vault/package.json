@@ -1,6 +1,6 @@
 {
   "name": "@verida/account-web-vault",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
