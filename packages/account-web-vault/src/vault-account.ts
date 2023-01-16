@@ -83,6 +83,8 @@ export default class VaultAccount extends Account {
         if (!this.config.environment) {
             this.config.environment = EnvironmentType.TESTNET
         }
+
+        this.config = _.merge(CONFIG_DEFAULTS[this.config.environment], this.config)
     }
 
     public async connectContext(contextName: string, ignoreSession: boolean = false) {
