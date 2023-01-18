@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import Axios from 'axios';
 
-import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
 
 import { isVeridaContract } from './utils'
