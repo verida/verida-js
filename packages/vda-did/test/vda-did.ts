@@ -46,16 +46,10 @@ const VDA_DID_CONFIG2 = {
     web3Options: baseConfig.web3Options
 }
 
-//const ENDPOINTS = [`http://192.168.68.115:5000/did/${DID}`, `http://192.168.68.128:5000/did/${DID}`]
-/*const ENDPOINTS = [
-    `https://acacia-dev1.tn.verida.tech/did/${DID}`,
-    `https://acacia-dev2.tn.verida.tech/did/${DID}`,
-    `https://acacia-dev3.tn.verida.tech/did/${DID}`
-]*/
 const ENDPOINTS = [
-    `https://acacia-au-dev1.tn.verida.tech/did/${DID}`,
-    `https://acacia-au-dev2.tn.verida.tech/did/${DID}`,
-    `https://acacia-au-dev3.tn.verida.tech/did/${DID}`
+    `https://node1-apse2.devnet.verida.tech/did/${DID}`,
+    `https://node2-apse2.devnet.verida.tech/did/${DID}`,
+    `https://node3-apse2.devnet.verida.tech/did/${DID}`
 ]
 
 // Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
