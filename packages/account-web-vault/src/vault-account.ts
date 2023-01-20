@@ -292,23 +292,22 @@ export default class VaultAccount extends Account {
             await this.connectContext(contextName, true)
         }
 
-        const serviceEndpoint = contextConfig.services.databaseServer
-        if (serviceEndpoint.type == "VeridaDatabase") {
-            const veridaDatabaseConfig = <VeridaDatabaseAuthTypeConfig> authConfig
+        if (authType == 'database') {
+            const serviceEndpoint = contextConfig.services.databaseServer
+            if (serviceEndpoint.type == "VeridaDatabase") {
+                const veridaDatabaseConfig = <VeridaDatabaseAuthTypeConfig> authConfig
 
-            if (typeof(veridaDatabaseConfig.endpointUri) == 'undefined') {
-                throw new Error('Endpoint must be specified when getting auth context')
-            }
+                if (typeof(veridaDatabaseConfig.endpointUri) == 'undefined') {
+                    throw new Error('Endpoint must be specified when getting auth context')
+                }
 
-            const endpointUri = veridaDatabaseConfig.endpointUri
+                const endpointUri = veridaDatabaseConfig.endpointUri
 
-            if (!this.contextCache[contextName].contextAuths[endpointUri]) {
-                throw new Error('Endpoint not known for this authentication context')
-            }
+                if (!this.contextCache[contextName].contextAuths[endpointUri]) {
+                    throw new Error('Endpoint not known for this authentication context')
+                }
 
-            // If we have an invalid access token (detected by the internal libraries)
-            // then attempt to re-authenticate using the refreshToken
-            if (veridaDatabaseConfig.invalidAccessToken) {
+                // Attempt to re-authenticate using the refreshToken
                 const did = await this.did()
 
                 try {
@@ -331,6 +330,8 @@ export default class VaultAccount extends Account {
                     }
                 }
             }
+
+            throw new Error(`Unknown service endpoint type (${serviceEndpoint.type})`)
         }
 
         throw new Error(`Unknown auth context type (${authType})`)
