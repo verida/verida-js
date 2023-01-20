@@ -88,12 +88,12 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Get an active endpoint
    */
-  public async getActiveEndpoint() {
+  public async getActiveEndpoint(checkStatus: boolean = true) {
     if (this.activeEndpoint) {
       return this.activeEndpoint
     }
 
-    this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints)
+    this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints, checkStatus)
     return this.activeEndpoint
   }
 
@@ -134,7 +134,8 @@ class StorageEngineVerida extends BaseStorageEngine {
       }
 
       this.endpoints = finalEndpoints
-      this.activeEndpoint = await this.locateAvailableEndpoint(this.endpoints, false)
+      // Select an active endpoint. No need to check status as invalid endpoints already removed above.
+      this.activeEndpoint = await this.getActiveEndpoint(false)
       this.accountDid = (await this.account!.did()).toLowerCase();
       //console.log(`connectAccount(${this.accountDid}): ${(new Date()).getTime()-now}`)
 
@@ -250,7 +251,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         }
       }
 
-      // If we have an account we would have already attepmted to connect to the storage node
+      // If we have an account we would have already attempted to connect to the storage node
       // and removed it if it was unavailable, so don't need to check the endpoint status
       endpoint = await this.locateAvailableEndpoint(endpoints, this.account ? true : false)
     } else {
