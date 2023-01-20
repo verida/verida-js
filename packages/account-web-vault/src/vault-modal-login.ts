@@ -23,7 +23,7 @@ export default async function (
   );
 
   const modalHTML = `
-  <div id="verida-modal" hidden="true" class="verida-modal-wrapper">
+  <div id="verida-modal" class="verida-modal-wrapper">
     <div class="verida-modal-container">
       <div class="verida-modal-header" id="verida-modal-header">
         <img class="verida-modal-logo" src="https://assets.verida.io/verida_vault_logo.svg" alt="verida logo">
