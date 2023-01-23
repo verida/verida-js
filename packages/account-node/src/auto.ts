@@ -27,7 +27,7 @@ export default class AutoAccount extends Account {
 
         this.didClient = new DIDClient({
             ...autoConfig.didClientConfig,
-            network: <'testnet' | 'mainnet'> autoConfig.environment
+            network: autoConfig.environment
         })
     }
 
