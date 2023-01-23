@@ -4,6 +4,8 @@ import DIDContextManager from "../../../../did-context-manager";
 import Context from "../../../context";
 import { IAccount, IKeyring, IMessaging, MessagesConfig, MessageSendConfig } from "@verida/types";
 import { Keyring } from "@verida/keyring";
+import { Account } from "@verida/account";
+import Datastore from "../../../datastore";
 const EventEmitter = require("events");
 
 /**
@@ -40,7 +42,7 @@ class MessagingEngineVerida implements IMessaging {
     await inbox.init();
   }
 
-  public async connectAccount(account: IAccount) {
+  public async connectAccount(account: Account) {
     this.did = await account.did();
     this.keyring = await account.keyring(this.contextName);
     await this.init();
@@ -121,7 +123,7 @@ class MessagingEngineVerida implements IMessaging {
       this.contextName,
       this.did!,
       this.keyring!,
-      outboxDatastore,
+      <Datastore> outboxDatastore,
       this.context,
       this.didContextManager
     );

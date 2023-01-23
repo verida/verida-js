@@ -48,7 +48,7 @@ class BaseDb extends EventEmitter implements IDatabase {
     this.engine = engine
 
     this.isOwner = config.isOwner;
-    this.signContext = config.signContext;
+    this.signContext = <Context> config.signContext;
 
     this.databaseHash = Utils.buildDatabaseHash(this.databaseName, this.storageContext, this.did)
 

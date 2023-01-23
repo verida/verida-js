@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events'
 import { Account } from "@verida/account";
-import BaseStorageEngine from "./engines/base";
 import DIDContextManager from "../did-context-manager";
 import Datastore from "./datastore";
 import Client from "../client";
@@ -21,18 +20,15 @@ import {
   MessagesConfig,
   DatabaseOpenConfig,
   DatastoreOpenConfig,
-  IDatastore,
   ContextInfo,
   ContextEngineType,
   ContextCloseOptions,
   DatabaseCloseOptions,
-  IClient,
   SecureContextConfig,
   AuthTypeConfig,
   AuthContext,
   IStorageEngine
 } from '@verida/types';
-import { IProfile } from '@verida/types';
 
 const _ = require("lodash");
 
@@ -66,8 +62,8 @@ const NOTIFICATION_ENGINES: StorageEngineTypes = {
  * Modules
  */
 class Context extends EventEmitter implements IContext {
-  private client: IClient;
-  private account?: IAccount;
+  private client: Client;
+  private account?: Account;
   private messagingEngine?: IMessaging;
   private notificationEngine?: INotification
 
@@ -92,14 +88,14 @@ class Context extends EventEmitter implements IContext {
     client: Client,
     contextName: string,
     didContextManager: DIDContextManager,
-    account?: Account
+    account?: IAccount
   ) {
     super()
 
     this.client = client;
     this.contextName = contextName;
     this.didContextManager = didContextManager;
-    this.account = account;
+    this.account = <Account> account;
     this.dbRegistry = new DbRegistry(this);
   }
 
@@ -436,7 +432,7 @@ class Context extends EventEmitter implements IContext {
   public async openDatastore(
     schemaUri: string,
     config: DatastoreOpenConfig = {}
-  ): Promise<IDatastore> {
+  ): Promise<Datastore> {
     if (!this.account) {
       throw new Error(`Unable to open datastore. No authenticated user.`);
     }

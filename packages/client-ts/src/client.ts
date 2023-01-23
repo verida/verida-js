@@ -211,7 +211,7 @@ class Client implements IClient {
   ): Promise<IProfile | undefined> {
     let context: Context | undefined;
     try {
-      context = await this.openExternalContext(contextName, did);
+      context = <Context> await this.openExternalContext(contextName, did);
     } catch (error) {
       if (fallbackContext) {
         return await this.openPublicProfile(did, fallbackContext, profileName, null);

@@ -1,11 +1,9 @@
-import { IContext } from "./IContext";
-
 export interface ProfileDocument {
     _id: string;
     [key: string]: string;
   }
 
-export interface IProfile extends EventEmitter {
+export interface IProfile {
   get(
     key: string,
     options?: any,

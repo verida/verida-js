@@ -24,7 +24,7 @@ export interface IAccount {
 
   disconnect(contextName?: string): Promise<void> 
 
-  getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig, authType: string): Promise<AuthContext>
+  getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig?: AuthTypeConfig, authType?: string): Promise<AuthContext>
 
   disconnectDevice(contextName: string, deviceId: string): Promise<boolean> 
 }

@@ -39,7 +39,7 @@ export interface IContext extends EventEmitter {
   getNotification(did: string, contextName: string): Promise<INotification | undefined> 
 
   openProfile(
-    profileName: string,
+    profileName?: string,
     did?: string,
     writeAccess?: boolean
   ): Promise<IProfile | undefined> 

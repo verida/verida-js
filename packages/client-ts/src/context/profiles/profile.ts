@@ -1,5 +1,5 @@
 const EventEmitter = require("events");
-import { DatabasePermissionOptionsEnum } from "@verida/types";
+import { DatabasePermissionOptionsEnum, IProfile } from "@verida/types";
 import Context from "../context";
 import Datastore from "../datastore";
 const _ = require("lodash");
@@ -17,7 +17,7 @@ interface ProfileDocument {
  * @category
  * Modules
  */
-export class Profile extends EventEmitter {
+export class Profile extends EventEmitter implements IProfile {
   private context: Context;
   private did: string;
 

@@ -251,7 +251,7 @@ class Datastore implements IDatastore {
    * Update the list of valid users for this datastore.
    *
    * @param readList {string[]} List of DID's that can read from this datastore.
-   * @param writeList {writeList[]} List of DID's that can wrtie to this datastore.
+   * @param writeList {writeList[]} List of DID's that can write to this datastore.
    */
   public async updateUsers(
     readList: string[] = [],
