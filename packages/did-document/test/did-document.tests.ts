@@ -4,8 +4,8 @@ const assert = require('assert')
 import { DIDDocument } from "../src/index"
 import { Wallet, utils } from 'ethers'
 import { Keyring } from '@verida/keyring'
-import { Endpoints, EndpointType } from "../src/interfaces"
 import { ServiceEndpoint } from "did-resolver"
+import { SecureContextEndpoints, SecureContextEndpointType } from "@verida/types"
 
 const mnemonic = "slight crop cactus cute trend tape undo exile retreat large clay average"
 const wallet = Wallet.fromMnemonic(mnemonic)
@@ -18,35 +18,35 @@ const CONTEXT_NAME_2 = 'Verida: Test DID Context 2'
 
 const keyring = new Keyring(wallet.mnemonic.phrase)
 
-const endpoints: Endpoints = {
+const endpoints: SecureContextEndpoints = {
     database: {
-        type: EndpointType.DATABASE,
+        type: SecureContextEndpointType.DATABASE,
         endpointUri: ['https://db.testnet.verida.io/1']
     },
     messaging: {
-        type: EndpointType.MESSAGING,
+        type: SecureContextEndpointType.MESSAGING,
         endpointUri: ['https://db.testnet.verida.io/2']
     }
 }
 
 const endpointsMultiple: Endpoints = {
     database: {
-        type: EndpointType.DATABASE,
+        type: SecureContextEndpointType.DATABASE,
         endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
     },
     messaging: {
-        type: EndpointType.MESSAGING,
+        type: SecureContextEndpointType.MESSAGING,
         endpointUri: ['https://db.testnet.verida.io/2', 'https://db2.testnet.verida.io/2']
     }
 }
 
 const endpointsMultiple: Endpoints = {
     database: {
-        type: EndpointType.DATABASE,
+        type: SecureContextEndpointType.DATABASE,
         endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
     },
     messaging: {
-        type: EndpointType.MESSAGING,
+        type: SecureContextEndpointType.MESSAGING,
         endpointUri: ['https://db.testnet.verida.io/2', 'https://db2.testnet.verida.io/2']
     }
 }
@@ -79,10 +79,10 @@ describe('DID document tests', () => {
                 assert.equal(actual.serviceEndpoint, endpointUri, "Endpoint has expected value")
             }
 
-            const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
+            const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, SecureContextEndpointType.DATABASE)
             validateServiceEndpoint(endpoints.database.type, endpoints.database.endpointUri, endpoint1)
 
-            const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.MESSAGING)
+            const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, SecureContextEndpointType.MESSAGING)
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
@@ -108,15 +108,15 @@ describe('DID document tests', () => {
             assert.equal(data.service?.length, 4, "Have four service entries")
 
             // Check we have both endpoints for context 1
-            const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
+            const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, SecureContextEndpointType.DATABASE)
             assert.ok(endpoint1, "Have database endpoint for context 1")
-            const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.MESSAGING)
+            const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, SecureContextEndpointType.MESSAGING)
             assert.ok(endpoint2, "Have messaging endpoint for context 1")
 
             // Check we have both endpoints for context 2
-            const endpoint3 = doc.locateServiceEndpoint(CONTEXT_NAME_2, EndpointType.DATABASE)
+            const endpoint3 = doc.locateServiceEndpoint(CONTEXT_NAME_2, SecureContextEndpointType.DATABASE)
             assert.ok(endpoint3, "Have database endpoint for context 2")
-            const endpoint4 = doc.locateServiceEndpoint(CONTEXT_NAME_2, EndpointType.MESSAGING)
+            const endpoint4 = doc.locateServiceEndpoint(CONTEXT_NAME_2, SecureContextEndpointType.MESSAGING)
             assert.ok(endpoint4, "Have messaging endpoint for context 2")
 
             // @todo: validate verification method
