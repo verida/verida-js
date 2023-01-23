@@ -59,12 +59,12 @@ class Client implements IClient {
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
     userConfig.didClientConfig = userConfig.didClientConfig ? userConfig.didClientConfig : {
-      network: <'testnet' | 'mainnet'> this.environment
+      network: this.environment
     }
 
     this.didClient = new DIDClient({
       ...userConfig.didClientConfig,
-      network: <'testnet' | 'mainnet'> this.environment
+      network: this.environment
     });
 
     this.didContextManager = new DIDContextManager(this.didClient);

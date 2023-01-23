@@ -1,4 +1,4 @@
-import { Signer } from '@ethersproject/abstract-signer';
+import { AccountNodeDIDClientConfig } from './AccountInterfaces';
 import { IAccount } from './IAccount';
 import { IStorageEngine } from './IStorageEngine';
 import { SecureContextConfig } from './StorageLinkInterfaces';
@@ -22,7 +22,7 @@ export interface DefaultClientConfig extends DefaultEnvironmentConfig {
 }
 
 export interface DIDClientConfig {
-    network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
+    network: EnvironmentType              // `testnet` OR `mainnet`
     rpcUrl?: string                              // blockchain RPC URI to use
     timeout?: number
 }
