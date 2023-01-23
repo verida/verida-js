@@ -1,7 +1,7 @@
 const _ = require("lodash");
-import { DatabaseCloseOptions, DatabaseOpenConfig, DatastoreOpenConfig } from "./interfaces";
 import Context from "./context";
 import Schema from "./schema";
+import { IDatastore, DatastoreOpenConfig, DatabaseOpenConfig, DatabaseCloseOptions } from "@verida/types";
 
 /**
  * A datastore wrapper around a given database and schema.
@@ -14,7 +14,7 @@ import Schema from "./schema";
  * @category
  * Modules
  */
-class Datastore {
+class Datastore implements IDatastore {
   protected schemaName: string;
   protected schemaPath?: string;
   protected schema?: any;

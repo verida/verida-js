@@ -2,12 +2,29 @@ import { Signer } from '@ethersproject/abstract-signer';
 import { IAccount } from './IAccount';
 import { IStorageEngine } from './IStorageEngine';
 import { SecureContextConfig } from './StorageLinkInterfaces';
-import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from './Web3Interfaces';
 
 export declare enum EnvironmentType {
     LOCAL = "local",
     TESTNET = "testnet",
     MAINNET = "mainnet"
+}
+
+export interface DefaultEnvironmentConfig {
+	defaultDatabaseServerUrl?: string
+	defaultMessageServerUrl?: string
+	schemaPaths?: Record<string,string>
+}
+
+export interface DefaultClientConfig extends DefaultEnvironmentConfig {
+	environment: EnvironmentType
+	environments: Record<string, DefaultEnvironmentConfig>
+	vaultAppName: string
+}
+
+export interface DIDClientConfig {
+    network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
+    rpcUrl?: string                              // blockchain RPC URI to use
+    timeout?: number
 }
 
 /**
@@ -26,7 +43,7 @@ export interface ClientConfig {
 	 */
 	environment?: EnvironmentType;
 
-	didClientConfig?: ClientDIDClientConfig
+	didClientConfig?: DIDClientConfig
 
 	/**
 	 * Specify custom schema paths (typically for local development).
@@ -78,38 +95,4 @@ export interface FetchUriParams {
 	dbName: string;
 	id: string;
 	query: any;
-}
-
-export interface DefaultEnvironmentConfig {
-	defaultDatabaseServerUrl?: string
-	defaultMessageServerUrl?: string
-	schemaPaths?: Record<string,string>
-}
-
-export interface DefaultClientConfig extends DefaultEnvironmentConfig {
-	environment: EnvironmentType
-	environments: Record<string, DefaultEnvironmentConfig>
-	vaultAppName: string
-}
-
-// Part of VeridaSelfTransactionConfig
-export interface VeridaSelfTransactionConfigPart  {
-    signer?: Signer         // Pre-built transaction signer that is configured to pay for gas
-    privateKey?: string     // MATIC private key that will pay for gas
-}
-
-export interface DIDClientConfig {
-    network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
-    rpcUrl?: string                              // blockchain RPC URI to use
-    timeout?: number
-}
-
-/**
- * Modified version of DID Client config to simplify Client configuration
- * (pulls `network` from client config)
- */
-export interface ClientDIDClientConfig extends Omit<DIDClientConfig, 'network'> {
-    callType: CallType,
-    web3Config: VeridaSelfTransactionConfig | VeridaMetaTransactionConfig,
-    didEndpoints: string[]
 }

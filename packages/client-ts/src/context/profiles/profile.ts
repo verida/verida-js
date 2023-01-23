@@ -1,7 +1,7 @@
 const EventEmitter = require("events");
+import { DatabasePermissionOptionsEnum } from "@verida/types";
 import Context from "../context";
 import Datastore from "../datastore";
-import { PermissionOptionsEnum } from "../interfaces";
 const _ = require("lodash");
 
 interface ProfileDocument {
@@ -190,9 +190,9 @@ export class Profile extends EventEmitter {
     if (!this.store) {
       const permissions = {
         read: this.isPrivate
-          ? PermissionOptionsEnum.OWNER
-          : PermissionOptionsEnum.PUBLIC,
-        write: PermissionOptionsEnum.OWNER,
+          ? DatabasePermissionOptionsEnum.OWNER
+          : DatabasePermissionOptionsEnum.PUBLIC,
+        write: DatabasePermissionOptionsEnum.OWNER,
       };
 
       const schemaUri =

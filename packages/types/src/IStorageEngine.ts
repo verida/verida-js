@@ -1,8 +1,9 @@
-import { ContextDatabaseInfo, DatabaseDeleteConfig, DatabaseOpenConfig, DatastoreOpenConfig, DbRegistry } from "./ContextInterfaces"
+import { ContextDatabaseInfo, DatabaseDeleteConfig, DatabaseOpenConfig, DatastoreOpenConfig } from "./ContextInterfaces"
 import { IAccount } from "./IAccount"
 import { IContext } from "./IContext"
 import { IDatabase } from "./IDatabase"
 import { IDatastore } from "./IDatastore"
+import { IDbRegistry } from "./IDbRegistry"
 import { IKeyring } from "./IKeyring"
 import { SecureContextConfig } from "./StorageLinkInterfaces"
 
@@ -10,42 +11,34 @@ import { SecureContextConfig } from "./StorageLinkInterfaces"
  * @emits EndpointUnavailable
  */
 export interface IStorageEngine {
+  getKeyring(): IKeyring
 
-  constructor(
-    context: IContext,
-    dbRegistry: DbRegistry,
-    contextConfig: SecureContextConfig,
-  ): void
+  getContextConfig(): SecureContextConfig
 
-   getKeyring(): IKeyring
+  getAccount(): IAccount
 
-   getContextConfig(): SecureContextConfig
+  connectAccount(account: IAccount): Promise<void>
 
-   getAccount(): IAccount
-
-    connectAccount(account: IAccount): Promise<void>
-
-     getDbRegistry(): DbRegistry
-     
+  getDbRegistry(): IDbRegistry
 
   openDatabase(
     databaseName: string,
     config: DatabaseOpenConfig
   ): Promise<IDatabase> 
 
-    openDatastore(
+  openDatastore(
     schemaName: string,
     config: DatastoreOpenConfig
   ): Promise<IDatastore> 
 
-    deleteDatabase(
+  deleteDatabase(
     databaseName: string,
     config: DatabaseDeleteConfig
   ): Promise<void>
 
-   logout(): void
+  logout(): void
 
-   addEndpoint(context: IContext, uri: string): Promise<boolean>
+  addEndpoint(context: IContext, uri: string): Promise<boolean>
 
-    info(): Promise<ContextDatabaseInfo> 
+  info(): Promise<ContextDatabaseInfo> 
 }

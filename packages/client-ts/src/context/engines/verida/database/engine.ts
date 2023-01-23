@@ -1,14 +1,12 @@
 import BaseStorageEngine from "../../base";
 import EncryptedDatabase from "./db-encrypted";
-import Database from "../../../database";
-import { DatabaseOpenConfig, PermissionsConfig, ContextDatabaseInfo, DatabaseDeleteConfig } from "../../../interfaces";
 import { Account } from "@verida/account";
 import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
-import { Interfaces } from "@verida/storage-link";
 import Context from '../../../context';
 import Endpoint from "./endpoint";
 import { getRandomInt } from "../../../utils";
+import { ContextDatabaseInfo, DatabaseOpenConfig, DatabasePermissionsConfig, IDatabase, SecureContextConfig } from "@verida/types";
 
 const _ = require("lodash");
 
@@ -31,7 +29,7 @@ class StorageEngineVerida extends BaseStorageEngine {
   constructor(
     context: Context,
     dbRegistry: DbRegistry,
-    contextConfig: Interfaces.SecureContextConfig,
+    contextConfig: SecureContextConfig,
   ) {
     super(context, dbRegistry, contextConfig);
 
@@ -162,7 +160,7 @@ class StorageEngineVerida extends BaseStorageEngine {
   public async openDatabase(
     databaseName: string,
     options: DatabaseOpenConfig
-  ): Promise<Database> {
+  ): Promise<IDatabase> {
     const config: DatabaseOpenConfig = _.merge(
       {
         permissions: {
@@ -416,7 +414,7 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Call createDb() on all the endpoints
    */
-  public async createDb(databaseName: string, did: string, permissions: PermissionsConfig) {
+  public async createDb(databaseName: string, did: string, permissions: DatabasePermissionsConfig) {
     //const now = (new Date()).getTime()
     const promises = []
     for (let i in this.endpoints) {

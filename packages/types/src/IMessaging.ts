@@ -4,13 +4,8 @@ import { IAccount } from "./IAccount";
 /**
  * Interface Messaging
  */
-export default interface IMessaging {
-  /**
-   * Initialize messaging for the connected user
-   *
-   * (ie; create an empty database or anything else required to start receiving messages)
-   */
-  init(): Promise<void>;
+export interface IMessaging {
+  init(): Promise<void>
 
   /**
    * Send a message to another DID on the network.

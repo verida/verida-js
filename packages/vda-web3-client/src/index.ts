@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { CallType, ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, VeridaWeb3Config, VeridaWeb3GasConfiguration } from './config'
-import { VeridaContract, VdaTransactionResult } from './VeridaContractBase'
+import { VeridaWeb3Config, Web3CallType } from '@verida/types'
+import { VeridaContract } from './VeridaContractBase'
 
 /**
  * Create VeridaContract instance - that is verida-web3-sdk instance
@@ -8,12 +8,11 @@ import { VeridaContract, VdaTransactionResult } from './VeridaContractBase'
  * @param config - Configuration to create Verida-web3-sdk instance
  * @returns VeridaContract instance
  */
-export function getVeridaContract(type: CallType, config: VeridaWeb3Config) {
+export function getVeridaContract(type: Web3CallType, config: VeridaWeb3Config) {
     return new VeridaContract(
         type,
         config
     )
 }
 
-export { CallType, VdaTransactionResult, VeridaContract, VeridaWeb3Config, VeridaWeb3GasConfiguration }
-export { ContractInfo, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig }
+export { VeridaContract }

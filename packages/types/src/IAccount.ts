@@ -4,45 +4,27 @@ import { IKeyring } from './IKeyring'
 import { SecureContextConfig } from './StorageLinkInterfaces'
 
 export interface IAccount {
-    keyring(contextName: string): Promise<IKeyring>
+  keyring(contextName: string): Promise<IKeyring>
 
-    sign(input: string): Promise<string>
+  sign(input: string): Promise<string>
 
-    did(): Promise<string>
-    
-    linkStorage(storageConfig: SecureContextConfig): Promise<boolean>
-    
-    unlinkStorage(contextName: string): Promise<boolean>
-    
-    storageConfig(contextName: string, forceCreate: boolean): Promise<SecureContextConfig | undefined>
-    
+  did(): Promise<string>
 
-    linkStorageContextService(contextName: string, endpointType: string, serverType: string, endpointUris: string[]): Promise<boolean>
-    
-    getDidClient(): Promise<IDIDClient>
+  linkStorage(storageConfig: SecureContextConfig): Promise<boolean>
 
-     setAccountConfig(accountConfig: AccountConfig): void
-    
+  unlinkStorage(contextName: string): Promise<boolean>
 
-    /**
-     * Create a DID-JWT from a data object
-     * @param {*} data 
-     */
-       createDidJwt(contextName: string, data: object, config: any): Promise<string>
-     
+  storageConfig(contextName: string, forceCreate: boolean): Promise<SecureContextConfig | undefined>
 
-    /**
-     * An optional method that can be used to disconnect the current user.
-     * 
-     * For example, in a web browser context, it would remove any stored signatures from local storage.
-     */
-      disconnect(contextName?: string): Promise<void> 
-    
+  linkStorageContextService(contextName: string, endpointType: string, serverType: string, endpointUris: string[]): Promise<boolean>
 
-      getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig, authType: string): Promise<AuthContext>
-    
+  setAccountConfig(accountConfig: AccountConfig): void
 
-      disconnectDevice(contextName: string, deviceId: string): Promise<boolean> 
-    
+  createDidJwt(contextName: string, data: object, config: any): Promise<string>
 
+  disconnect(contextName?: string): Promise<void> 
+
+  getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig, authType: string): Promise<AuthContext>
+
+  disconnectDevice(contextName: string, deviceId: string): Promise<boolean> 
 }

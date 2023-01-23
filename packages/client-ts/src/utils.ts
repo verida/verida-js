@@ -1,7 +1,6 @@
 import EncryptionUtils from '@verida/encryption-utils';
+import { DatabasePermissionOptionsEnum, FetchUriParams } from '@verida/types';
 import url from 'url';
-import { PermissionOptionsEnum } from './context/interfaces';
-import { FetchUriParams } from './interfaces';
 const bs58 = require('bs58');
 
 /**
@@ -84,8 +83,8 @@ export async function fetchVeridaUri(uri: string, context: any): Promise<string>
 
 	const db = await context.openExternalDatabase(url.dbName, url.did, {
 		permissions: {
-			read: PermissionOptionsEnum.PUBLIC,
-			write: PermissionOptionsEnum.OWNER,
+			read: DatabasePermissionOptionsEnum.PUBLIC,
+			write: DatabasePermissionOptionsEnum.OWNER,
 		},
 		//@ts-ignore
 		contextName: url.contextName,

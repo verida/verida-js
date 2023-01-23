@@ -1,20 +1,18 @@
-import { Account, EnvironmentType } from "@verida/account";
-import { Interfaces } from "@verida/storage-link";
 import { Profile } from "./context/profiles/profile";
 import { DIDClient } from "@verida/did-client";
 
-import { ClientConfig, DefaultClientConfig } from "./interfaces";
 import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
 import DEFAULT_CONFIG from "./config";
+import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig } from "@verida/types";
 const _ = require("lodash");
 
 /**
  * @category
  * Modules
  */
-class Client {
+class Client implements IClient {
   /**
    * Connection to the Verida DID Registry
    */
@@ -28,7 +26,7 @@ class Client {
   /**
    * Connected account instance
    */
-  private account?: Account;
+  private account?: IAccount;
 
   /**
    * DID of connected account
@@ -60,7 +58,9 @@ class Client {
       : {};
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
-    userConfig.didClientConfig = userConfig.didClientConfig ? userConfig.didClientConfig : {}
+    userConfig.didClientConfig = userConfig.didClientConfig ? userConfig.didClientConfig : {
+      network: <'testnet' | 'mainnet'> this.environment
+    }
 
     this.didClient = new DIDClient({
       ...userConfig.didClientConfig,
@@ -79,7 +79,7 @@ class Client {
    *
    * @param account AccountInterface
    */
-  public async connect(account: Account) {
+  public async connect(account: IAccount): Promise<void> {
     if (this.isConnected()) {
       throw new Error("Account is already connected.");
     }
@@ -108,7 +108,7 @@ class Client {
   public async openContext(
     contextName: string,
     forceCreate: boolean = true
-  ): Promise<Context | undefined> {
+  ): Promise<IContext | undefined> {
     if (forceCreate) {
       if (!this.account) {
         throw new Error(
@@ -147,7 +147,7 @@ class Client {
     }
 
     // @todo cache the storage contexts
-    return new Context(this, contextName, this.didContextManager, this.account);
+    return new Context(this, contextName, this.didContextManager, this.account!);
   }
 
   /**
@@ -156,7 +156,7 @@ class Client {
    * @param did 
    * @returns 
    */
-  public async openExternalContext(contextName: string, did: string) {
+  public async openExternalContext(contextName: string, did: string): Promise<IContext> {
     const contextConfig = await this.didContextManager.getDIDContextConfig(
       did,
       contextName,
@@ -169,7 +169,7 @@ class Client {
     }
 
     // @todo cache the storage contexts
-    return new Context(this, contextName, this.didContextManager, this.account);
+    return new Context(this, contextName, this.didContextManager, this.account!);
   }
 
   /**
@@ -184,7 +184,7 @@ class Client {
   public async getContextConfig(
     did: string,
     contextName: string
-  ): Promise<Interfaces.SecureContextConfig | undefined> {
+  ): Promise<SecureContextConfig | undefined> {
     return this.didContextManager.getDIDContextConfig(did, contextName, false);
   }
 
@@ -208,7 +208,7 @@ class Client {
     contextName: string,
     profileName: string = "basicProfile",
     fallbackContext: string | null = "Verida: Vault"
-  ): Promise<Profile | undefined> {
+  ): Promise<IProfile | undefined> {
     let context: Context | undefined;
     try {
       context = await this.openExternalContext(contextName, did);

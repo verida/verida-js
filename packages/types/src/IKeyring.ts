@@ -1,44 +1,37 @@
-import nacl from 'tweetnacl'
 
 export interface IKeyring {
+    getKeys(): Promise<any>
 
-    constructor(seed: string): void
+    _init(): Promise<void>
 
-      getKeys(): Promise<any>
+    publicKeys(): Promise<KeyringPublicKeys>
 
-      _init(): Promise<void>
+    sign(data: any): Promise<string> 
 
-      buildKey(seed: string, keyType: KeyringKeyType): Promise<nacl.BoxKeyPair>
+    verifySig(data: string, sig: string): Promise<boolean> 
 
-      publicKeys(): Promise<KeyringPublicKeys>
+    symEncrypt(data: string): Promise<string> 
 
-      sign(data: any): Promise<string> 
+    symDecrypt(data: string): Promise<any> 
 
-      verifySig(data: string, sig: string): Promise<boolean> 
+    asymEncrypt(data: string, secretOrSharedKey: Uint8Array): Promise<string> 
 
-      symEncrypt(data: string): Promise<string> 
+    asymDecrypt(messageWithNonce: string, secretOrSharedKey: Uint8Array): Promise<any> 
 
-      symDecrypt(data: string): Promise<any> 
+    buildSharedKeyStart(privateKey: Uint8Array): Promise<Uint8Array> 
 
-      asymEncrypt(data: string, secretOrSharedKey: Uint8Array): Promise<string> 
+    buildSharedKeyEnd(publicKey: Uint8Array): Promise<Uint8Array> 
 
-      asymDecrypt(messageWithNonce: string, secretOrSharedKey: Uint8Array): Promise<any> 
+    getSeed(): string
 
-      buildSharedKeyStart(privateKey: Uint8Array): Promise<Uint8Array> 
-
-      buildSharedKeyEnd(publicKey: Uint8Array): Promise<Uint8Array> 
-
-     getSeed(): string
-
-      getStorageContextKey(databaseName: string): string 
-
+    getStorageContextKey(databaseName: string): Promise<string> 
 }
 
 export interface KeyringPublicKeys {
-    asymPublicKey: string
+    asymPublicKey: Uint8Array
     asymPublicKeyHex: string
     asymPublicKeyBase58: string
-    signPublicKey: string
+    signPublicKey: Uint8Array
     signPublicKeyHex: string
     signPublicKeyBase58: string
 }

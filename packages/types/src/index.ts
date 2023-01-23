@@ -1,9 +1,22 @@
-export declare enum EnvironmentType {
-    LOCAL = "local",
-    TESTNET = "testnet",
-    MAINNET = "mainnet"
-}
-
-export default {
-    EnvironmentType
-}
+export * from './AccountInterfaces'
+export * from './ContextInterfaces'
+export * from './DocumentInterfaces'
+export * from './IAccount'
+export * from './IClient'
+export * from './IContext'
+export * from './IDatabase'
+export * from './IDatastore'
+export * from './IDIDClient'
+export * from './IDIDContextManager'
+export * from './IDIDDocument'
+export * from './ISchema'
+export * from './IKeyring'
+export * from './IMessaging'
+export * from './INotification'
+export * from './IProfile'
+export * from './IStorageEngine'
+export * from './NetworkInterfaces'
+export * from './StorageLinkInterfaces'
+export * from './Web3Interfaces'
+export * from './IAuthType'
+export * from './IDbRegistry'

@@ -1,8 +1,6 @@
 import AutoAccount from './auto'
-import { AccountConfig } from '@verida/account'
-import { NodeAccountConfig } from './interfaces'
 import { Keyring } from '@verida/keyring'
-import { Interfaces } from '@verida/storage-link'
+import { AccountConfig, AccountNodeConfig, SecureContextConfig } from '@verida/types'
 
 /**
  * A NodeJs account that only signs messages for a limited list of contexts.
@@ -13,7 +11,7 @@ export default class LimitedAccount extends AutoAccount {
 
     private signingContexts: string[]
 
-    constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig, signingContexts: string[] = []) {
+    constructor(accountConfig: AccountConfig, autoConfig: AccountNodeConfig, signingContexts: string[] = []) {
         super(accountConfig, autoConfig)
         this.signingContexts = signingContexts
     }
@@ -26,7 +24,7 @@ export default class LimitedAccount extends AutoAccount {
         return AutoAccount.prototype.keyring.call(this, contextName)
     }
 
-    public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
+    public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
         if (this.signingContexts.indexOf(contextName) == -1) {
             throw new Error(`Account does not support context: ${contextName}`)
         }

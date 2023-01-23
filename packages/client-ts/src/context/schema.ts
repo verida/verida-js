@@ -1,3 +1,5 @@
+import { ISchema } from '@verida/types'
+
 const RefParser = require("json-schema-ref-parser");
 import Ajv2020 from "ajv/dist/2020";
 import addFormats from "ajv-formats";
@@ -23,7 +25,7 @@ const jsonCache: any = {};
  * @category
  * Modules
  */
-class Schema {
+class Schema implements ISchema {
   public errors: any[];
 
   protected path: string;

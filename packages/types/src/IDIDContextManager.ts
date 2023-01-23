@@ -3,35 +3,33 @@ import { IAccount } from "./IAccount";
 import { IDIDClient } from "./IDIDClient";
 import { SecureContextConfig } from "./StorageLinkInterfaces";
 
-export interface DIDContextManager {
-   constructor(didClient: IDIDClient): void
+export interface IDIDContextManager {
+  setAccount(account: IAccount): void
 
-   setAccount(account: IAccount): void
-
-    getContextDatabaseServer(
+  getContextDatabaseServer(
     did: string,
     contextName: string,
     forceCreate: boolean
   ): Promise<SecureContextEndpoint> 
 
-    getContextStorageServer(
+  getContextStorageServer(
     did: string,
     contextName: string,
     forceCreate: boolean
   ): Promise<SecureContextEndpoint> 
 
-    getContextMessageServer(
+  getContextMessageServer(
     did: string,
     contextName: string,
     forceCreate: boolean
   ): Promise<SecureContextEndpoint> 
 
-    getDIDContextHashConfig(did: string, contextHash: string): Promise<SecureContextConfig>
+  getDIDContextHashConfig(did: string, contextHash: string): Promise<SecureContextConfig>
 
-    getDIDContextConfig(
-        did: string,
-        contextName: string,
-        forceCreate?: boolean
-    ): Promise<SecureContextConfig> 
+  getDIDContextConfig(
+    did: string,
+    contextName: string,
+    forceCreate?: boolean
+  ): Promise<SecureContextConfig> 
 }
 

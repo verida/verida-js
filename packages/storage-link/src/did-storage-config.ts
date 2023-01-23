@@ -1,4 +1,4 @@
-import { SecureContextConfig, SecureContextServices } from './interfaces'
+import { SecureContextConfig, SecureContextServices } from "@verida/types"
 
 export default class DIDStorageConfig {
 

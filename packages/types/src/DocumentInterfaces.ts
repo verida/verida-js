@@ -7,21 +7,21 @@ export interface SecureContextEndpoint {
     config?: object;
 }
 
-export interface Endpoints {
+export interface SecureContextEndpoints {
     database: SecureContextEndpoint,
     messaging: SecureContextEndpoint,
     storage?: SecureContextEndpoint,
     notification?: SecureContextEndpoint,
 }
 
-export enum EndpointType {
+export enum SecureContextEndpointType {
     DATABASE = 'database',
     MESSAGING = 'messaging',
     STORAGE = 'storage',
     NOTIFICATION = 'notification'
 }
 
-export interface ComparisonResult {
+export interface DIDDocumentComparisonResult {
     controller?: string | string[];
     add: DocInterface;
     remove: DocInterface;

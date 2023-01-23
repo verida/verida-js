@@ -1,5 +1,4 @@
 import Axios from 'axios'
-import { ResolverConfigurationOptions } from "./interfaces";
 import { lookup } from './lookup';
 import {
     DIDResolutionOptions,
@@ -11,6 +10,7 @@ import {
 import { DIDDocument } from "@verida/did-document"
 import { RPC_URLS } from './config'
 import { interpretIdentifier } from './utils'
+import { Web3ResolverConfigurationOptions } from '@verida/types';
 
 /**
  * Create a VdaDidResolver instance and return it
@@ -18,7 +18,7 @@ import { interpretIdentifier } from './utils'
  * @returns VdaDidResolver instance
  */
 export function getResolver(
-    options?: ResolverConfigurationOptions
+    options?: Web3ResolverConfigurationOptions
   ): Record<string, DIDResolver> {
     options = !options ? {} : options
     return new VdaDidResolver(options).build()
@@ -26,10 +26,10 @@ export function getResolver(
 
 export class VdaDidResolver {
 
-    private options: ResolverConfigurationOptions
+    private options: Web3ResolverConfigurationOptions
     private defaultTimeout: number = 10000
 
-    constructor(options: ResolverConfigurationOptions) {
+    constructor(options: Web3ResolverConfigurationOptions) {
         this.options = options
     }
 

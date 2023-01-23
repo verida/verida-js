@@ -1,7 +1,7 @@
 /**
  * Interface for notifications
  */
-export default interface INotification {
+export interface INotification {
 
     /**
      * Initialize notifications for the connected user

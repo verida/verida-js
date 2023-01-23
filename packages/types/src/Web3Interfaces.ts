@@ -4,17 +4,17 @@ import { Provider } from '@ethersproject/providers'
 
 
 /** Web3 SDK running mode */
-export type CallType = 'web3' | 'gasless'
+export type Web3CallType = 'web3' | 'gasless'
 
 /** Contract Info. Used for 'web3' mode */
-export interface ContractInfo {
+export interface Web3ContractInfo {
     abi: any
     address: string
     logPerformance?: boolean
 }
 
 /** Gas configuration */
-export interface VeridaWeb3GasConfiguration {
+export interface Web3GasConfiguration {
     maxFeePerGas?: BigNumber
     maxPriorityFeePerGas?: BigNumber
     gasLimit?: BigNumber
@@ -28,27 +28,27 @@ export interface VeridaWeb3GasConfiguration {
  * rpcUrl - optinal - a JSON-RPC URL that can be used to connect to an ethereum network. At least one of `signer`, `provider`, or `rpcUrl` is required
  * web3 - optional - Can use provider or web.currentProvider as a provider.
  */
-export interface VeridaSelfTransactionConfig extends VeridaWeb3GasConfiguration {
+export interface Web3SelfTransactionConfig extends Web3GasConfiguration {
     signer?: Signer
     privateKey?: string
     provider?: Provider
     rpcUrl?: string
     web3?: any
 
-    methodDefaults?: Record<string, VeridaWeb3GasConfiguration>
+    methodDefaults?: Record<string, Web3GasConfiguration>
 }
 
 /** Configuration type for gasless mode */
-export interface VeridaMetaTransactionConfig {
-    serverConfig: VeridaGaslessRequestConfig
-    postConfig: VeridaGaslessPostConfig
+export interface Web3MetaTransactionConfig {
+    serverConfig: Web3GaslessRequestConfig
+    postConfig: Web3GaslessPostConfig
     endpointUrl: string
 }
 
-export type VeridaWeb3Config = ContractInfo & (VeridaSelfTransactionConfig | VeridaMetaTransactionConfig)
+export type VeridaWeb3Config = Web3ContractInfo & (Web3SelfTransactionConfig | Web3MetaTransactionConfig)
 
 /** Configuration type for gasless request */
-export interface VeridaGaslessRequestConfig {
+export interface Web3GaslessRequestConfig {
     headers: {
         'context-name': string
         [key: string] : any
@@ -57,7 +57,7 @@ export interface VeridaGaslessRequestConfig {
 }
 
 /** Configuration type for gasless post */
-export interface VeridaGaslessPostConfig {
+export interface Web3GaslessPostConfig {
     headers: {
         'user-agent': string
         [key: string] : any
@@ -76,7 +76,7 @@ export interface VeridaGaslessPostConfig {
  * { name: 'rsk:testnet', chainId: '0x1f', rpcUrl: 'https://public-node.testnet.rsk.co' }
  * ```
  */
- export interface ProviderConfiguration {
+ export interface Web3ProviderConfiguration {
     // name?: string
     provider?: Provider
     rpcUrl?: string
@@ -88,8 +88,8 @@ export interface VeridaGaslessPostConfig {
 }
 
 export type VeridaWeb3ConfigurationOptions =
-| VeridaMetaTransactionConfig
-| VeridaSelfTransactionConfig;
+| Web3MetaTransactionConfig
+| Web3SelfTransactionConfig;
 
 /**
  * Interface for VDA-DID instance creation
@@ -100,17 +100,34 @@ export type VeridaWeb3ConfigurationOptions =
  * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
  */
 export interface VdaDidConfigurationOptions {
-identifier: string;
-signKey: string;
-chainNameOrId?: string | number;
+    identifier: string;
+    signKey: string;
+    chainNameOrId?: string | number;
 
-callType: CallType;
-web3Options: VeridaWeb3ConfigurationOptions;
+    callType: Web3CallType;
+    web3Options: VeridaWeb3ConfigurationOptions;
 }
 
 export interface VdaDidEndpointResponse {
-status: 'success' | 'fail',
-message?: string
+    status: 'success' | 'fail',
+    message?: string
 }
 
 export type VdaDidEndpointResponses = Record<string, VdaDidEndpointResponse>
+
+// Part of VeridaSelfTransactionConfig
+export interface Web3SelfTransactionConfigPart  {
+    signer?: Signer         // Pre-built transaction signer that is configured to pay for gas
+    privateKey?: string     // MATIC private key that will pay for gas
+}
+
+export interface Web3ResolverConfigurationOptions {
+    rpcUrl?: string;
+    timeout?: number;
+}
+
+export interface VdaTransactionResult {
+    success: boolean;
+    data?: any
+    error?: string
+}

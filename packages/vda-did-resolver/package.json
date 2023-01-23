@@ -22,6 +22,7 @@
     "@verida/did-document": "^2.0.0",
     "@verida/encryption-utils": "^2.0.0",
     "@verida/vda-did": "^2.0.0",
+    "@verida/types": "^2.0.0",
     "axios": "1.2.0-alpha.1",
     "lodash": "^4.17.21"
   },

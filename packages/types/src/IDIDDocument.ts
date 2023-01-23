@@ -1,47 +1,39 @@
-import { ServiceEndpoint } from 'did-resolver'
-import { Endpoints, EndpointType, VeridaDocInterface } from "./DocumentInterfaces"
+import { ServiceEndpoint, Service } from 'did-resolver'
+import { SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface } from "./DocumentInterfaces"
 import { IKeyring } from './IKeyring'
 
 export interface IDIDDocument {
+    get id(): string
 
-    constructor(doc: VeridaDocInterface | string, publicKeyHex?: string): void
+    getErrors(): string[] 
 
-     get id(): string
+    addContext(contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints): Promise<void>
 
-     getErrors(): string[] 
+    removeContext(contextName: string): boolean 
 
-      addContext(contextName: string, keyring: IKeyring, privateKey: string, endpoints: Endpoints): Promise<void>
+    setAttributes(attributes: Record<string, any>): void
 
-     removeContext(contextName: string): boolean 
+    import(doc: VeridaDocInterface): void
 
-     setAttributes(attributes: Record<string, any>): void
+    export(): VeridaDocInterface 
 
-     import(doc: VeridaDocInterface): void
+    addContextService(contextHash: string, endpointType: SecureContextEndpointType, serviceType: string, endpointUris: ServiceEndpoint[]): void
 
-     export(): VeridaDocInterface 
+    addContextSignKey(contextHash: string, publicKeyHex: string, proof: string): void
 
-     addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUris: ServiceEndpoint[]): void
+    addContextAsymKey(contextHash: string, publicKeyHex: string): void
 
-     addContextSignKey(contextHash: string, publicKeyHex: string, proof: string): void
+    verifySig(data: any, signature: string): boolean 
 
-     addContextAsymKey(contextHash: string, publicKeyHex: string): void
+    verifyContextSignature(data: any, contextName: string, signature: string, contextIsHash: boolean): boolean
 
- verifySig(data: any, signature: string): boolean 
- 
- verifyContextSignature(data: any, contextName: string, signature: string, contextIsHash: boolean): boolean
+    locateServiceEndpoint(contextName: string, endpointType: SecureContextEndpointType): Service | undefined
 
-      generateContextHash(did: string, contextName: string): string
+    locateContextProof(contextName: string): string | undefined
 
-     locateServiceEndpoint(contextName: string, endpointType: EndpointType): string | undefined
+    signProof(privateKey: Uint8Array | string): void
 
-     locateContextProof(contextName: string): string | undefined
+    verifyProof(): boolean
 
-     signProof(privateKey: Uint8Array | string): void
-
-     verifyProof(): boolean
-
-     getProofData(): any
-
-     buildTimestamp(date: Date): string
-
+    buildTimestamp(date: Date): string
 }

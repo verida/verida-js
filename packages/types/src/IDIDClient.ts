@@ -1,29 +1,24 @@
 import { IDIDDocument } from "./IDIDDocument";
-import { DIDClientConfig, VeridaSelfTransactionConfigPart } from "./NetworkInterfaces";
-import { CallType, VdaDidEndpointResponse, VeridaMetaTransactionConfig } from "./Web3Interfaces";
+import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfigPart, VdaDidEndpointResponses } from "./Web3Interfaces";
 
 
 export interface IDIDClient {
-
-    constructor(config: DIDClientConfig): void
-    
-     authenticate(
+    authenticate(
         veridaPrivateKey: string,
-        callType: CallType,
-        web3Config: VeridaSelfTransactionConfigPart | VeridaMetaTransactionConfig,
+        callType: Web3CallType,
+        web3Config: Web3SelfTransactionConfigPart | Web3MetaTransactionConfig,
         defaultEndpoints: string[]
     ): void
 
-     authenticated(): boolean 
+    authenticated(): boolean 
 
-     getDid(): string | undefined 
+    getDid(): string | undefined 
 
-     getPublicKey(): string | undefined 
-    
-      save(document: IDIDDocument): Promise<VdaDidEndpointResponse>
+    getPublicKey(): string | undefined 
 
-     getLastEndpointErrors(): string[]
-    
-      get(did: string): Promise<IDIDDocument>
-    
+    save(document: IDIDDocument): Promise<VdaDidEndpointResponses>
+
+    getLastEndpointErrors(): VdaDidEndpointResponses
+
+    get(did: string): Promise<IDIDDocument>
 }

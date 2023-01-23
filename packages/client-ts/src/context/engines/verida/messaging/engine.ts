@@ -1,21 +1,16 @@
-import BaseMessage from "../../../messaging";
-import { MessagesConfig } from "../../../interfaces";
 import Inbox from "./inbox";
 import Outbox from "./outbox";
-import { Keyring } from "@verida/keyring";
-import { Account } from "@verida/account";
 import DIDContextManager from "../../../../did-context-manager";
 import Context from "../../../context";
-import { MessageSendConfig } from "../../../interfaces";
-import Notification from "../../../notification";
-import { Client } from "../../../..";
+import { IAccount, IKeyring, IMessaging, MessagesConfig, MessageSendConfig } from "@verida/types";
+import { Keyring } from "@verida/keyring";
 const EventEmitter = require("events");
 
 /**
  * @category
  * Modules
  */
-class MessagingEngineVerida implements BaseMessage {
+class MessagingEngineVerida implements IMessaging {
   private context: Context;
   private contextName: string;
   private maxItems: Number;
@@ -45,7 +40,7 @@ class MessagingEngineVerida implements BaseMessage {
     await inbox.init();
   }
 
-  public async connectAccount(account: Account) {
+  public async connectAccount(account: IAccount) {
     this.did = await account.did();
     this.keyring = await account.keyring(this.contextName);
     await this.init();

@@ -1,15 +1,9 @@
-/*import { Interfaces } from "@verida/storage-link"
-import { Interfaces as DIDDocInterfaces } from "@verida/did-document"
-import { ServiceEndpoint } from 'did-resolver'
-import Account from "./account"*/
-
-
 import { ServiceEndpoint } from 'did-resolver'
 import { SecureContextEndpoint } from './DocumentInterfaces'
 import { IAccount } from './IAccount'
 import { SecureContextPublicKey } from './StorageLinkInterfaces'
-import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from './Web3Interfaces'
-import { DIDClientConfig } from './NetworkInterfaces'
+import { DIDClientConfig, EnvironmentType } from './NetworkInterfaces'
+import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from './Web3Interfaces'
 
 export interface AccountConfig {
     defaultDatabaseServer: SecureContextEndpoint,
@@ -18,49 +12,13 @@ export interface AccountConfig {
     defaultNotificationServer?: SecureContextEndpoint,
 }
 
-export enum EnvironmentType {
-    LOCAL = 'local',
-    TESTNET = 'testnet',
-    MAINNET = 'mainnet'
-}
-
 export interface AuthContext {
     publicSigningKey: SecureContextPublicKey
 }
 
 export interface AuthTypeConfig {
-    force: boolean
+    force?: boolean
 }
-
-export class AuthType {
-
-    protected contextAuth?: AuthContext
-    protected account: IAccount
-    protected contextName: string
-    protected serviceEndpoint: ServiceEndpoint
-    protected signKey: SecureContextPublicKey
-
-    public constructor(account: IAccount, contextName: string, serviceEndpoint: ServiceEndpoint, signKey: SecureContextPublicKey) {
-        this.account = account
-        this.contextName = contextName
-        this.serviceEndpoint = serviceEndpoint
-        this.signKey = signKey
-    }
-
-    getAuthContext(config: AuthTypeConfig): Promise<AuthContext> {
-        throw new Error("Not implemented")
-    }
-
-    setAuthContext(contextAuth: AuthContext) {
-        this.contextAuth = contextAuth
-    }
-
-    disconnectDevice(deviceId: string="Test device"): Promise<boolean> {
-        throw new Error("Not implemented")
-    }
-}
-
-//// VeridaDatabase Authentication Interfaces
 
 export interface VeridaDatabaseAuthContext extends AuthContext {
     refreshToken?: string,
@@ -82,9 +40,66 @@ export class ContextAuthorizationError extends Error {
     }
 }
 
-export interface NodeAccountConfig {
+export interface AccountNodeConfig {
     privateKey: string, // or mnemonic
     environment: EnvironmentType
-    didClientConfig: DIDClientConfig
+    didClientConfig: AccountNodeDIDClientConfig
     options?: any
+}
+
+/**
+ * Client configuration required for AccountNode that will support creating a DID
+ * on chain, if required
+ */
+export interface AccountNodeDIDClientConfig extends Omit<DIDClientConfig, 'network'> {
+    callType: Web3CallType,
+    web3Config: Web3SelfTransactionConfig | Web3MetaTransactionConfig,
+    didEndpoints: string[]
+}
+
+export interface WalletConnectConfig {
+    version: string,
+    uri: string,
+    chainId: string
+}
+
+export interface AccountVaultRequest {
+    logoUrl?: string,       // Optional URL that will be displayed as part of the login process
+    openUrl?: string,       // Optional URL that will be opened on the user's mobile device once the user is logged in
+    walletConnect?: {       // Optional, WalletConnect configuration to enable a seamless connection with both Verida and WalletConnect with a single request
+        version: number,    // Required, WalletConnect version used by the dApp
+        uri: string,        // Required, WalletConnect connector URI
+        chainId: string     // Required, CAIP compliant chainId
+    }
+    userAgent?: string      // User Agent that originated the request
+}
+
+export interface AccountVaultConfig {
+    serverUri?: string,      // WSS URI
+    loginUri?: string,       // Login URI (page where the user will be sent to login using the app; ie: vault.verida.io)
+    canvasId?: string        // DOM id where the QR code canvas will be injected
+    schemeUri?: string,
+    deeplinkId?: string,
+    request?: AccountVaultRequest,
+    environment?: EnvironmentType,
+    callback?(response: AuthResponse): void        // callback function (called when auth response received)
+    callbackRejected?(): void   // callback function (called when user rejects / cancels the login by closing the modal)
+}
+
+export interface AuthClientConfig {
+    appName: string,
+    serverUri: string,      // WSS URI
+    loginUri?: string,       // Login URI (page where the user will be sent to login using the app; ie: vault.verida.io)
+    canvasId?: string        // DOM id where the QR code canvas will be injected
+    schemeUri?: string,
+    deeplinkId?: string,
+    request?: AccountVaultRequest,
+    callback(response: AuthResponse): void        // callback function (called when auth response received)
+    callbackRejected?(): void   // callback function (called when user rejects / cancels the login by closing the modal)
+}
+
+export interface AuthResponse {
+    type: string,
+    success: boolean,
+    message: string
 }
