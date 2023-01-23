@@ -1,4 +1,3 @@
-import { AccountNodeDIDClientConfig } from './AccountInterfaces';
 import { IAccount } from './IAccount';
 import { IStorageEngine } from './IStorageEngine';
 import { SecureContextConfig } from './StorageLinkInterfaces';

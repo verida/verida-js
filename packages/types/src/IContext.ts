@@ -12,7 +12,7 @@ import { IMessaging } from "./IMessaging";
 import { INotification } from "./INotification";
 import { IDbRegistry } from "./IDbRegistry";
 
-export interface IContext extends EventEmitter {
+export interface IContext {
   getContextConfig(
     did?: string,
     forceCreate?: boolean,

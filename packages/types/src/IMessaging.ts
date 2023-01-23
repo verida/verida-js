@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events'
 import { MessageSendConfig } from "./ContextInterfaces";
 import { IAccount } from "./IAccount";
 
