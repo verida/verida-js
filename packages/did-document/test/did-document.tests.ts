@@ -29,18 +29,7 @@ const endpoints: SecureContextEndpoints = {
     }
 }
 
-const endpointsMultiple: Endpoints = {
-    database: {
-        type: SecureContextEndpointType.DATABASE,
-        endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
-    },
-    messaging: {
-        type: SecureContextEndpointType.MESSAGING,
-        endpointUri: ['https://db.testnet.verida.io/2', 'https://db2.testnet.verida.io/2']
-    }
-}
-
-const endpointsMultiple: Endpoints = {
+const endpointsMultiple: SecureContextEndpoints = {
     database: {
         type: SecureContextEndpointType.DATABASE,
         endpointUri: ['https://db.testnet.verida.io/1', 'https://db2.testnet.verida.io/1']
