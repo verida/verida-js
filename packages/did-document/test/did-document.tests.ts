@@ -2,7 +2,7 @@
 const assert = require('assert')
 
 import { DIDDocument } from "../src/index"
-import { Wallet, utils } from 'ethers'
+import { Wallet } from 'ethers'
 import { Keyring } from '@verida/keyring'
 import { ServiceEndpoint } from "did-resolver"
 import { SecureContextEndpoints, SecureContextEndpointType } from "@verida/types"

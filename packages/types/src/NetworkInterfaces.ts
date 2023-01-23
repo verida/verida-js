@@ -2,7 +2,7 @@ import { IAccount } from './IAccount';
 import { IStorageEngine } from './IStorageEngine';
 import { SecureContextConfig } from './StorageLinkInterfaces';
 
-export declare enum EnvironmentType {
+export enum EnvironmentType {
     LOCAL = "local",
     TESTNET = "testnet",
     MAINNET = "mainnet"
