@@ -1,11 +1,10 @@
-import { Profile } from "./context/profiles/profile";
+import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig } from "@verida/types";
 import { DIDClient } from "@verida/did-client";
 
 import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
 import DEFAULT_CONFIG from "./config";
-import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig } from "@verida/types";
 const _ = require("lodash");
 
 /**

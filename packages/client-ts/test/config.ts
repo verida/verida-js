@@ -33,7 +33,7 @@ export default {
         },
         didEndpoints: DID_ENDPOINTS
     },
-    INVALID_ENDPOINTS: {    // endpoints that resolve to non-existant storage node
+    INVALID_ENDPOINTS: {    // endpoints that resolve to non-existent storage node
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
             endpointUri: ['http://192.168.68.128:6000/']
