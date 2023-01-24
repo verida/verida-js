@@ -1,34 +1,47 @@
 import { EventEmitter } from 'events'
-import { Account, AuthTypeConfig, AuthContext } from "@verida/account";
-import { Interfaces } from "@verida/storage-link";
-
-import BaseStorageEngine from "./engines/base";
-import { ContextCloseOptions, DatabaseCloseOptions, DatabaseDeleteConfig, EngineType, StorageEngineTypes } from "./interfaces";
+import { Account } from "@verida/account";
 import DIDContextManager from "../did-context-manager";
-import { DatabaseEngines } from "../interfaces";
-import { DatabaseOpenConfig, DatastoreOpenConfig, MessagesConfig, ContextInfo } from "./interfaces";
-import Database from "./database";
 import Datastore from "./datastore";
-import Messaging from "./messaging";
 import Client from "../client";
 import { Profile } from "./profiles/profile";
 
+import StorageEngineVerida from "./engines/verida/database/engine";
+import MessagingEngineVerida from "./engines/verida/messaging/engine";
+import DbRegistry from "./db-registry";
+import NotificationEngineVerida from './engines/verida/notification/engine'
+import {
+  DatabaseEngines,
+  IAccount,
+  IContext,
+  IDatabase,
+  StorageEngineTypes,
+  IMessaging,
+  INotification,
+  MessagesConfig,
+  DatabaseOpenConfig,
+  DatastoreOpenConfig,
+  ContextInfo,
+  ContextEngineType,
+  ContextCloseOptions,
+  DatabaseCloseOptions,
+  SecureContextConfig,
+  AuthTypeConfig,
+  AuthContext,
+  IStorageEngine
+} from '@verida/types';
+
 const _ = require("lodash");
 
-import StorageEngineVerida from "./engines/verida/database/engine";
+
 const DATABASE_ENGINES: StorageEngineTypes = {
   VeridaDatabase: StorageEngineVerida,
 };
 
-import MessagingEngineVerida from "./engines/verida/messaging/engine";
-import DbRegistry from "./db-registry";
-import Notification from "./notification";
 
 const MESSAGING_ENGINES: StorageEngineTypes = {
   VeridaMessage: MessagingEngineVerida,
 };
 
-import NotificationEngineVerida from './engines/verida/notification/engine'
 
 const NOTIFICATION_ENGINES: StorageEngineTypes = {
   VeridaNotification: NotificationEngineVerida,
@@ -48,18 +61,18 @@ const NOTIFICATION_ENGINES: StorageEngineTypes = {
  * @category
  * Modules
  */
-class Context extends EventEmitter {
+class Context extends EventEmitter implements IContext {
   private client: Client;
   private account?: Account;
-  private messagingEngine?: Messaging;
-  private notificationEngine?: Notification
+  private messagingEngine?: IMessaging;
+  private notificationEngine?: INotification
 
   private contextName: string;
   private didContextManager: DIDContextManager;
   private databaseEngines: DatabaseEngines = {};
   private dbRegistry: DbRegistry;
 
-  private databaseCache: Record<string, Database | Promise<Database>> = {}
+  private databaseCache: Record<string, IDatabase | Promise<IDatabase>> = {}
 
   /**
    * Instantiate a new context.
@@ -75,14 +88,14 @@ class Context extends EventEmitter {
     client: Client,
     contextName: string,
     didContextManager: DIDContextManager,
-    account?: Account
+    account?: IAccount
   ) {
     super()
 
     this.client = client;
     this.contextName = contextName;
     this.didContextManager = didContextManager;
-    this.account = account;
+    this.account = <Account> account;
     this.dbRegistry = new DbRegistry(this);
   }
 
@@ -90,7 +103,7 @@ class Context extends EventEmitter {
     did?: string,
     forceCreate?: boolean,
     customContextName?: string
-  ): Promise<Interfaces.SecureContextConfig> {
+  ): Promise<SecureContextConfig> {
     if (!did) {
       if (!this.account) {
         throw new Error("No DID specified and no authenticated user");
@@ -110,7 +123,7 @@ class Context extends EventEmitter {
     return this.contextName;
   }
 
-  public getAccount(): Account {
+  public getAccount(): IAccount {
     return this.account!;
   }
 
@@ -141,7 +154,7 @@ class Context extends EventEmitter {
   public async getDatabaseEngine(
     did: string,
     createContext?: boolean
-  ): Promise<BaseStorageEngine> {
+  ): Promise<IStorageEngine> {
     if (this.databaseEngines[did]) {
       return this.databaseEngines[did];
     }
@@ -191,7 +204,7 @@ class Context extends EventEmitter {
    *
    * @returns {Messaging} Messaging instance
    */
-  public async getMessaging(messageConfig: MessagesConfig = {}): Promise<Messaging> {
+  public async getMessaging(messageConfig: MessagesConfig = {}): Promise<IMessaging> {
     if (this.messagingEngine) {
       return this.messagingEngine;
     }
@@ -222,7 +235,7 @@ class Context extends EventEmitter {
     return this.messagingEngine!;
   }
 
-  public async getNotification(did: string, contextName: string): Promise<Notification | undefined> {
+  public async getNotification(did: string, contextName: string): Promise<INotification | undefined> {
     if (!this.account) {
       throw new Error(`Unable to open notification. No authenticated user.`);
     }
@@ -296,7 +309,7 @@ class Context extends EventEmitter {
   public async openDatabase(
     databaseName: string,
     config: DatabaseOpenConfig = {}
-  ): Promise<Database> {
+  ): Promise<IDatabase> {
     if (!this.account) {
       throw new Error(`Unable to open database. No authenticated user.`);
     }
@@ -355,7 +368,7 @@ class Context extends EventEmitter {
     databaseName: string,
     did: string,
     config: DatabaseOpenConfig = {}
-  ): Promise<Database> {
+  ): Promise<IDatabase> {
     did = did.toLowerCase()
     const cacheKey = `${did}/${databaseName}/external`
     if (this.databaseCache[cacheKey] && !config.ignoreCache) {
@@ -483,6 +496,12 @@ class Context extends EventEmitter {
     }
     const did = await this.account!.did()
     const contextConfig = await this.getContextConfig(did, false)
+    if (!authConfig) {
+      authConfig = {
+        force: false
+      }
+    }
+    
     return this.account!.getAuthContext(this.contextName, contextConfig, authConfig, authType)
   }
   
@@ -492,7 +511,7 @@ class Context extends EventEmitter {
    * @param engineType 
    * @param endpointUri 
    */
-  public async addEndpoint(engineType: EngineType, endpointUri: string) {
+  public async addEndpoint(engineType: ContextEngineType, endpointUri: string) {
     if (!this.account) {
       throw new Error('Unable to add endpoint. No account connected.')
     }

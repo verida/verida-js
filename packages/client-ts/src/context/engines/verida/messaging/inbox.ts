@@ -1,11 +1,11 @@
 import { box } from "tweetnacl";
 const didJWT = require("did-jwt");
-const EventEmitter = require("events");
+import { EventEmitter } from 'events'
 
 import { Keyring } from "@verida/keyring";
-import { PermissionOptionsEnum } from "../../../interfaces";
 import Context from "../../../context";
 import EncryptionUtils from "@verida/encryption-utils";
+import { DatabasePermissionOptionsEnum } from "@verida/types";
 
 /**
  * @category
@@ -201,8 +201,8 @@ class VeridaInbox extends EventEmitter {
       "https://core.schemas.verida.io/inbox/item/v0.1.0/schema.json",
       {
         permissions: {
-          read: PermissionOptionsEnum.PUBLIC,
-          write: PermissionOptionsEnum.PUBLIC,
+          read: DatabasePermissionOptionsEnum.PUBLIC,
+          write: DatabasePermissionOptionsEnum.PUBLIC,
         },
       }
     );
@@ -211,8 +211,8 @@ class VeridaInbox extends EventEmitter {
       "https://core.schemas.verida.io/inbox/entry/v0.1.0/schema.json",
       {
         permissions: {
-          read: PermissionOptionsEnum.OWNER,
-          write: PermissionOptionsEnum.OWNER,
+          read: DatabasePermissionOptionsEnum.OWNER,
+          write: DatabasePermissionOptionsEnum.OWNER,
         },
       }
     );

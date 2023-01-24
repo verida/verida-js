@@ -1,13 +1,10 @@
 import Axios from 'axios'
 import { ethers } from 'ethers'
-import {
-    VdaDidConfigurationOptions,
-    VdaDidEndpointResponses
-} from "./interfaces"
 import { DIDDocument } from '@verida/did-document'
 import EncryptionUtils from '@verida/encryption-utils'
 import BlockchainApi from "./blockchain/blockchainApi";
 import { interpretIdentifier } from './blockchain/helpers'
+import { VdaDidConfigurationOptions, VdaDidEndpointResponses } from '@verida/types'
 
 export default class VdaDid {
 

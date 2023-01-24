@@ -2,18 +2,16 @@ const EventEmitter = require("events");
 const _ = require("lodash");
 import { v1 as uuidv1 } from "uuid";
 
-import { VeridaDatabaseConfig } from "./interfaces";
-import Database from "../../../database";
-import { DatabaseCloseOptions, DatabaseDeleteConfig, EndpointUsage, PermissionsConfig } from "../../../interfaces";
 import Utils from "./utils";
 import { Context } from "../../../..";
-import { DbRegistryEntry } from "../../../db-registry";
 import { RecordSignature } from "../../../utils"
 import StorageEngineVerida from "./engine"
 import Endpoint from "./endpoint";
 
 import * as PouchDBFind from "pouchdb-find";
 import * as PouchDBLib from "pouchdb"
+import { DatabaseCloseOptions, DatabaseDeleteConfig, DatabasePermissionsConfig, DbRegistryEntry, EndpointUsage, IDatabase } from "@verida/types";
+import { VeridaDatabaseConfig } from "./interfaces";
 const { default: PouchDB } = PouchDBLib as any;
 PouchDB.plugin(PouchDBFind);
 
@@ -21,7 +19,7 @@ PouchDB.plugin(PouchDBFind);
  * @category
  * Modules
  */
-class BaseDb extends EventEmitter implements Database {
+class BaseDb extends EventEmitter implements IDatabase {
   protected databaseName: string;
   protected databaseHash: string;
   protected did: string;
@@ -29,7 +27,7 @@ class BaseDb extends EventEmitter implements Database {
   protected storageContext: string;
   protected engine: StorageEngineVerida
 
-  protected permissions: PermissionsConfig;
+  protected permissions: DatabasePermissionsConfig;
   protected isOwner?: boolean;
 
   protected signContext: Context;
@@ -50,7 +48,7 @@ class BaseDb extends EventEmitter implements Database {
     this.engine = engine
 
     this.isOwner = config.isOwner;
-    this.signContext = config.signContext;
+    this.signContext = <Context> config.signContext;
 
     this.databaseHash = Utils.buildDatabaseHash(this.databaseName, this.storageContext, this.did)
 

@@ -1,7 +1,6 @@
+import { EndpointUsage, VeridaDatabaseAuthContext } from "@verida/types";
 import Axios from "axios";
-import { VeridaDatabaseAuthContext } from "@verida/account";
 import { ServiceEndpoint } from 'did-resolver'
-import { EndpointUsage } from '../../../interfaces'
 
 /**
  * Interface for RemoteClientAuthentication

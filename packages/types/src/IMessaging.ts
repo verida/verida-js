@@ -1,16 +1,12 @@
-import { Account } from "@verida/account";
-import { MessageSendConfig } from "./interfaces";
+import { EventEmitter } from 'events'
+import { MessageSendConfig } from "./ContextInterfaces";
+import { IAccount } from "./IAccount";
 
 /**
  * Interface Messaging
  */
-export default interface Messaging {
-  /**
-   * Initialize messaging for the connected user
-   *
-   * (ie; create an empty database or anything else required to start receiving messages)
-   */
-  init(): Promise<void>;
+export interface IMessaging {
+  init(): Promise<void>
 
   /**
    * Send a message to another DID on the network.
@@ -75,5 +71,5 @@ export default interface Messaging {
    *
    * @param account Account
    */
-  connectAccount(account: Account): Promise<void>;
+  connectAccount(account: IAccount): Promise<void>;
 }

@@ -1,6 +1,5 @@
+import { NetworkConnectionConfig, IContext } from "@verida/types";
 import Client from "./client";
-import Context from "./context/context";
-import { NetworkConnectionConfig } from "./interfaces";
 
 /**
  * @category
@@ -18,7 +17,7 @@ class Network {
    */
   public static async connect(
     config: NetworkConnectionConfig
-  ): Promise<Context | undefined> {
+  ): Promise<IContext | undefined> {
     const client = new Client(config.client ? config.client : {});
     await client.connect(config.account);
 

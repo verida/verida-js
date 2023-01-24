@@ -20,6 +20,7 @@
     "@verida/did-document": "^2.0.0",
     "@verida/vda-did-resolver": "^2.0.0",
     "@verida/web3": "^2.0.0",
+    "@verida/types": "^2.0.0",
     "axios": "^0.23.0",
     "deepcopy": "^2.1.0",
     "ethers": "^5.5.1"

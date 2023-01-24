@@ -1,5 +1,4 @@
-import { EnvironmentType } from "@verida/account"
-import { DefaultClientConfig } from "./interfaces"
+import { DefaultClientConfig, EnvironmentType } from "@verida/types"
 
 const config: DefaultClientConfig = {
     environment: EnvironmentType.TESTNET,

@@ -19,7 +19,7 @@ describe('Storage initialization tests', () => {
     const network = new Client({
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: {
-            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl!
         }
     })
 

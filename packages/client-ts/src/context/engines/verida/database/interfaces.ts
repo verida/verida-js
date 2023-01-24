@@ -1,5 +1,4 @@
-import { Context } from "../../../..";
-import { PermissionsConfig } from "../../../interfaces";
+import { DatabasePermissionsConfig, IContext } from "@verida/types";
 import Endpoint from "./endpoint";
 
 /**
@@ -10,10 +9,10 @@ export interface VeridaDatabaseConfig {
   did: string;
   storageContext: string;
 
-  permissions?: PermissionsConfig;
+  permissions?: DatabasePermissionsConfig;
 
   signData?: boolean;
-  signContext: Context;
+  signContext: IContext;
 
   readOnly?: boolean;
   isOwner?: boolean;

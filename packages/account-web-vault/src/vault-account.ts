@@ -1,20 +1,17 @@
-import { Account, VeridaDatabaseAuthContext, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, AccountConfig, EnvironmentType } from '@verida/account'
-import { Interfaces } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
-
 import Axios from "axios";
-const jwt = require('jsonwebtoken');
+import { Account } from '@verida/account';
+import { EnvironmentType, AccountVaultConfig, AccountConfig, VeridaDatabaseAuthContext, SecureContextConfig, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError} from '@verida/types';
 
+const jwt = require('jsonwebtoken');
 const querystring = require('querystring')
 const _ = require('lodash')
 const store = require('store')
 const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 const VERIDA_AUTH_TOKEN_QUERY_KEY = '_verida_auth'
 
-import { VaultAccountConfig } from "./interfaces"
-
-const CONFIG_DEFAULTS: Record<EnvironmentType, VaultAccountConfig> = {
+const CONFIG_DEFAULTS: Record<EnvironmentType, AccountVaultConfig> = {
     local: {},
     mainnet: {},
     testnet: {
@@ -69,12 +66,12 @@ export const hasSession = (contextName: string): boolean => {
  * An Authenticator that requests for authorization from the Vault
  */
 export default class VaultAccount extends Account {
-    private config: VaultAccountConfig
+    private config: AccountVaultConfig
 
     private accountDid?: string
     private contextCache: any = {}
 
-    constructor(config: VaultAccountConfig = {}) {
+    constructor(config: AccountVaultConfig = {}) {
         super()
         this.config = config
         this.config.request = this.config.request ? this.config.request : {}
@@ -116,7 +113,7 @@ export default class VaultAccount extends Account {
                 resolve(true)
             }
 
-            const config: VaultAccountConfig = _.merge(CONFIG, this.config, {
+            const config: AccountVaultConfig = _.merge(CONFIG, this.config, {
                 callback: cb,
                 callbackRejected: function() {
                     resolve(false)
@@ -168,7 +165,7 @@ export default class VaultAccount extends Account {
         return true
     }
 
-    public async loadFromSession(contextName: string): Promise<Interfaces.SecureContextConfig | undefined> {
+    public async loadFromSession(contextName: string): Promise<SecureContextConfig | undefined> {
         // First, attempt to Load from query parameters if specified
         const token = getAuthTokenFromQueryParams()
         if (token && token.context == contextName) {
@@ -227,7 +224,7 @@ export default class VaultAccount extends Account {
         return this.contextCache[contextName].keyring
     }
 
-    public addContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, keyring: Keyring, contextAuths: VeridaDatabaseAuthContext[]) {
+    public addContext(contextName: string, contextConfig: SecureContextConfig, keyring: Keyring, contextAuths: VeridaDatabaseAuthContext[]) {
         this.contextCache[contextName] = {
             keyring,
             contextConfig,
@@ -235,7 +232,7 @@ export default class VaultAccount extends Account {
         }
     }
 
-    public async storageConfig(contextName: string, forceCreate: boolean = false): Promise<Interfaces.SecureContextConfig | undefined> {
+    public async storageConfig(contextName: string, forceCreate: boolean = false): Promise<SecureContextConfig | undefined> {
         if (this.contextCache[contextName]) {
             return this.contextCache[contextName].contextConfig
         }
@@ -266,7 +263,7 @@ export default class VaultAccount extends Account {
      *
      * @param storageConfig
      */
-     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<boolean> {
+     public async linkStorage(storageConfig: SecureContextConfig): Promise<boolean> {
         throw new Error("Link storage is not supported. Vault needs to have already created the storage.")
      }
 
@@ -284,7 +281,7 @@ export default class VaultAccount extends Account {
         store.remove(VERIDA_AUTH_CONTEXT)
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
+    public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
         if (authConfig.force || !this.contextCache[contextName]) {

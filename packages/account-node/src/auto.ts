@@ -1,14 +1,11 @@
-import { Interfaces, StorageLink, DIDStorageConfig } from '@verida/storage-link'
+import { StorageLink, DIDStorageConfig } from '@verida/storage-link'
 import { Keyring } from '@verida/keyring'
-import { Account, AccountConfig, AuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
-import { NodeAccountConfig, } from './interfaces'
+import { Account } from '@verida/account'
 
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
-import { Interfaces as DIDDocumentInterfaces } from "@verida/did-document"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
-import { ServiceEndpoint } from 'did-resolver'
-import { VdaDidEndpointResponses } from '@verida/vda-did'
+import { AccountConfig, AccountNodeConfig, AuthContext, IDIDClient, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 
 /**
  * An Authenticator that automatically signs everything
@@ -19,10 +16,10 @@ export default class AutoAccount extends Account {
 
     private wallet: Wallet
     protected accountConfig: AccountConfig
-    protected autoConfig: NodeAccountConfig
+    protected autoConfig: AccountNodeConfig
     protected contextAuths: Record<string, Record<string, VeridaDatabaseAuthType>> = {}
 
-    constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig) {
+    constructor(accountConfig: AccountConfig, autoConfig: AccountNodeConfig) {
         super()
         this.accountConfig = accountConfig
         this.autoConfig = autoConfig
@@ -30,7 +27,7 @@ export default class AutoAccount extends Account {
 
         this.didClient = new DIDClient({
             ...autoConfig.didClientConfig,
-            network: <'testnet' | 'mainnet'> autoConfig.environment
+            network: autoConfig.environment
         })
     }
 
@@ -55,7 +52,7 @@ export default class AutoAccount extends Account {
         return this.wallet.did
     }
 
-    public async storageConfig(contextName: string, forceCreate?: boolean): Promise<Interfaces.SecureContextConfig | undefined> {
+    public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
         this.ensureAuthenticated()
 
         const did = await this.did()
@@ -63,7 +60,7 @@ export default class AutoAccount extends Account {
         
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
-            const endpoints: Interfaces.SecureContextServices = {
+            const endpoints: SecureContextServices = {
                 databaseServer: this.accountConfig.defaultDatabaseServer,
                 messageServer: this.accountConfig.defaultMessageServer
             }
@@ -88,7 +85,7 @@ export default class AutoAccount extends Account {
      * 
      * @param storageConfig 
      */
-     public async linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<boolean> {
+     public async linkStorage(storageConfig: SecureContextConfig): Promise<boolean> {
         this.ensureAuthenticated()
         const keyring = await this.keyring(storageConfig.id)
         const result = await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
@@ -130,7 +127,7 @@ export default class AutoAccount extends Account {
      * Link storage context service endpoint
      * 
      */
-    public async linkStorageContextService(contextName: string, endpointType: DIDDocumentInterfaces.EndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
+    public async linkStorageContextService(contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
         this.ensureAuthenticated()
         const result = await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUris)
 
@@ -144,12 +141,12 @@ export default class AutoAccount extends Account {
         return true
     }
 
-    public getDidClient() {
+    public getDidClient(): DIDClient {
         this.ensureAuthenticated()
         return this.didClient
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig, authType: string = "database"): Promise<AuthContext> {
+    public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig, authType: string = "database"): Promise<AuthContext> {
         if (typeof(authConfig.force) == 'undefined') {
             authConfig.force = false
         }

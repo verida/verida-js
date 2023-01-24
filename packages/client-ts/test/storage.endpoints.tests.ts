@@ -8,6 +8,8 @@ import Utils from "../src/context/engines/verida/database/utils";
 //import { Wallet } from 'ethers'
 import CONFIG from './config'
 import { sleep } from './utils'
+import { EnvironmentType } from '@verida/types'
+import { getRandomInt } from '../src/context/utils'
 
 const TEST_DB_NAME = 'TestDb_3'
 const TEST_DB_NAME_USERS = 'TestDb_Users_3'
@@ -41,6 +43,7 @@ describe.skip('Storage endpoint tests', () => {
     const client = new Client({
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: {
+            network: EnvironmentType.TESTNET,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
@@ -202,7 +205,7 @@ describe.skip('Storage endpoint tests', () => {
             assert.deepEqual(docs1.rows, docs2.rows, 'Rows on both databases match')
 
             // Write random data to the second endpoint and perform tests across all the endpoints
-            const randInt = Utils.getRandomInt(0, 1000000)
+            const randInt = getRandomInt(0, 1000000)
             const res = await secondaryConnection.post({'second': randInt})
             await sleep(5*1000)
             

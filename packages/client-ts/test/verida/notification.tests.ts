@@ -3,12 +3,11 @@ const assert = require('assert')
 
 import { Client, Context } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { AccountConfig } from '@verida/account'
 import CONFIG from '../config'
 import { StorageLink } from '@verida/storage-link'
-import { Interfaces as DIDDocumentInterfaces } from '@verida/did-document'
 import _ from 'lodash'
 import { Wallet } from 'ethers'
+import { AccountConfig, SecureContextEndpointType } from '@verida/types'
 
 const wallet = Wallet.createRandom()
 const address = wallet.address.toLowerCase()
@@ -126,7 +125,7 @@ describe('Verida notification tests', () => {
             assert.ok(!notificationService, `Don't have notification service instance`)
 
             // Add a notification server
-            const success1 = await account.linkStorageContextService(CONTEXT_1, DIDDocumentInterfaces.EndpointType.NOTIFICATION, 'VeridaNotification', ENDPOINT_CONFIG.defaultNotificationServer.endpointUri)
+            const success1 = await account.linkStorageContextService(CONTEXT_1, SecureContextEndpointType.NOTIFICATION, 'VeridaNotification', <string[]> ENDPOINT_CONFIG.defaultNotificationServer!.endpointUri)
             assert.ok(success1, `Link storage context service returned success`)
 
             // Use a new client (the old context config is cached in the existing client)

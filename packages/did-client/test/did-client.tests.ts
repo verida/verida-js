@@ -3,12 +3,11 @@ const assert = require('assert')
 
 import { Wallet } from 'ethers'
 import { Keyring } from '@verida/keyring'
-import { Interfaces, DIDDocument } from "@verida/did-document"
+import { DIDDocument } from "@verida/did-document"
 import { ServiceEndpoint } from "did-resolver"
 
 import { getDIDClient } from "./utils"
-
-const EndpointType = Interfaces.EndpointType
+import { SecureContextEndpointType } from '@verida/types'
 
 const wallet = Wallet.createRandom()
 
@@ -21,16 +20,16 @@ const keyring = new Keyring(wallet.mnemonic.phrase)
 
 const endpoints = {
     database: {
-        type: EndpointType.DATABASE,
-        endpointUri: ['https://acacia-dev1.tn.verida.tech/', 'https://acacia-dev2.tn.verida.tech/', 'https://acacia-dev3.tn.verida.tech/']
+        type: SecureContextEndpointType.DATABASE,
+        endpointUri: ['https://node1-apse2.devnet.verida.tech/', 'https://node2-apse2.devnet.verida.tech/', 'https://node3-apse2.devnet.verida.tech/']
     },
     messaging: {
-        type: EndpointType.MESSAGING,
-        endpointUri: ['https://acacia-dev1.tn.verida.tech/', 'https://acacia-dev2.tn.verida.tech/', 'https://acacia-dev3.tn.verida.tech/']
+        type: SecureContextEndpointType.MESSAGING,
+        endpointUri: ['https://node1-apse2.devnet.verida.tech/', 'https://node2-apse2.devnet.verida.tech/', 'https://node3-apse2.devnet.verida.tech/']
     }
 }
 
-const didEndpoints = ['https://acacia-dev1.tn.verida.tech/did/', 'https://acacia-dev2.tn.verida.tech/did/', 'https://acacia-dev3.tn.verida.tech/did/']
+const didEndpoints = ['https://node1-apse2.devnet.verida.tech/did/', 'https://node2-apse2.devnet.verida.tech/did/', 'https://node3-apse2.devnet.verida.tech/did/']
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -95,10 +94,10 @@ describe('DID Client tests', () => {
                 assert.deepEqual(actual.serviceEndpoint, endpointUri, `Endpoint (${actual.serviceEndpoint}) has expected value (${endpointUri})`)
             }
 
-            const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.DATABASE)
+            const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, SecureContextEndpointType.DATABASE)
             validateServiceEndpoint(endpoints.database.type, endpoints.database.endpointUri, endpoint1)
 
-            const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, EndpointType.MESSAGING)
+            const endpoint2 = doc.locateServiceEndpoint(CONTEXT_NAME, SecureContextEndpointType.MESSAGING)
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method

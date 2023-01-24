@@ -2,8 +2,7 @@ import AuthClient from "./auth-client";
 
 // @ts-ignore
 import Sora from "./assets/fonts/Sora-Regular.ttf";
-
-import { AuthClientConfig, VaultAccountConfig } from "./interfaces";
+import { AccountVaultConfig } from "@verida/types";
 const _ = require("lodash");
 const store = require("store");
 
@@ -11,9 +10,9 @@ const VERIDA_AUTH_CONTEXT = "_verida_auth_context";
 
 export default async function (
   contextName: string,
-  config: VaultAccountConfig
+  config: AccountVaultConfig
 ) {
-  const authConfig: AuthClientConfig = _.merge(
+  const authConfig: AccountVaultConfig = _.merge(
     {
       loginUri: "https://vault.verida.io/request/",
       canvasId: "verida-auth-client-canvas",

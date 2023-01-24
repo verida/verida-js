@@ -1,9 +1,7 @@
-import { MessageSendConfig } from "./interfaces";
-
 /**
  * Interface for notifications
  */
-export default interface Notification {
+export interface INotification {
 
     /**
      * Initialize notifications for the connected user

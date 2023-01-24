@@ -1,6 +1,5 @@
+import { DatabaseDeleteConfig, DbRegistryEntry } from "@verida/types";
 import BaseDb from "./base-db";
-import { DbRegistryEntry } from "../../../db-registry";
-import { DatabaseDeleteConfig } from "../../../interfaces";
 
 /**
  * @category
