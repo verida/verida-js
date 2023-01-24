@@ -1,7 +1,7 @@
-import { Network, Context, Profile } from '@verida/client-ts';
-import { VaultAccount, hasSession, VaultAccountConfig } from './index';
+import { Client, Network, Context } from '@verida/client-ts';
+import { VaultAccount, hasSession } from './index';
 import { EventEmitter } from 'events'
-import { MessageSendConfig } from '@verida/client-ts/dist/context/interfaces';
+import { IProfile, ClientConfig, ContextConfig, NetworkConnectionConfig, MessageSendConfig, IDatastore, IDatabase, DatabaseOpenConfig, DatastoreOpenConfig, AccountVaultConfig } from '@verida/types';
 
 const VeridaEvents = new EventEmitter()
 
@@ -13,10 +13,11 @@ export interface WebUserProfile {
 }
 
 export interface WebUserConfig {
-    accountConfig: VaultAccountConfig
+    accountConfig: AccountVaultConfig
     clientConfig: ClientConfig
     contextConfig: ContextConfig
     networkConfig: NetworkConnectionConfig
+    debug?: boolean
 }
 
 export interface WebUserMessage {
@@ -31,6 +32,14 @@ export interface WebUserMessageLink {
 }
 
 /**
+ * Usage:
+ * 
+ * 1. Configure with WebUser.configure(...)
+ * 2. Check if the user is logged in with WebUser.isConnected()
+ * 3. Log the user in with WebUser.connect()
+ * 4. Listen to when the user has logged in with WebUser.on('connected')
+ * 5. Listen to when the user updates their profile with WebUser.on('profileUpdated')
+ * 5. Listen to when the user logs out with WebUser.on('disconnected')
  * 
  * @event profileChanged
  * @event connected
@@ -39,39 +48,54 @@ export interface WebUserMessageLink {
 export class WebUser {
 
     private static config: WebUserConfig
+    private static client?: Client
     private static context?: Context
     private static account?: VaultAccount
     private static profile?: WebUserProfile
     private static did?: string
 
     private static connecting: Promise<boolean>
-    private static profileConnection: Profile
+    private static profileConnection: IProfile
 
-    public static configure(config: WebUserConfig) {
+    public static configure(config: WebUserConfig): void {
         WebUser.config = config
     }
 
-    public static async getContext() {
-        await WebUser.requireConnection()
-        return WebUser.context
+    public static async getClient(): Promise<Client> {
+        if (WebUser.client) {
+            return WebUser.client
+        }
+
+        WebUser.client = new Client(WebUser.config.clientConfig)
+        return WebUser.client
     }
 
-    public static async getAccount() {
+    public static async getContext(): Promise<Context> {
         await WebUser.requireConnection()
-
-        return WebUser.account
+        return WebUser.context!
     }
 
-    public static async getDid() {
+    public static async getAccount(): Promise<VaultAccount> {
         await WebUser.requireConnection()
 
-        return WebUser.did
+        return WebUser.account!
     }
 
-    public static async getPublicProfile(force: boolean = false) {
+    public static async getDid(): Promise<string> {
         await WebUser.requireConnection()
 
-        if (!force && WebUser.profile) {
+        return WebUser.did!
+    }
+
+    /**
+     * 
+     * @param ignoreCache Ignore the cached version of the profile and force refresh a new copy of the profile
+     * @returns 
+     */
+    public static async getPublicProfile(ignoreCache: boolean = false): Promise<WebUserProfile> {
+        await WebUser.requireConnection()
+
+        if (!ignoreCache && WebUser.profile) {
             // return cached profile
             return WebUser.profile
         }
@@ -102,7 +126,9 @@ export class WebUser {
         // build a cached profile
         WebUser.profile = {
             avatarUri: avatar ? avatar.uri : undefined,
-            name: await profile.get('name')
+            name: await profile.get('name'),
+            country: await profile.get('country'),
+            description: await profile.get('description'),
         }
 
         return WebUser.profile
@@ -111,9 +137,10 @@ export class WebUser {
     /**
      * Connect the user to the Verida Network
      *
+     * @emit connected When the user successfully logs in
      * @returns A Promise that will resolve to true / false depending on if the user is connected
      */
-    public static async connect() {
+    public static async connect(): Promise<boolean> {
         if (WebUser.connecting) {
             // Have an existing promise (that may or may not be resolved)
             // Return it so if it's pending, the requestor will wait
@@ -136,21 +163,24 @@ export class WebUser {
             });
 
             if (!context) {
-                console.log(
-                    'User cancelled login attempt by closing the QR code modal or an unexpected error occurred'
-                );
+                if (WebUser.config.debug) {
+                    console.log('User cancelled login attempt by closing the QR code modal or an unexpected error occurred');
+                }
 
                 resolve(false)
             }
 
             const did = await account.did()
-            console.log(`Account connected with did: ${did}`)
+            if (WebUser.config.debug) {
+                console.log(`Account connected with did: ${did}`)
+            }
 
             WebUser.account = account
             WebUser.context = context!
             WebUser.did = did
 
             const profile = await WebUser.getPublicProfile()
+            WebUser.client = context!.getClient()
 
             VeridaEvents.emit('connected', profile)
             resolve(true)
@@ -159,7 +189,7 @@ export class WebUser {
         return WebUser.connecting
     }
 
-    public static async disconnect() {
+    public static async disconnect(): Promise<void> {
         await this.requireConnection()
         await WebUser.context!.close()
 
@@ -178,13 +208,13 @@ export class WebUser {
      * @param eventName 
      * @param cb 
      */
-    public static on(eventName: string, cb: Function) {
+    public static on(eventName: string, cb: Function): void {
         // @ts-ignore
         VeridaEvents.on(eventName, cb)
     }
 
     /**
-     * Send a message to a user's Verida Wallet
+     * Send a generic message to a user's Verida Wallet
      * 
      * @param {*} did 
      * @param {*} subject 
@@ -192,7 +222,7 @@ export class WebUser {
      * @param {*} linkUrl 
      * @param {*} linkText 
      */
-    static async sendMessage(did: string, message: WebUserMessage) {
+    static async sendMessage(did: string, message: WebUserMessage): Promise<void> {
         const context = await WebUser.getContext()
         const messaging = await context!.getMessaging()
 
@@ -216,11 +246,12 @@ export class WebUser {
 
     /**
      * Is a user connected?
-     * Will auto-load from local storage if it exists.
+     * 
+     * Will auto-connect the user from local storage session if it exists.
      * 
      * @returns 
      */
-    public static async isConnected() {
+    public static async isConnected(): Promise<boolean> {
         if (WebUser.did) {
             return true
         }
@@ -236,11 +267,35 @@ export class WebUser {
     /**
      * Throw an exception if a user isn't connected
      */
-    public static async requireConnection() {
+    public static async requireConnection(): Promise<void> {
         const isConnected = await WebUser.isConnected()
         if (!isConnected) {
             throw new Error('Not connected!')
         }
+    }
+
+    /**
+     * Open a datastore owned by this user
+     * 
+     * @param schemaURL 
+     * @param config 
+     * @returns 
+     */
+    public static async openDatastore(schemaURL: string, config?: DatastoreOpenConfig): Promise<IDatastore> {
+        const context = await WebUser.getContext()
+        return await context.openDatastore(schemaURL, config)
+    }
+
+    /**
+     * Open a database owned by this user
+     * 
+     * @param databaseName 
+     * @param config 
+     * @returns 
+     */
+    public static async openDatabase(databaseName: string, config?: DatabaseOpenConfig): Promise<IDatabase> {
+        const context = await WebUser.getContext()
+        return await context.openDatabase(databaseName, config)
     }
 
 
