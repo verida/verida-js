@@ -156,7 +156,7 @@ export class WebUser {
         WebUser.connecting = new Promise(async (resolve, reject) => {
             const account = new VaultAccount(WebUser.config.accountConfig);
 
-            const context = await Network.connect({
+            const context = <Context> await Network.connect({
                 client: WebUser.config.clientConfig,
                 account,
                 context: WebUser.config.contextConfig
