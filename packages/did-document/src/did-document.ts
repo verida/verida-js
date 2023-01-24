@@ -1,6 +1,5 @@
 import { Keyring } from '@verida/keyring'
-import { DIDDocument as DocInterface, ServiceEndpoint, Service } from 'did-resolver'
-import { Endpoints, EndpointType, VerificationMethodTypes } from './interfaces'
+import { ServiceEndpoint, Service } from 'did-resolver'
 import EncryptionUtils from '@verida/encryption-utils'
 import { VerificationMethod } from 'did-resolver'
 import { knownNetworks, strip0x } from './helpers'
@@ -8,23 +7,8 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { computeAddress } from "@ethersproject/transactions";
 import { getAddress } from "@ethersproject/address";
 import { ethers } from 'ethers'
+import { IDIDDocument, IKeyring, SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface, VerificationMethodTypes } from '@verida/types'
 const _ = require('lodash')
-
-export interface ProofInterface {
-    type: string
-    verificationMethod: string
-    proofPurpose: string
-    proofValue: string
-}
-
-/* Replace service with our custom one that supports array of serviceEndpoint */
-export interface VeridaDocInterface extends DocInterface {
-    versionId: number
-    created?: string
-    updated?: string
-    deactivated?: string
-    proof?: ProofInterface
-}
 
 function interpretIdentifier(identifier: string): {
     address: string;
@@ -48,7 +32,7 @@ function interpretIdentifier(identifier: string): {
     }
   }
 
-export default class DIDDocument {
+export default class DIDDocument implements IDIDDocument {
 
     private doc: VeridaDocInterface
     protected errors: string[] = []
@@ -130,7 +114,7 @@ export default class DIDDocument {
      * @param privateKey Private key of the DID that controls this DID Document 
      * @param endpoints Endpoints
      */
-    public async addContext(contextName: string, keyring: Keyring, privateKey: string, endpoints: Endpoints) {
+    public async addContext(contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints) {
         // Remove this context if it already exists
         this.removeContext(contextName)
 
@@ -138,15 +122,15 @@ export default class DIDDocument {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         // Add services
-        this.addContextService(contextHash, EndpointType.DATABASE, endpoints.database.type, endpoints.database.endpointUri)
-        this.addContextService(contextHash, EndpointType.MESSAGING, endpoints.messaging.type, endpoints.messaging.endpointUri)
+        this.addContextService(contextHash, SecureContextEndpointType.DATABASE, endpoints.database.type, endpoints.database.endpointUri)
+        this.addContextService(contextHash, SecureContextEndpointType.MESSAGING, endpoints.messaging.type, endpoints.messaging.endpointUri)
 
         if (endpoints.storage) {
-            this.addContextService(contextHash, EndpointType.STORAGE, endpoints.storage.type, endpoints.storage.endpointUri)
+            this.addContextService(contextHash, SecureContextEndpointType.STORAGE, endpoints.storage.type, endpoints.storage.endpointUri)
         }
 
         if (endpoints.notification) {
-            this.addContextService(contextHash, EndpointType.NOTIFICATION, endpoints.notification.type, endpoints.notification.endpointUri)
+            this.addContextService(contextHash, SecureContextEndpointType.NOTIFICATION, endpoints.notification.type, endpoints.notification.endpointUri)
         }
 
         // Get keyring keys so public keys and ownership proof can be saved to the DID document
@@ -220,7 +204,7 @@ export default class DIDDocument {
         return this.doc
     }
 
-    public addContextService(contextHash: string, endpointType: EndpointType, serviceType: string, endpointUris: ServiceEndpoint[]) {
+    public addContextService(contextHash: string, endpointType: SecureContextEndpointType, serviceType: string, endpointUris: ServiceEndpoint[]) {
         if (!this.doc.service) {
             this.doc.service = []
         }
@@ -317,7 +301,7 @@ export default class DIDDocument {
         return EncryptionUtils.hash(`${did}/${contextName}`)
     }
 
-    public locateServiceEndpoint(contextName: string, endpointType: EndpointType) {
+    public locateServiceEndpoint(contextName: string, endpointType: SecureContextEndpointType): Service | undefined {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
         const expectedEndpointId = `${this.doc.id}?context=${contextHash}&type=${endpointType}`
 

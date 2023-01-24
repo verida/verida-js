@@ -1,14 +1,13 @@
 import { EventEmitter } from 'events'
 import DatastoreServerClient from './client'
 import { ServiceEndpoint } from 'did-resolver'
-import { Account, AuthContext, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/account'
-import { Interfaces } from '@verida/storage-link'
-import { DatabaseDeleteConfig, EndpointUsage, PermissionsConfig } from "../../../interfaces";
+import { Account } from '@verida/account'
 import StorageEngineVerida from './engine'
 import Utils from "./utils";
 
 import * as PouchDBFind from "pouchdb-find";
 import * as PouchDBLib from "pouchdb";
+import { AuthContext, DatabasePermissionsConfig, EndpointUsage, SecureContextConfig, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 
 // See https://github.com/pouchdb/pouchdb/issues/6862
 const { default: PouchDB } = PouchDBLib as any;
@@ -23,7 +22,7 @@ export default class Endpoint extends EventEmitter {
     private contextName: string
     private endpointUri: ServiceEndpoint
     private client: DatastoreServerClient
-    private contextConfig: Interfaces.SecureContextConfig
+    private contextConfig: SecureContextConfig
     private storageEngine: StorageEngineVerida
 
     private account?: Account
@@ -32,7 +31,7 @@ export default class Endpoint extends EventEmitter {
     private usePublic: boolean = false
     private databases: Record<string, any> = {}
 
-    constructor(storageEngine: StorageEngineVerida, contextName: string, contextConfig: Interfaces.SecureContextConfig, endpointUri: ServiceEndpoint) {
+    constructor(storageEngine: StorageEngineVerida, contextName: string, contextConfig: SecureContextConfig, endpointUri: ServiceEndpoint) {
         super()
 
         this.storageEngine = storageEngine
@@ -62,7 +61,7 @@ export default class Endpoint extends EventEmitter {
         await this.authenticate(isOwner)
     }
 
-    public async connectDb(did: string, databaseName: string, permissions: PermissionsConfig, isOwner: boolean) {
+    public async connectDb(did: string, databaseName: string, permissions: DatabasePermissionsConfig, isOwner: boolean) {
         const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
         if (this.databases[databaseHash]) {
             console.log('returning cache from endpoint')
@@ -215,7 +214,7 @@ export default class Endpoint extends EventEmitter {
         this.client.setAuthContext(authContext)
     }
 
-    public async createDb(databaseName: string, permissions: PermissionsConfig) {
+    public async createDb(databaseName: string, permissions: DatabasePermissionsConfig) {
         const options = {
             permissions
         };

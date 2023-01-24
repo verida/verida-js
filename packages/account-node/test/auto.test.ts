@@ -2,27 +2,27 @@
 const assert = require('assert')
 import { AutoAccount } from "../src/index"
 import { decodeJWT } from 'did-jwt'
-import { DIDClientConfig } from "../src/interfaces"
-import { EnvironmentType } from "@verida/account"
-import CONFIG from './config'
+//import CONFIG from './config'
+import { AccountNodeDIDClientConfig, EnvironmentType } from "@verida/types"
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
 
 const APPLICATION_NAME = 'Verida Test: DIDJWT'
 const DEFAULT_ENDPOINTS = {
     defaultDatabaseServer: {
         type: 'VeridaDatabase',
-        endpointUri: 'https://db.testnet.verida.io:5002/'
+        endpointUri: ['https://db.testnet.verida.io:5002/']
     },
     defaultMessageServer: {
         type: 'VeridaMessage',
-        endpointUri: 'https://db.testnet.verida.io:5002/'
+        endpointUri: ['https://db.testnet.verida.io:5002/']
     },
 }
 
-const DID_CLIENT_CONFIG: DIDClientConfig = {
-    networkPrivateKey: CONFIG.networkPrivateKey,
+const DID_CLIENT_CONFIG: AccountNodeDIDClientConfig = {
+    //privateKey: CONFIG.networkPrivateKey,
     callType: 'web3',
-    web3Config: {}
+    web3Config: {},
+    didEndpoints: []
 }
 
 describe('Auto account tests', () => {

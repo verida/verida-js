@@ -24,6 +24,7 @@
     "@verida/encryption-utils": "^2.0.0",
     "@verida/keyring": "^2.0.0",
     "@verida/storage-link": "^2.0.0",
+    "@verida/types": "^2.0.0",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.2",

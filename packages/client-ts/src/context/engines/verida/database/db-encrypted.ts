@@ -1,9 +1,7 @@
 import { VeridaDatabaseConfig } from "./interfaces";
 import BaseDb from "./base-db";
-import { DbRegistryEntry } from "../../../db-registry";
 import StorageEngineVerida from "./engine"
 import EncryptionUtils from "@verida/encryption-utils";
-import Utils from "./utils";
 
 import * as PouchDBCryptLib from "pouchdb";
 import * as PouchDBLib from "pouchdb";
@@ -16,7 +14,7 @@ import * as PouchDBFindLib from "pouchdb-find";
 const { default: PouchDBFind } = PouchDBFindLib as any;
 
 import * as CryptoPouch from "crypto-pouch";
-import { DatabaseCloseOptions, DatabaseDeleteConfig } from "../../../interfaces";
+import { DatabaseCloseOptions, DatabaseDeleteConfig, DbRegistryEntry } from "@verida/types";
 
 PouchDBCrypt.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBFind);

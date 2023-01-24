@@ -1,13 +1,11 @@
 import { Account } from "@verida/account";
 import { Keyring } from "@verida/keyring";
-import { ContextDatabaseInfo, DatabaseDeleteConfig, DatabaseOpenConfig, DatastoreOpenConfig } from "../interfaces";
-import Database from "../database";
 import Datastore from "../datastore";
 import DbRegistry from "../db-registry";
 import ContextNotFoundError from "./ContextNotFoundError";
-import { Interfaces } from "@verida/storage-link";
 import Context from '../context';
 import { EventEmitter } from 'events'
+import { ContextDatabaseInfo, DatabaseDeleteConfig, DatabaseOpenConfig, DatastoreOpenConfig, IDatabase, SecureContextConfig } from "@verida/types";
 
 /**
  * @emits EndpointUnavailable
@@ -16,7 +14,7 @@ class BaseStorageEngine extends EventEmitter {
   protected context: Context
   protected storageContext: string;
   protected dbRegistry: DbRegistry;
-  protected contextConfig: Interfaces.SecureContextConfig;
+  protected contextConfig: SecureContextConfig;
 
   protected account?: Account;
   protected keyring?: Keyring;
@@ -24,7 +22,7 @@ class BaseStorageEngine extends EventEmitter {
   constructor(
     context: Context,
     dbRegistry: DbRegistry,
-    contextConfig: Interfaces.SecureContextConfig,
+    contextConfig: SecureContextConfig,
   ) {
     super()
     this.context = context
@@ -62,7 +60,7 @@ class BaseStorageEngine extends EventEmitter {
   public async openDatabase(
     databaseName: string,
     config: DatabaseOpenConfig
-  ): Promise<Database> {
+  ): Promise<IDatabase> {
     throw new Error("Not implemented");
   }
 

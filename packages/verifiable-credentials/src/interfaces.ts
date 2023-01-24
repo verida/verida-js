@@ -5,7 +5,6 @@ export interface credentialDateOptions {
     issuanceDate?: string
 }
 
-
 export interface VCResult {
     item: any;
     result: any;
@@ -13,6 +12,7 @@ export interface VCResult {
     veridaUri: string;
     publicUri: string;
 }
+
 export interface CreateCredentialJWT {
     options?: credentialDateOptions;
     subjectId: string;

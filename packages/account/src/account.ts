@@ -1,8 +1,7 @@
 import { Keyring } from '@verida/keyring'
-import { Interfaces } from '@verida/storage-link'
+import { AccountConfig, AuthContext, AuthTypeConfig, IDIDClient, SecureContextConfig } from '@verida/types'
 import { createJWT, ES256KSigner } from 'did-jwt'
 import { encodeBase64 } from "tweetnacl-util"
-import { AuthContext, AuthTypeConfig, AccountConfig } from './interfaces'
 
 const _ = require('lodash')
 
@@ -41,7 +40,7 @@ export default class Account {
       * 
       * @param storageConfig 
       */
-    linkStorage(storageConfig: Interfaces.SecureContextConfig): Promise<boolean> {
+    linkStorage(storageConfig: SecureContextConfig): Promise<boolean> {
         throw new Error("Not implemented")
     }
  
@@ -54,15 +53,11 @@ export default class Account {
         throw new Error("Not implemented")
     }
 
-    storageConfig(contextName: string, forceCreate: boolean = false): Promise<Interfaces.SecureContextConfig | undefined> {
+    storageConfig(contextName: string, forceCreate: boolean = false): Promise<SecureContextConfig | undefined> {
         throw new Error("Not implemented")
     }
 
     linkStorageContextService(contextName: string, endpointType: string, serverType: string, endpointUris: string[]): Promise<boolean> {
-        throw new Error("Not implemented")
-    }
-
-    getDidClient() {
         throw new Error("Not implemented")
     }
 
@@ -110,7 +105,7 @@ export default class Account {
         throw new Error("Not implemented.")
     }
 
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig = {
+    public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
         throw new Error("Not implemented.")

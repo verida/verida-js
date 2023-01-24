@@ -3,7 +3,7 @@ const assert = require('assert')
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
-import { assertIsValidDbResponse, sleep } from '../utils'
+import { assertIsValidDbResponse } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerBasicTestDb'
 const DB_NAME_PUBLIC = 'PublicBasicTestDb'

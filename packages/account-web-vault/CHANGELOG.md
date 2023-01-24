@@ -1,3 +1,16 @@
+2022-01-24 (v2.0.2)
+-------------------
+
+- Upgrade to @verida/types
+
+2022-01-17 (v2.0.1)
+-------------------
+
+- Fix: Remove modal hidden HTML tag
+- Fix: Better endpoint error messages
+- Fix: Not handling authentication when accessToken is not invalid.
+
+
 2022-01-13 (v2.0.0)
 -------------------
 

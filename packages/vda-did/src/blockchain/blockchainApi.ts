@@ -1,5 +1,5 @@
 import { getVeridaSignWithNonce, interpretIdentifier } from "./helpers"
-import { VdaDidConfigurationOptions } from "../interfaces"
+import { VdaDidConfigurationOptions } from "@verida/types"
 import {getContractInfoForNetwork} from "./config"
 import { getVeridaContract, VeridaContract } from "@verida/web3"
 import { ethers } from "ethers"

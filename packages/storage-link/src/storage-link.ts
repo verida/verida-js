@@ -1,10 +1,7 @@
-import { SecureContextConfig } from './interfaces'
 import { DIDClient } from "@verida/did-client"
-import { DIDDocument, Interfaces } from "@verida/did-document"
+import { DIDDocument } from "@verida/did-document"
 import { DIDDocument as DocInterface, ServiceEndpoint } from 'did-resolver'
-import { Endpoints } from '@verida/did-document/dist/interfaces'
-import { Keyring } from '@verida/keyring'
-import { VdaDidEndpointResponses } from '@verida/vda-did'
+import { IKeyring, SecureContextConfig, SecureContextEndpoints, SecureContextEndpointType, VdaDidEndpointResponses } from "@verida/types"
 const Url = require('url-parse')
 
 /**
@@ -51,7 +48,7 @@ export default class StorageLink {
      * @param didClient
      * @param storageConfig (Must have .id as the contextName)
      */
-    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig, keyring: Keyring, privateKey: string) {
+    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig, keyring: IKeyring, privateKey: string) {
         const did = didClient.getDid()
 
         if (!did) {
@@ -72,7 +69,7 @@ export default class StorageLink {
             didDocument = new DIDDocument(did, didClient.getPublicKey())
         }
 
-        const endpoints: Endpoints = {
+        const endpoints: SecureContextEndpoints = {
             database: storageConfig.services.databaseServer,
             messaging: storageConfig.services.messageServer
         }
@@ -89,7 +86,7 @@ export default class StorageLink {
         return await didClient.save(didDocument)
     }
 
-    static async setContextService(didClient: DIDClient, contextName: string, endpointType: Interfaces.EndpointType, serverType: string, endpointUris: string[]): Promise<VdaDidEndpointResponses> {
+    static async setContextService(didClient: DIDClient, contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<VdaDidEndpointResponses> {
         const did = didClient.getDid()
         if (!did) {
             throw new Error("DID client is not authenticated")

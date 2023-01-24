@@ -1,8 +1,8 @@
-import BaseNotification from '../../../notification'
 import Axios, { AxiosInstance } from 'axios'
 import { Keyring } from '@verida/keyring';
+import { INotification } from '@verida/types';
 
-export default class NotificationEngineVerida implements BaseNotification {
+export default class NotificationEngineVerida implements INotification {
 
     protected senderContextName: string
     protected senderKeyring: Keyring

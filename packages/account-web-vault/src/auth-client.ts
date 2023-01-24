@@ -1,5 +1,5 @@
-import { AuthClientConfig, AuthResponse } from "./interfaces"
 import EncryptionUtils from "@verida/encryption-utils"
+import { AuthResponse } from "@verida/types"
 import QrCode from 'qrcode-with-logos'
 const _ = require("lodash")
 

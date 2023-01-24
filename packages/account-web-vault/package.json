@@ -18,6 +18,7 @@
     "@verida/account": "^2.0.0",
     "@verida/encryption-utils": "^2.0.0",
     "@verida/keyring": "^2.0.0",
+    "@verida/types": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "qrcode-with-logos": "^1.0.3",

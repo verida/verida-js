@@ -1,3 +1,12 @@
+2022-01-24 (v2.0.2)
+-------------------
+
+- Upgrade to @verida/types
+
+2022-01-17 (v2.0.1)
+
+- Fix: Add missing axios dependency
+
 2022-01-13 (v2.0.0)
 -------------------
 

@@ -1,7 +1,7 @@
 import { encodeBase64 } from 'tweetnacl-util';
 import { ES256KSigner } from 'did-jwt';
 import { Resolver } from 'did-resolver';
-import { getResolver, ResolverConfigurationOptions } from '@verida/vda-did-resolver';
+import { getResolver } from '@verida/vda-did-resolver';
 import {
 	createVerifiableCredentialJwt,
 	createVerifiablePresentationJwt,
@@ -12,6 +12,7 @@ import {
 } from 'did-jwt-vc';
 import { Context } from '@verida/client-ts';
 import { CreateCredentialJWT } from './interfaces';
+import { Web3ResolverConfigurationOptions } from '@verida/types';
 
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
@@ -85,7 +86,7 @@ export default class Credentials {
 	 * @param {string} vpJwt
 	 * @param {string} didRegistryEndpoint
 	 */
-	static async verifyPresentation(vpJwt: string, resolverConfig: ResolverConfigurationOptions): Promise<any> {
+	static async verifyPresentation(vpJwt: string, resolverConfig: Web3ResolverConfigurationOptions): Promise<any> {
 		const resolver = Credentials.getResolver(resolverConfig);
 		return verifyPresentation(vpJwt, resolver);
 	}
@@ -97,7 +98,7 @@ export default class Credentials {
 	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string, resolverConfig: ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
+	async verifyCredential(vcJwt: string, resolverConfig: Web3ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
 		this.errors = []
 		const resolver = Credentials.getResolver(resolverConfig);
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
@@ -243,7 +244,7 @@ export default class Credentials {
 		return data
 	}
 
-	private static getResolver(resolverConfig: ResolverConfigurationOptions): any {
+	private static getResolver(resolverConfig: Web3ResolverConfigurationOptions): any {
 		const resolver = getResolver(resolverConfig);
 		// @ts-ignore
 		return new Resolver(resolver);

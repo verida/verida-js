@@ -25,9 +25,12 @@ export default {
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
     },
     DID_CLIENT_CONFIG: <DIDClientConfig> {
-        networkPrivateKey: '',
         callType: 'web3',
-        web3Config: {},
+        web3Config: {
+            privateKey: '383b7ac8d2f4eb6693b2bc8de97d26c69a50f7b10520e11ea97b4f95dd219967',
+            rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
+        },
+        didEndpoints: ['https://node1-apse2.devnet.verida.tech/did/', 'https://node2-apse2.devnet.verida.tech/did/', 'https://node3-apse2.devnet.verida.tech/did/']
     },
     INVALID_CREDENTIAL_DATA: {
         email: 'me',
