@@ -1,4 +1,5 @@
 import { NetworkConnectionConfig, IContext } from "@verida/types";
+import { Context } from ".";
 import Client from "./client";
 
 /**
@@ -17,7 +18,7 @@ class Network {
    */
   public static async connect(
     config: NetworkConnectionConfig
-  ): Promise<IContext | undefined> {
+  ): Promise<Context | undefined> {
     const client = new Client(config.client ? config.client : {});
     await client.connect(config.account);
 
@@ -26,7 +27,7 @@ class Network {
         config.context.name,
         config.context.forceCreate
       );
-      return context;
+      return <Context> context;
     } catch (err) {
       // User may have cancelled the login attempt
       return;
