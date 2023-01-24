@@ -3,6 +3,11 @@
 
 - Upgrade to @verida/types
 
+2022-01-17 (v2.0.1)
+-------------------
+
+- Fix: Update test endpoints
+
 2022-01-13 (v2.0.0)
 -------------------
 
