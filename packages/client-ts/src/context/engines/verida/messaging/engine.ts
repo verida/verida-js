@@ -6,7 +6,7 @@ import { IAccount, IKeyring, IMessaging, MessagesConfig, MessageSendConfig } fro
 import { Keyring } from "@verida/keyring";
 import { Account } from "@verida/account";
 import Datastore from "../../../datastore";
-const EventEmitter = require("events");
+import { EventEmitter } from 'events'
 
 /**
  * @category
@@ -67,7 +67,7 @@ class MessagingEngineVerida implements IMessaging {
     const outbox = await this.getOutbox();
     const response = await outbox.send(did, type, data, message, config);
 
-    let recipientContextName = config.recipientContextName ? 
+    let recipientContextName = config.recipientContextName ?
       config.recipientContextName : this.context.getClient().getConfig().vaultAppName;
 
     const notificationService = await this.context.getNotification(did, recipientContextName)
