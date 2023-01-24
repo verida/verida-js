@@ -1,6 +1,6 @@
 import { box } from "tweetnacl";
 const didJWT = require("did-jwt");
-const EventEmitter = require("events");
+import { EventEmitter } from 'events'
 
 import { Keyring } from "@verida/keyring";
 import Context from "../../../context";
