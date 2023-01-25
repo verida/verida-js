@@ -3,8 +3,6 @@ import { VaultAccount, hasSession } from './index';
 import { EventEmitter } from 'events'
 import { IProfile, ClientConfig, ContextConfig, MessageSendConfig, IDatastore, IDatabase, DatabaseOpenConfig, DatastoreOpenConfig, AccountVaultConfig } from '@verida/types';
 
-const VeridaEvents = new EventEmitter()
-
 export interface WebUserProfile {
     name?: string
     avatarUri: string
@@ -33,57 +31,58 @@ export interface WebUserMessageLink {
 /**
  * Usage:
  * 
- * 1. Configure with WebUser.configure(...)
- * 2. Check if the user is logged in with WebUser.isConnected()
- * 3. Log the user in with WebUser.connect()
- * 4. Listen to when the user has logged in with WebUser.on('connected')
- * 5. Listen to when the user updates their profile with WebUser.on('profileUpdated')
- * 5. Listen to when the user logs out with WebUser.on('disconnected')
+ * 1. Configure with this.configure(...)
+ * 2. Check if the user is logged in with this.isConnected()
+ * 3. Log the user in with this.connect()
+ * 4. Listen to when the user has logged in with this.on('connected')
+ * 5. Listen to when the user updates their profile with this.on('profileUpdated')
+ * 5. Listen to when the user logs out with this.on('disconnected')
  * 
  * @event profileChanged
- * @event connected
+ * @event connect
  * @event disconnected
  */
-export class WebUser {
+export class WebUser extends EventEmitter {
 
-    private static config: WebUserConfig
-    private static client?: Client
-    private static context?: Context
-    private static account?: VaultAccount
-    private static profile?: WebUserProfile
-    private static did?: string
+    private config: WebUserConfig
+    private client?: Client
+    private context?: Context
+    private account?: VaultAccount
+    private profile?: WebUserProfile
+    private did?: string
 
-    private static connecting?: Promise<boolean>
-    private static profileConnection?: IProfile
+    private connecting?: Promise<boolean>
+    private profileConnection?: IProfile
 
-    public static configure(config: WebUserConfig): void {
-        WebUser.config = config
+    constructor(config: WebUserConfig) {
+        super()
+        this.config = config
     }
 
-    public static async getClient(): Promise<Client> {
-        if (WebUser.client) {
-            return WebUser.client
+    public async getClient(): Promise<Client> {
+        if (this.client) {
+            return this.client
         }
 
-        WebUser.client = new Client(WebUser.config.clientConfig)
-        return WebUser.client
+        this.client = new Client(this.config.clientConfig)
+        return this.client
     }
 
-    public static async getContext(): Promise<Context> {
-        await WebUser.requireConnection()
-        return WebUser.context!
+    public async getContext(): Promise<Context> {
+        await this.requireConnection()
+        return this.context!
     }
 
-    public static async getAccount(): Promise<VaultAccount> {
-        await WebUser.requireConnection()
+    public async getAccount(): Promise<VaultAccount> {
+        await this.requireConnection()
 
-        return WebUser.account!
+        return this.account!
     }
 
-    public static async getDid(): Promise<string> {
-        await WebUser.requireConnection()
+    public async getDid(): Promise<string> {
+        await this.requireConnection()
 
-        return WebUser.did!
+        return this.did!
     }
 
     /**
@@ -91,46 +90,46 @@ export class WebUser {
      * @param ignoreCache Ignore the cached version of the profile and force refresh a new copy of the profile
      * @returns 
      */
-    public static async getPublicProfile(ignoreCache: boolean = false): Promise<WebUserProfile> {
-        await WebUser.requireConnection()
+    public async getPublicProfile(ignoreCache: boolean = false): Promise<WebUserProfile> {
+        await this.requireConnection()
 
-        if (!ignoreCache && WebUser.profile) {
+        if (!ignoreCache && this.profile) {
             // return cached profile
-            return WebUser.profile
+            return this.profile
         }
 
         // fetch connection to verida profile on the verida network
-        if (!WebUser.profileConnection) {
-            const connection = await WebUser.context!.getClient().openPublicProfile(WebUser.did!, 'Verida: Vault')
+        if (!this.profileConnection) {
+            const connection = await this.context!.getClient().openPublicProfile(this.did!, 'Verida: Vault')
             if (!connection) {
                 throw new Error('No profile exists for this account')
             }
 
-            WebUser.profileConnection = connection!
+            this.profileConnection = connection!
 
             // bind an event listener to find changes
-            WebUser.profileConnection.listen(async () => {
-                const profile = await WebUser.getPublicProfile(true)
-                VeridaEvents.emit('profileChanged', profile)
+            this.profileConnection.listen(async () => {
+                const profile = await this.getPublicProfile(true)
+                this.emit('profileChanged', profile)
             })
 
-            WebUser.profileConnection
+            this.profileConnection
         }
 
-        const profile = WebUser.profileConnection
+        const profile = this.profileConnection
 
         // load avatar
         const avatar = await profile.get('avatar')
 
         // build a cached profile
-        WebUser.profile = {
+        this.profile = {
             avatarUri: avatar ? avatar.uri : undefined,
             name: await profile.get('name'),
             country: await profile.get('country'),
             description: await profile.get('description'),
         }
 
-        return WebUser.profile
+        return this.profile
     }
 
     /**
@@ -139,30 +138,27 @@ export class WebUser {
      * @emit connected When the user successfully logs in
      * @returns A Promise that will resolve to true / false depending on if the user is connected
      */
-    public static async connect(): Promise<boolean> {
-        if (WebUser.connecting) {
+    public async connect(): Promise<boolean> {
+        if (this.connecting) {
             // Have an existing promise (that may or may not be resolved)
             // Return it so if it's pending, the requestor will wait
-            return WebUser.connecting
-        }
-
-        if (!WebUser.config) {
-            throw new Error('WebUser is not configured')
+            return this.connecting
         }
 
         // Create a promise that will connect to the network and resolve once complete
         // Also pre-populates the users public profile
-        WebUser.connecting = new Promise(async (resolve, reject) => {
-            const account = new VaultAccount(WebUser.config.accountConfig);
+        const config = this.config
+        this.connecting = new Promise(async (resolve, reject) => {
+            const account = new VaultAccount(config.accountConfig);
 
             const context = await Network.connect({
-                client: WebUser.config.clientConfig,
+                client: config.clientConfig,
                 account,
-                context: WebUser.config.contextConfig
+                context: config.contextConfig
             });
 
             if (!context) {
-                if (WebUser.config.debug) {
+                if (config.debug) {
                     console.log('User cancelled login attempt by closing the QR code modal or an unexpected error occurred');
                 }
 
@@ -170,40 +166,40 @@ export class WebUser {
             }
 
             const did = await account.did()
-            if (WebUser.config.debug) {
+            if (config.debug) {
                 console.log(`Account connected with did: ${did}`)
             }
 
-            WebUser.account = account
-            WebUser.context = context!
-            WebUser.did = did
+            this.account = account
+            this.context = context!
+            this.did = did
 
-            const profile = await WebUser.getPublicProfile()
-            WebUser.client = context!.getClient()
+            const profile = await this.getPublicProfile()
+            this.client = context!.getClient()
 
-            VeridaEvents.emit('connected', profile)
+            this.emit('connected', profile)
             resolve(true)
         })
 
-        return WebUser.connecting
+        return this.connecting
     }
 
-    public static async disconnect(): Promise<void> {
+    public async disconnect(): Promise<void> {
         try {
             const context = await this.getContext()
             await context.disconnect()
 
-            WebUser.context = undefined
-            WebUser.account = undefined
-            WebUser.profile = undefined
-            WebUser.did = undefined
-            WebUser.connecting = undefined
+            this.context = undefined
+            this.account = undefined
+            this.profile = undefined
+            this.did = undefined
+            this.connecting = undefined
 
             if (this.config.debug) {
                 console.log(`Account disconnected`)
             }
 
-            VeridaEvents.emit('disconnect')
+            this.emit('disconnected')
         } catch (err: any) {
             if (err.message.match('Not connected')) {
                 return
@@ -211,17 +207,6 @@ export class WebUser {
 
             throw err 
         }
-    }
-
-    /**
-     * Listen to an event on this user
-     * 
-     * @param eventName 
-     * @param cb 
-     */
-    public static on(eventName: string, cb: Function): void {
-        // @ts-ignore
-        VeridaEvents.on(eventName, cb)
     }
 
     /**
@@ -233,8 +218,8 @@ export class WebUser {
      * @param {*} linkUrl 
      * @param {*} linkText 
      */
-    static async sendMessage(did: string, message: WebUserMessage): Promise<void> {
-        const context = await WebUser.getContext()
+    public async sendMessage(did: string, message: WebUserMessage): Promise<void> {
+        const context = await this.getContext()
         const messaging = await context!.getMessaging()
 
         const data = {
@@ -262,13 +247,13 @@ export class WebUser {
      * 
      * @returns 
      */
-    public static async isConnected(): Promise<boolean> {
-        if (WebUser.did) {
+    public async isConnected(): Promise<boolean> {
+        if (this.did) {
             return true
         }
 
-        if (hasSession(WebUser.config.contextConfig.name)) {
-            const connected = await WebUser.connect()
+        if (hasSession(this.config.contextConfig.name)) {
+            const connected = await this.connect()
             return connected
         }
 
@@ -278,8 +263,8 @@ export class WebUser {
     /**
      * Throw an exception if a user isn't connected
      */
-    public static async requireConnection(): Promise<void> {
-        const isConnected = await WebUser.isConnected()
+    private async requireConnection(): Promise<void> {
+        const isConnected = await this.isConnected()
         if (!isConnected) {
             throw new Error('Not connected!')
         }
@@ -292,8 +277,8 @@ export class WebUser {
      * @param config 
      * @returns 
      */
-    public static async openDatastore(schemaURL: string, config?: DatastoreOpenConfig): Promise<IDatastore> {
-        const context = await WebUser.getContext()
+    public async openDatastore(schemaURL: string, config?: DatastoreOpenConfig): Promise<IDatastore> {
+        const context = await this.getContext()
         return await context.openDatastore(schemaURL, config)
     }
 
@@ -304,8 +289,8 @@ export class WebUser {
      * @param config 
      * @returns 
      */
-    public static async openDatabase(databaseName: string, config?: DatabaseOpenConfig): Promise<IDatabase> {
-        const context = await WebUser.getContext()
+    public async openDatabase(databaseName: string, config?: DatabaseOpenConfig): Promise<IDatabase> {
+        const context = await this.getContext()
         return await context.openDatabase(databaseName, config)
     }
 
