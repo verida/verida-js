@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-client",
-  "version": "2.0.2",
+  "version": "2.0.3-rc1.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
