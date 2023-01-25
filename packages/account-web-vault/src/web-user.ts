@@ -13,10 +13,9 @@ export interface WebUserProfile {
 }
 
 export interface WebUserConfig {
-    accountConfig: AccountVaultConfig
-    clientConfig: ClientConfig
-    contextConfig: ContextConfig
-    networkConfig: NetworkConnectionConfig
+    clientConfig: ClientConfig,
+    accountConfig: AccountVaultConfig,
+    contextConfig: ContextConfig,
     debug?: boolean
 }
 
