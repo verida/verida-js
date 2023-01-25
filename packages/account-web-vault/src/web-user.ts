@@ -189,16 +189,28 @@ export class WebUser {
     }
 
     public static async disconnect(): Promise<void> {
-        await this.requireConnection()
-        await WebUser.context!.close()
+        try {
+            const context = await this.getContext()
+            await context.disconnect()
 
-        WebUser.context = undefined
-        WebUser.account = undefined
-        WebUser.profile = undefined
-        WebUser.did = undefined
-        WebUser.connecting = new Promise((resolve) => { resolve(false) })
+            WebUser.context = undefined
+            WebUser.account = undefined
+            WebUser.profile = undefined
+            WebUser.did = undefined
+            WebUser.connecting = new Promise((resolve) => { resolve(false) })
 
-        VeridaEvents.emit('disconnect')
+            if (this.config.debug) {
+                console.log(`Account disconnected`)
+            }
+
+            VeridaEvents.emit('disconnect')
+        } catch (err: any) {
+            if (err.message.match('Not connected')) {
+                return
+            }
+
+            throw err 
+        }
     }
 
     /**
