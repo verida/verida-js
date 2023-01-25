@@ -1,7 +1,7 @@
 import { Client, Network, Context } from '@verida/client-ts';
 import { VaultAccount, hasSession } from './index';
 import { EventEmitter } from 'events'
-import { IProfile, ClientConfig, ContextConfig, NetworkConnectionConfig, MessageSendConfig, IDatastore, IDatabase, DatabaseOpenConfig, DatastoreOpenConfig, AccountVaultConfig } from '@verida/types';
+import { IProfile, ClientConfig, ContextConfig, MessageSendConfig, IDatastore, IDatabase, DatabaseOpenConfig, DatastoreOpenConfig, AccountVaultConfig } from '@verida/types';
 
 const VeridaEvents = new EventEmitter()
 
@@ -53,8 +53,8 @@ export class WebUser {
     private static profile?: WebUserProfile
     private static did?: string
 
-    private static connecting: Promise<boolean>
-    private static profileConnection: IProfile
+    private static connecting?: Promise<boolean>
+    private static profileConnection?: IProfile
 
     public static configure(config: WebUserConfig): void {
         WebUser.config = config
@@ -197,7 +197,7 @@ export class WebUser {
             WebUser.account = undefined
             WebUser.profile = undefined
             WebUser.did = undefined
-            WebUser.connecting = new Promise((resolve) => { resolve(false) })
+            WebUser.connecting = undefined
 
             if (this.config.debug) {
                 console.log(`Account disconnected`)
