@@ -65,7 +65,7 @@ export const hasSession = (contextName: string): boolean => {
 /**
  * An Authenticator that requests for authorization from the Vault
  */
-export default class VaultAccount extends Account {
+export class VaultAccount extends Account {
     private config: AccountVaultConfig
 
     private accountDid?: string

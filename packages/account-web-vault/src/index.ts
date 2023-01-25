@@ -1,6 +1,2 @@
-import VaultAccount, {hasSession} from "./vault-account"
-
-export {
-    VaultAccount,
-    hasSession
-}
+export * from "./vault-account"
+export * from "./web-user"
