@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-client",
-  "version": "2.0.3-rc1.0",
+  "version": "2.0.4",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,10 +17,10 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@verida/did-document": "^2.0.2",
-    "@verida/types": "^2.0.2",
-    "@verida/vda-did-resolver": "^2.0.2",
-    "@verida/web3": "^2.0.2",
+    "@verida/did-document": "^2.0.4",
+    "@verida/types": "^2.0.4",
+    "@verida/vda-did-resolver": "^2.0.4",
+    "@verida/web3": "^2.0.4",
     "axios": "^0.23.0",
     "deepcopy": "^2.1.0",
     "did-resolver": "^4.0.1",
