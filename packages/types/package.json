@@ -15,6 +15,9 @@
     "src": "src",
     "test": "tests"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "repository": "https://github.com/verida/verida-js",
   "scripts": {
     "build": "rm -rf dist && tsc"

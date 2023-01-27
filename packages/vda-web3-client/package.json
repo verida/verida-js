@@ -9,6 +9,9 @@
   ],
   "license": "Apache-2.0",
   "keywords": [],
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "tests": "ts-mocha './test/**/*.test.ts'",
     "test": "ts-mocha --timeout 100000",

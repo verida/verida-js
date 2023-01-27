@@ -14,7 +14,7 @@
     "build": "rm -rf dist; tsc"
   },
   "engines": {
-    "node": "^14.0.0"
+    "node": ">=14.0.0"
   },
   "dependencies": {
     "@verida/did-client": "^2.0.3-rc1.0",
