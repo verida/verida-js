@@ -11,8 +11,6 @@ export const RPC_URLS: Record<string, string | null> = {
     "0x89": null,
     testnet: "https://rpc-mumbai.maticvigil.com",
     "0x13881": "https://rpc-mumbai.maticvigil.com",
-    // testnet: "https://polygon-mumbai.g.alchemy.com/v2/PAsQgyEm6lFytuZqbJQfZHWrP-0MZmsK",
-    // "0x13881": "https://polygon-mumbai.g.alchemy.com/v2/PAsQgyEm6lFytuZqbJQfZHWrP-0MZmsK",
 };
 
 export function getContractInfoForNetwork(chainNameOrId: any) {
