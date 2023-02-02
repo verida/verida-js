@@ -163,6 +163,7 @@ export class WebUser extends EventEmitter {
                 }
 
                 resolve(false)
+                return
             }
 
             const did = await account.did()
@@ -266,7 +267,7 @@ export class WebUser extends EventEmitter {
     private async requireConnection(): Promise<void> {
         const isConnected = await this.isConnected()
         if (!isConnected) {
-            throw new Error('Not connected!')
+            throw new Error('Not connected to Verida network')
         }
     }
 
