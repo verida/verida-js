@@ -17,7 +17,7 @@ describe('Lookup test', () => {
         const tempDid = Wallet.createRandom();
         await assert.rejects(
             lookup(tempDid.address, NETWORK, rpcUrl),
-            {message: 'Failed to look up'}
+            {message: 'DID not found'}
         )
     });
 
@@ -26,6 +26,6 @@ describe('Lookup test', () => {
         const result = await lookup(did.address, NETWORK, rpcUrl);
 
         assert.equal(typeof(result), 'object', 'DID Controller is a string')
-        assert.equal(result.length, 2, 'Two endpoints returned')
+        assert.equal(result.length, 3, 'Three endpoints returned')
     });
 })
