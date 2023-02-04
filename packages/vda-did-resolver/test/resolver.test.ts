@@ -41,6 +41,7 @@ let veridaApi = new VdaDid(VDA_DID_CONFIG)
 let masterDidDoc
 
 describe("DID Resolver Tests", function() {
+    this.timeout(20000)
     this.beforeAll(async () => {
         // Create the test DID
         const doc = new DIDDocument(DID, DID_PK)
@@ -57,6 +58,7 @@ describe("DID Resolver Tests", function() {
     })
 
     describe("Get", () => {
+        this.timeout(20000)
         it("Success", async () => {
             try {
                 const response = await didResolver.resolve(DID)
