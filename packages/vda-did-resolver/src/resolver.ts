@@ -4,10 +4,11 @@ import {
     DIDResolutionOptions,
     DIDResolutionResult,
     DIDResolver,
+    DIDDocument,
     ParsedDID,
     Resolvable
   } from "did-resolver";
-import { DIDDocument } from "@verida/did-document"
+import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 import { RPC_URLS } from './config'
 import { interpretIdentifier } from './utils'
 import { Web3ResolverConfigurationOptions } from '@verida/types';
@@ -127,9 +128,9 @@ export class VdaDidResolver {
                     timeout: this.options.timeout ? this.options.timeout : this.defaultTimeout
                 });
                 if (response.data.status == 'success') {
-                    const doc = new DIDDocument(response.data.data)
+                    const doc = new VeridaDIDDocument(response.data.data)
                     doc.import(response.data.data)
-                    documents.push(doc)
+                    documents.push(<DIDDocument> doc.export())
                 }
             } catch (err: any) {
                 //console.error('endpoint error!!')

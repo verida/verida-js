@@ -1,3 +1,8 @@
+
+-------------------
+
+- Fix: Resolver returned `didDocument.doc` instead of `didDocument`
+
 2022-01-27 (v2.0.4)
 -------------------
 

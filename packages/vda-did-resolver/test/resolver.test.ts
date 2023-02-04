@@ -6,6 +6,7 @@ import { getResolver } from '../src/resolver'
 import { Resolver } from 'did-resolver'
 import { VdaDid } from '@verida/vda-did'
 import { getBlockchainAPIConfiguration } from "./utils"
+import { VeridaDocInterface } from '@verida/types';
 
 const wallet = ethers.Wallet.createRandom()
 
@@ -16,7 +17,11 @@ DID = `did:vda:testnet:${DID_ADDRESS}`
 DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
 
-const ENDPOINTS = [`http://localhost:5000/did/${DID}`]
+const ENDPOINTS = [
+    `https://node1-apse2.devnet.verida.tech/did/${DID}`,
+    `https://node2-apse2.devnet.verida.tech/did/${DID}`,
+    `https://node3-apse2.devnet.verida.tech/did/${DID}`
+]
 
 const baseConfig = getBlockchainAPIConfiguration()
 
@@ -38,20 +43,16 @@ let masterDidDoc
 describe("DID Resolver Tests", function() {
     this.beforeAll(async () => {
         // Create the test DID
-        try {
-            const doc = new DIDDocument(DID, DID_PK)
-            doc.signProof(wallet.privateKey)
-            masterDidDoc = doc
+        const doc = new DIDDocument(DID, DID_PK)
+        doc.signProof(wallet.privateKey)
+        masterDidDoc = doc
 
-            const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
+        const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
 
-            assert.ok(typeof(publishedEndpoints) == 'object' && Object.keys(publishedEndpoints).length > 0, 'At least one endpoint was accessed')
-            for (let i in publishedEndpoints) {
-                const endpoint = publishedEndpoints[i]
-                assert.equal(endpoint.status, 'success', `${endpoint} success`)
-            }
-        } catch (err) {
-            assert.fail(`Failed: ${err.message}`)
+        assert.ok(typeof(publishedEndpoints) == 'object' && Object.keys(publishedEndpoints).length > 0, 'At least one endpoint was accessed')
+        for (let i in publishedEndpoints) {
+            const endpoint = publishedEndpoints[i]
+            assert.equal(endpoint.status, 'success', `${endpoint} success`)
         }
     })
 
@@ -59,7 +60,7 @@ describe("DID Resolver Tests", function() {
         it("Success", async () => {
             try {
                 const response = await didResolver.resolve(DID)
-                const didDocument = response.didDocument
+                const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
 
                 assert.deepEqual(didDocument.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {
