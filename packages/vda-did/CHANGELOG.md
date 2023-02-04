@@ -1,3 +1,8 @@
+
+-------------------
+
+- Fix: Handle string error response from Axios
+
 2022-01-27 (v2.0.4)
 -------------------
 
