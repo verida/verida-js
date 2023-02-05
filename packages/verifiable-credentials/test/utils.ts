@@ -1,6 +1,7 @@
 
 import { AutoAccount } from '@verida/account-node';
-import { Client, Context, EnvironmentType, Network, Utils } from '@verida/client-ts';
+import { Client, Context, Network, Utils } from '@verida/client-ts';
+import { ClientConfig, EnvironmentType } from '@verida/types'
 import CONFIG from './config';
 
 /**
@@ -43,7 +44,7 @@ export async function connectAccount(privateKey: string, contextName: string, en
  */
 export async function getClientContext(uri: string, environment: EnvironmentType): Promise<Context> {
 
-    const clientConfig = {
+    const clientConfig: ClientConfig = {
         environment: environment
     }
 
@@ -54,5 +55,5 @@ export async function getClientContext(uri: string, environment: EnvironmentType
         url.did
     );
 
-    return context
+    return <Context> context
 }
