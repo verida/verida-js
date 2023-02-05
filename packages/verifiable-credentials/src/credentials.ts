@@ -146,9 +146,7 @@ export default class Credentials {
 
 		const keyring = await account.keyring(contextName);
 		const keys = await keyring.getKeys();
-		const privateKey = encodeBase64(keys.signPrivateKey);
-
-		const signer = ES256KSigner(privateKey);
+		const signer = ES256KSigner(keys.signPrivateKey);
 
 		const issuer = {
 			did,

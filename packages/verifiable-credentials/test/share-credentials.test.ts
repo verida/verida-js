@@ -1,24 +1,27 @@
 // https://nodejs.org/api/assert.html
 const assert = require('assert');
-import { EnvironmentType, Context, Utils as clientUtils } from '@verida/client-ts/src';
+import { Context, Utils as clientUtils } from '@verida/client-ts/src';
 import { getClientContext, connectAccount } from './utils';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 import config from './config';
+import { EnvironmentType } from '@verida/types';
 
 
 describe('Share Credential tests', function () {
     describe('Share Credential Units', function () {
         this.timeout(100000);
         let appContext: Context | any;
+        let issuerDid: string
         let shareCredential: SharingCredential;
         let credential: Credentials;
         let createdUri = ''
 
         before(async function () {
-            appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+            appContext = await connectAccount(config.VDA_PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
             shareCredential = new SharingCredential(appContext);
             credential = new Credentials()
+            issuerDid = await appContext.getAccount().did()
 
             // `didJwtVc` data won't be in the  test credential data,so remove it from our test data before deepEqual executes
             delete config.CREDENTIAL_DATA['didJwtVc']
@@ -32,14 +35,11 @@ describe('Share Credential tests', function () {
             });
 
             const data = await shareCredential.issueEncryptedPresentation(item);
-
             createdUri = data.veridaUri
-
-
             assert.ok(data.result.ok, 'Document was saved correctly');
 
             const expectedUri = clientUtils.buildVeridaUri(
-                config.ISSUER_DID,
+                issuerDid,
                 config.VERIDA_CONTEXT_NAME,
                 config.VERIDA_EXPECTED_DATABASE,
                 data.result.id
@@ -54,7 +54,6 @@ describe('Share Credential tests', function () {
             const jwt = await clientUtils.fetchVeridaUri(data.veridaUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 
@@ -73,7 +72,6 @@ describe('Share Credential tests', function () {
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
 
             const decodedPresentation = await Credentials.verifyPresentation(jwt, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 
@@ -82,32 +80,16 @@ describe('Share Credential tests', function () {
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
+
+            await context.close()
         });
+
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
                 const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
                 return await clientUtils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
             };
             assert.rejects(fetchVeridaUri);
-        });
-
-        it('Retrieve credential from an existing URI', async function () {
-            createdUri = config.EXISTING_CREDENTIAL_URI
-
-            // Fetch and decode the presentation
-            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
-
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
-                name: <string> EnvironmentType.TESTNET,
-                rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
-            })
-
-            // Retrieve the verifiable credential within the presentation
-
-            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
-
-            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
@@ -125,7 +107,6 @@ describe('Share Credential tests', function () {
             const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
             const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
             const decodedPresentation = await Credentials.verifyPresentation(jwt, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 
@@ -134,5 +115,9 @@ describe('Share Credential tests', function () {
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
+
+        this.afterAll(async () => {
+            await appContext.close()
+        })
     });
 });

@@ -1,10 +1,9 @@
-// https://nodejs.org/api/assert.html
 const assert = require('assert');
 
 import Credentials from '../src/credentials';
 import config from './config';
 import { connectAccount } from './utils';
-import { EnvironmentType } from '@verida/account';
+import { EnvironmentType } from '@verida/types';
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 dayjs.extend(utc)
@@ -17,7 +16,7 @@ describe('Credential tests', function () {
         let credentialSdk: Credentials;
 
         before(async function () {
-            appContext = await connectAccount(config.PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+            appContext = await connectAccount(config.VDA_PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
             credentialSdk = new Credentials();
         });
 
@@ -30,7 +29,6 @@ describe('Credential tests', function () {
 
             // Decode the credentialSdk
             const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 
@@ -65,7 +63,6 @@ describe('Credential tests', function () {
 
             // Decode the credentialSdk
             const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 
@@ -114,7 +111,6 @@ describe('Credential tests', function () {
             });
 
             const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
             assert.equal(decodedCredential, false, 'Credential is not valid')
@@ -152,7 +148,6 @@ describe('Credential tests', function () {
             });
 
             const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
             const payload = decodedCredential.payload
@@ -178,7 +173,6 @@ describe('Credential tests', function () {
             });
 
             await credentialSdk.verifyCredential(credential.didJwtVc, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             }, currentDateTime);
 
@@ -197,10 +191,13 @@ describe('Credential tests', function () {
             });
 
             const decodedCredential = await credentialSdk.verifyCredential(credential.didJwtVc, {
-                name: <string> EnvironmentType.TESTNET,
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
             assert.ok(decodedCredential, 'Credential is valid')
         });
+
+        this.afterAll(async () => {
+            await appContext.close()
+        })
     });
 });

@@ -1,20 +1,27 @@
-import { DIDClientConfig } from '@verida/account-node'
+import { AccountNodeDIDClientConfig, DIDClientConfig } from '@verida/types'
+
+const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech:443/', 'https://node2-apse2.devnet.verida.tech:443/', 'https://node3-apse2.devnet.verida.tech:443/']
+
+const DID_ENDPOINTS: string[] = []
+for (let e in ENDPOINTS) {
+    DID_ENDPOINTS.push(`${ENDPOINTS[e]}did/`)
+}
 
 export default {
-    PRIVATE_KEY_1: "0x5dd84b6d500bcbc018cbc71b0407d694095755d91af42bd3442b2dfc96b1e000",
-    PRIVATE_KEY_2: "0x80d3b996ec98a91536efdffbae40f5eaaf117765a587483c69195c9460165c01",
+    VDA_PRIVATE_KEY_1:   '0x20d3b996ec98a9a536efdffbae10e5eaaf11a765a587483c69195c9460165d38',
+    VDA_PRIVATE_KEY_2: '0x20d3b996ec98a9a536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
     ISSUER_NAME: "John Doe",
-    ISSUER_DID: 'did:vda:testnet:0x0eB0FeD3Fc4f29303fF462fA789E417936E21eee',
-    SUBJECT_DID: 'did:vda:testnet:0x0eB0FeD3Fc4f29303fF462fA789E417936E21ef8',
+    ISSUER_DID: 'did:vda:testnet:0x20d3b996ec98a9a536efdffbae10e5eaaf11a765a587483c69195c9460165d38',
+    SUBJECT_DID: 'did:vda:testnet:0x20d3b996ec98a9a536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
     ADDRESS_1: '0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
     DEFAULT_ENDPOINTS: {
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: ENDPOINTS
         },
         defaultMessageServer: {
             type: 'VeridaMessage',
-            endpointUri: 'http://localhost:5000/'
+            endpointUri: ENDPOINTS
         },
     },
     CREDENTIAL_DATA: {
@@ -24,13 +31,13 @@ export default {
         email: 'me@vitalik.eth',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
     },
-    DID_CLIENT_CONFIG: <DIDClientConfig> {
+    DID_CLIENT_CONFIG: <AccountNodeDIDClientConfig> {
         callType: 'web3',
         web3Config: {
             privateKey: '383b7ac8d2f4eb6693b2bc8de97d26c69a50f7b10520e11ea97b4f95dd219967',
             rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
-        didEndpoints: ['https://node1-apse2.devnet.verida.tech/did/', 'https://node2-apse2.devnet.verida.tech/did/', 'https://node3-apse2.devnet.verida.tech/did/']
+        didEndpoints: DID_ENDPOINTS
     },
     INVALID_CREDENTIAL_DATA: {
         email: 'me',

@@ -1,3 +1,10 @@
+
+-------------------
+
+- Fix: Update tests to work with Acacia
+- Updrade to latest DID-JWT library (6.11.0)
+- Updrade to latest DID-JWT-VC library (3.1.0)
+
 2022-01-27 (v2.0.4)
 -------------------
 
