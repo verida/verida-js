@@ -98,7 +98,7 @@ export default class Credentials {
 	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string, resolverConfig: Web3ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
+	async verifyCredential(vcJwt: string, resolverConfig?: Web3ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
 		this.errors = []
 		const resolver = Credentials.getResolver(resolverConfig);
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
@@ -226,7 +226,7 @@ export default class Credentials {
 		return didJwtVc
 	}
 
-	private static getResolver(resolverConfig: Web3ResolverConfigurationOptions): any {
+	private static getResolver(resolverConfig?: Web3ResolverConfigurationOptions): any {
 		const resolver = getResolver(resolverConfig);
 		// @ts-ignore
 		return new Resolver(resolver);
