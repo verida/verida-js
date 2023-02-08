@@ -163,36 +163,20 @@ export default class Credentials {
 	 * A new property `didJwtVc` is added to the data and included in the response
 	 * 
 	 * @param data 
-	 * @returns 
+	 * @returns A string DID-JWT representation
 	 */
-	async createCredentialJWT({ subjectId, data, context, options }: CreateCredentialJWT): Promise<object> {
+	async createCredentialJWT({ subjectId, data, schema, context, payload, options }: CreateCredentialJWT): Promise<string> {
 		// Ensure a credential schema has been specified
-		if (!data.schema) {
+		if (!schema) {
 			throw new Error('No schema specified')
 		}
 
 		// Ensure data matches specified schema
-		const schema = await context.getClient().getSchema(data.schema)
-		const schemaJson = await schema.getSpecification();
-
-		const databaseName = schemaJson['database']['name']
-
-		// Before validating, we need to ensure there is a `didJwtVc` attribute on the data
-		// `didJwtVc` is a required field, but will only be set upon completion  of this
-		// creation process.
-		// @see https://github.com/verida/verida-js/pull/163
-		const dataClone = Object.assign({}, data);
-		dataClone['didJwtVc'] = 'ABC'
-		const isValid = await schema.validate(dataClone);
-
-		if (schemaJson && databaseName === 'credential') {
-			if (!schemaJson.properties.didJwtVc) {
-				throw new Error('Schema is not a valid credential schema')
-			}
-		}
+		const schemaObj = await context.getClient().getSchema(schema)
+		const isValid = await schemaObj.validate(data);
 
 		if (!isValid) {
-			this.errors = schema.errors
+			this.errors = schemaObj.errors
 			throw new Error('Data does not match specified schema')
 		}
 
@@ -214,9 +198,10 @@ export default class Credentials {
 				...data
 			},
 			credentialSchema: {
-				id: data.schema,
+				id: schema,
 				type: 'JsonSchemaValidator2018',
 			},
+			...(payload ? payload : {})
 		};
 		if (options && options.expirationDate) {
 			// The DID JWT VC library (called by createVerifiableCredential) verifies the string format so we do not need a test for that
@@ -235,11 +220,10 @@ export default class Credentials {
 
 			vcPayload.issuanceDate = dateFormat.$d
 		}
+
 		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
 
-		data['didJwtVc'] = didJwtVc
-
-		return data
+		return didJwtVc
 	}
 
 	private static getResolver(resolverConfig: Web3ResolverConfigurationOptions): any {

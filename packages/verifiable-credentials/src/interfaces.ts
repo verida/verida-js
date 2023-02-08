@@ -17,6 +17,8 @@ export interface CreateCredentialJWT {
     options?: credentialDateOptions;
     subjectId: string;
     data: any;
+    schema: string;
     context: Context;
+    payload?: Record<string, any>;
 }
 
