@@ -1,5 +1,5 @@
 {
-  "name": "@verida/name-client",
+  "name": "@verida/vda-name-client",
   "version": "2.0.0-rc3",
   "description": "Client to manage adding and fetching names from the blockchain",
   "main": "build/src/index.js",
@@ -26,6 +26,7 @@
     "prepare": "npm run compile"
   },
   "dependencies": {
+    "@verida/web3": "*",
     "axios": "^0.27.2",
     "ethers": "^5.7.0"
   },
