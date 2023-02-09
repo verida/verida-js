@@ -23,6 +23,7 @@
     "build": "rm -rf dist && tsc"
   },
   "dependencies": {
+    "did-resolver": "^4.0.1",
     "tweetnacl": "^1.0.3"
   }
 }
