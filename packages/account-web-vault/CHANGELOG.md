@@ -3,7 +3,6 @@
 
 - Fix: User cancelled model, threw an exception when it should only return false.
 
-
 2022-01-27 (v2.0.4)
 -------------------
 

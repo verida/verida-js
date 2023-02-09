@@ -2,8 +2,8 @@
 -------------------
 
 - Fix: Update tests to work with Acacia
-- Updrade to latest DID-JWT library (6.11.0)
-- Updrade to latest DID-JWT-VC library (3.1.0)
+- Upgrade to latest DID-JWT library (6.11.0)
+- Upgrade to latest DID-JWT-VC library (3.1.0)
 - Make `resolverConfig` optional when verifying a credential
 
 2022-01-27 (v2.0.4)
