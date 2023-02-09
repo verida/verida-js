@@ -1,10 +1,12 @@
 import {
-    VeridaSelfTransactionConfig,
-    VeridaMetaTransactionConfig,
-    CallType,
     getVeridaContract,
     VeridaContract
 } from "@verida/web3"
+import {
+    Web3SelfTransactionConfig,
+    Web3MetaTransactionConfig,
+    Web3CallType
+} from '@verida/types'
 import { ethers } from "ethers";
 import { getContractInfoForNetwork } from "./config";
 import { getVeridaSignWithNonce, interpretIdentifier } from "./helpers";
@@ -22,8 +24,8 @@ export interface NameClientConfig {
     signKey: string;
     chainNameOrId?: string | number;
 
-    callType: CallType;
-    web3Options: VeridaSelfTransactionConfig | VeridaMetaTransactionConfig;
+    callType: Web3CallType;
+    web3Options: Web3SelfTransactionConfig | Web3MetaTransactionConfig;
 }
 
 export default class BlockchainApi {
@@ -44,7 +46,7 @@ export default class BlockchainApi {
         this.network = network || config.chainNameOrId
         const contractInfo = getContractInfoForNetwork(this.network);
 
-        if (config.callType == 'web3' && !(<VeridaSelfTransactionConfig>config.web3Options).rpcUrl) {
+        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
             throw new Error('Web3 transactions must specify `rpcUrl` in the configuration options')
         }
 
