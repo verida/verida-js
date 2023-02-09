@@ -1,4 +1,4 @@
-2022-01-27 (v2.0.4)
+2022-02-09 (v2.0.5)
 -------------------
 
 - Remove engine restriction of Node 14 only
