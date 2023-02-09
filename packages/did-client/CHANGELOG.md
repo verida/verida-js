@@ -1,4 +1,4 @@
-
+2022-01-27 (v2.0.5)
 -------------------
 
 - Handle resolver now returning `didDocument` instead of `didDocument.doc`

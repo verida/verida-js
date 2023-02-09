@@ -1,4 +1,4 @@
-
+2022-01-27 (v2.0.5)
 -------------------
 
 - Update to latest DID-JWT version (6.11.0)
