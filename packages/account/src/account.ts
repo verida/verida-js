@@ -77,8 +77,7 @@ export default class Account {
 
         const keyring = await this.keyring(contextName)
         const keys = await keyring.getKeys()
-        const privateKey = encodeBase64(keys.signPrivateKey)
-        const signer = ES256KSigner(privateKey)
+        const signer = ES256KSigner(keys.signPrivateKey)
         const did = await this.did()
 
         const jwt = await createJWT({

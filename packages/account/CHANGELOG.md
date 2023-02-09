@@ -2,6 +2,7 @@
 -------------------
 
 - Update to latest DID-JWT version (6.11.0)
+- Fix: Incorrect private key type for signer
 
 2022-01-27 (v2.0.4)
 -------------------
