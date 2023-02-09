@@ -10,7 +10,7 @@ import { getContractInfoForNetwork } from "./config";
 import { getVeridaSignWithNonce, interpretIdentifier } from "./helpers";
 
 /**
- * Interface for vda-name-client instance creation. Same as VDA-DID configuration
+ * Interface for vda-sbt-client instance creation. Same as VDA-DID configuration
  * @param identifier: DID
  * @param signKey: private key of DID. Used to generate signature in transactions to chains
  * @param chainNameOrId: Target chain name or chain id.
@@ -26,6 +26,15 @@ export interface SBTClientConfig {
     web3Options: VeridaSelfTransactionConfig | VeridaMetaTransactionConfig;
 }
 
+/**
+ * Interface representing the SBT information. Used to claim a SBT
+ * @param sbtType Existing SBT type. Ex - "twitter"
+ * @param uniqueId Unique id of SBT. For example twitter account id.
+ * @param sbtURI Token URI to be set
+ * @param recipient Token receiver
+ * @param signedData Signature of `uniqueId`. Signed by the trusted signer
+ * @param signedProof Proof for `uniqudId`
+ */
 export interface SBTInfo {
     sbtType: string;
     uniqueId: string;
