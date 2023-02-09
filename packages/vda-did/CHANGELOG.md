@@ -2,6 +2,7 @@
 -------------------
 
 - Fix: Handle string error response from Axios
+- Fix: circular dependency to vda-did-resolver
 
 2022-01-27 (v2.0.4)
 -------------------

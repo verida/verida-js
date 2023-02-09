@@ -21,7 +21,6 @@
     "@verida/did-document": "^2.0.4",
     "@verida/encryption-utils": "^2.0.4",
     "@verida/types": "^2.0.4",
-    "@verida/vda-did-resolver": "^2.0.4",
     "@verida/web3": "^2.0.4",
     "axios": "1.2.0-alpha.1",
     "lodash": "^4.17.21"
