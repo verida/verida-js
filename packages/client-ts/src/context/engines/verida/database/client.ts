@@ -74,7 +74,19 @@ export class DatastoreServerClient {
   ) {
     return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/deleteDatabase", {
       databaseName
-  });
+    });
+  }
+
+  public async pingDatabases(
+    databaseHashes: string[]
+  ) {
+    try {
+      return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/pingDatabase", {
+        databaseHashes
+      });
+    } catch(err: any) {
+      // Ignore errors for now as the endpoint doesn't exist on storage nodes
+    }
   }
 
   public async getUsage(): Promise<EndpointUsage> {

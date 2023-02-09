@@ -1,3 +1,8 @@
+2022-02-09 (v2.0.5)
+-------------------
+
+- [client-ts] Feature: Support new database pinging of storage nodes to increase replication efficiency
+
 2022-01-27 (v2.0.4)
 -------------------
 

@@ -64,7 +64,6 @@ export default class Endpoint extends EventEmitter {
     public async connectDb(did: string, databaseName: string, permissions: DatabasePermissionsConfig, isOwner: boolean) {
         const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
         if (this.databases[databaseHash]) {
-            console.log('returning cache from endpoint')
             return this.databases[databaseHash];
         }
 
@@ -91,6 +90,10 @@ export default class Endpoint extends EventEmitter {
                     opts.headers.set('Authorization', `Bearer ${accessToken}`)
 
                     result = await PouchDB.fetch(url, opts)
+
+                    // Ping database to ensure replication is active
+                    // No need to await
+                    instance.client.pingDatabases(Object.keys(this.databases))
 
                     if (result.status == 401) {
                         throw new Error(`Permission denied to access server: ${instance.toString()}`)
@@ -129,6 +132,10 @@ export default class Endpoint extends EventEmitter {
         }
 
         this.databases[databaseHash] = db
+
+        // Ping database to ensure replication is active
+        // No need to await
+        this.client.pingDatabases(Object.keys(this.databases))
         return db
     }
 
@@ -224,7 +231,7 @@ export default class Endpoint extends EventEmitter {
             // There's an odd timing issue that needs a deeper investigation
             await Utils.sleep(1000);
         } catch (err) {
-            throw new Error(`User doesn't exist or unable to create user database (${databaseName})`);
+            throw new Error(`User doesn't exist or unable to create user database (${databaseName} / ${this.endpointUri})`);
         }
     }
 
