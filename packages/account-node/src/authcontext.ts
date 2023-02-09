@@ -1,9 +1,6 @@
-import { AccountConfig, AuthContext, AuthTypeConfig, VeridaDatabaseAuthContext } from '@verida/account'
-import { NodeAccountConfig } from './interfaces'
 import LimitedAccount from './limited'
-import { Interfaces } from '@verida/storage-link'
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
-import { ServiceEndpoint } from 'did-resolver'
+import { AccountConfig, AccountNodeConfig, AuthContext, AuthTypeConfig, SecureContextConfig, VeridaDatabaseAuthContext } from '@verida/types'
 
 /**
  * A NodeJs account that only signs messages for a limited list of contexts.
@@ -25,7 +22,7 @@ export default class AuthContextAccount extends LimitedAccount {
      * @param signingContext 
      * @param authContext 
      */
-    constructor(accountConfig: AccountConfig, autoConfig: NodeAccountConfig, signingContext: string, authContext: VeridaDatabaseAuthContext) {
+    constructor(accountConfig: AccountConfig, autoConfig: AccountNodeConfig, signingContext: string, authContext: VeridaDatabaseAuthContext) {
         const signingContexts = [signingContext]
         super(accountConfig, autoConfig, signingContexts)
 
@@ -41,7 +38,7 @@ export default class AuthContextAccount extends LimitedAccount {
 
     }
     
-    public async getAuthContext(contextName: string, contextConfig: Interfaces.SecureContextConfig, authConfig: AuthTypeConfig, authType = "database"): Promise<AuthContext> {
+    public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig, authType = "database"): Promise<AuthContext> {
         return super.getAuthContext(contextName, contextConfig, authConfig, authType)
     }
 

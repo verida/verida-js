@@ -1,10 +1,11 @@
 import * as _ from 'lodash';
-import { Context, Utils, ContextInterfaces } from '@verida/client-ts';
+import { Context, Utils } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
 import { VCResult } from './interfaces';
 import { Credentials } from '.';
+import { DatabasePermissionOptionsEnum } from '@verida/types';
 
-const PermissionOptionsEnum = ContextInterfaces.PermissionOptionsEnum
+const PermissionOptionsEnum = DatabasePermissionOptionsEnum
 
 
 const SCHEMAs = {

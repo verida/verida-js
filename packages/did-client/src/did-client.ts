@@ -2,30 +2,11 @@ import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
 import { getResolver } from '@verida/vda-did-resolver'
-import { VdaDid, VdaDidEndpointResponses, VeridaWeb3ConfigurationOptions } from '@verida/vda-did'
-import { CallType, VeridaMetaTransactionConfig, VeridaSelfTransactionConfig } from '@verida/web3'
-import { ResolverConfigurationOptions } from "@verida/vda-did-resolver"
-
+import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
-import { Signer } from '@ethersproject/abstract-signer';
+import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
 
-// Part of VeridaSelfTransactionConfig
-export interface VeridaSelfTransactionConfigPart  {
-    signer?: Signer         // Pre-built transaction signer that is configured to pay for gas
-    privateKey?: string     // MATIC private key that will pay for gas
-}
-
-/**
- * veridaPrivateKey, callType, web3Config can be provided later by authenticate
- */
-
-export interface DIDClientConfig {
-    network: 'testnet' | 'mainnet'              // `testnet` OR `mainnet`
-    rpcUrl?: string                              // blockchain RPC URI to use
-    timeout?: number
-}
-
-export class DIDClient {
+export class DIDClient implements IDIDClient {
 
     private config: DIDClientConfig
 
@@ -44,7 +25,7 @@ export class DIDClient {
     constructor(config: DIDClientConfig) {
         this.config = config
 
-        const resolverConfig: ResolverConfigurationOptions = {
+        const resolverConfig: Web3ResolverConfigurationOptions = {
             timeout: config.timeout ? config.timeout : 10000
         }
         
@@ -66,8 +47,8 @@ export class DIDClient {
      */
     public authenticate(
         veridaPrivateKey: string,
-        callType: CallType,
-        web3Config: VeridaSelfTransactionConfigPart | VeridaMetaTransactionConfig,
+        callType: Web3CallType,
+        web3Config: Web3SelfTransactionConfigPart | Web3MetaTransactionConfig,
         defaultEndpoints: string[]
     ) {
         this.defaultEndpoints = defaultEndpoints
@@ -91,9 +72,9 @@ export class DIDClient {
         }
 
         const _web3Config: VeridaWeb3ConfigurationOptions = callType === 'gasless' ?
-            <VeridaMetaTransactionConfig>web3Config :
-            <VeridaSelfTransactionConfig>{
-                ...<VeridaSelfTransactionConfigPart>web3Config,
+            <Web3MetaTransactionConfig>web3Config :
+            <Web3SelfTransactionConfig>{
+                ...<Web3SelfTransactionConfigPart>web3Config,
                 rpcUrl
             }
 
@@ -197,8 +178,8 @@ export class DIDClient {
         return endpointResponse
     }
 
-    public getLastEndpointErrors() {
-        return this.endpointErrors
+    public getLastEndpointErrors(): VdaDidEndpointResponses {
+        return this.endpointErrors ? this.endpointErrors : <VdaDidEndpointResponses> {}
     }
 
     /**
@@ -213,6 +194,6 @@ export class DIDClient {
             throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
         }
 
-        return <DIDDocument> resolutionResult.didDocument
+        return new DIDDocument(<VeridaDocInterface> resolutionResult.didDocument)
     }
 }

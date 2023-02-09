@@ -1,4 +1,4 @@
-import { Interfaces } from '@verida/did-document'
+import { SecureContextEndpoint } from "./DocumentInterfaces"
 
 export interface SecureContextPublicKey {
     type: string,
@@ -11,10 +11,10 @@ export interface SecureStorageContextPublicKeys {
 }
 
 export interface SecureContextServices {
-    databaseServer: Interfaces.SecureContextEndpoint,
-    messageServer: Interfaces.SecureContextEndpoint,
-    storageServer?: Interfaces.SecureContextEndpoint,
-    notificationServer?: Interfaces.SecureContextEndpoint
+    databaseServer: SecureContextEndpoint,
+    messageServer: SecureContextEndpoint,
+    storageServer?: SecureContextEndpoint,
+    notificationServer?: SecureContextEndpoint
 }
 
 export interface SecureContextConfig {

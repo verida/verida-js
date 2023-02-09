@@ -1,6 +1,6 @@
 {
 	"name": "@verida/verifiable-credentials",
-	"version": "2.0.1",
+	"version": "2.0.4",
 	"main": "dist/index.js",
 	"license": "ISC",
 	"directories": {
@@ -14,15 +14,16 @@
 		"build": "rm -rf dist; tsc"
 	},
 	"engines": {
-		"node": "^14.0.0"
+		"node": ">=14.0.0"
 	},
 	"dependencies": {
-		"@verida/client-ts": "^2.0.1",
-		"@verida/encryption-utils": "^2.0.0",
-		"@verida/vda-did-resolver": "^2.0.0",
+		"@verida/client-ts": "^2.0.4",
+		"@verida/encryption-utils": "^2.0.4",
+		"@verida/types": "^2.0.4",
+		"@verida/vda-did-resolver": "^2.0.4",
 		"dayjs": "^1.10.7",
-		"did-jwt": "^5.12.1",
-		"did-jwt-vc": "^2.1.8",
+		"did-jwt": "^6.11.0",
+		"did-jwt-vc": "^3.1.0",
 		"lodash": "^4.17.21",
 		"tweetnacl-util": "^0.15.1",
 		"url": "^0.11.0"

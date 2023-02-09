@@ -1,13 +1,10 @@
 import Axios from 'axios'
 import { ethers } from 'ethers'
-import {
-    VdaDidConfigurationOptions,
-    VdaDidEndpointResponses
-} from "./interfaces"
 import { DIDDocument } from '@verida/did-document'
 import EncryptionUtils from '@verida/encryption-utils'
 import BlockchainApi from "./blockchain/blockchainApi";
 import { interpretIdentifier } from './blockchain/helpers'
+import { VdaDidConfigurationOptions, VdaDidEndpointResponses } from '@verida/types'
 
 export default class VdaDid {
 
@@ -68,7 +65,7 @@ export default class VdaDid {
                 }
             }
         } catch (err: any) {
-            const message = err.response ? err.response.data.message : err.message
+            const message = err.response ? (err.response.data.message ? err.response.data.message : err.response.data) : err.message
             if (message.match('DID Document already exists')) {
                 try {
                     const blockchainEntry = await this.blockchain.lookup(didDocument.id)
@@ -85,7 +82,7 @@ export default class VdaDid {
                 throw new Error('Unable to create DID: Already exists')
             }
 
-            throw new Error(`Unable to create DID: Endpoints failed to accept the DID Document`)
+            throw new Error(`Unable to create DID: Endpoints failed to accept the DID Document (${message})`)
         }
 
         // Publish final endpoints on-chain

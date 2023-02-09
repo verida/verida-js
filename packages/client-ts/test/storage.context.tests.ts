@@ -6,6 +6,7 @@ import { AutoAccount } from '@verida/account-node'
 import { StorageLink } from '@verida/storage-link'
 import { DIDDocument } from '@verida/did-document'
 import CONFIG from './config'
+import { EnvironmentType } from '@verida/types'
 
 const TEST_DB_NAME = 'TestDb_1'
 const TEST_DB_NAME_2 = 'TestDb_2'
@@ -20,6 +21,7 @@ describe('Storage context tests', () => {
     const client = new Client({
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: {
+            network: EnvironmentType.TESTNET,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })

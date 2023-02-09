@@ -2,13 +2,13 @@
 const assert = require('assert')
 
 import { StorageLink } from '../src/index'
-import { SecureContextConfig } from '../src/interfaces'
 import { Keyring } from '@verida/keyring'
 import EncryptionUtils from '@verida/encryption-utils'
 import { DIDDocument } from '@verida/did-document'
 import { Wallet } from 'ethers'
 import { getDIDClient } from './utils'
 import { DIDClient } from '@verida/did-client'
+import { SecureContextConfig } from '@verida/types'
 
 const wallet = Wallet.createRandom()
 

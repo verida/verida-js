@@ -2,7 +2,7 @@ import { DIDClient } from '@verida/did-client'
 
 import { Wallet } from "ethers"
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { EnvironmentType } from '../../client-ts/src'
+import { DIDClientConfig } from '@verida/types'
 
 require('dotenv').config()
 
@@ -21,9 +21,8 @@ const provider = new JsonRpcProvider(rpcUrl);
 const txSigner = new Wallet(privateKey, provider)
 
 export async function getDIDClient(veridaAccount: Wallet) {
-    const config = {
+    const config: DIDClientConfig = {
         network: 'testnet',
-        connectMode: 'web3',
         rpcUrl
     }
 

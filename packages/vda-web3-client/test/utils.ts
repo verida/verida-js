@@ -1,9 +1,10 @@
 require('dotenv').config();
 
-import {getVeridaContract, VeridaContract, VeridaSelfTransactionConfig, VeridaWeb3Config, VeridaWeb3GasConfiguration} from '../src/index';
+import { getVeridaContract } from '../src/index';
 import {JsonRpcProvider} from '@ethersproject/providers';
 import {BigNumber, ethers, Wallet} from 'ethers';
 import EncryptionUtils from '@verida/encryption-utils';
+import { VeridaWeb3Config, Web3GasConfiguration, Web3SelfTransactionConfig } from '@verida/types';
 
 const _ = require('lodash');
 
@@ -46,8 +47,8 @@ export async function getMaticFee(isProd: boolean) {
 
 export function getVeridaWeb3Instance(
   contractName: 'DidRegistry' | 'NameRegistry',
-  globalGasConfiguration?: VeridaWeb3GasConfiguration,
-  methodDefaults?: Record<string, VeridaWeb3GasConfiguration>
+  globalGasConfiguration?: Web3GasConfiguration,
+  methodDefaults?: Record<string, Web3GasConfiguration>
 ) {
   const args = process.argv.slice(2);
   // console.log("ARGS : ", args);
@@ -93,7 +94,7 @@ export function getVeridaWeb3Instance(
     }
 
     if (methodDefaults !== undefined) {
-      (<VeridaSelfTransactionConfig>configuration).methodDefaults =
+      (<Web3SelfTransactionConfig>configuration).methodDefaults =
         methodDefaults;
     }
 

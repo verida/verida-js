@@ -1,15 +1,14 @@
 import Encryption from '@verida/encryption-utils'
 import nacl, { box, sign } from 'tweetnacl'
 import { utils } from 'ethers'
-
-import { KeyringKeyType } from './interfaces'
+import { IKeyring, KeyringKeyType, KeyringPublicKeys } from '@verida/types'
 
 /**
  * Class that takes a signature (generated from a signed consent message) and generates a
  * collection of asymmetric keys, symmetric key and signing key for a given secure storage
  * context.
  */
-export default class Keyring {
+export default class Keyring implements IKeyring {
 
     public asymKeyPair?: nacl.BoxKeyPair
     public signKeyPair?: nacl.SignKeyPair
@@ -95,7 +94,7 @@ export default class Keyring {
      * 
      * @returns 
      */
-    public async publicKeys() {
+    public async publicKeys(): Promise<KeyringPublicKeys> {
         await this._init()
 
         return {
@@ -152,7 +151,7 @@ export default class Keyring {
         return this.seed
     }
 
-    public async getStorageContextKey(databaseName: string) {
+    public async getStorageContextKey(databaseName: string): Promise<any> {
         if (this.storageContextKeys[databaseName]) {
             return this.storageContextKeys[databaseName]
         }

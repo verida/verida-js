@@ -1,8 +1,9 @@
 import Axios from "axios";
 import AutoAccount from "../auto";
-import { Interfaces } from '@verida/storage-link'
-import { Account, VeridaDatabaseAuthContext, AuthType, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError } from "@verida/account";
+import { AuthType } from '@verida/account'
+import { Account } from "@verida/account";
 import { ServiceEndpoint } from 'did-resolver'
+import { ContextAuthorizationError, SecureContextPublicKey, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from "@verida/types";
 
 export default class VeridaDatabaseAuthType extends AuthType {
 
@@ -11,7 +12,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
   // 5 second request timeout
   protected timeout: number = 10000
 
-  public constructor(account: Account, contextName: string, serviceEndpoint: ServiceEndpoint, signKey: Interfaces.SecureContextPublicKey) {
+  public constructor(account: Account, contextName: string, serviceEndpoint: ServiceEndpoint, signKey: SecureContextPublicKey) {
     super(account, contextName, serviceEndpoint, signKey)
     this.account = <AutoAccount> account
   }

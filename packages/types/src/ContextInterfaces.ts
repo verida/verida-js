@@ -1,4 +1,4 @@
-import { Context } from "..";
+import { IContext } from "./IContext";
 
 /**
  * Interface for any DatabaseOpenConfig
@@ -7,7 +7,7 @@ export interface DatabaseOpenConfig {
   /**
    * Specify the permissions to use when opening this database.
    */
-  permissions?: PermissionsConfig;
+  permissions?: DatabasePermissionsConfig;
 
   /**
    * Specify the DID that owns the database.
@@ -63,7 +63,7 @@ export interface DatabaseOpenConfig {
   /**
    * Optionally specify the context used to sign data
    */
-  signingContext?: Context;
+  signingContext?: IContext;
 
   /**
    * Ignore any cached instance already created
@@ -90,7 +90,7 @@ export interface DatabaseCloseOptions extends ContextCloseOptions {}
  */
 
 export interface DatastoreOpenConfig {
-  permissions?: PermissionsConfig;
+  permissions?: DatabasePermissionsConfig;
   did?: string;
   saveDatabase?: boolean;
   readOnly?: boolean;
@@ -115,7 +115,7 @@ export interface StorageEngineTypes {
   [key: string]: any;
 }
 
-export enum EngineType {
+export enum ContextEngineType {
   Database = 'database',
   Notification = 'notification',
   Messsaging = 'messaging'
@@ -124,14 +124,14 @@ export enum EngineType {
 /**
  * Interface for any PermissionsConfig
  */
-export interface PermissionsConfig {
-  read: PermissionOptionsEnum;
-  write: PermissionOptionsEnum;
+export interface DatabasePermissionsConfig {
+  read: DatabasePermissionOptionsEnum;
+  write: DatabasePermissionOptionsEnum;
   readList?: string[];
   writeList?: string[];
 }
 
-export enum PermissionOptionsEnum {
+export enum DatabasePermissionOptionsEnum {
   OWNER = "owner",
   PUBLIC = "public",
   USERS = "users",
@@ -163,4 +163,26 @@ export interface ContextDatabaseInfo {
 
 export interface ContextInfo {
   databases: ContextDatabaseInfo
+}
+
+/**
+ * Interface for DbRegistryEntryEncryptionKey
+ */
+export interface DbRegistryEntryEncryptionKey {
+  key: string;
+  type: string;
+}
+
+/**
+* Interface for DbRegistryEntry
+*/
+export interface DbRegistryEntry {
+  dbHash: string;
+  dbName: string;
+  endpointType: string;
+  did: string;
+  contextName: string;
+  permissions: DatabasePermissionsConfig;
+  encryptionKey?: DbRegistryEntryEncryptionKey;
+  endpoint: string
 }

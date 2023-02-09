@@ -1,7 +1,7 @@
 const _ = require("lodash");
-import { DatabaseCloseOptions, DatabaseOpenConfig, DatastoreOpenConfig } from "./interfaces";
 import Context from "./context";
 import Schema from "./schema";
+import { IDatastore, DatastoreOpenConfig, DatabaseOpenConfig, DatabaseCloseOptions } from "@verida/types";
 
 /**
  * A datastore wrapper around a given database and schema.
@@ -14,7 +14,7 @@ import Schema from "./schema";
  * @category
  * Modules
  */
-class Datastore {
+class Datastore implements IDatastore {
   protected schemaName: string;
   protected schemaPath?: string;
   protected schema?: any;
@@ -251,7 +251,7 @@ class Datastore {
    * Update the list of valid users for this datastore.
    *
    * @param readList {string[]} List of DID's that can read from this datastore.
-   * @param writeList {writeList[]} List of DID's that can wrtie to this datastore.
+   * @param writeList {writeList[]} List of DID's that can write to this datastore.
    */
   public async updateUsers(
     readList: string[] = [],

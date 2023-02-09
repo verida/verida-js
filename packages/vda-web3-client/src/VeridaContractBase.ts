@@ -1,16 +1,10 @@
 /* eslint-disable prettier/prettier */
 import Axios from 'axios';
-
-import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
-
 import { isVeridaContract } from './utils'
-
-import { CallType, VeridaWeb3Config, VeridaSelfTransactionConfig, VeridaMetaTransactionConfig, getContractForNetwork, isVeridaWeb3GasConfiguration, VeridaWeb3GasConfiguration } from './config'
-import { VeridaGaslessPostConfig, VeridaGaslessRequestConfig } from './config'
-// import { gaslessDefaultServerConfig, gaslessDefaultPostConfig } from './config'
-
+import { getContractForNetwork, isVeridaWeb3GasConfiguration } from './config'
 import { Wallet, BigNumber, Contract, Signer } from 'ethers';
+import { VdaTransactionResult, VeridaWeb3Config, Web3CallType, Web3GasConfiguration, Web3GaslessPostConfig, Web3GaslessRequestConfig, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from '@verida/types';
 
 /** Create axios instance to make http requests to meta-transaction-server */
 const getAxios = async (params?: any) => {
@@ -29,18 +23,12 @@ export type address = string
 export type uint256 = BigNumber
 export type BlockTag = string | number;
 
-export interface VdaTransactionResult {
-    success: boolean;
-    data?: any
-    error?: string
-}
-
 /**
  * Class representing any Verida Smart Contrat
  */
 export class VeridaContract {
     /** Smart contract interaction mode */
-    protected type: CallType;
+    protected type: Web3CallType;
 
     // /** web3 instance. Only used in web3 mode */
     // protected web3?: Web3;
@@ -63,25 +51,25 @@ export class VeridaContract {
     [key: string]: any
 
     /** Configuration for web3 mode */
-    protected web3Config? : VeridaSelfTransactionConfig
+    protected web3Config? : Web3SelfTransactionConfig
 
     /** Configuration for gasless mode */
-    protected gaslessServerConfig? : VeridaGaslessRequestConfig
-    protected gaslessPostConfig? : VeridaGaslessPostConfig
+    protected gaslessServerConfig? : Web3GaslessRequestConfig
+    protected gaslessPostConfig? : Web3GaslessPostConfig
 
     /**
      * Create Verida smart contract instance. Add member functions of contract as parameters.
      * @param type - interaction mode
      * @param config - configuration for creating VeridaContract instance
      */
-    constructor(type: CallType, config: VeridaWeb3Config) {
+    constructor(type: Web3CallType, config: VeridaWeb3Config) {
         this.type = type;
         if (type === 'web3') {
             if (!config) {
                 throw new Error('Input configuration parameters');
             }
 
-            const web3Config = <VeridaSelfTransactionConfig>config;
+            const web3Config = <Web3SelfTransactionConfig>config;
             if (web3Config.provider || web3Config.signer?.provider || web3Config.rpcUrl) {
 
                 // console.log("VeridaContractBase : ", config.abi.abi)
@@ -110,7 +98,7 @@ export class VeridaContract {
                 if (item.type === 'function') {
                     this[item.name] = async(...params : any[]) : Promise<VdaTransactionResult> => {
 
-                        let gasConfig : VeridaWeb3GasConfiguration | undefined = undefined
+                        let gasConfig : Web3GasConfiguration | undefined = undefined
 
                         const paramLen = params.length
                         if (params !== undefined
@@ -119,7 +107,7 @@ export class VeridaContract {
                             && params[paramLen - 1].constructor.name === 'Object'
                             && isVeridaWeb3GasConfiguration(params[paramLen - 1]))
                         { // Use gas configuration in the params
-                            gasConfig = <VeridaWeb3GasConfiguration>params[paramLen-1]
+                            gasConfig = <Web3GasConfiguration>params[paramLen-1]
                             params = params.slice(0, paramLen - 1)
                         } else if (this.web3Config?.methodDefaults !== undefined && (item.name in this.web3Config?.methodDefaults)) {
                             // Use gas configuration in the methodDefaults
@@ -151,16 +139,16 @@ export class VeridaContract {
                 throw new Error(`Not a Verida contract address (${config.address})`)
             }
 
-            if (!(<VeridaMetaTransactionConfig>config).serverConfig) {
+            if (!(<Web3MetaTransactionConfig>config).serverConfig) {
                 throw new Error('Need request config')
             }
 
-            this.gaslessServerConfig = (<VeridaMetaTransactionConfig>config).serverConfig
+            this.gaslessServerConfig = (<Web3MetaTransactionConfig>config).serverConfig
 
-            if (!(<VeridaMetaTransactionConfig>config).postConfig) {
+            if (!(<Web3MetaTransactionConfig>config).postConfig) {
                 throw new Error('Need POST config')
             }
-            this.gaslessPostConfig = (<VeridaMetaTransactionConfig>config).postConfig
+            this.gaslessPostConfig = (<Web3MetaTransactionConfig>config).postConfig
 
             // @ts-ignore Unsure why the OR typescript isn't being picked up here
             this.endPoint = `${config.endpointUrl}/${config.abi.contractName}`
@@ -229,7 +217,7 @@ export class VeridaContract {
      * @param gasConfig - Gas configuration. Only available for non-view functions in Web3 mode
      * @returns - Response from smart contract interaction
      */
-    protected callMethod = async (methodName: string, methodType: string, params: any, gasConfig? : VeridaWeb3GasConfiguration) : Promise<VdaTransactionResult> =>  {
+    protected callMethod = async (methodName: string, methodType: string, params: any, gasConfig? : Web3GasConfiguration) : Promise<VdaTransactionResult> =>  {
         if (this.type === 'web3') {
             let ret;
 

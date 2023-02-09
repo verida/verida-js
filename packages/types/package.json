@@ -1,0 +1,28 @@
+{
+  "name": "@verida/types",
+  "version": "2.0.4",
+  "description": "Typescript definitions for interfaces used in Verida",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "ISC",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": "https://github.com/verida/verida-js",
+  "scripts": {
+    "build": "rm -rf dist && tsc"
+  },
+  "dependencies": {
+    "tweetnacl": "^1.0.3"
+  }
+}

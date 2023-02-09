@@ -1,21 +1,18 @@
-import BaseMessage from "../../../messaging";
-import { MessagesConfig } from "../../../interfaces";
 import Inbox from "./inbox";
 import Outbox from "./outbox";
-import { Keyring } from "@verida/keyring";
-import { Account } from "@verida/account";
 import DIDContextManager from "../../../../did-context-manager";
 import Context from "../../../context";
-import { MessageSendConfig } from "../../../interfaces";
-import Notification from "../../../notification";
-import { Client } from "../../../..";
-const EventEmitter = require("events");
+import { IAccount, IKeyring, IMessaging, MessagesConfig, MessageSendConfig } from "@verida/types";
+import { Keyring } from "@verida/keyring";
+import { Account } from "@verida/account";
+import Datastore from "../../../datastore";
+import { EventEmitter } from 'events'
 
 /**
  * @category
  * Modules
  */
-class MessagingEngineVerida implements BaseMessage {
+class MessagingEngineVerida implements IMessaging {
   private context: Context;
   private contextName: string;
   private maxItems: Number;
@@ -70,7 +67,7 @@ class MessagingEngineVerida implements BaseMessage {
     const outbox = await this.getOutbox();
     const response = await outbox.send(did, type, data, message, config);
 
-    let recipientContextName = config.recipientContextName ? 
+    let recipientContextName = config.recipientContextName ?
       config.recipientContextName : this.context.getClient().getConfig().vaultAppName;
 
     const notificationService = await this.context.getNotification(did, recipientContextName)
@@ -126,7 +123,7 @@ class MessagingEngineVerida implements BaseMessage {
       this.contextName,
       this.did!,
       this.keyring!,
-      outboxDatastore,
+      <Datastore> outboxDatastore,
       this.context,
       this.didContextManager
     );

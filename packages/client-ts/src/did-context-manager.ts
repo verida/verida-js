@@ -1,10 +1,7 @@
-import { DIDContextConfigs } from "./interfaces";
-import { Account } from "@verida/account";
 import { StorageLink } from "@verida/storage-link";
-
 import { DIDClient } from "@verida/did-client";
-import { DIDDocument, Interfaces as DIDDocInterfaces } from "@verida/did-document";
-import { Interfaces } from "@verida/storage-link";
+import { IAccount, DIDContextConfigs, SecureContextEndpoint, SecureContextConfig } from "@verida/types";
+import { DIDDocument } from "@verida/did-document";
 
 /**
  * Manage all the available storage contexts for all the DIDs being requested,
@@ -20,13 +17,13 @@ class DIDContextManager {
   private didContexts: DIDContextConfigs = {};
 
   private didClient: DIDClient;
-  private account?: Account;
+  private account?: IAccount;
 
   public constructor(didClient: DIDClient) {
     this.didClient = didClient;
   }
 
-  public setAccount(account: Account) {
+  public setAccount(account: IAccount) {
     this.account = account;
   }
 
@@ -34,7 +31,7 @@ class DIDContextManager {
     did: string,
     contextName: string,
     forceCreate: boolean = true
-  ): Promise<DIDDocInterfaces.SecureContextEndpoint> {
+  ): Promise<SecureContextEndpoint> {
     const contextConfig = await this.getDIDContextConfig(
       did,
       contextName,
@@ -47,7 +44,7 @@ class DIDContextManager {
     did: string,
     contextName: string,
     forceCreate: boolean = true
-  ): Promise<DIDDocInterfaces.SecureContextEndpoint> {
+  ): Promise<SecureContextEndpoint> {
     const contextConfig = await this.getDIDContextConfig(
       did,
       contextName,
@@ -64,7 +61,7 @@ class DIDContextManager {
     did: string,
     contextName: string,
     forceCreate: boolean = true
-  ): Promise<DIDDocInterfaces.SecureContextEndpoint> {
+  ): Promise<SecureContextEndpoint> {
     const contextConfig = await this.getDIDContextConfig(
       did,
       contextName,
@@ -98,7 +95,7 @@ class DIDContextManager {
     did: string,
     contextName: string,
     forceCreate?: boolean
-  ): Promise<Interfaces.SecureContextConfig> {
+  ): Promise<SecureContextConfig> {
     let contextHash
     if (contextName.substring(0, 2) == '0x') {
       contextHash = contextName;
@@ -120,7 +117,7 @@ class DIDContextManager {
           //const now = (new Date()).getTime()
           storageConfig = await this.account.storageConfig(
             contextName,
-            forceCreate
+            forceCreate!
           );
           //console.log(`getDIDContextConfig(${did}, ${contextName}): ${(new Date()).getTime()-now}`)
         } catch (err) {

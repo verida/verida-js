@@ -1,6 +1,6 @@
 {
   "name": "@verida/encryption-utils",
-  "version": "2.0.0",
+  "version": "2.0.4",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -13,7 +13,7 @@
     "build": "tsc"
   },
   "engines": {
-    "node": "^14.0.0"
+    "node": ">=14.0.0"
   },
   "dependencies": {
     "ethers": "^5.5.1",

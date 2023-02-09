@@ -1,6 +1,7 @@
-import { DIDClient, DIDClientConfig } from "../src/index"
+import { DIDClient } from "../src/index"
 // import { Wallet } from '@ethersproject/wallet'
 import { Wallet } from "ethers"
+import { DIDClientConfig } from "@verida/types"
 
 require('dotenv').config()
 

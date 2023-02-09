@@ -1,16 +1,17 @@
 import Axios from 'axios'
-import { ResolverConfigurationOptions } from "./interfaces";
 import { lookup } from './lookup';
 import {
     DIDResolutionOptions,
     DIDResolutionResult,
     DIDResolver,
+    DIDDocument,
     ParsedDID,
     Resolvable
   } from "did-resolver";
-import { DIDDocument } from "@verida/did-document"
+import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 import { RPC_URLS } from './config'
 import { interpretIdentifier } from './utils'
+import { Web3ResolverConfigurationOptions } from '@verida/types';
 
 /**
  * Create a VdaDidResolver instance and return it
@@ -18,7 +19,7 @@ import { interpretIdentifier } from './utils'
  * @returns VdaDidResolver instance
  */
 export function getResolver(
-    options?: ResolverConfigurationOptions
+    options?: Web3ResolverConfigurationOptions
   ): Record<string, DIDResolver> {
     options = !options ? {} : options
     return new VdaDidResolver(options).build()
@@ -26,10 +27,10 @@ export function getResolver(
 
 export class VdaDidResolver {
 
-    private options: ResolverConfigurationOptions
+    private options: Web3ResolverConfigurationOptions
     private defaultTimeout: number = 10000
 
-    constructor(options: ResolverConfigurationOptions) {
+    constructor(options: Web3ResolverConfigurationOptions) {
         this.options = options
     }
 
@@ -127,9 +128,9 @@ export class VdaDidResolver {
                     timeout: this.options.timeout ? this.options.timeout : this.defaultTimeout
                 });
                 if (response.data.status == 'success') {
-                    const doc = new DIDDocument(response.data.data)
+                    const doc = new VeridaDIDDocument(response.data.data)
                     doc.import(response.data.data)
-                    documents.push(doc)
+                    documents.push(<DIDDocument> doc.export())
                 }
             } catch (err: any) {
                 //console.error('endpoint error!!')

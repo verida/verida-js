@@ -1,6 +1,6 @@
+import { NetworkConnectionConfig, IContext } from "@verida/types";
+import { Context } from ".";
 import Client from "./client";
-import Context from "./context/context";
-import { NetworkConnectionConfig } from "./interfaces";
 
 /**
  * @category
@@ -27,7 +27,7 @@ class Network {
         config.context.name,
         config.context.forceCreate
       );
-      return context;
+      return <Context> context;
     } catch (err) {
       // User may have cancelled the login attempt
       return;
