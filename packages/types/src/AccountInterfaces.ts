@@ -1,6 +1,5 @@
 import { ServiceEndpoint } from 'did-resolver'
 import { SecureContextEndpoint } from './DocumentInterfaces'
-import { IAccount } from './IAccount'
 import { SecureContextPublicKey } from './StorageLinkInterfaces'
 import { DIDClientConfig, EnvironmentType } from './NetworkInterfaces'
 import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from './Web3Interfaces'

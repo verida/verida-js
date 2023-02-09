@@ -23,6 +23,9 @@
     "build": "rm -rf dist && tsc"
   },
   "dependencies": {
+    "@ethersproject/abstract-signer": "^5.7.0",
+    "@ethersproject/bignumber": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "did-resolver": "^4.0.1",
     "tweetnacl": "^1.0.3"
   }
