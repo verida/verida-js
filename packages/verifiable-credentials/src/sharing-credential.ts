@@ -62,6 +62,7 @@ export default class SharingCredential {
 				read: PermissionOptionsEnum.PUBLIC,
 				write: PermissionOptionsEnum.OWNER,
 			},
+			credentialExplorerUrl: 'https://explorer.verida.network/credential'
 		};
 
 		options = _.merge(defaults, options);
@@ -114,7 +115,7 @@ export default class SharingCredential {
 			result,
 			did,
 			veridaUri: uri,
-			publicUri: `https://verida.network/credential?uri=${Buffer.from(uri, 'utf8').toString('base64')}`
+			publicUri: `${options.credentialExplorerUrl}?uri=${Buffer.from(uri, 'utf8').toString('base64')}`
 		};
 
 	}
