@@ -1,3 +1,8 @@
+2022-02-09 (v2.0.6)
+-------------------
+
+- Fix: Correct network explorer URL and make it configurable
+
 2022-02-09 (v2.0.5)
 -------------------
 
