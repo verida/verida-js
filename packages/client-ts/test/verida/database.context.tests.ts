@@ -80,7 +80,7 @@ describe('Verida database tests relating to contexts', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, [CONTEXT_2])
+            }, [CONTEXT_1, CONTEXT_2])
             did2 = await account2.did()
             await network2.connect(account2)
             context2 = await network2.openContext(CONTEXT_2, true)
@@ -114,12 +114,26 @@ describe('Verida database tests relating to contexts', () => {
             assert.ok(data, 'Fetched saved record')
             assert.ok(data.write == 'from external DID', 'Result has expected value')
 
+            /*const dbInfo = await database.info()
+            console.log('this database')
+            console.log(dbInfo)
+
+            const info = await db1.info()
+            console.log('external database')
+            console.log(info)*/
+
             console.log('Sleeping so replication can complete')
             await sleep(5000)
 
             // Confirm the original database opened by DID1 & CONTEXT1 can access the saved row
-            const originalDbRow = await db1.get(result.id)
-            assert.ok(originalDbRow && originalDbRow.write == 'from external DID', 'Result has expected value')
+            try {
+                const originalDbRow = await db1.get(result.id)
+                assert.ok(originalDbRow && originalDbRow.write == 'from external DID', 'Result has expected value')
+            } catch (err) {
+                console.log(err)
+                const info = await db1.info()
+                assert.fail(`Record not found (${info.databaseHash} / ${result.id}})`)
+            }
         })
     })
 

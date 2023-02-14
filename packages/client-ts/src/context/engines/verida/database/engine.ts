@@ -107,7 +107,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     try {
       await super.connectAccount(account);
 
-      // Authenticate with all endpoints
+      // Authenticate with all endpoints owned by this user in this context
       // Do async for increased speed
       //const now = (new Date()).getTime()
       const promises = []

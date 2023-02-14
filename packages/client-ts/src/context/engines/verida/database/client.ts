@@ -78,13 +78,20 @@ export class DatastoreServerClient {
   }
 
   public async pingDatabases(
-    databaseHashes: string[]
+    databaseHashes: string[],
+    isWritePublic: boolean,
+    did?: string,
+    contextName?: string
   ) {
     try {
       return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/pingDatabase", {
-        databaseHashes
+        databaseHashes,
+        isWritePublic,
+        did,
+        contextName
       });
     } catch(err: any) {
+      //console.log(`error with pingDatabase() ${err.response.data.message}`)
       // Ignore errors for now as the endpoint doesn't exist on storage nodes
     }
   }

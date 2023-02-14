@@ -7,7 +7,7 @@ import Utils from "./utils";
 
 import * as PouchDBFind from "pouchdb-find";
 import * as PouchDBLib from "pouchdb";
-import { AuthContext, DatabasePermissionsConfig, EndpointUsage, SecureContextConfig, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { AuthContext, DatabasePermissionsConfig, EndpointUsage, SecureContextConfig, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig, DatabasePermissionOptionsEnum } from '@verida/types'
 
 // See https://github.com/pouchdb/pouchdb/issues/6862
 const { default: PouchDB } = PouchDBLib as any;
@@ -75,6 +75,8 @@ export default class Endpoint extends EventEmitter {
             skip_setup: true
         }
 
+        const isPublicWrite = (permissions.read == DatabasePermissionOptionsEnum.PUBLIC || permissions.write == DatabasePermissionOptionsEnum.PUBLIC)
+
         if (this.auth && !this.usePublic) {
             const instance = this
             dbConfig['fetch'] = async function (url: string, opts: any) {
@@ -93,7 +95,7 @@ export default class Endpoint extends EventEmitter {
 
                     // Ping database to ensure replication is active
                     // No need to await
-                    instance.client.pingDatabases(Object.keys(this.databases))
+                    instance.client.pingDatabases([databaseHash], isPublicWrite, did, this.contextName)
 
                     if (result.status == 401) {
                         throw new Error(`Permission denied to access server: ${instance.toString()}`)
@@ -135,7 +137,7 @@ export default class Endpoint extends EventEmitter {
 
         // Ping database to ensure replication is active
         // No need to await
-        this.client.pingDatabases(Object.keys(this.databases))
+        this.client.pingDatabases([databaseHash], isPublicWrite, did, this.contextName)
         return db
     }
 
