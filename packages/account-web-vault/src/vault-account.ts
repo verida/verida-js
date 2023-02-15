@@ -281,6 +281,22 @@ export class VaultAccount extends Account {
         store.remove(VERIDA_AUTH_CONTEXT)
     }
 
+    // Handle scenario where the Endpoint hostname doesn't exactly match the DID
+    // Document endpoint (typically when port 443 is in one endpoint, but not the other
+    private locateEndpointContextAuth(contextName: string, endpointUri: string): any {
+        const endpointHostname = new URL(endpointUri)
+        let contextAuth
+        Object.keys(this.contextCache[contextName].contextAuths).forEach(uri => {
+            const url = new URL(uri)
+            console.log(`${endpointHostname.hostname} === ${url.hostname}?`)
+            if (endpointHostname.hostname === url.hostname) {
+                contextAuth = this.contextCache[contextName].contextAuths[uri]
+            }
+        });
+
+        return contextAuth
+    }
+
     public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
@@ -298,11 +314,12 @@ export class VaultAccount extends Account {
                     throw new Error('Endpoint must be specified when getting auth context')
                 }
 
-                const endpointUri = veridaDatabaseConfig.endpointUri
-
-                if (!this.contextCache[contextName].contextAuths[endpointUri]) {
+                const contextAuth = this.locateEndpointContextAuth(contextName, veridaDatabaseConfig.endpointUri)
+                if (!contextAuth) {
                     throw new Error('Endpoint not known for this authentication context')
                 }
+
+                const endpointUri = contextAuth.endpointUri
 
                 // Attempt to re-authenticate using the refreshToken
                 const did = await this.did()
