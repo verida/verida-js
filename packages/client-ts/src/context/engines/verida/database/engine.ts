@@ -50,12 +50,18 @@ class StorageEngineVerida extends BaseStorageEngine {
     // Maintain a list of failed endpoints
     const failedEndpoints = []
 
-    if (Object.keys(endpoints).length == 0) {
+    const endpointCount = Object.keys(endpoints).length
+
+    if (endpointCount == 0) {
       throw new Error('No endpoints specified')
     }
 
-    // Randomly choose a "primary" connection
-    let primaryIndex = getRandomInt(0, Object.keys(endpoints).length)
+    // Choose a "primary" connection in such a way that it remains the
+    // same for a 1 hour block. This ensures a user won't open lots
+    // of connections to different nodes which minimizes the replication
+    // required between the user's nodes, but still spreads the load across
+    // all nodes across a given 24 hour period
+    let primaryIndex = Math.trunc((new Date()).getTime()/1000/60/60) % endpointCount
     let primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
 
     if (!checkStatus) {
