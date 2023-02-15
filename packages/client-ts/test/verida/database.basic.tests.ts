@@ -3,7 +3,7 @@ const assert = require('assert')
 import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
-import { assertIsValidDbResponse } from '../utils'
+import { assertIsValidDbResponse, sleep } from '../utils'
 
 const DB_NAME_OWNER = 'OwnerBasicTestDb'
 const DB_NAME_PUBLIC = 'PublicBasicTestDb'
@@ -79,6 +79,9 @@ describe('Verida basic database tests', () => {
                 localOnly: false
             })
 
+            // sleep 5 seconds so remote destroy has time to execute
+            await sleep(5000)
+
             // Check database has been removed from the database registry
             const dbRegistry = context1.getDbRegistry()
             let dbRemoved
@@ -152,6 +155,9 @@ describe('Verida basic database tests', () => {
             await database.destroy({
                 localOnly: false
             })
+
+            // sleep 5 seconds so remote destroy has time to execute
+            await sleep(5000)
 
             // Check database has been removed from the database registry
             const dbRegistry = context1.getDbRegistry()
