@@ -75,7 +75,7 @@ export default class Endpoint extends EventEmitter {
             skip_setup: true
         }
 
-        const isPublicWrite = (permissions.read == DatabasePermissionOptionsEnum.PUBLIC || permissions.write == DatabasePermissionOptionsEnum.PUBLIC)
+        const isPublicWrite = (permissions.write == DatabasePermissionOptionsEnum.PUBLIC)
 
         if (this.auth && !this.usePublic) {
             const instance = this
