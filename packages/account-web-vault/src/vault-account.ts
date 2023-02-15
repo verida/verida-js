@@ -288,7 +288,7 @@ export class VaultAccount extends Account {
         let contextAuth
         Object.keys(this.contextCache[contextName].contextAuths).forEach(uri => {
             const url = new URL(uri)
-            console.log(`${endpointHostname.hostname} === ${url.hostname}?`)
+
             if (endpointHostname.hostname === url.hostname) {
                 contextAuth = this.contextCache[contextName].contextAuths[uri]
             }
