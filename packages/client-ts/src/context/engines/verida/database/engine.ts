@@ -5,7 +5,6 @@ import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
 import Context from '../../../context';
 import Endpoint from "./endpoint";
-import { getRandomInt } from "../../../utils";
 import { ContextDatabaseInfo, DatabaseOpenConfig, DatabasePermissionsConfig, IDatabase, SecureContextConfig } from "@verida/types";
 
 const _ = require("lodash");
