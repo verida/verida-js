@@ -5,6 +5,7 @@ import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
 import { RecordSignature } from '../../src/context/utils'
+import { sleep } from '../utils'
 
 const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
@@ -108,6 +109,9 @@ describe('Verida datastore tests', () => {
         })
 
         it('can open a datastore with user permissions, as an external user', async function() {
+            // Give replication some time to finish
+            await sleep(5000)
+
             await network2.connect(account2)
             context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
 
