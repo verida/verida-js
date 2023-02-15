@@ -272,6 +272,10 @@ export default class DIDDocument implements IDIDDocument {
     }
 
     public verifySig(data: any, signature: string): boolean {
+        if (!this.doc.verificationMethod) {
+            return false
+        }
+
         const verificationMethod = this.doc.verificationMethod!.find(entry => entry.id == this.doc.id)
         if (!verificationMethod || !verificationMethod.publicKeyHex) {
             return false
