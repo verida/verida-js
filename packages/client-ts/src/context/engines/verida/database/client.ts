@@ -54,9 +54,8 @@ export class DatastoreServerClient {
     config: any = {},
     retry: boolean
   ): Promise<any> {
-    //console.log(`createDatabase(${databaseName} / ${this.serviceEndpoint})`)
     try {
-      return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
+      return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
         databaseName: databaseName,
         options: config,
       });
@@ -77,10 +76,11 @@ export class DatastoreServerClient {
     //console.log(`checkReplication(${databaseName} / ${this.serviceEndpoint})`)
     try {
       const opts: any = {}
-    if (databaseName) {
-      opts.databaseName = databaseName
-    }
-    return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/checkReplication", opts);
+      if (databaseName) {
+        opts.databaseName = databaseName
+      }
+
+      return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/checkReplication", opts);
     } catch (err: any) {
       if (err.response.status == 401 && retry) {
         await this.reAuth()
