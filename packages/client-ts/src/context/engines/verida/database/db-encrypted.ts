@@ -261,6 +261,10 @@ class EncryptedDatabase extends BaseDb {
   public async destroy(options: DatabaseDeleteConfig = {
     localOnly: false
   }): Promise<void> {
+    if (!this.isOwner && !options.localOnly) {
+      throw new Error(`Unable to update users for a database you don't own`)
+    }
+
     // Need to ensure any database sync to remote server has completed
     if (this._sync && this._syncStatus != 'paused' && this._syncStatus != 'complete') {
       const instance = this
@@ -307,6 +311,10 @@ class EncryptedDatabase extends BaseDb {
     writeList: string[] = []
   ): Promise<void> {
     await this.init();
+
+    if (!this.isOwner) {
+      throw new Error(`Unable to update users for a database you don't own`)
+    }
 
     this.permissions!.readList = readList;
     this.permissions!.writeList = writeList;

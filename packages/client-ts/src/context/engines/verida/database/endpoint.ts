@@ -40,6 +40,7 @@ export default class Endpoint extends EventEmitter {
         this.contextConfig = contextConfig
 
         this.client = new DatastoreServerClient(
+            this,
             contextName,
             endpointUri
         );
@@ -95,7 +96,8 @@ export default class Endpoint extends EventEmitter {
 
                     // Ping database to ensure replication is active
                     // No need to await
-                    instance.client.pingDatabases([databaseHash], isPublicWrite, did, this.contextName)
+                    // Retry if auth error if we are the database owner
+                    instance.client.pingDatabases([databaseHash], isPublicWrite, did, this.contextName, isOwner)
 
                     if (result.status == 401) {
                         throw new Error(`Permission denied to access server: ${instance.toString()}`)
@@ -137,7 +139,8 @@ export default class Endpoint extends EventEmitter {
 
         // Ping database to ensure replication is active
         // No need to await
-        this.client.pingDatabases([databaseHash], isPublicWrite, did, this.contextName)
+        // Retry if auth error if we are the database owner
+        this.client.pingDatabases([databaseHash], isPublicWrite, did, this.contextName, isOwner)
         return db
     }
 
@@ -223,13 +226,13 @@ export default class Endpoint extends EventEmitter {
         this.client.setAuthContext(authContext)
     }
 
-    public async createDb(databaseName: string, permissions: DatabasePermissionsConfig) {
+    public async createDb(databaseName: string, permissions: DatabasePermissionsConfig, retry: boolean) {
         const options = {
             permissions
         };
 
         try {
-            await this.client.createDatabase(databaseName, options);
+            await this.client.createDatabase(databaseName, options, retry);
             // There's an odd timing issue that needs a deeper investigation
             await Utils.sleep(1000);
         } catch (err) {
@@ -310,20 +313,21 @@ export default class Endpoint extends EventEmitter {
         return auth*/
     }
 
-    public async getUsage(): Promise<EndpointUsage> {
-        return this.client.getUsage()
-      }
-    
-      public async getDatabases() {
-        return this.client.getDatabases()
-      }
-    
-      public async getDatabaseInfo(databaseName: string) {
-        return this.client.getDatabaseInfo(databaseName)
-      }
+    public async getUsage(retry: boolean): Promise<EndpointUsage> {
+        return this.client.getUsage(retry)
+    }
+
+    public async getDatabases(retry: boolean) {
+        return this.client.getDatabases(retry)
+    }
+
+    public async getDatabaseInfo(databaseName: string, retry: boolean) {
+        return this.client.getDatabaseInfo(databaseName, retry)
+    }
 
     public logout() {
         this.client = new DatastoreServerClient(
+            this,
             this.contextName,
             this.endpointUri
         );

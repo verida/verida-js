@@ -419,7 +419,8 @@ class StorageEngineVerida extends BaseStorageEngine {
     const promises = []
     for (let i in this.endpoints) {
       const endpoint = this.endpoints[i]
-      promises.push(endpoint.createDb(databaseName, permissions))
+      const retry = (typeof(this.accountDid) !== 'undefined' && did.toLowerCase() == this.accountDid!.toLowerCase())
+      promises.push(endpoint.createDb(databaseName, permissions, retry))
     }
 
     // No need for await as this can occur in the background?
@@ -472,7 +473,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
     for (let e in this.endpoints) {
       const endpoint = this.endpoints[e]
-      const usage = await endpoint.getUsage()
+      const usage = await endpoint.getUsage(false)
 
       endpoints[endpoint.toString()] = {
         endpointUri: endpoint.toString(),
@@ -480,7 +481,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       }
 
       if (Object.keys(databases).length == 0) {
-        databases = await endpoint.getDatabases()
+        databases = await endpoint.getDatabases(false)
       }
     }
 

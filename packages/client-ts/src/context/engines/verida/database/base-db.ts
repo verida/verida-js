@@ -432,7 +432,7 @@ class BaseDb extends EventEmitter implements IDatabase {
   }
 
   public async usage(): Promise<EndpointUsage> {
-    return await this.endpoint.getUsage()
+    return await this.endpoint.getUsage(this.isOwner!)
   }
   
 }

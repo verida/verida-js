@@ -41,6 +41,10 @@ class PublicDatabase extends BaseDb {
   public async destroy(options: DatabaseDeleteConfig = {
     localOnly: false
   }): Promise<void> {
+    if (!this.isOwner && !options.localOnly) {
+      throw new Error(`Unable to update users for a database you don't own`)
+    }
+
     if (options.localOnly) {
       return
     }

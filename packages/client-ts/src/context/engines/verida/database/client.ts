@@ -1,6 +1,7 @@
 import { EndpointUsage, VeridaDatabaseAuthContext } from "@verida/types";
 import Axios from "axios";
 import { ServiceEndpoint } from 'did-resolver'
+import Endpoint from "./endpoint";
 
 /**
  * Interface for RemoteClientAuthentication
@@ -17,11 +18,13 @@ export interface ContextAuth {
  */
 export class DatastoreServerClient {
 
+  private endpoint: Endpoint
   private authContext?: VeridaDatabaseAuthContext
   private storageContext: string;
   private serviceEndpoint: ServiceEndpoint;
 
-  constructor(storageContext: string, serviceEndpoint: ServiceEndpoint, authContext?: VeridaDatabaseAuthContext) {
+  constructor(endpoint: Endpoint, storageContext: string, serviceEndpoint: ServiceEndpoint, authContext?: VeridaDatabaseAuthContext) {
+    this.endpoint = endpoint
     this.authContext = authContext
     this.storageContext = storageContext;
     this.serviceEndpoint = serviceEndpoint
@@ -39,50 +42,98 @@ export class DatastoreServerClient {
     return this.getAxios().get(this.serviceEndpoint + "status");
   }
 
+  /**
+   * 
+   * @param databaseName 
+   * @param config 
+   * @param retry Retry if an authentication error occurs
+   * @returns 
+   */
   public async createDatabase(
     databaseName: string,
-    config: any = {}
-  ) {
-    return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
-      databaseName: databaseName,
-      options: config,
-    });
+    config: any = {},
+    retry: boolean
+  ): Promise<any> {
+    try {
+      return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
+        databaseName: databaseName,
+        options: config,
+      });
+    } catch (err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.createDatabase(databaseName, config, false)
+      }
+
+      throw err
+    }
   }
 
   public async checkReplication(
-    databaseName?: string
-  ) {
-    const opts: any = {}
+    databaseName?: string,
+    retry: boolean = true
+  ): Promise<any> {
+    try {
+      const opts: any = {}
     if (databaseName) {
       opts.databaseName = databaseName
     }
     return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/checkReplication", opts);
+    } catch (err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.checkReplication(databaseName, false)
+      }
+
+      throw err
+    }
   }
 
   public async updateDatabase(
     databaseName: string,
-    config: any = {}
-  ) {
-    return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/updateDatabase", {
-      databaseName: databaseName,
-      options: config,
-    });
+    config: any = {},
+    retry: boolean = true
+  ): Promise<any> {
+    try {
+      return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/updateDatabase", {
+        databaseName: databaseName,
+        options: config,
+      });
+    } catch (err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.updateDatabase(databaseName, config, false)
+      }
+
+      throw err
+    }
   }
 
   public async deleteDatabase(
-    databaseName: string
-  ) {
-    return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/deleteDatabase", {
-      databaseName
-    });
+    databaseName: string,
+    retry: boolean = true
+  ): Promise<any> {
+    try {
+      return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/deleteDatabase", {
+        databaseName
+      });
+    } catch (err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.deleteDatabase(databaseName, false)
+      }
+
+      throw err
+    }
   }
 
   public async pingDatabases(
     databaseHashes: string[],
     isWritePublic: boolean,
     did?: string,
-    contextName?: string
-  ) {
+    contextName?: string,
+    retry: boolean = true
+  ): Promise<any> {
     try {
       return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/pingDatabase", {
         databaseHashes,
@@ -91,43 +142,75 @@ export class DatastoreServerClient {
         contextName
       });
     } catch(err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.pingDatabases(databaseHashes, isWritePublic, did, contextName, false)
+      }
       //console.log(`error with pingDatabase() ${err.response.data.message}`)
       // Ignore errors for now as the endpoint doesn't exist on storage nodes
     }
   }
 
-  public async getUsage(): Promise<EndpointUsage> {
-    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/usage");
+  public async getUsage(retry: boolean): Promise<EndpointUsage> {
+    try {
+      const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/usage");
+      if (result.data.status !== 'success') {
+        throw new Error(`${this.serviceEndpoint}: Unable to get usage info (${result.data.message})`)
+      }
 
-    if (result.data.status !== 'success') {
-      throw new Error(`${this.serviceEndpoint}: Unable to get usage info (${result.data.message})`)
+      return <EndpointUsage> result.data.result
+    } catch (err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.getUsage(false)
+      }
+
+      throw err
     }
-
-    return <EndpointUsage> result.data.result
   }
 
-  public async getDatabases() {
-    const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databases");
+  public async getDatabases(retry: boolean): Promise<void> {
+    try {
+      const result = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databases");
 
-    if (result.data.status !== 'success') {
-      throw new Error(`${this.serviceEndpoint}: Unable to get database list (${result.data.message})`)
+      if (result.data.status !== 'success') {
+        throw new Error(`${this.serviceEndpoint}: Unable to get database list (${result.data.message})`)
+      }
+
+      return result.data.result
+    } catch (err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.getDatabases(false)
+      }
+
+      throw err
     }
-
-    return result.data.result
-
-    return 
   }
 
-  public async getDatabaseInfo(databaseName: string) {
-    const result: any = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databaseInfo", {
-      databaseName
-    });
+  public async getDatabaseInfo(databaseName: string, retry: boolean): Promise<any> {
+    try {
+      const result: any = await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/databaseInfo", {
+        databaseName
+      });
+  
+      if (result.data.status !== 'success') {
+        throw new Error(`${this.serviceEndpoint}: Unable to get database info (${result.data.message})`)
+      }
+  
+      return result.data.result
+    } catch (err: any) {
+      if (err.response.status == 401 && retry) {
+        await this.reAuth()
+        return this.getDatabaseInfo(databaseName, retry)
+      }
 
-    if (result.data.status !== 'success') {
-      throw new Error(`${this.serviceEndpoint}: Unable to get database info (${result.data.message})`)
+      throw err
     }
+  }
 
-    return result.data.result
+  private async reAuth() {
+    await this.endpoint.authenticate(true)
   }
 
   private getAxios(accessToken?: string) {
