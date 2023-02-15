@@ -7,6 +7,7 @@ import { randomBytes } from 'crypto'
 import { getBlockchainAPIConfiguration } from "./utils"
 
 import VdaDid from '../src/vdaDid'
+import { VeridaDocInterface } from '@verida/types'
 
 const wallet = ethers.Wallet.createRandom()
 const DID_PRIVATE_KEY = wallet.privateKey
@@ -46,10 +47,16 @@ const VDA_DID_CONFIG2 = {
     web3Options: baseConfig.web3Options
 }
 
-const ENDPOINTS = [
+/*const ENDPOINTS = [
     `https://node1-apse2.devnet.verida.tech/did/${DID}`,
     `https://node2-apse2.devnet.verida.tech/did/${DID}`,
     `https://node3-apse2.devnet.verida.tech/did/${DID}`
+]*/
+
+const ENDPOINTS = [
+    `http://192.168.68.113:5000/did/${DID}`,
+    `http://192.168.68.127:5000/did/${DID}`,
+    `http://192.168.68.135:5000/did/${DID}`
 ]
 
 // Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
@@ -118,7 +125,7 @@ describe("VdaDid tests", function() {
         it("Success", async () => {
             try {
                 const response = await didResolver.resolve(DID)
-                const didDocument = <DIDDocument> response.didDocument
+                const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
 
                 assert.deepEqual(didDocument!.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {
@@ -179,21 +186,24 @@ describe("VdaDid tests", function() {
             }
         })
 
-        /*it("Fail - 1/n endpoints fail", async () => {
+        it("Fail - 1/n endpoints fail", async () => {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
                 doc.signProof(wallet.privateKey)
                 masterDidDoc = doc
+                doc.setAttributes({
+                    updated: doc.buildTimestamp(NOW)+1
+                })
 
                 const publishedEndpoints = await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
             } catch (err) {
-                console.log(Object.keys(err.response))
+                console.log('err', err.message)
                 assert.equal(err.response.data.status, 'fail', 'Fail status')
                 assert.equal(err.response.data.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Invalid versionId')
                 //assert.fail(`Failed: ${err.message}`)
             }
-        })*/
+        })
 
         it("Success", async () => {
             const doc = new DIDDocument(masterDidDoc.export())
