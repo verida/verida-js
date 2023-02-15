@@ -64,6 +64,7 @@ export default class Endpoint extends EventEmitter {
 
     public async connectDb(did: string, databaseName: string, permissions: DatabasePermissionsConfig, isOwner: boolean) {
         const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
+        //console.log(`connectDb(${databaseName} / ${databaseHash} / ${this.endpointUri})`)
         if (this.databases[databaseHash]) {
             return this.databases[databaseHash];
         }
@@ -266,10 +267,8 @@ export default class Endpoint extends EventEmitter {
                 message = err.response.data.message
             }
 
-            throw new Error(`Unable to delete database (${databaseName}): ${message}`);
+            throw new Error(`${this.endpointUri}: Unable to delete database (${databaseName}): ${message}`);
         }
-
-        await this.storageEngine.checkReplication()
     }
 
     public async checkReplication(databaseName?: string) {

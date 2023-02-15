@@ -54,6 +54,7 @@ export class DatastoreServerClient {
     config: any = {},
     retry: boolean
   ): Promise<any> {
+    //console.log(`createDatabase(${databaseName} / ${this.serviceEndpoint})`)
     try {
       return this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/createDatabase", {
         databaseName: databaseName,
@@ -73,6 +74,7 @@ export class DatastoreServerClient {
     databaseName?: string,
     retry: boolean = true
   ): Promise<any> {
+    //console.log(`checkReplication(${databaseName} / ${this.serviceEndpoint})`)
     try {
       const opts: any = {}
     if (databaseName) {
@@ -113,6 +115,7 @@ export class DatastoreServerClient {
     databaseName: string,
     retry: boolean = true
   ): Promise<any> {
+    //console.log(`client.deleteDatabase(${databaseName} / ${this.serviceEndpoint})`)
     try {
       return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/deleteDatabase", {
         databaseName
@@ -134,6 +137,7 @@ export class DatastoreServerClient {
     contextName?: string,
     retry: boolean = true
   ): Promise<any> {
+    //console.log(`client.pingDatabases(${databaseHashes} / ${this.serviceEndpoint})`)
     try {
       return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/pingDatabase", {
         databaseHashes,
