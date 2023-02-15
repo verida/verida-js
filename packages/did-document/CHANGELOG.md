@@ -1,3 +1,8 @@
+2022-02-15 (v2.1.0)
+-------------------
+
+- Fix: Gracefully handle signature verification where there are no signatures
+
 2022-01-27 (v2.0.4)
 -------------------
 

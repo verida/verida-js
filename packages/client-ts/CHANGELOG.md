@@ -1,3 +1,11 @@
+2022-02-15 (v2.1.0)
+-------------------
+
+- Implement new "dynamic" replication
+- Fix: Unauthorized storage node API requests didn't attempt to retry and fetch new access token
+- Fix: Remove extra `checkReplication()` call when deleting a database
+- Feature: Implement time based rotation of primary storage node selection for improved overall network performance and end user performance
+
 2022-02-09 (v2.0.5)
 -------------------
 

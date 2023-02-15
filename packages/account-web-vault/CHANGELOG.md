@@ -1,3 +1,8 @@
+2022-02-15 (v2.1.0)
+-------------------
+
+- Fix: Make more resilient to variations in formatting of service endpoint URIs
+
 2022-02-09 (v2.0.5)
 -------------------
 
