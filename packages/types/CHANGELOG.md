@@ -1,3 +1,6 @@
+
+- Fix: Add `errors` property to schema interface
+
 2022-02-09 (v2.0.5)
 -------------------
 

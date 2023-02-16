@@ -1,3 +1,9 @@
+
+- Support proofStrings
+- Support easy creation of a Verida compatible credential record
+- Use new @verida/helpers package
+- Export interfaces
+
 2022-02-09 (v2.0.6)
 -------------------
 
