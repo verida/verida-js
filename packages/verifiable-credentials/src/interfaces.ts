@@ -29,6 +29,7 @@ export interface VeridaCredentialRecord {
     schema: string
     name: string
     summary?: string
+    icon?: string
     didJwtVc: string
     credentialSchema: string
     credentialData: Record<string, string | object>

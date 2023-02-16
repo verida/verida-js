@@ -60,7 +60,8 @@ export default class Credentials {
 	public async createVerifiableCredentialRecord(
 		createCredentialData: CreateCredentialJWT,
 		name: string,
-		summary?: string
+		summary?: string,
+		icon?: string
 	): Promise<VeridaCredentialRecord> {
 		const didJwtVc = await this.createCredentialJWT(createCredentialData)
 
@@ -72,6 +73,7 @@ export default class Credentials {
 			schema: VERIDA_CREDENTIAL_SCHEMA,
 			credentialData: data,
 			credentialSchema: schema,
+			icon,
 			didJwtVc
 		}
 	}
