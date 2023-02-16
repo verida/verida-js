@@ -15,8 +15,8 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@verida/encryption-utils": "^2.0.4",
-    "@verida/types": "^2.0.5",
+    "@verida/encryption-utils": "^2.1.1",
+    "@verida/types": "^2.1.1",
     "bs58": "^5.0.0",
     "url": "^0.11.0"
   },
