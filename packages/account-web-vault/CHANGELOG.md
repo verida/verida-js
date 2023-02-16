@@ -1,3 +1,6 @@
+
+- Fix: Remove debug console output
+
 2022-02-15 (v2.1.0)
 -------------------
 
