@@ -1,4 +1,3 @@
-import { encodeBase64 } from 'tweetnacl-util';
 import { ES256KSigner } from 'did-jwt';
 import { Resolver } from 'did-resolver';
 import { getResolver } from '@verida/vda-did-resolver';
@@ -10,9 +9,9 @@ import {
 	JwtCredentialPayload,
 	Issuer,
 } from 'did-jwt-vc';
-import { Context } from '@verida/client-ts';
-import { CreateCredentialJWT } from './interfaces';
-import { Web3ResolverConfigurationOptions } from '@verida/types';
+import { CreateCredentialJWT, VERIDA_CREDENTIAL_SCHEMA, VeridaCredentialRecord } from './interfaces';
+import { IContext, Web3ResolverConfigurationOptions } from '@verida/types';
+import EncryptionUtils from '@verida/encryption-utils';
 
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
@@ -23,8 +22,6 @@ dayjs.extend(utc)
  * Verifiable Credentials and Verifiable Presentations represented as
  * DID-JWT's
  */
-
-
 export default class Credentials {
 	private errors: string[] = [];
 
@@ -41,7 +38,7 @@ export default class Credentials {
 	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
 	 * @return {string} DID-JWT representation of the Verifiable Credential
 	 */
-	async createVerifiableCredential(
+	public async createVerifiableCredential(
 		vc: any,
 		issuer: any
 	): Promise<string> {
@@ -54,15 +51,41 @@ export default class Credentials {
 	}
 
 	/**
+	 * Create a Verifiable Credential record that can be saved into the 
+	 * credential datastore.
+	 * 
+	 * @param vc 
+	 * @param issuer 
+	 */
+	public async createVerifiableCredentialRecord(
+		createCredentialData: CreateCredentialJWT,
+		name: string,
+		summary?: string
+	): Promise<VeridaCredentialRecord> {
+		const didJwtVc = await this.createCredentialJWT(createCredentialData)
+
+		const { data, schema } = createCredentialData
+
+		return {
+			name,
+			summary,
+			schema: VERIDA_CREDENTIAL_SCHEMA,
+			credentialData: data,
+			credentialSchema: schema,
+			didJwtVc
+		}
+	}
+
+	/**
 	 * Create a verifiable presentation that combines an array of Verifiable
 	 * Credential DID-JWT's
 	 *
 	 * @param {array} vcJwts Array of Verifiable Credential DID-JWT's
 	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
 	 */
-	async createVerifiablePresentation(
+	public async createVerifiablePresentation(
 		vcJwts: string[],
-		context: Context,
+		context: IContext,
 		issuer?: any,
 	): Promise<string> {
 		if (!issuer) {
@@ -86,7 +109,7 @@ export default class Credentials {
 	 * @param {string} vpJwt
 	 * @param {string} didRegistryEndpoint
 	 */
-	static async verifyPresentation(vpJwt: string, resolverConfig: Web3ResolverConfigurationOptions): Promise<any> {
+	public static async verifyPresentation(vpJwt: string, resolverConfig: Web3ResolverConfigurationOptions): Promise<any> {
 		const resolver = Credentials.getResolver(resolverConfig);
 		return verifyPresentation(vpJwt, resolver);
 	}
@@ -98,7 +121,7 @@ export default class Credentials {
 	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	async verifyCredential(vcJwt: string, resolverConfig?: Web3ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
+	public async verifyCredential(vcJwt: string, resolverConfig?: Web3ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
 		this.errors = []
 		const resolver = Credentials.getResolver(resolverConfig);
 		const decodedCredential = await verifyCredential(vcJwt, resolver);
@@ -139,14 +162,9 @@ export default class Credentials {
 	 * @return {object} Verifiable Credential Issuer
 	 */
 
-	public async createIssuer(context: Context): Promise<Issuer> {
-		const account = context.getAccount();
-		const contextName = context.getContextName();
-		const did = await account.did();
-
-		const keyring = await account.keyring(contextName);
-		const keys = await keyring.getKeys();
-		const signer = ES256KSigner(keys.signPrivateKey);
+	public async createIssuer(context: IContext): Promise<Issuer> {
+		const { privateKey, did } = await this.getContextInfo(context)
+		const signer = ES256KSigner(privateKey);
 
 		const issuer = {
 			did,
@@ -154,7 +172,21 @@ export default class Credentials {
 			alg: 'ES256K',
 		} as Issuer;
 
-		return issuer;
+		return issuer
+	}
+
+	public async getContextInfo(context: IContext) {
+		const account = context.getAccount();
+		const contextName = context.getContextName();
+		const did = await account.did();
+
+		const keyring = await account.keyring(contextName);
+		const keys = await keyring.getKeys();
+
+		return {
+			privateKey: keys.signPrivateKey,
+			did
+		}
 	}
 
 	/**
@@ -165,7 +197,7 @@ export default class Credentials {
 	 * @param data 
 	 * @returns A string DID-JWT representation
 	 */
-	async createCredentialJWT({ subjectId, data, schema, context, payload, options }: CreateCredentialJWT): Promise<string> {
+	public async createCredentialJWT({ subjectId, data, schema, context, payload, options }: CreateCredentialJWT): Promise<string> {
 		// Ensure a credential schema has been specified
 		if (!schema) {
 			throw new Error('No schema specified')
@@ -183,6 +215,15 @@ export default class Credentials {
 		const issuer = await this.createIssuer(context);
 		const account = context.getAccount();
 		const did = await account.did();
+
+		if (options && options.proofStrings) {
+			if (!payload) {
+				payload = {}
+			}
+
+			const { privateKey } = await this.getContextInfo(context)
+			payload.proofs = await this.buildProofs(options.proofStrings, data, privateKey)
+		}
 
 		const vcPayload: any = {
 			'@context': [
@@ -234,5 +275,27 @@ export default class Credentials {
 
 	public getErrors() {
 		return this.errors;
+	}
+
+	private buildProofs(proofs: Record<string, string[]>, data: Record<string, string>, privateSignKey: Uint8Array) {
+		const payloadProofs: any = {}
+		const proofStrings: any = {}
+			
+		for (let key in proofs) {
+			const proofItems: string[] = proofs[key]
+
+			for (let i in proofItems) {
+				const proofItem = proofItems[i]
+
+				if (proofItem.startsWith('$')) {
+					proofItems[i] = data[proofItem.substring(1)]
+				}
+			}
+
+			const proofString = proofItems.join('-')
+			const sig = EncryptionUtils.signData(proofString, privateSignKey)
+			payloadProofs[key] = sig
+			proofStrings[key] = proofString
+		}
 	}
 }

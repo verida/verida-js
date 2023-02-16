@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
-import { Context, Utils } from '@verida/client-ts';
 import EncryptionUtils from '@verida/encryption-utils';
 import { VCResult } from './interfaces';
 import { Credentials } from '.';
-import { DatabasePermissionOptionsEnum } from '@verida/types';
+import { IContext, DatabasePermissionOptionsEnum } from '@verida/types';
+import { buildVeridaUri } from '@verida/helpers'
 
 const PermissionOptionsEnum = DatabasePermissionOptionsEnum
 
@@ -16,9 +16,9 @@ const SCHEMAs = {
 };
 
 export default class SharingCredential {
-	context: Context;
+	context: IContext;
 
-	constructor(context: Context) {
+	constructor(context: IContext) {
 		this.context = context;
 	}
 	/**
@@ -108,7 +108,7 @@ export default class SharingCredential {
 		if (!result) {
 			throw new Error('unable to save jwt item to db')
 		}
-		const uri = Utils.buildVeridaUri(did, contextName, dbName, result.id, params) as any
+		const uri = buildVeridaUri(did, contextName, dbName, result.id, params) as any
 
 		return {
 			item,

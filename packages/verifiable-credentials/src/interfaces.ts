@@ -1,8 +1,11 @@
-import { Context } from "@verida/client-ts";
+import { IContext } from "@verida/types";
 
-export interface credentialDateOptions {
+export const VERIDA_CREDENTIAL_SCHEMA = 'https://common.schemas.verida.io/credential/base/v0.2.0/schema.json'
+
+export interface CreateCredentialOptions {
     expirationDate?: string;
-    issuanceDate?: string
+    issuanceDate?: string;
+    proofStrings?: Record<string, string[]>;
 }
 
 export interface VCResult {
@@ -14,11 +17,19 @@ export interface VCResult {
 }
 
 export interface CreateCredentialJWT {
-    options?: credentialDateOptions;
+    options?: CreateCredentialOptions;
     subjectId: string;
     data: any;
     schema: string;
-    context: Context;
+    context: IContext;
     payload?: Record<string, any>;
 }
 
+export interface VeridaCredentialRecord {
+    schema: string
+    name: string
+    summary?: string
+    didJwtVc: string
+    credentialSchema: string
+    credentialData: Record<string, string | object>
+}

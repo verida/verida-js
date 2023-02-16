@@ -17,6 +17,7 @@
 		"node": ">=14.0.0"
 	},
 	"dependencies": {
+		"@verida/helpers": "*",
 		"@verida/client-ts": "^2.1.0",
 		"@verida/encryption-utils": "^2.0.4",
 		"@verida/types": "^2.0.5",
