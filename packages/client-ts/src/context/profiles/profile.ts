@@ -165,7 +165,14 @@ export class Profile extends EventEmitter implements IProfile {
       const record = await this.store!.get(this.profileName);
       return record;
     } catch (err: any) {
-      if (err.reason == "missing") {
+      if (err.message.match('Database not found')) {
+        // No profile exists
+        return {
+          _id: this.profileName
+        }
+      }
+      else if (err.reason == "missing") {
+        // No profile exists or has been deleted
         return {
           _id: this.profileName,
         };
