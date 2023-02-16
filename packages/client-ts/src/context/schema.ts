@@ -26,7 +26,7 @@ const jsonCache: any = {};
  * Modules
  */
 class Schema implements ISchema {
-  public errors: any[];
+  public errors: string[];
 
   protected path: string;
   protected ajv: Ajv2020;

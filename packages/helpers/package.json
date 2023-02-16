@@ -1,6 +1,6 @@
 {
-  "name": "@verida/did-document",
-  "version": "2.1.0",
+  "name": "@verida/helpers",
+  "version": "2.1.1",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -9,28 +9,21 @@
   },
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
-    "tests": "ts-mocha './test/**/*.ts'",
-    "test": "ts-mocha",
-    "build": "rm -rf dist; tsc"
+    "build": "rm -rf dist/ && tsc"
   },
   "engines": {
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@ethersproject/address": "^5.7.0",
-    "@ethersproject/bignumber": "^5.7.0",
-    "@ethersproject/transactions": "^5.7.0",
     "@verida/encryption-utils": "^2.0.4",
-    "@verida/keyring": "^2.0.5",
     "@verida/types": "^2.0.5",
-    "did-resolver": "^4.0.1",
-    "lodash": "^4.17.21"
+    "bs58": "^5.0.0",
+    "url": "^0.11.0"
   },
   "devDependencies": {
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
-  },
-  "gitHead": "2eb834ec3b626c0349f033f7da99faa7ed58f0d1"
+  }
 }

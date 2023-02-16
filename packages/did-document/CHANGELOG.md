@@ -1,3 +1,6 @@
+
+- Fix: Remove unecessary ethers dependency
+
 2022-02-15 (v2.1.0)
 -------------------
 

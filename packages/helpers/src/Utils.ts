@@ -1,6 +1,6 @@
 import EncryptionUtils from '@verida/encryption-utils';
 import { DatabasePermissionOptionsEnum, FetchUriParams } from '@verida/types';
-import url from 'url';
+const url = require('url')
 const bs58 = require('bs58');
 
 /**

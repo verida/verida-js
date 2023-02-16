@@ -1,3 +1,6 @@
+
+- Move utils into new @verida/helpers package
+
 2022-02-15 (v2.1.0)
 -------------------
 
