@@ -1,21 +1,21 @@
-2022-02-09 (v2.0.5)
+2023-02-09 (v2.0.5)
 -------------------
 
 - Update to latest DID-JWT version (6.11.0)
 - Fix: Incorrect private key type for signer
 
-2022-01-27 (v2.0.4)
+2023-01-27 (v2.0.4)
 -------------------
 
 - Remove engine restriction of Node 14 only
 
-2022-01-24 (v2.0.2)
+2023-01-24 (v2.0.2)
 -------------------
 
 - Upgrade to @verida/types
 
 
-2022-01-13 (v2.0.0)
+2023-01-13 (v2.0.0)
 -------------------
 
 - Support multiple endpoints for contexts

@@ -1,9 +1,9 @@
-2022-01-27 (v2.0.4)
+2023-01-27 (v2.0.4)
 -------------------
 
 - Remove engine restriction of Node 14 only
 
-2022-01-13 (v2.0.0)
+2023-01-13 (v2.0.0)
 -------------------
 
 - Improve support for JSON data so it can be verified on-chain

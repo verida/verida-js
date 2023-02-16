@@ -1,17 +1,19 @@
+2023-02-16 (v2.1.1)
+-------------------
 
 - Fix: Add `errors` property to schema interface
 
-2022-02-09 (v2.0.5)
+2023-02-09 (v2.0.5)
 -------------------
 
 - Fix: Add missing dependencies
 
-2022-01-27 (v2.0.4)
+2023-01-27 (v2.0.4)
 -------------------
 
 - Remove engine restriction of Node 14 only
 
-2022-01-24 (v2.0.2)
+2023-01-24 (v2.0.2)
 -------------------
 
 - First release

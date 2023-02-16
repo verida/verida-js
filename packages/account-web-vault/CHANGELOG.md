@@ -1,32 +1,34 @@
+2023-02-16 (v2.1.1)
+-------------------
 
 - Fix: Remove debug console output
 
-2022-02-15 (v2.1.0)
+2023-02-15 (v2.1.0)
 -------------------
 
 - Fix: Make more resilient to variations in formatting of service endpoint URIs
 
-2022-02-09 (v2.0.5)
+2023-02-09 (v2.0.5)
 -------------------
 
 - Fix: User cancelled model, threw an exception when it should only return false.
 
-2022-01-27 (v2.0.4)
+2023-01-27 (v2.0.4)
 -------------------
 
 - Remove engine restriction of Node 14 only
 
-2022-01-25 (v2.0.3)
+2023-01-25 (v2.0.3)
 -------------------
 
 - Migrate from static to instance class
 
-2022-01-24 (v2.0.2)
+2023-01-24 (v2.0.2)
 -------------------
 
 - Upgrade to @verida/types
 
-2022-01-17 (v2.0.1)
+2023-01-17 (v2.0.1)
 -------------------
 
 - Fix: Remove modal hidden HTML tag
@@ -34,7 +36,7 @@
 - Fix: Not handling authentication when accessToken is not invalid.
 
 
-2022-01-13 (v2.0.0)
+2023-01-13 (v2.0.0)
 -------------------
 
 - Support wallet connect configuration

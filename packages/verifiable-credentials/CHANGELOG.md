@@ -1,3 +1,5 @@
+2023-02-16 (v2.1.1)
+-------------------
 
 - Support proofStrings
 - Support easy creation of a Verida compatible credential record
@@ -6,12 +8,12 @@
 - Support defining icon of Verida compatible credential record
 - Support auto-generating proofs defined in credential schema
 
-2022-02-09 (v2.0.6)
+2023-02-09 (v2.0.6)
 -------------------
 
 - Fix: Correct network explorer URL and make it configurable
 
-2022-02-09 (v2.0.5)
+2023-02-09 (v2.0.5)
 -------------------
 
 - Fix: Update tests to work with Acacia
@@ -19,17 +21,17 @@
 - Upgrade to latest DID-JWT-VC library (3.1.0)
 - Make `resolverConfig` optional when verifying a credential
 
-2022-01-27 (v2.0.4)
+2023-01-27 (v2.0.4)
 -------------------
 
 - Remove engine restriction of Node 14 only
 
-2022-01-24 (v2.0.2)
+2023-01-24 (v2.0.2)
 -------------------
 
 - Upgrade to @verida/types
 
-2022-01-13 (v2.0.0)
+2023-01-13 (v2.0.0)
 -------------------
 
 - Updates to support break changes as part of v2.0.0 release of the protocol

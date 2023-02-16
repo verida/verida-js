@@ -1,7 +1,10 @@
+2023-02-16 (v2.1.1)
+-------------------
 
 - Move utils into new @verida/helpers package
+- Fix: Logic error pinging replication when access token expires
 
-2022-02-15 (v2.1.0)
+2023-02-15 (v2.1.0)
 -------------------
 
 - Implement new "dynamic" replication
@@ -9,27 +12,27 @@
 - Fix: Remove extra `checkReplication()` call when deleting a database
 - Feature: Implement time based rotation of primary storage node selection for improved overall network performance and end user performance
 
-2022-02-09 (v2.0.5)
+2023-02-09 (v2.0.5)
 -------------------
 
 - [client-ts] Feature: Support new database pinging of storage nodes to increase replication efficiency
 
-2022-01-27 (v2.0.4)
+2023-01-27 (v2.0.4)
 -------------------
 
 - Remove engine restriction of Node 14 only
 
-2022-01-24 (v2.0.2)
+2023-01-24 (v2.0.2)
 -------------------
 
 - Upgrade to @verida/types
 
-2022-01-17 (v2.0.1)
+2023-01-17 (v2.0.1)
 -------------------
 
 - Fix: Properly set active endpoint when connecting account
 
-2022-01-13 (v2.0.0)
+2023-01-13 (v2.0.0)
 -------------------
 
 - Support updated account dependencies
