@@ -98,7 +98,7 @@ export default class Endpoint extends EventEmitter {
                     // Ping database to ensure replication is active
                     // No need to await
                     // Retry if auth error if we are the database owner
-                    instance.client.pingDatabases([databaseHash], isPublicWrite, did, this.contextName, isOwner)
+                    instance.client.pingDatabases([databaseHash], isPublicWrite, did, instance.contextName, isOwner)
 
                     if (result.status == 401) {
                         throw new Error(`Permission denied to access server: ${instance.toString()}`)
