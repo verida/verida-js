@@ -1,5 +1,6 @@
 
 - Fix: Don't ping public databases
+- Fix: Check if storage node client errors are Axios errors
 
 2023-02-16 (v2.1.1)
 -------------------

@@ -60,7 +60,7 @@ export class DatastoreServerClient {
         options: config,
       });
     } catch (err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.createDatabase(databaseName, config, false)
       }
@@ -82,7 +82,7 @@ export class DatastoreServerClient {
 
       return await this.getAxios(this.authContext!.accessToken).post(this.serviceEndpoint + "user/checkReplication", opts);
     } catch (err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.checkReplication(databaseName, false)
       }
@@ -102,7 +102,7 @@ export class DatastoreServerClient {
         options: config,
       });
     } catch (err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.updateDatabase(databaseName, config, false)
       }
@@ -121,7 +121,7 @@ export class DatastoreServerClient {
         databaseName
       });
     } catch (err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.deleteDatabase(databaseName, false)
       }
@@ -146,7 +146,7 @@ export class DatastoreServerClient {
         contextName
       });
     } catch(err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.pingDatabases(databaseHashes, isWritePublic, did, contextName, false)
       }
@@ -164,7 +164,7 @@ export class DatastoreServerClient {
 
       return <EndpointUsage> result.data.result
     } catch (err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.getUsage(false)
       }
@@ -183,7 +183,7 @@ export class DatastoreServerClient {
 
       return result.data.result
     } catch (err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.getDatabases(false)
       }
@@ -204,7 +204,7 @@ export class DatastoreServerClient {
   
       return result.data.result
     } catch (err: any) {
-      if (err.response.status == 401 && retry) {
+      if (err.response && err.response.status == 401 && retry) {
         await this.reAuth()
         return this.getDatabaseInfo(databaseName, retry)
       }
