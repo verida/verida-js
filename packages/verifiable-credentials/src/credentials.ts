@@ -9,9 +9,10 @@ import {
 	JwtCredentialPayload,
 	Issuer,
 } from 'did-jwt-vc';
-import { CreateCredentialJWT, VERIDA_CREDENTIAL_SCHEMA, VeridaCredentialRecord } from './interfaces';
+import { CreateCredentialJWT, VERIDA_CREDENTIAL_SCHEMA, VeridaCredentialRecord, VeridaCredentialSchema } from './interfaces';
 import { IContext, Web3ResolverConfigurationOptions } from '@verida/types';
 import EncryptionUtils from '@verida/encryption-utils';
+import Axios from 'axios'
 
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
@@ -218,13 +219,30 @@ export default class Credentials {
 		const account = context.getAccount();
 		const did = await account.did();
 
+		// Add custom proof strings
 		if (options && options.proofStrings) {
 			if (!payload) {
 				payload = {}
 			}
 
 			const { privateKey } = await this.getContextInfo(context)
-			payload.proofs = await this.buildProofs(options.proofStrings, data, privateKey)
+			const { payloadProofs } = await this.buildProofs(options.proofStrings, data, privateKey)
+			payload.proofs = payloadProofs
+		}
+
+		// Add schema specified proof strings
+		const credentialSchema = await this.getCredentialSchema(schema)
+		if (credentialSchema.veridaProofs) {
+			if (!payload) {
+				payload = {}
+			}
+
+			const { privateKey } = await this.getContextInfo(context)
+			const { payloadProofs } = await this.buildProofs(credentialSchema.veridaProofs, data, privateKey)
+			payload.proofs = {
+				...payload.proofs,
+				...payloadProofs
+			}
 		}
 
 		const vcPayload: any = {
@@ -279,7 +297,27 @@ export default class Credentials {
 		return this.errors;
 	}
 
-	private buildProofs(proofs: Record<string, string[]>, data: Record<string, string>, privateSignKey: Uint8Array) {
+	public async getCredentialSchema(schemaUrl: string): Promise<VeridaCredentialSchema> {
+		const credentialSchemaData = await Axios.get(schemaUrl, {
+			responseType: "json",
+		});
+
+		return credentialSchemaData.data
+	}
+
+
+	// @todo: Get proof strings that were used to generate the proofs
+	public async getProofStrings(credential: VeridaCredentialRecord): Promise<Record<string, string[]>> {
+		const credentialSchema = await this.getCredentialSchema(credential.credentialSchema)
+		if (!credentialSchema.veridaProofs) {
+			return {}
+		}
+
+		const { proofStrings } = this.buildProofs(credentialSchema.veridaProofs, credential.credentialData)
+		return proofStrings
+	}
+
+	private buildProofs(proofs: Record<string, string[]>, data: Record<string, string | object>, privateSignKey?: Uint8Array) {
 		const payloadProofs: any = {}
 		const proofStrings: any = {}
 			
@@ -290,14 +328,22 @@ export default class Credentials {
 				const proofItem = proofItems[i]
 
 				if (proofItem.startsWith('$')) {
-					proofItems[i] = data[proofItem.substring(1)]
+					proofItems[i] = <string> data[proofItem.substring(1)]
 				}
 			}
 
 			const proofString = proofItems.join('-')
-			const sig = EncryptionUtils.signData(proofString, privateSignKey)
-			payloadProofs[key] = sig
+			if (privateSignKey) {
+				const sig = EncryptionUtils.signData(proofString, privateSignKey)
+				payloadProofs[key] = sig
+			}
+
 			proofStrings[key] = proofString
+		}
+
+		return {
+			payloadProofs,
+			proofStrings
 		}
 	}
 }

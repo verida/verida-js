@@ -34,3 +34,7 @@ export interface VeridaCredentialRecord {
     credentialSchema: string
     credentialData: Record<string, string | object>
 }
+
+export interface VeridaCredentialSchema {
+    veridaProofs?: Record<string, string[]>
+}

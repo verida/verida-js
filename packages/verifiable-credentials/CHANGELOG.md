@@ -4,6 +4,7 @@
 - Use new @verida/helpers package
 - Export interfaces
 - Support defining icon of Verida compatible credential record
+- Support auto-generating proofs defined in credential schema
 
 2022-02-09 (v2.0.6)
 -------------------
