@@ -6,7 +6,6 @@ import { knownNetworks, strip0x } from './helpers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { computeAddress } from "@ethersproject/transactions";
 import { getAddress } from "@ethersproject/address";
-import { ethers } from 'ethers'
 import { IDIDDocument, IKeyring, SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface, VerificationMethodTypes } from '@verida/types'
 const _ = require('lodash')
 
