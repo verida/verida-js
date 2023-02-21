@@ -1,3 +1,3 @@
 
-See https://developers.verida.io/docs/concepts/verifiable-credentials
+See https://developers.verida.io/docs/extensions/verifiable-credentials
 

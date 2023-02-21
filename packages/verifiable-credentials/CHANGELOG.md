@@ -1,3 +1,6 @@
+
+- Fix: Incorrect documentation link
+
 2023-02-16 (v2.1.2)
 -------------------
 
