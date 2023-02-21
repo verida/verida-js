@@ -1,4 +1,7 @@
-2023-02-09 (v2.0.5)
+
+- Add usage and configuration instructions to README.md
+
+2022-02-09 (v2.0.5)
 -------------------
 
 - Fix: Handle string error response from Axios
