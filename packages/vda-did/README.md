@@ -26,6 +26,9 @@ const DID_ADDRESS = wallet.address
 const DID = `did:vda:testnet:${DID_ADDRESS}`
 const DID_PK = wallet.publicKey
 
+// Choose at least three endpoints from the Acacia testnet
+// https://developers.verida.network/docs/infrastructure/networks
+// (This will soon be decentralized and made available on-chain)
 const ENDPOINTS = [
     `https://node1-apse2.devnet.verida.tech/did/${DID}`,
     `https://node2-apse2.devnet.verida.tech/did/${DID}`,
