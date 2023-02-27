@@ -1,6 +1,6 @@
 require('dotenv').config();
 import { dids, getBlockchainAPIConfiguration } from "./utils"
-import BlockchainApi from "../src/blockchain/blockchainApi"
+import { VeridaNameClient } from "../src/index"
 import { Wallet } from "ethers";
 
 const assert = require('assert')
@@ -21,7 +21,7 @@ const testNames = [
 
 const configuration = getBlockchainAPIConfiguration();
 const createBlockchainAPI = (did: any) => {
-    return new BlockchainApi({
+    return new VeridaNameClient({
         identifier: did.address,
         signKey: did.privateKey,
         chainNameOrId: "testnet",
@@ -30,7 +30,7 @@ const createBlockchainAPI = (did: any) => {
 }
 
 describe('vda-name-client blockchain api', () => {
-    let blockchainApi : BlockchainApi
+    let blockchainApi : VeridaNameClient
     before(() => {
         blockchainApi = createBlockchainAPI(did);
     })

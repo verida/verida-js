@@ -28,7 +28,7 @@ export interface NameClientConfig {
     web3Options: Web3SelfTransactionConfig | Web3MetaTransactionConfig;
 }
 
-export default class BlockchainApi {
+export class VeridaNameClient {
 
     private config: NameClientConfig
     private network: string
