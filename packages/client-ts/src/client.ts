@@ -1,5 +1,7 @@
 import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig } from "@verida/types";
 import { DIDClient } from "@verida/did-client";
+import { VeridaNameClient } from '@verida/vda-name-client'
+import { RPC_URLS } from '@verida/vda-did-resolver'
 
 import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
@@ -37,6 +39,8 @@ class Client implements IClient {
    */
   private environment: EnvironmentType;
 
+  private nameClient: VeridaNameClient;
+
   /**
    * Current configuration for this client
    */
@@ -65,6 +69,15 @@ class Client implements IClient {
       ...userConfig.didClientConfig,
       network: this.environment
     });
+
+    const rpcUrl = this.didClient.getRpcUrl()
+    this.nameClient = new VeridaNameClient({
+      chainNameOrId: this.environment,
+      callType: 'web3',
+      web3Options: {
+        rpcUrl
+      }
+  })
 
     this.didContextManager = new DIDContextManager(this.didClient);
     Schema.setSchemaPaths(this.config.schemaPaths!);
@@ -156,11 +169,13 @@ class Client implements IClient {
    * @returns 
    */
   public async openExternalContext(contextName: string, did: string): Promise<IContext> {
+    did = await this.parseDid(did)
     const contextConfig = await this.didContextManager.getDIDContextConfig(
       did,
       contextName,
       false
     );
+
     if (!contextConfig) {
       throw new Error(
         "Unable to locate requested storage context for requested DID."
@@ -184,6 +199,7 @@ class Client implements IClient {
     did: string,
     contextName: string
   ): Promise<SecureContextConfig | undefined> {
+    did = await this.parseDid(did)
     return this.didContextManager.getDIDContextConfig(did, contextName, false);
   }
 
@@ -208,6 +224,7 @@ class Client implements IClient {
     profileName: string = "basicProfile",
     fallbackContext: string | null = "Verida: Vault"
   ): Promise<IProfile | undefined> {
+    did = await this.parseDid(did)
     let context: Context | undefined;
     try {
       context = <Context> await this.openExternalContext(contextName, did);
@@ -219,7 +236,7 @@ class Client implements IClient {
 
     if (!context) {
       throw new Error(
-        `Account does not have a public profile for ${contextName}`
+        `Account (${did}) does not have a public profile for ${contextName}`
       );
     }
 
@@ -244,6 +261,10 @@ class Client implements IClient {
     if (!data.signatures) {
       // no signatures
       return [];
+    }
+
+    if (did) {
+      did = await this.parseDid(did)
     }
 
     let _data = _.merge({}, data);
@@ -294,6 +315,27 @@ class Client implements IClient {
    */
   public async getSchema(schemaUri: string): Promise<Schema> {
     return Schema.getSchema(schemaUri);
+  }
+
+  /**
+   * Converts a string that may be either a valid DID or a valid Verida username into
+   * a Verida username.
+   * 
+   * @param didOrUsername DID string or Verida username string (ending in `.vda`)
+   * @returns 
+   */
+  public async parseDid(didOrUsername: string): Promise<string> {
+    if (didOrUsername.match(/\.vda$/)) {
+      // Have a Verida username. Perform on-chain lookup.
+      // @throws Error if the username doesn't exist
+      try {
+        didOrUsername = await this.nameClient.getDid(didOrUsername)
+      } catch (err) {
+        throw new Error(`Verida username not found: ${didOrUsername}`)
+      }
+    }
+    
+    return didOrUsername
   }
 }
 

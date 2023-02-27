@@ -25,6 +25,7 @@
     "@verida/keyring": "^2.1.1",
     "@verida/storage-link": "^2.1.1",
     "@verida/types": "^2.1.1",
+    "@verida/vda-name-client": "^2.1.1",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.2",

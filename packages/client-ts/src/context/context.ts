@@ -293,6 +293,8 @@ class Context extends EventEmitter implements IContext {
 
       did = await this.account.did();
       ownAccount = true;
+    } else {
+      did = await this.getClient().parseDid(did)
     }
 
     return new Profile(this, did!, profileName, ownAccount);
@@ -317,6 +319,8 @@ class Context extends EventEmitter implements IContext {
     const accountDid = await this.account!.did();
     if (!config.did) {
       config.did = accountDid;
+    } else {
+      config.did = await this.getClient().parseDid(config.did)
     }
 
     config.did = config.did.toLowerCase()
@@ -369,6 +373,7 @@ class Context extends EventEmitter implements IContext {
     did: string,
     config: DatabaseOpenConfig = {}
   ): Promise<IDatabase> {
+    did = await this.getClient().parseDid(did)
     did = did.toLowerCase()
     const cacheKey = `${did}/${databaseName}/external`
     if (this.databaseCache[cacheKey] && !config.ignoreCache) {
@@ -454,7 +459,7 @@ class Context extends EventEmitter implements IContext {
     did: string,
     options: DatastoreOpenConfig = {}
   ): Promise<Datastore> {
-
+    did = await this.getClient().parseDid(did)
     options = _.merge(
       {
         did,

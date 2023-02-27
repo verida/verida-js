@@ -1,3 +1,6 @@
+
+- Support automatic conversion of Verida usernames to DIDs
+
 2023-02-16 (v2.1.2)
 -------------------
 

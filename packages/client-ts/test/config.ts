@@ -28,7 +28,7 @@ export default {
     DID_CLIENT_CONFIG: <AccountNodeDIDClientConfig> {
         callType: 'web3',
         web3Config: {
-            privateKey: '',
+            privateKey: '1eb6776c1626795d2e33e8b063cc7e639f50a45e79cded84d978e3a2524af1dc',
             rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
         didEndpoints: DID_ENDPOINTS
