@@ -33,6 +33,7 @@ describe('vda-name-client blockchain api', () => {
     let blockchainApi : VeridaNameClient
     before(() => {
         blockchainApi = createBlockchainAPI(did);
+        did.address = did.address.toLowerCase()
     })
 
     describe('register', () => {
@@ -46,10 +47,12 @@ describe('vda-name-client blockchain api', () => {
                 'abcdefghijklmnopqrstuvwxyz0123456.vda', // Name length should be below 33
             ]
             for (let i = 0; i < invalidnames.length; i++) {
-                await assert.rejects(
-                    blockchainApi.register(invalidnames[i]),
-                    {message: 'Failed to register'}
-                )
+                try {
+                    const result = await blockchainApi.register(invalidnames[i])
+                    assert.fail('Fail to register invalid name')
+                } catch (err) {
+                    assert.ok(err.message.match('Failed to register'), 'Fail to register invalid name')
+                }
             }
         })
 
@@ -58,15 +61,17 @@ describe('vda-name-client blockchain api', () => {
                 await blockchainApi.register(testNames[i])
 
                 const nameDID = await blockchainApi.getDid(testNames[i])
-                assert.equal(nameDID, did.address, 'Get registered DID')
+                assert.equal(nameDID, `did:vda:testnet:${did.address}`, 'Get registered DID')
             }
         })
 
         it('Should reject for registered name', async () => {
-            await assert.rejects(
-                blockchainApi.register(testNames[0]),
-                {message: 'Failed to register'}
-            )
+            try {
+                const result = await blockchainApi.register(testNames[0])
+                assert.fail('Fail to register invalid name')
+            } catch (err) {
+                assert.ok(err.message.match('Failed to register'), 'Fail to register invalid name')
+            }
         })
     })
 
@@ -82,7 +87,7 @@ describe('vda-name-client blockchain api', () => {
         it('Should reject for unregistered DID',async () => {
             await assert.rejects(
                 blockchainApi.getUsernames(unregisteredDID.address),
-                {message: 'Failed to get usernames'}
+                {message: `Failed to get usernames for did: ${unregisteredDID.address}`}
             )
         })
     })
@@ -94,17 +99,19 @@ describe('vda-name-client blockchain api', () => {
 
                 assert.equal(
                     foundDID,
-                    did.address,
+                    `did:vda:testnet:${did.address}`,
                     'Get registered DID'
                 )
             }
         })
 
         it('Should reject for unregistered usernames', async () => {
-            await assert.rejects(
-                blockchainApi.getDid(testNames[3]),
-                {message: 'Failed to get the DID'}
-            )
+            try {
+                const result = await blockchainApi.getDid(testNames[3])
+                assert.fail('Username incorrectly fetched')
+            } catch (err) {
+                assert.ok(err.message.match('Failed to locate the DID'), 'Fail to get the DID')
+            }
         })
     })
 
@@ -133,7 +140,7 @@ describe('vda-name-client blockchain api', () => {
 
             await assert.rejects(
                 blockchainApi.getUsernames(did.address),
-                {message: 'Failed to get usernames'}
+                {message: `Failed to get usernames for did: ${did.address}`}
             )
         })
     })

@@ -16,7 +16,7 @@ yarn add @verida/vda-name-client
 ### Setup
 
 ```ts
-import { VeridaNameClient } from '@verida/vda-sbt-client'
+import { VeridaNameClient } from '@verida/vda-name-client'
 
 // DID address that controls the proof of eligibility to mint the SBT
 const DID_ADDRESS = '0x...'
@@ -29,11 +29,14 @@ const RPC_URL = 'https://rpc-mumbai.maticvigil.com'
 
 // Create name Client
 const nameClient = new VeridaNameClient({
+    callType: 'web3',
     identifier: DID_ADDRESS,
     signKey: DID_PRIVATE_KEY,
     chainNameOrId: "testnet" | "mainnet,
-    privateKey: POLYGON_PRIVATE_KEY,
-    rpcUrl: RPC_URL
+    web3Options: {
+        rpcUrl: RPC_URL,
+        privateKey: POLYGON_PRIVATE_KEY
+    }
 })
 ```
 
@@ -68,5 +71,3 @@ const USERNAME = 'johndoe.vda'
 const did = await nameClient.getDid(USERNAME);
 console.log(did)
 ```
-
-Note: Returns the DID as an address (id: `0x...`). You will need to manually prefix `did:testnet` or `did:mainnet` depending on the network.

@@ -26,6 +26,7 @@
     "prepare": "npm run compile"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.7.2",
     "@verida/web3": "^2.1.1",
     "axios": "^0.27.2",
     "ethers": "^5.7.0"
