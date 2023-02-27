@@ -1,5 +1,6 @@
 
 - Support fetching default RPC_URLs
+- Expose `VdaDidResolver` class from package
 - Add usage and configuration instructions to README.md
 
 2022-02-09 (v2.0.5)
