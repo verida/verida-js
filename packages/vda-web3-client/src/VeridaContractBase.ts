@@ -238,16 +238,22 @@ export class VeridaContract {
                         transaction = await contract.functions[methodName](...params, gasConfig)
                     }
 
-                    const transactionRecipt = await transaction.wait(1)
+                    const transactionReceipt = await transaction.wait(1)
                     // console.log('Transaction Receipt = ', transactionRecipt)
 
-                    ret = transactionRecipt
+                    ret = transactionReceipt
                 }
             } catch(e: any) {
                 // console.log('Error in transaction', e)
+                let reason = e.reason ? e.reason : 'Unknown'
+                reason = e.error && e.error.reason ? e.error.reason : reason
+                reason = reason.replace('execution reverted: ','')
+
                 return Promise.resolve({
                     success: false,
-                    error: e.toString()
+                    error: e.toString(),
+                    errorObj: e,
+                    reason
                 })
             }
 
