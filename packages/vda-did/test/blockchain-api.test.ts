@@ -1,9 +1,8 @@
-require('dotenv').config();
+const assert = require('assert')
 import { dids, getBlockchainAPIConfiguration } from "./utils"
 import BlockchainApi from "../src/blockchain/blockchainApi"
 import { Wallet } from "ethers";
-
-const assert = require('assert')
+require('dotenv').config();
 
 const did = dids[0];
 const badSigner = dids[1];
@@ -28,7 +27,9 @@ describe('vda-did blockchain api', () => {
         blockchainApi = createBlockchainAPI(did);
     })
 
-    describe('register', () => {
+    describe('register', function() {
+        this.timeout(100 * 1000)
+
         it('Register successfully', async () => {
             await blockchainApi.register(endPoints_A);
 
@@ -63,7 +64,8 @@ describe('vda-did blockchain api', () => {
         })
     })
 
-    describe('Lookup', () => {
+    describe('Lookup', function() {
+        this.timeout(100 * 1000)
         it('Get endpoints successfully', async () => {
             const lookupResult = await blockchainApi.lookup(did.address);
             assert.deepEqual(
@@ -95,7 +97,8 @@ describe('vda-did blockchain api', () => {
         })
     })
 
-    describe('Set controller', () => {
+    describe('Set controller', function() {
+        this.timeout(100 * 1000)
         const controller = Wallet.createRandom();
         it('Should reject for unregistered DID', async () => {
             const testAPI = createBlockchainAPI(Wallet.createRandom());
@@ -122,7 +125,8 @@ describe('vda-did blockchain api', () => {
         })
     })
 
-    describe('Revoke', () => {
+    describe('Revoke', function() {
+        this.timeout(100 * 1000)
         const testAPI = createBlockchainAPI(Wallet.createRandom());
         it('Should reject for unregistered DID', async () => {
             await assert.rejects(

@@ -158,16 +158,21 @@ export default class VdaDid {
         const finalEndpoints: VdaDidEndpointResponses = {}
         let successCount = 0
 
+        let failResponse: any = {}
+        let failEndpointUri: string = ''
         for (let i in response.endpoints) {
             const result = results[i]
             const endpoint = response.endpoints[i]
 
             if (result.status == 'rejected') {
                 const err = result.reason   // @todo: is this correct
-                finalEndpoints[endpoint] = {
+                failResponse = {
                     status: 'fail',
                     message: err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message
                 }
+
+                finalEndpoints[endpoint] = failResponse
+                failEndpointUri = endpoint
             } else {
                 finalEndpoints[endpoint] = {
                     status: 'success'
@@ -179,7 +184,7 @@ export default class VdaDid {
 
         if (successCount === 0) {
             this.lastEndpointErrors = finalEndpoints
-            throw new Error(`Unable to update DID: All endpoints failed to accept the DID Document`)
+            throw new Error(`Unable to update DID: All endpoints failed to accept the DID Document (${failEndpointUri}: ${failResponse.message})`)
         }
 
         // If the controller doesn't match the DID, the controller may have changed
@@ -196,7 +201,7 @@ export default class VdaDid {
         const did = this.options.identifier.toLowerCase()
         const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
         const proofString = `Delete DID Document ${did} at ${nowInMinutes}`
-        const privateKey = new Uint8Array(Buffer.from(this.options.signKey.substr(2),'hex'))
+        const privateKey = new Uint8Array(Buffer.from(this.options.signKey!.substr(2),'hex'))
         const signature = EncryptionUtils.signData(proofString, privateKey)
 
         // Delete DID Document from all the endpoints

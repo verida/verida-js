@@ -1,5 +1,7 @@
 
 - Add usage and configuration instructions to README.md
+- Fix timeout issues with tests
+- Support optional `signer` function instead of `signKey`
 
 2022-02-09 (v2.0.5)
 -------------------
