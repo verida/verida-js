@@ -1,10 +1,11 @@
 import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
-import { getResolver } from '@verida/vda-did-resolver'
+import { getResolver, RPC_URLS } from '@verida/vda-did-resolver'
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
 import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
+import { VdaDidResolver } from "@verida/vda-did-resolver"
 
 export class DIDClient implements IDIDClient {
 
@@ -36,6 +37,15 @@ export class DIDClient implements IDIDClient {
         const vdaDidResolver = getResolver(resolverConfig)
         // @ts-ignore
         this.didResolver = new Resolver(vdaDidResolver)
+    }
+
+    public getRpcUrl(): string {
+        const rpcUrl = this.config.rpcUrl ? this.config.rpcUrl : RPC_URLS[this.config.network]
+        if (!rpcUrl) {
+            throw new Error(`Unable to locate RPC_URL for network (${this.config.network})`)
+        }
+
+        return rpcUrl
     }
 
     /**

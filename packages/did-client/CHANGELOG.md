@@ -1,3 +1,6 @@
+
+- Support fetching RPC_URL for connected network
+
 2023-02-09 (v2.0.5)
 -------------------
 
