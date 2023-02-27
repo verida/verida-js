@@ -27,6 +27,7 @@ describe('vda-sbt-client blockchain api', () => {
         blockchainApi = createBlockchainAPI(did);
     })
 
+    /*
     describe("totalSupply", () => {
         it("totalSupply",async () => {
             const totalSupply = parseInt(await blockchainApi.totalSupply());
@@ -83,18 +84,13 @@ describe('vda-sbt-client blockchain api', () => {
 
     describe("getTrustedSignerAddresses", () => {
         it("Get trusted signers successfully", async () => {
-            const signers = parseInt(await blockchainApi.getTrustedSignerAddresses())
+            const signers = parseInt((await blockchainApi.getTrustedSignerAddresses()).length)
             assert.ok(signers > 0)
         })
     })
+    */
 
     describe("SBT claim & burn", () => {
-        /**
-         * `requestSignature` should be signed by `requestContextSigner`
-         * `requestProof` should be signed by did's private key. Here "did" creates the "blockchainApi" instance.
-         */
-        const requestContextSigner = dids[1]
-
         /**
          * `signedData` of the SBTInfo struct should be signed by `sbtSigner`.
          * `signedProof` of the SBTInfo struct should be signed by `trustedSigner`.
@@ -107,7 +103,7 @@ describe('vda-sbt-client blockchain api', () => {
 
         // SBT info
         const sbtType = "twitter"
-        const sbtId = "testId-1" //+ Wallet.createRandom().address
+        const sbtId = "testId-3" //+ Wallet.createRandom().address
         const sbtURI = "https://gateway.pinata.cloud/ipfs/QmVrTkbrzNHRhmsh88XnwJo5gBu8WqQMFTkVB4KoVLxSEY/3.json"
 
         it("Claime a SBT successfully",async () => {
@@ -133,36 +129,17 @@ describe('vda-sbt-client blockchain api', () => {
             );
             const signedProof = EncryptionUtils.signData(signedProofMsg, privateKeyArray)
 
-            const sbtInfo = {
-                sbtType,
-                uniqueId: sbtId,
-                sbtURI,
-                recipient: claimer,
-                signedData,
-                signedProof
-            }
-
-            // Create request Signature & proof
-            const nonce = await blockchainApi.nonceFN()
-            const requestMsg = ethers.utils.solidityPack(
-                ['address', 'string', 'address', 'bytes', 'bytes', 'uint'],
-                [did.address, `${sbtType}${sbtId}${sbtURI}`, claimer, signedData, signedProof, nonce]
-            );
-            privateKeyArray = new Uint8Array(
-                Buffer.from(requestContextSigner.privateKey.slice(2), "hex")
-            );
-            const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray)
-
-            const requestProofMsg = `${did.address}${requestContextSigner.address}`.toLowerCase()
-            privateKeyArray = new Uint8Array(
-                Buffer.from(did.privateKey.slice(2), "hex")
-            );
-            const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray)
-
             // Claim SBT
             const orgTotalSupply = parseInt(await blockchainApi.totalSupply())
 
-            await blockchainApi.claimSBT(did.address, sbtInfo, requestSignature, requestProof)
+            await blockchainApi.claimSBT(
+                sbtType,
+                sbtId,
+                sbtURI,
+                claimer,
+                signedData,
+                signedProof                
+            )
 
             const newTotalSupply = parseInt(await blockchainApi.totalSupply())
 

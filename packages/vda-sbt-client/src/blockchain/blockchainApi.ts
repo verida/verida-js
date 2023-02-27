@@ -10,6 +10,9 @@ import {
 import { getContractInfoForNetwork } from "./config";
 import { interpretIdentifier } from "./helpers";
 
+import { ethers } from 'ethers';
+import EncryptionUtils from "@verida/encryption-utils";
+
 /**
  * Interface for vda-sbt-client instance creation. Same as VDA-DID configuration
  * @param identifier: DID
@@ -25,24 +28,6 @@ export interface SBTClientConfig {
 
     callType: Web3CallType;
     web3Options: Web3SelfTransactionConfig | Web3MetaTransactionConfig;
-}
-
-/**
- * Interface representing the SBT information. Used to claim a SBT
- * @param sbtType Existing SBT type. Ex - "twitter"
- * @param uniqueId Unique id of SBT. For example twitter account id.
- * @param sbtURI Token URI to be set
- * @param recipient Token receiver
- * @param signedData Signature of `uniqueId`. Signed by the trusted signer
- * @param signedProof Proof for `uniqudId`
- */
-export interface SBTInfo {
-    sbtType: string;
-    uniqueId: string;
-    sbtURI: string;
-    recipient: string;
-    signedData: string;
-    signedProof: string;
 }
 
 export default class BlockchainApi {
@@ -137,20 +122,45 @@ export default class BlockchainApi {
 
     /**
      * Claim a SBT type to requested user
-     * @param did 
-     * @param sbtInfo 
-     * @param requestSignature 
-     * @param requestProof 
+     * @param sbtType Existing SBT type. Ex - "twitter"
+     * @param uniqueId Unique id of SBT. For example twitter account id.
+     * @param sbtURI Token URI to be set
+     * @param recipient Token receiver
+     * @param signedData Signature of `uniqueId`. Signed by the trusted signer
+     * @param signedProof Proof for `uniqudId`
      */
     public async claimSBT(
-        did: string,
-        sbtInfo: SBTInfo,
-        requestSignature: string,
-        requestProof: string
+        sbtType: string,
+        uniqueId: string,
+        sbtURI: string,
+        recipient: string,
+        signedData: string,
+        signedProof: string
     ) {
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(this.config.signKey.slice(2), "hex")
+        );
+        
+        const nonce = await this.nonceFN()
+        const requestMsg = ethers.utils.solidityPack(
+            ['address', 'string', 'address', 'bytes', 'bytes', 'uint'],
+            [this.didAddress, `${sbtType}${uniqueId}${sbtURI}`, recipient, signedData, signedProof, nonce]
+        );
+        const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray)
+
+        const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase()
+        const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray)
+
         const response = await this.vdaWeb3Client.claimSBT(
-            did,
-            sbtInfo,
+            this.didAddress,
+            {
+                sbtType,
+                uniqueId,
+                sbtURI,
+                recipient,
+                signedData,
+                signedProof
+            },
             requestSignature,
             requestProof
         )
