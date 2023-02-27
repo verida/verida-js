@@ -1,6 +1,6 @@
 require('dotenv').config();
 import { dids, getBlockchainAPIConfiguration } from "./utils"
-import BlockchainApi from "../src/blockchain/blockchainApi"
+import { VeridaSBTClient } from "../src/index"
 import { ethers, Wallet } from "ethers";
 import EncryptionUtils from "@verida/encryption-utils";
 
@@ -11,7 +11,7 @@ const did = dids[0];
 
 const configuration = getBlockchainAPIConfiguration();
 const createBlockchainAPI = (did: any) => {
-    return new BlockchainApi({
+    return new VeridaSBTClient({
         identifier: did.address,
         signKey: did.privateKey,
         chainNameOrId: "testnet",
@@ -20,14 +20,13 @@ const createBlockchainAPI = (did: any) => {
 }
 
 describe('vda-sbt-client blockchain api', () => {
-    let blockchainApi : BlockchainApi
+    let blockchainApi : VeridaSBTClient
     
 
     before(() => {
         blockchainApi = createBlockchainAPI(did);
     })
 
-    /*
     describe("totalSupply", () => {
         it("totalSupply",async () => {
             const totalSupply = parseInt(await blockchainApi.totalSupply());
@@ -88,7 +87,6 @@ describe('vda-sbt-client blockchain api', () => {
             assert.ok(signers > 0)
         })
     })
-    */
 
     describe("SBT claim & burn", () => {
         /**
@@ -106,7 +104,7 @@ describe('vda-sbt-client blockchain api', () => {
         const sbtId = "testId-3" //+ Wallet.createRandom().address
         const sbtURI = "https://gateway.pinata.cloud/ipfs/QmVrTkbrzNHRhmsh88XnwJo5gBu8WqQMFTkVB4KoVLxSEY/3.json"
 
-        it("Claime a SBT successfully",async () => {
+        it("Claim a SBT successfully",async () => {
             // Should check if the trustedSigner is registered to the contract
             const signers = await blockchainApi.getTrustedSignerAddresses()
             assert.ok(signers.includes(trustedSigner.address))

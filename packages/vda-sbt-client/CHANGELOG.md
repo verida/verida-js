@@ -1,3 +1,7 @@
+
+- Improve documentation in README.md
+- Simplify usage
+
 2023-02-09 (v2.0.5)
 -------------------
 

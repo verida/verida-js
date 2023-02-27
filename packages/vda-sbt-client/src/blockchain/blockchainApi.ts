@@ -30,7 +30,7 @@ export interface SBTClientConfig {
     web3Options: Web3SelfTransactionConfig | Web3MetaTransactionConfig;
 }
 
-export default class BlockchainApi {
+export class VeridaSBTClient {
 
     private config: SBTClientConfig
     private network: string
@@ -127,7 +127,7 @@ export default class BlockchainApi {
      * @param sbtURI Token URI to be set
      * @param recipient Token receiver
      * @param signedData Signature of `uniqueId`. Signed by the trusted signer
-     * @param signedProof Proof for `uniqudId`
+     * @param signedProof Proof for `uniqueId`
      */
     public async claimSBT(
         sbtType: string,
