@@ -198,7 +198,6 @@ describe("VdaDid tests", function() {
                 await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
             } catch (err) {
-                console.log('err', err.message)
                 assert.ok(err.message.match('Unable to update DID: All endpoints failed to accept the DID Document'), 'Unable to update DID Document')
                 //assert.fail(`Failed: ${err.message}`)
             }
