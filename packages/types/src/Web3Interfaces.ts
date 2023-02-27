@@ -92,16 +92,21 @@ export type VeridaWeb3ConfigurationOptions =
 | Web3SelfTransactionConfig;
 
 /**
- * Interface for VDA-DID instance creation
+ * Interface for VDA-DID instance creation.
+ * 
+ * `signKey` or `signer` must be provided
+ * 
  * @param identifier: DID
  * @param signKey: private key of DID's controller. Used to generate signature in transactions to chains
+ * @param signer: Signing function that accepts a private key and returns a signature in hex format
  * @param chainNameOrId: Target chain name or chain id.
  * @param callType : VDA-DID run mode. Values from vda-did-resolver
  * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
  */
 export interface VdaDidConfigurationOptions {
     identifier: string;
-    signKey: string;
+    signKey?: string;
+    signer?: (data: any) => Promise<string>;
     chainNameOrId?: string | number;
 
     callType: Web3CallType;

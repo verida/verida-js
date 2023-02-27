@@ -1,5 +1,6 @@
 
-- Add `getRpcUrl()` to IDIDClient
+- Add `getRpcUrl()` to `IDIDClient`
+- Support `signer` on `VdaDidConfigurationOptions`
 
 2023-02-16 (v2.1.1)
 -------------------
