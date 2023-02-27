@@ -47,17 +47,18 @@ const VDA_DID_CONFIG2 = {
     web3Options: baseConfig.web3Options
 }
 
-/*const ENDPOINTS = [
+const ENDPOINTS = [
     `https://node1-apse2.devnet.verida.tech/did/${DID}`,
     `https://node2-apse2.devnet.verida.tech/did/${DID}`,
     `https://node3-apse2.devnet.verida.tech/did/${DID}`
-]*/
+]
 
+/*
 const ENDPOINTS = [
     `http://192.168.68.113:5000/did/${DID}`,
     `http://192.168.68.127:5000/did/${DID}`,
     `http://192.168.68.135:5000/did/${DID}`
-]
+]*/
 
 // Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
 const ENDPOINTS_FAIL = [ENDPOINTS[0], `http://localhost:7000/did/${DID2}`]
@@ -74,7 +75,7 @@ describe("VdaDid tests", function() {
     this.beforeAll(async () => {
     })
 
-    describe("Create", () => {
+    describe("Create", function() {
         this.timeout(200 * 1000)
         
         it("Success", async () => {
@@ -88,14 +89,11 @@ describe("VdaDid tests", function() {
                 masterDidDoc = doc
 
                 const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
-                console.log(publishedEndpoints)
                 assert.ok('Succesfully published to all endpoints')
                 const time = (new Date()).getTime()
-                console.log(`DID creation time: ${(time-NOW.getTime())}`)
                 assert.ok(Object.keys(publishedEndpoints).length, 'At least one endpoint was published')
                 assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS, 'Succesfully published to all endpoints')
             } catch (err) {
-                console.log(err)
                 const errors = veridaApi.getLastEndpointErrors()
                 console.log(errors)
                 assert.fail(`Failed: ${err.message}`)
@@ -110,7 +108,6 @@ describe("VdaDid tests", function() {
                     updated: doc.buildTimestamp(NOW)
                 })
                 doc.signProof(wallet.privateKey)
-                masterDidDoc = doc
 
                 await veridaApi.create(doc, ENDPOINTS)
 
@@ -121,7 +118,8 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe("Get", () => {
+    describe("Get", function() {
+        this.timeout(200 * 1000)
         it("Success", async () => {
             try {
                 const response = await didResolver.resolve(DID)
@@ -134,7 +132,8 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe("Update", () => {
+    describe("Update", function() {
+        this.timeout(200 * 1000)
         it("Fail - Version not updated", async () => {
             try {
                 const doc = new DIDDocument(masterDidDoc.export())
@@ -146,9 +145,10 @@ describe("VdaDid tests", function() {
                 await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
             } catch (err) {
-                assert.equal(err.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Unable to update DID Document')
+                assert.ok(err.message.match('Unable to update DID: All endpoints failed to accept the DID Document'), 'Unable to update DID Document')
+                assert.ok(err.message.match('Incorrect value for versionId'), 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
                 const errors = veridaApi.getLastEndpointErrors()
-                assert.equal(errors![Object.keys(errors!)[0]].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
+                assert.equal(errors![Object.keys(errors!)[0]].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)', 'Invalid versionId')
             }
         })
 
@@ -164,9 +164,10 @@ describe("VdaDid tests", function() {
                 await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
             } catch (err) {
-                assert.equal(err.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Unable to update DID DOcument')
+                assert.ok(err.message.match('Unable to update DID: All endpoints failed to accept the DID Document'), 'Unable to update DID Document')
+                assert.ok(err.message.match('Incorrect value for versionId'), 'Invalid versionId')
                 const errors = veridaApi.getLastEndpointErrors()
-                assert.equal(errors![Object.keys(errors!)[0]].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)')
+                assert.equal(errors![Object.keys(errors!)[0]].message, 'Invalid DID Document: Incorrect value for versionId (Expected 1)', 'Invalid versionId')
             }
         })
 
@@ -190,17 +191,15 @@ describe("VdaDid tests", function() {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
                 doc.signProof(wallet.privateKey)
-                masterDidDoc = doc
                 doc.setAttributes({
                     updated: doc.buildTimestamp(NOW)+1
                 })
 
-                const publishedEndpoints = await veridaApi.update(doc)
+                await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
             } catch (err) {
                 console.log('err', err.message)
-                assert.equal(err.response.data.status, 'fail', 'Fail status')
-                assert.equal(err.response.data.message, 'Unable to update DID: All endpoints failed to accept the DID Document', 'Invalid versionId')
+                assert.ok(err.message.match('Unable to update DID: All endpoints failed to accept the DID Document'), 'Unable to update DID Document')
                 //assert.fail(`Failed: ${err.message}`)
             }
         })
@@ -220,12 +219,13 @@ describe("VdaDid tests", function() {
 
             // Verify the new DID document is resolved
             const didResolve = await didResolver.resolve(DID)
-            const resolvedDid = <DIDDocument> didResolve.didDocument
+            const resolvedDid = new DIDDocument(<VeridaDocInterface> didResolve.didDocument)
             assert.deepEqual(resolvedDid!.export(), doc.export(), 'Returned DID Document matches created DID Document')
         })
     })
 
-    describe("Delete", () => {
+    describe("Delete", function() {
+        this.timeout(200 * 1000)
         it("Success", async () => {
             try {
                 const deleteResponse = await veridaApi.delete()
@@ -247,7 +247,8 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe("Endpoint changes", () => {
+    describe("Endpoint changes", function() {
+        this.timeout(200 * 1000)
         it("Fail - Add endpoint that is unavailable", async () => {
             try {
                 const response = await veridaApi.addEndpoint(`http://localhost:9000/did/${DID}`)

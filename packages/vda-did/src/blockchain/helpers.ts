@@ -26,16 +26,9 @@ export function interpretIdentifier(identifier: string): {
 
 export async function getVeridaSignWithNonce(
   rawMsg: string,
-  privateKey: string,
+  signer: (data: any) => Promise<string>,
   nonce: number
 ) {
   rawMsg = ethers.utils.solidityPack(['bytes', 'uint256'], [rawMsg, nonce]);
-  return getVeridaSign(rawMsg, privateKey);
+  return signer(rawMsg)
 }
-
-export const getVeridaSign = (rawMsg: string, privateKey: string) => {
-  const privateKeyArray = new Uint8Array(
-    Buffer.from(privateKey.slice(2), 'hex')
-  );
-  return EncryptionUtils.signData(rawMsg, privateKeyArray);
-};
