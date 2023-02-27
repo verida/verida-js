@@ -1,3 +1,6 @@
+
+- Fix: Signing and verifying of data didn't correctly hash some raw data types
+
 2023-01-27 (v2.0.4)
 -------------------
 

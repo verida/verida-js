@@ -107,6 +107,14 @@ describe('Encryption tests', () => {
             assert.ok(isValid, 'Signature is valid')
         })
 
+        it('can create and verify signatures of Buffer', async () => {
+            const input = Buffer.from([1, 2, 3])
+
+            const signature = EncryptionUtils.signData(input, signingKey.privateKey)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
+            assert.ok(isValid, 'Signature is valid')
+        })
+
         it('can create and verify signatures of JSON in different order', async () => {
             const input1 = {
                 hello: 'world',

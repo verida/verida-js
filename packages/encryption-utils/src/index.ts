@@ -110,7 +110,9 @@ export default class EncryptionUtils {
     static signData(data: any, privateKeyBytes: Uint8Array) {
         // Ensure deterministic order of data so signature matches regardless
         // of the attribute order
-        if (typeof(data) == 'object') {
+        if (data instanceof Uint8Array) { // this also covers `Buffer`
+            data = utils.hexlify(data) // the hashing method that follows also tries to serialize strings, except when they are hex strings
+        } else if (typeof data === 'object') {
             data = JSON.stringify(data)
         }
 
@@ -130,7 +132,9 @@ export default class EncryptionUtils {
     static verifySig(data: any, signature: string, publicKey: string) {
         // Ensure deterministic order of data so signature matches regardless
         // of the attribute order
-        if (typeof(data) == 'object') {
+        if (data instanceof Uint8Array) { // this also covers `Buffer`
+            data = utils.hexlify(data) // the hashing method that follows also tries to serialize strings, except when they are hex strings
+        } else if (typeof data === 'object') {
             data = JSON.stringify(data)
         }
 
