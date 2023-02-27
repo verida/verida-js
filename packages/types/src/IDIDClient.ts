@@ -21,4 +21,6 @@ export interface IDIDClient {
     getLastEndpointErrors(): VdaDidEndpointResponses
 
     get(did: string): Promise<IDIDDocument>
+
+    getRpcUrl(): string
 }
