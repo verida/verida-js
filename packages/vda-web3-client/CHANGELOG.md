@@ -1,4 +1,7 @@
 
+2022-03-01 (v2.1.3)
+-------------------
+
 - Add `reason` and `errorObj` to blockchain errors that are raised
 
 2023-01-27 (v2.0.4)
