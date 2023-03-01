@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-document",
-  "version": "2.1.1",
+  "version": "2.1.3",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -20,9 +20,9 @@
     "@ethersproject/address": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/transactions": "^5.7.0",
-    "@verida/encryption-utils": "^2.1.1",
-    "@verida/keyring": "^2.1.1",
-    "@verida/types": "^2.1.1",
+    "@verida/encryption-utils": "^2.1.3",
+    "@verida/keyring": "^2.1.3",
+    "@verida/types": "^2.1.3",
     "did-resolver": "^4.0.1",
     "lodash": "^4.17.21"
   },
