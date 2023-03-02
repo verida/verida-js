@@ -167,10 +167,22 @@ export class VeridaNameClient {
      */
     public async getUsernames(did: string): Promise<string[]> {
         let response
+        if (did.match('did')) {
+            const matches = did.match(/(0x.*)/)[0]
+            if (matches) {
+                did = matches[0]
+            } else {
+                throw new Error('Invalid DID')
+            }
+        }
         if (this.vdaWeb3Client) {
             response = await this.vdaWeb3Client.getUserNameList(did)
             if (response.success !== true) {
-                throw new Error(`Failed to get usernames for did: ${did}`)
+                if (response.reason == 'No registered DID') {
+                    return []
+                }
+
+                throw new Error(`Failed to get usernames for did (${did}): ${response.reason}`)
             }
 
             return response.data
@@ -178,7 +190,7 @@ export class VeridaNameClient {
             response = await this.contract!.callStatic.getUserNameList(did)
 
             if (!response) {
-                throw new Error(`Failed to get usernames for did: ${did}`)
+                return []
             }
 
             return response

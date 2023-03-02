@@ -1,4 +1,6 @@
 
+- Gracefully handle full DID supplied to getUsernames()
+
 2022-03-01 (v2.1.3)
 -------------------
 
