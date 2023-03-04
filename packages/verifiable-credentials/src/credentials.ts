@@ -248,7 +248,6 @@ export default class Credentials {
 		const vcPayload: any = {
 			'@context': [
 				'https://www.w3.org/2018/credentials/v1',
-				'https://www.w3.org/2018/credentials/examples/v1',
 			],
 			sub: subjectId,
 			type: ['VerifiableCredential'],
