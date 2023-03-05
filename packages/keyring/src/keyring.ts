@@ -33,16 +33,19 @@ export default class Keyring implements IKeyring {
             asymPublicKey: this.asymKeyPair!.publicKey,
             asymPublicAddress: utils.computeAddress(this.asymKeyPair!.publicKey),
             asymPrivateKey: this.asymKeyPair!.secretKey,
+            asymPrivateKeyHex: utils.hexlify(this.asymKeyPair!.secretKey),
             asymPublicKeyBase58: utils.base58.encode(this.asymKeyPair!.publicKey),
             asymPrivateKeyBase58: utils.base58.encode(this.asymKeyPair!.secretKey),
             asymPublicKeyHex: utils.hexlify(this.asymKeyPair!.publicKey),
             signPublicKey: this.signKeyPair!.publicKey,
             signPublicAddress: utils.computeAddress(this.signKeyPair!.publicKey),
             signPrivateKey: this.signKeyPair!.secretKey,
+            signPrivateKeyHex: utils.hexlify(this.signKeyPair!.secretKey),
             signPublicKeyBase58: utils.base58.encode(this.signKeyPair!.publicKey),
             signPrivateKeyBase58: utils.base58.encode(this.signKeyPair!.secretKey),
             signPublicKeyHex: utils.hexlify(this.signKeyPair!.publicKey),
             symKey: this.symKey!,
+            symKeyHex: utils.hexlify(this.symKey!),
             symKeyBase58: utils.base58.encode(this.symKey!)
         }
     }
