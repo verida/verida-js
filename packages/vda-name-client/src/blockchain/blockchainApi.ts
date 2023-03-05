@@ -165,7 +165,8 @@ export class VeridaNameClient {
 
     /**
      * Get the username list of a DID address
-     * @param did DID address to get usernames
+     * 
+     * @param did DID to lookup the username for
      * @returns username list 
      */
     public async getUsernames(did: string): Promise<string[]> {
@@ -174,6 +175,15 @@ export class VeridaNameClient {
         if (didAddress.match('did')) {
             const { address } = explodeDID(did)
             didAddress = address
+        }
+
+        // Lookup usernames from cache
+        const usernames = Object.entries(this.usernameCache)
+            .filter(([, existingDid]) => existingDid === did)
+            .map(([username, existingDid]) => username)
+        
+        if (usernames.length) {
+            return usernames
         }
 
         try {
