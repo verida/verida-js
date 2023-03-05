@@ -87,5 +87,16 @@ describe('Username lookup tests', () => {
             }
         })
 
+        it(`can get a DID from a username`, async () => {
+            const did = await client.getDID(USERNAME)
+            assert.equal(did, DID, 'Fetched DID matches expected DID')
+        })
+
+        it(`can get usernames linked to a DID`, async () => {
+            const usernames = await client.getUsernames(DID)
+            console.log(usernames)
+            assert.equal(usernames, [USERNAME.toLowerCase()], 'Fetched usernames matches expected array')
+        })
+
     })
 })
