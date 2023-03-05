@@ -327,11 +327,7 @@ class Client implements IClient {
     if (didOrUsername.match(/\.vda$/)) {
       // Have a Verida username. Perform on-chain lookup.
       // @throws Error if the username doesn't exist
-      try {
-        didOrUsername = await this.getDID(didOrUsername)
-      } catch (err) {
-        throw new Error(`Verida username not found: ${didOrUsername}`)
-      }
+      return await this.getDID(didOrUsername)
     }
     
     return didOrUsername
@@ -344,7 +340,7 @@ class Client implements IClient {
    * @returns 
    */
   public async getDID(username: string): Promise<string> {
-    return await this.nameClient.getDid(username)
+    return await this.nameClient.getDID(username)
   }
 
   /**
