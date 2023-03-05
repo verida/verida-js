@@ -15,11 +15,11 @@ import EncryptionUtils from "@verida/encryption-utils";
 
 /**
  * Interface for vda-sbt-client instance creation. Same as VDA-DID configuration
- * @param identifier: DID
- * @param signKey: private key of DID. Used to generate signature in transactions to chains
- * @param chainNameOrId: Target chain name or chain id.
- * @param callType : VDA-DID run mode. Values from vda-did-resolver
- * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
+ * @param identifier @string DID
+ * @param signKey @string Private key of DID (hex string). Used to generate signature in transactions to chains
+ * @param chainNameOrId @string Target chain name or chain id.
+ * @param callType @string 'web3' | 'gasless'
+ * @param web3Options object Web3 configuration depending on call type. Same as vda-did-resolver
  */
 export interface SBTClientConfig {
     identifier: string;
@@ -122,12 +122,12 @@ export class VeridaSBTClient {
 
     /**
      * Claim a SBT type to requested user
-     * @param sbtType Existing SBT type. Ex - "twitter"
-     * @param uniqueId Unique id of SBT. For example twitter account id.
-     * @param sbtURI Token URI to be set
-     * @param recipient Token receiver
-     * @param signedData Signature of `uniqueId`. Signed by the trusted signer
-     * @param signedProof Proof for `uniqueId`
+     * @param sbtType Unique type of SBT. ie: `twitter`
+     * @param uniqueId Unique ID of SBT. ie: twitter account id
+     * @param sbtURI Token URI containing token metadata
+     * @param recipient Blockchain wallet to receive the SBT (ie: 0xabc123....)
+     * @param signedData Signature of `uniqueId`, signed by a trusted signer
+     * @param signedProof Context proof for `uniqueId`. This is the proof from the trusted signer's DID Document proving the DID controls the context signing key.
      */
     public async claimSBT(
         sbtType: string,
@@ -166,7 +166,7 @@ export class VeridaSBTClient {
         )
 
         if (response.success !== true) {
-            throw new Error('Failed to claim SBT')
+            throw new Error(`Failed to claim SBT: ${response.reason}`)
         }
     }
 
