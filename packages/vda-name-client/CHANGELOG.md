@@ -1,5 +1,11 @@
 
 - Gracefully handle full DID supplied to getUsernames()
+- Replace `chainNameorId` with `network` based on `EnvironmentType`
+- General code cleanup
+- Improve README to explain `read only` v `read and write` mode
+- Simplify configuration
+- Improve error messages
+- Update unit tests
 
 2022-03-01 (v2.1.3)
 -------------------
