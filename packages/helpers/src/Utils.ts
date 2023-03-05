@@ -128,3 +128,24 @@ export function wrapUri(veridaUri: string, wrapperUri: string = 'http://data.ver
 	const encodedVeridaUri = bs58.encode(bytes)
 	return `${wrapperUri}${uriParts.id ? 'row' : 'db'}/${encodedVeridaUri}`
 }
+
+export interface DIDParts {
+	network: string,
+	address: string
+}
+
+/**
+ * 
+ * @param did 
+ */
+export function explodeDID(did: string) {
+	const parts = did.split(':')
+	if (parts.length != 4) {
+		throw new Error('Invalid DID')
+	}
+
+	return {
+		network: parts[2],
+		address: parts[3]
+	}
+}
