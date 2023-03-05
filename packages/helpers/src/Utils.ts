@@ -47,7 +47,7 @@ export function buildVeridaUri(
  * @returns
  */
 export function explodeVeridaUri(uri: string): FetchUriParams {
-	const regex = /^verida:\/\/(.*)\/(.*)\/(.*)\/(.*)\?(.*)$/i;
+	const regex = /^verida:\/\/([^\/]*)\/([^\/]*)\/([^\/]*)(\/([^?]*))?/i;
 	const matches = uri.match(regex);
 
 	if (!matches) {
@@ -59,8 +59,9 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 	const bytes = bs58.decode(encodedContextName);
 	const contextName = Buffer.from(bytes).toString();
 	const dbName = matches[3];
-	const id = matches[4];
-	const query = url.parse(uri, true).query;
+	const id = matches[5];
+	const urlParts = url.parse(uri, true);
+	const query = urlParts.query
 
 	return {
 		did,
@@ -78,25 +79,24 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
  * @param context An existing context used to open the external database
  * @returns
  */
-export async function fetchVeridaUri(uri: string, context: any): Promise<string> {
-	const url = explodeVeridaUri(uri);
+export async function fetchVeridaUri(uri: string, context: any): Promise<any> {
+	const uriParts = explodeVeridaUri(uri);
 
-	const db = await context.openExternalDatabase(url.dbName, url.did, {
+	const db = await context.openExternalDatabase(uriParts.dbName, uriParts.did, {
 		permissions: {
 			read: DatabasePermissionOptionsEnum.PUBLIC,
 			write: DatabasePermissionOptionsEnum.OWNER,
 		},
 		//@ts-ignore
-		contextName: url.contextName,
+		contextName: uriParts.contextName,
 		readOnly: true,
 	});
 
 	try {
-		const item: any = await db.get(url.id, {});
-		const key = Buffer.from(url.query.key as string, 'hex');
-
-		// Return encrypted data if provided with an encryption key
-		if (key) {
+		const item: any = await db.get(uriParts.id, {});
+		if (uriParts.query && uriParts.query.key) {
+			// Return encrypted data if provided with an encryption key
+			const key = Buffer.from(uriParts.query.key as string, 'hex');
 			return EncryptionUtils.symDecrypt(item.content, key);
 		}
 
@@ -109,4 +109,22 @@ export async function fetchVeridaUri(uri: string, context: any): Promise<string>
 
 		throw err;
 	}
+}
+
+/**
+ * Wrap a Verida URI in a wrapper URI that handles fetching the record and returning it.
+ * 
+ * ie: wrapUri('http://data.verida.network', ...)
+ * 
+ * @param wrapperUri HTTP(s) endpoint that handles base64 decoding the Verida URI and returning it
+ * @param veridaUri Verida URI
+ * @param separator optional separator (defaults to `/`)
+ * @returns 
+ */
+export function wrapUri(veridaUri: string, wrapperUri: string = 'http://data.verida.network/') {
+	const uriParts = explodeVeridaUri(veridaUri)
+
+	const bytes = Buffer.from(veridaUri)
+	const encodedVeridaUri = bs58.encode(bytes)
+	return `${wrapperUri}${uriParts.id ? 'row' : 'db'}/${encodedVeridaUri}`
 }
