@@ -1,6 +1,7 @@
-import { NetworkConnectionConfig, IContext } from "@verida/types";
+import { NetworkConnectionConfig, EnvironmentType } from "@verida/types";
 import { Context } from ".";
 import Client from "./client";
+import { decodeUri, explodeVeridaUri, explodeDID, fetchVeridaUri } from '@verida/helpers'
 
 /**
  * @category
@@ -32,6 +33,22 @@ class Network {
       // User may have cancelled the login attempt
       return;
     }
+  }
+
+  public static async getRecord(veridaUri: string, encoded: boolean = false) {
+    if (encoded) {
+      veridaUri = decodeUri(veridaUri)
+    }
+
+    const uriParts = explodeVeridaUri(veridaUri)
+    const didParts = explodeDID(uriParts.did)
+    const environment = didParts.network
+    const client = new Client({
+      environment: environment == 'testnet' ? EnvironmentType.TESTNET : EnvironmentType.MAINNET,
+    })
+    const context = await client.openExternalContext(uriParts.contextName, uriParts.did)
+    const record = await fetchVeridaUri(veridaUri, context)
+    return record
   }
 }
 

@@ -194,7 +194,7 @@ export class VeridaNameClient {
                         return []
                     }
 
-                    throw new Error(`Failed to get usernames for DID (${did}): ${response.reason}`)
+                    throw new Error(response.reason)
                 }
 
                 return response.data
@@ -214,6 +214,7 @@ export class VeridaNameClient {
 
     /**
      * Return the DID address for a given username
+     * 
      * @param username username registered by {@link register}
      * @returns DID address
      */
@@ -228,14 +229,14 @@ export class VeridaNameClient {
                 response = await this.vdaWeb3Client.findDID(username)
 
                 if (response.success !== true) {
-                    throw new Error(`Failed to locate the DID for username: ${username}`)
+                    throw new Error(`Not found`)
                 }
 
                 response = response.data
             } else {
                 response = await this.contract!.callStatic.findDID(username)
                 if (!response) {
-                    throw new Error(`Failed to locate the DID for username: ${username}`)
+                    throw new Error(`Not found`)
                 }
             }
 

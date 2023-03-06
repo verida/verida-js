@@ -1,7 +1,6 @@
 import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig } from "@verida/types";
 import { DIDClient } from "@verida/did-client";
 import { VeridaNameClient } from '@verida/vda-name-client'
-import { RPC_URLS } from '@verida/vda-did-resolver'
 
 import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
