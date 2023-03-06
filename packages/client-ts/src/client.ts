@@ -71,8 +71,7 @@ class Client implements IClient {
 
     const rpcUrl = this.didClient.getRpcUrl()
     this.nameClient = new VeridaNameClient({
-      chainNameOrId: this.environment,
-      callType: 'web3',
+      network: this.environment,
       web3Options: {
         rpcUrl
       }
@@ -327,14 +326,30 @@ class Client implements IClient {
     if (didOrUsername.match(/\.vda$/)) {
       // Have a Verida username. Perform on-chain lookup.
       // @throws Error if the username doesn't exist
-      try {
-        didOrUsername = await this.nameClient.getDid(didOrUsername)
-      } catch (err) {
-        throw new Error(`Verida username not found: ${didOrUsername}`)
-      }
+      return await this.getDID(didOrUsername)
     }
     
     return didOrUsername
+  }
+
+  /**
+   * Get the DID linked to a username
+   * 
+   * @param username 
+   * @returns 
+   */
+  public async getDID(username: string): Promise<string> {
+    return await this.nameClient.getDID(username)
+  }
+
+  /**
+   * Get an array of usernames linked to a DID
+   * 
+   * @param did 
+   * @returns 
+   */
+  public async getUsernames(did: string): Promise<string[]> {
+    return await this.nameClient.getUsernames(did)
   }
 }
 
