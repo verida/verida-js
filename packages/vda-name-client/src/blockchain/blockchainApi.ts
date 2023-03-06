@@ -168,7 +168,7 @@ export class VeridaNameClient {
     public async getUsernames(did: string): Promise<string[]> {
         let response
         if (did.match('did')) {
-            const matches = did.match(/(0x.*)/)[0]
+            const matches = did.match(/(0x.*)/)![0]
             if (matches) {
                 did = matches[0]
             } else {
