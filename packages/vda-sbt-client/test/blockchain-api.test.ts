@@ -114,7 +114,7 @@ describe('vda-sbt-client blockchain api', () => {
             // Create SBT Info
             const signedDataMsg = ethers.utils.solidityPack(
                 ['string','address'],
-                [`${sbtType}-${uniqueId}`, sbtOwner.address]
+                [`${sbtType}-${uniqueId}-`, sbtOwner.address.toLowerCase()]
             )
             const signedData = await trustedSignerNetworkInfo.keyring.sign(signedDataMsg)
             
@@ -128,7 +128,7 @@ describe('vda-sbt-client blockchain api', () => {
                 sbtType,
                 uniqueId,
                 sbtURI,
-                RECIPIENT_WALLET.address,
+                RECIPIENT_WALLET.address.toLowerCase(),
                 signedData,
                 signedProof!
             )

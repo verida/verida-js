@@ -21,7 +21,7 @@ const DID_CLIENT_CONFIG = {
   callType: "web3",
   network: EnvironmentType.TESTNET,
   web3Config: {
-    privateKey: ''
+    privateKey: process.env.PRIVATE_KEY!
   },
   rpcUrl: "https://rpc-mumbai.maticvigil.com/",
   didEndpoints: ["https://node1-apse2.acacia.verida.tech/did/", "https://node1-use2.acacia.verida.tech/did/", "https://node3-apse2.acacia.verida.tech/did/"]
