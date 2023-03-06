@@ -1,4 +1,6 @@
 
+- Expose `getUsernames()` and `getDID()` helpers on `Client`
+
 2022-03-01 (v2.1.3)
 -------------------
 

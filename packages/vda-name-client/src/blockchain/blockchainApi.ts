@@ -5,12 +5,14 @@ import {
 import {
     Web3SelfTransactionConfig,
     Web3MetaTransactionConfig,
-    Web3CallType
+    Web3CallType,
+    EnvironmentType
 } from '@verida/types'
 import { ethers, ContractFactory } from "ethers";
-import { getContractInfoForNetwork } from "./config";
-import { getVeridaSignWithNonce, interpretIdentifier } from "./helpers";
+import { getContractInfoForNetwork, RPC_URLS } from "./config";
+import { getVeridaSignWithNonce } from "./helpers";
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { explodeDID } from '@verida/helpers'
 
 /**
  * Interface for vda-name-client instance creation. Same as VDA-DID configuration
@@ -21,12 +23,11 @@ import { JsonRpcProvider } from '@ethersproject/providers';
  * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
  */
 export interface NameClientConfig {
-    identifier?: string;
-    signKey?: string;
-    chainNameOrId?: string | number;
-
-    callType: Web3CallType;
-    web3Options: Web3SelfTransactionConfig | Web3MetaTransactionConfig;
+    network: EnvironmentType
+    did?: string
+    signKey?: string
+    callType?: Web3CallType
+    web3Options?: Web3SelfTransactionConfig | Web3MetaTransactionConfig
 }
 
 export class VeridaNameClient {
@@ -43,42 +44,44 @@ export class VeridaNameClient {
     private usernameCache: Record<string, string> = {}
 
     public constructor(config: NameClientConfig) {
+        if (!config.callType) {
+            config.callType = 'web3'
+        }
+
         this.config = config
         this.readOnly = true
         if (!config.web3Options) {
             config.web3Options = {}
         }
 
+        this.network = config.network
+
         if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            throw new Error('Web3 transactions must specify `rpcUrl` in the configuration options')
+            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
         }
 
-        if (config.identifier) {
+        if (config.did) {
             this.readOnly = false
-            const { address, network } = interpretIdentifier(config.identifier)
-            // @ts-ignore
-            this.network = network || config.chainNameOrId
-            this.didAddress = address.toLowerCase();
+            const { address } = explodeDID(config.did)
+            this.didAddress = address.toLowerCase()
 
             const contractInfo = getContractInfoForNetwork(this.network)
-
             this.vdaWeb3Client = getVeridaContract(
                 config.callType, 
                 {...contractInfo,
-                ...config.web3Options});
+                ...config.web3Options})
         } else {
-            if (!config.chainNameOrId) {
-                throw new Error(`Config must specify 'chainNameOrId' or 'identifier'`)
+            let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
+            if (!rpcUrl) {
+                rpcUrl = <string> RPC_URLS[this.network]
             }
 
-            const rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
-            this.network = config.chainNameOrId.toString()
             const contractInfo = getContractInfoForNetwork(this.network)
-            const provider = new JsonRpcProvider(rpcUrl);
+            const provider = new JsonRpcProvider(rpcUrl)
 
             this.contract = ContractFactory.fromSolidity(contractInfo.abi)
                 .attach(contractInfo.address)
-                .connect(provider);
+                .connect(provider)
         }
     }
 
@@ -143,18 +146,18 @@ export class VeridaNameClient {
      */
     public async unregister(username: string) {
         if (this.readOnly) {
-            throw new Error(`Unable to submit to blockchain. No 'identifier' provided in config.`)
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
         if (!this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. No 'signKey' provided in config.`)
+            throw new Error(`Unable to submit to blockchain. In read only mode`)
         }
 
         const signature = await this.getRegisterSignature(username, this.didAddress!, this.config.signKey!)
         const response = await this.vdaWeb3Client!.unregister(username, this.didAddress, signature)
 
         if (response.success !== true) {
-            throw new Error('Failed to unregister')
+            throw new Error(`Failed to unregister username: ${username} (${response.reason})`)
         }
 
         delete this.usernameCache[username]
@@ -162,38 +165,50 @@ export class VeridaNameClient {
 
     /**
      * Get the username list of a DID address
-     * @param did DID address to get usernames
+     * 
+     * @param did DID to lookup the username for
      * @returns username list 
      */
     public async getUsernames(did: string): Promise<string[]> {
         let response
-        if (did.match('did')) {
-            const matches = did.match(/(0x.*)/)![0]
-            if (matches) {
-                did = matches[0]
-            } else {
-                throw new Error('Invalid DID')
-            }
+        let didAddress = did
+        if (didAddress.match('did')) {
+            const { address } = explodeDID(did)
+            didAddress = address
         }
-        if (this.vdaWeb3Client) {
-            response = await this.vdaWeb3Client.getUserNameList(did)
-            if (response.success !== true) {
-                if (response.reason == 'No registered DID') {
+
+        // Lookup usernames from cache
+        const usernames = Object.entries(this.usernameCache)
+            .filter(([, existingDid]) => existingDid === did)
+            .map(([username, existingDid]) => username)
+        
+        if (usernames.length) {
+            return usernames
+        }
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getUserNameList(didAddress)
+                if (response.success !== true) {
+                    if (response.reason == 'No registered DID') {
+                        return []
+                    }
+
+                    throw new Error(`Failed to get usernames for DID (${did}): ${response.reason}`)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.getUserNameList(didAddress)
+
+                if (!response.success) {
                     return []
                 }
 
-                throw new Error(`Failed to get usernames for did (${did}): ${response.reason}`)
+                return response
             }
-
-            return response.data
-        } else {
-            response = await this.contract!.callStatic.getUserNameList(did)
-
-            if (!response) {
-                return []
-            }
-
-            return response
+        } catch (err:any ) {
+            throw new Error(`Failed to get usernames for DID: ${didAddress} (${err.message})`)
         }
     }
 
@@ -202,30 +217,34 @@ export class VeridaNameClient {
      * @param username username registered by {@link register}
      * @returns DID address
      */
-    public async getDid(username: string): Promise<string> {
+    public async getDID(username: string): Promise<string> {
         if (this.usernameCache[username]) {
             return this.usernameCache[username]
         }
 
         let response
-        if (this.vdaWeb3Client) {
-            response = await this.vdaWeb3Client.findDID(username)
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.findDID(username)
 
-            if (response.success !== true) {
-                throw new Error(`Failed to locate the DID for username: ${username}`)
+                if (response.success !== true) {
+                    throw new Error(`Failed to locate the DID for username: ${username}`)
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.findDID(username)
+                if (!response) {
+                    throw new Error(`Failed to locate the DID for username: ${username}`)
+                }
             }
 
-            response = response.data
-        } else {
-            response = await this.contract!.callStatic.findDID(username)
-            if (!response) {
-                throw new Error(`Failed to locate the DID for username: ${username}`)
-            }
+            const did = `did:vda:${this.network}:${response}`
+            this.usernameCache[username] = did
+            return did
+        } catch (err:any ) {
+            throw new Error(`Failed to locate the DID for username: ${username} (${err.message})`)
         }
-
-        const did = `did:vda:${this.network}:${response}`
-        this.usernameCache[username] = did
-        return did
     }
 
 }
