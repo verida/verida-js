@@ -126,10 +126,20 @@ export default class EncryptionUtils {
      * 
      * @param data 
      * @param signature 
-     * @param publicKey Hex encoded public key
+     * @param publicKey Hex encoded public key or public key in shortened address format
      * @returns 
      */
-    static verifySig(data: any, signature: string, publicKey: string) {
+    static verifySig(data: any, signature: string, publicKeyOrAddress: string) {
+        const signerAddress = EncryptionUtils.getSigner(data, signature)
+        if (signerAddress.toLowerCase() == publicKeyOrAddress.toLowerCase()) {
+            return true
+        }
+
+        const expectedAddress = utils.computeAddress(publicKeyOrAddress)
+        return signerAddress.toLowerCase() == expectedAddress.toLowerCase()
+    }
+
+    static getSigner(data: any, signature: string) {
         // Ensure deterministic order of data so signature matches regardless
         // of the attribute order
         if (data instanceof Uint8Array) { // this also covers `Buffer`
@@ -138,11 +148,10 @@ export default class EncryptionUtils {
             data = JSON.stringify(data)
         }
 
-        const expectedAddress = utils.computeAddress(publicKey)
         const messageHashBytes = EncryptionUtils.hashBytes(data)
         const signerAddress = utils.recoverAddress(messageHashBytes, signature)
 
-        return signerAddress.toLowerCase() == expectedAddress.toLowerCase()
+        return signerAddress
     }
 
     static decodeBase64(data: any) {
