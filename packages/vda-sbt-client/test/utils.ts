@@ -1,6 +1,34 @@
+import { EnvironmentType } from "@verida/types";
+import { Client, Context } from '@verida/client-ts'
+import { AutoAccount } from '@verida/account-node'
+import { Keyring } from "@verida/keyring";
+
 require('dotenv').config();
 
+const VERIDA_ENVIRONMENT = EnvironmentType.TESTNET
+export const CONTEXT_NAME = 'Verida Testing: SBT Context'
+const DEFAULT_ENDPOINTS = {
+  "defaultDatabaseServer": {
+      "type": "VeridaDatabase",
+      "endpointUri": ["https://node1-apse2.acacia.verida.tech/", "https://node1-use2.acacia.verida.tech/", "https://node3-apse2.acacia.verida.tech/"]
+  },
+  "defaultMessageServer": {
+      "type": "VeridaMessage",
+      "endpointUri": ["https://node1-apse2.acacia.verida.tech/", "https://node1-use2.acacia.verida.tech/", "https://node3-apse2.acacia.verida.tech/"]
+  }
+}
+const DID_CLIENT_CONFIG = {
+  callType: "web3",
+  network: EnvironmentType.TESTNET,
+  web3Config: {
+    privateKey: process.env.PRIVATE_KEY
+  },
+  rpcUrl: "https://rpc-mumbai.maticvigil.com/",
+  didEndpoints: ["https://node1-apse2.acacia.verida.tech/did/", "https://node1-use2.acacia.verida.tech/did/", "https://node3-apse2.acacia.verida.tech/did/"]
+}
+
 export const dids = [
+  // SBT owner Verida DID
   {
       address: "0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539",
       privateKey: "0x42d4c8a6b73fe84863c6f6b5a55980f9a8949e18ed20da65ca2033477ad563f0",
@@ -11,11 +39,13 @@ export const dids = [
     privateKey: '0xb5867e47d06b2c2679c1dadfa2f3990c5db7a378acc9fb1c0d14d7861adf3490',
     publicKey : '0x04b24294e9a6880936512213d2a25a97213f870d50e8f6df553a0fc0ede5d15f2154dabb73042f40a9492da2b200f9679d6038f93d0b5f506c14f14f132b860bbe',
   },
+  // Trusted signer (issuer) DID
   {
     address: '0x0162aE4B571E9daB51309f885200aDdF04F33747',
     privateKey: '0x8a4c7e289560bd39d1820fade8f953ba49c1281eb7056d1affde76a7a05c01a3',
     publicKey : '0x0403da4e7946c84a92ddb09cec9fce8f0cb08e3316856e55168d3e0bfa47f8a5a08e1f2a75c78353450010b6d8835046fbf8a093f9eb7431f0930afebbbbca81bf',
   },
+
   {
     address: '0x58B24541eAb4F50E05CeB08374CeAE6794dD1143',
     privateKey: '0x854eb960003cd3b6e1111c887244db09a354925c374439a8d849b55fc8dda0ef',
@@ -41,12 +71,14 @@ export const dids = [
     privateKey: '0xef66e31345bb2ccb25e25ec9a650156c6f93caf883db04008a70e183eba4092d',
     publicKey : '0x04a205faab72bf658e51cd356aa19a99c41fa0e70a5bb030096dcc737a01568bc260e573dc9ffc09480cc6ce5451335cda23e24cf945df4e137a2e850bac2b1320',
   },
-  {
-    address: '0xeea7e0781317408d84aD70d1AA8c7553D3D31cA5',
-    privateKey: '0x78538a24889f4eaa6186ee201bf7aeea89bdad695ab85d95871eac603665c620',
-    publicKey : '0x040f8ef908ca54fb1a45d8dd4463e6930c1d96c674d75f3c27e42d5f60ae2123837b47d1b249e8a015e3dcf2b669a7f30884a80ff57bf3332bf96698626f31a5da',
-  }
+  
 ]
+
+export const RECIPIENT_WALLET = {
+  address: '0xeea7e0781317408d84aD70d1AA8c7553D3D31cA5',
+  privateKey: '0x78538a24889f4eaa6186ee201bf7aeea89bdad695ab85d95871eac603665c620',
+  publicKey : '0x040f8ef908ca54fb1a45d8dd4463e6930c1d96c674d75f3c27e42d5f60ae2123837b47d1b249e8a015e3dcf2b669a7f30884a80ff57bf3332bf96698626f31a5da',
+}
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 
@@ -109,4 +141,31 @@ export function getBlockchainAPIConfiguration() {
   }
 
   return configuration;
+}
+
+export async function getNetwork(privateKey): Promise<{
+  network: Client,
+  context: Context,
+  account: AutoAccount,
+  keyring: Keyring
+}> {
+  const network = new Client({
+      environment: VERIDA_ENVIRONMENT
+  })
+  const account = new AutoAccount(DEFAULT_ENDPOINTS, {
+      privateKey,
+      environment: VERIDA_ENVIRONMENT,
+      // @ts-ignore
+      didClientConfig: DID_CLIENT_CONFIG
+  })
+  await network.connect(account)
+  const context = <Context> await network.openContext(CONTEXT_NAME)
+  const keyring = await account.keyring(CONTEXT_NAME)
+
+  return {
+      network,
+      context,
+      account,
+      keyring
+  }
 }
