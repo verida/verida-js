@@ -21,25 +21,25 @@ const DID_CLIENT_CONFIG = {
   callType: "web3",
   network: EnvironmentType.TESTNET,
   web3Config: {
-    privateKey: process.env.PRIVATE_KEY!
+    privateKey: process.env.PRIVATE_KEY
   },
   rpcUrl: "https://rpc-mumbai.maticvigil.com/",
   didEndpoints: ["https://node1-apse2.acacia.verida.tech/did/", "https://node1-use2.acacia.verida.tech/did/", "https://node3-apse2.acacia.verida.tech/did/"]
 }
 
 export const dids = [
+  // SBT owner Verida DID
   {
       address: "0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539",
       privateKey: "0x42d4c8a6b73fe84863c6f6b5a55980f9a8949e18ed20da65ca2033477ad563f0",
       publicKey: "0x042b816206dfd7c694d627ff775b9c151319b9a0e54de94d18e61619372fc713664dc677d5247adc2d4f8722b227bd9504b741ea380d5e7887a5698a7a634ec6ae",
   },
-  // Trusted signer (issuer) DID
   {
     address: '0xE3A441c4e699433FCf1262246Cf323d8e4302998',
     privateKey: '0xb5867e47d06b2c2679c1dadfa2f3990c5db7a378acc9fb1c0d14d7861adf3490',
     publicKey : '0x04b24294e9a6880936512213d2a25a97213f870d50e8f6df553a0fc0ede5d15f2154dabb73042f40a9492da2b200f9679d6038f93d0b5f506c14f14f132b860bbe',
   },
-  // SBT owner Verida DID
+  // Trusted signer (issuer) DID
   {
     address: '0x0162aE4B571E9daB51309f885200aDdF04F33747',
     privateKey: '0x8a4c7e289560bd39d1820fade8f953ba49c1281eb7056d1affde76a7a05c01a3',

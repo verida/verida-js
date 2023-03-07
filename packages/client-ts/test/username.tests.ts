@@ -42,7 +42,6 @@ describe('Username lookup tests', () => {
                 const response = await client.parseDid(USERNAME)
             } catch (err) {
                 // username not found, need to create
-                const DID_ADDRESS = DID.substring(16)
                 const DID_PRIVATE_KEY = CONFIG.VDA_PRIVATE_KEY
                 const POLYGON_PRIVATE_KEY = CONFIG.DID_CLIENT_CONFIG.web3Config.privateKey
                 const RPC_URL = 'https://rpc-mumbai.maticvigil.com'
@@ -50,9 +49,9 @@ describe('Username lookup tests', () => {
                 // Create name Client
                 const nameClient = new VeridaNameClient({
                     callType: 'web3',
-                    identifier: DID_ADDRESS,
+                    did: DID,
                     signKey: DID_PRIVATE_KEY,
-                    chainNameOrId: 'testnet',
+                    network: EnvironmentType.TESTNET,
                     web3Options: {
                         privateKey: POLYGON_PRIVATE_KEY,
                         rpcUrl: RPC_URL
@@ -85,6 +84,16 @@ describe('Username lookup tests', () => {
             } catch (err) {
                 assert.ok(err.message.match(DID))
             }
+        })
+
+        it(`can get a DID from a username`, async () => {
+            const did = await client.getDID(USERNAME)
+            assert.equal(did, DID, 'Fetched DID matches expected DID')
+        })
+
+        it(`can get usernames linked to a DID`, async () => {
+            const usernames = await client.getUsernames(DID)
+            assert.deepEqual(usernames, [USERNAME.toLowerCase()], 'Fetched usernames matches expected array')
         })
 
     })

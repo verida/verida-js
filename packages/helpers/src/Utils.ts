@@ -116,17 +116,32 @@ export async function fetchVeridaUri(uri: string, context: any): Promise<any> {
  * 
  * ie: wrapUri('http://data.verida.network', ...)
  * 
- * @param wrapperUri HTTP(s) endpoint that handles base64 decoding the Verida URI and returning it
+ * @param wrapperUri HTTP(s) endpoint that fetches a Verida URI
  * @param veridaUri Verida URI
  * @param separator optional separator (defaults to `/`)
  * @returns 
  */
-export function wrapUri(veridaUri: string, wrapperUri: string = 'http://data.verida.network/') {
-	const uriParts = explodeVeridaUri(veridaUri)
+export function wrapUri(veridaUri: string, wrapperUri: string = 'http://data.verida.network') {
+	const encodedVeridaUri = encodeUri(veridaUri)
+	return `${wrapperUri}/${encodedVeridaUri}`
+}
 
+/**
+ * Encode a Verida URI in base58 to create a unique string reference on the network
+ * 
+ * @param veridaUri 
+ * @returns 
+ */
+export function encodeUri(veridaUri: string) {
 	const bytes = Buffer.from(veridaUri)
 	const encodedVeridaUri = bs58.encode(bytes)
-	return `${wrapperUri}${uriParts.id ? 'row' : 'db'}/${encodedVeridaUri}`
+	return encodedVeridaUri
+}
+
+export function decodeUri(encodedVeridaUri: string) {
+	const bytes = bs58.decode(encodedVeridaUri)
+	const veridaUri = Buffer.from(bytes).toString()
+	return veridaUri
 }
 
 export interface DIDParts {

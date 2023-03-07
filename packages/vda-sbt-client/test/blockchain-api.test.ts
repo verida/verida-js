@@ -33,7 +33,9 @@ describe('vda-sbt-client blockchain api', () => {
         })    
     })
     
-    describe("tokenURI", () => {
+    describe("tokenURI", function() {
+        this.timeout(60*1000)
+
         let totalSupply : number
         before(async () => {
             totalSupply = parseInt(await blockchainApi.totalSupply());
@@ -92,20 +94,14 @@ describe('vda-sbt-client blockchain api', () => {
 
         // SBT info
         const sbtType = "twitter-test"
-        const uniqueId = "123"
+        const uniqueId = "12346789"
         const sbtURI = "https://gateway.pinata.cloud/ipfs/QmVrTkbrzNHRhmsh88XnwJo5gBu8WqQMFTkVB4KoVLxSEY/3.json"
 
-        it.only("Claim a SBT successfully",async () => {
+        it("Claim a SBT successfully",async () => {
             const trustedSigner = dids[2]
             const trustedSignerNetworkInfo = await getNetwork(trustedSigner.privateKey)
             const trustedDid = await trustedSignerNetworkInfo.account.did()
             const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDidClient().get(trustedDid)
-
-            const sbtOwner = did
-            const sbtOwnerNetworkInfo = await getNetwork(sbtOwner.privateKey)
-            const sbtOwnerDid = await sbtOwnerNetworkInfo.account.did()
-
-            console.log(trustedDid, sbtOwnerDid)
 
             // Should check if the trustedSigner is registered to the contract
             const signers = await blockchainApi.getTrustedSignerAddresses()
@@ -114,7 +110,7 @@ describe('vda-sbt-client blockchain api', () => {
             // Create SBT Info
             const signedDataMsg = ethers.utils.solidityPack(
                 ['string','address'],
-                [`${sbtType}-${uniqueId}-`, sbtOwner.address.toLowerCase()]
+                [`${sbtType}-${uniqueId}-`, did.address]
             )
             const signedData = await trustedSignerNetworkInfo.keyring.sign(signedDataMsg)
             
@@ -139,7 +135,7 @@ describe('vda-sbt-client blockchain api', () => {
         })
 
         it("isSBTClaimed()",async () => {
-            const claimed = await blockchainApi.isSBTClaimed(sbtType, sbtId)
+            const claimed = await blockchainApi.isSBTClaimed(sbtType, uniqueId)
             assert.ok(claimed === true)
         })
 
@@ -147,14 +143,14 @@ describe('vda-sbt-client blockchain api', () => {
             const lastTokenId = parseInt(await blockchainApi.totalSupply())
 
             const tokenInfo = await blockchainApi.tokenInfo(lastTokenId)
-            assert.deepEqual(tokenInfo, [sbtType, sbtId])
+            assert.deepEqual(tokenInfo, [sbtType, uniqueId])
         })
 
         it("Burn SBT", async () => {
             const lastTokenId = parseInt(await blockchainApi.totalSupply())
 
             const owner = await blockchainApi.ownerOf(lastTokenId)
-            assert.equal(owner, did.address)
+            assert.equal(owner, RECIPIENT_WALLET.address)
 
             await blockchainApi.burnSBT(lastTokenId)
 
