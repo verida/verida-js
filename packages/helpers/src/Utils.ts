@@ -1,5 +1,5 @@
 import EncryptionUtils from '@verida/encryption-utils';
-import { DatabasePermissionOptionsEnum, FetchUriParams } from '@verida/types';
+import { DatabasePermissionOptionsEnum, FetchUriParams, IClient } from '@verida/types';
 const url = require('url')
 const bs58 = require('bs58');
 
@@ -47,19 +47,22 @@ export function buildVeridaUri(
  * @returns
  */
 export function explodeVeridaUri(uri: string): FetchUriParams {
-	const regex = /^verida:\/\/([^\/]*)\/([^\/]*)\/([^\/]*)(\/([^?]*))?/i;
-	const matches = uri.match(regex);
+	const regex = /^verida:\/\/(did\:[^\/]*)\/([^\/]*)\/([^\/]*)\/([^?]*)(\/([^?]*))?/i;
+console.log(uri)
+	const matches = uri.match(regex)
 
 	if (!matches) {
 		throw new Error('Invalid URI');
 	}
 
-	const did = matches[1] as string;
-	const encodedContextName = matches[2];
-	const bytes = bs58.decode(encodedContextName);
-	const contextName = Buffer.from(bytes).toString();
-	const dbName = matches[3];
-	const id = matches[5];
+	const did = matches[1] as string
+	const contextName = decodeURI(matches[2])
+	const dbName = matches[3]
+	const recordString = matches[4]
+	const recordParts = recordString.split('/')
+	const recordId = recordParts[0]
+
+
 	const urlParts = url.parse(uri, true);
 	const query = urlParts.query
 
@@ -67,20 +70,22 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 		did,
 		contextName,
 		dbName,
-		id,
-		query,
+		recordId,
+		deepAttributes: recordParts.splice(1).filter((value) => value != ''),
+		query
 	};
 }
 
 /**
  * Fetch the data accessible from a Verida URI
  *
- * @param uri Verida URI of the record to access
+ * @param uri Verida URI of the record to access. If `key` is in the query parameters, it is used as a (hex) encryption key to decode the data
  * @param context An existing context used to open the external database
  * @returns
  */
-export async function fetchVeridaUri(uri: string, context: any): Promise<any> {
+export async function fetchVeridaUri(uri: string, client: IClient): Promise<any> {
 	const uriParts = explodeVeridaUri(uri);
+	const context = await client.openExternalContext(uriParts.contextName, uriParts.did)
 
 	const db = await context.openExternalDatabase(uriParts.dbName, uriParts.did, {
 		permissions: {
@@ -93,11 +98,15 @@ export async function fetchVeridaUri(uri: string, context: any): Promise<any> {
 	});
 
 	try {
-		const item: any = await db.get(uriParts.id, {});
+		let item: any = await db.get(uriParts.recordId, {});
 		if (uriParts.query && uriParts.query.key) {
 			// Return encrypted data if provided with an encryption key
 			const key = Buffer.from(uriParts.query.key as string, 'hex');
-			return EncryptionUtils.symDecrypt(item.content, key);
+			item = EncryptionUtils.symDecrypt(item.content, key);
+		}
+
+		if (uriParts.deepAttributes.length) {
+			item = getDeepAttributeValue(item, uriParts.deepAttributes)
 		}
 
 		// Otherwise return the actual data
@@ -109,6 +118,19 @@ export async function fetchVeridaUri(uri: string, context: any): Promise<any> {
 
 		throw err;
 	}
+}
+
+function getDeepAttributeValue(data: any, deepAttributes: string[]): any {
+	const nextAttribute = deepAttributes[0]
+	if (typeof data[nextAttribute] === 'undefined') {
+		throw new Error('Invalid attribute path')
+	}
+
+	if (deepAttributes.length == 1) {
+		return data[nextAttribute]
+	}
+
+	return getDeepAttributeValue(data[nextAttribute], deepAttributes.splice(1))
 }
 
 /**
@@ -138,6 +160,9 @@ export function encodeUri(veridaUri: string) {
 	return encodedVeridaUri
 }
 
+/**
+ * Decode a Verida URI from base58 to it's `verida://` URI format
+ */
 export function decodeUri(encodedVeridaUri: string) {
 	const bytes = bs58.decode(encodedVeridaUri)
 	const veridaUri = Buffer.from(bytes).toString()
@@ -150,6 +175,7 @@ export interface DIDParts {
 }
 
 /**
+ * Get the `network` and `address` parts of a DID
  * 
  * @param did 
  */
