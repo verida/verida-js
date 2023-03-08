@@ -88,12 +88,12 @@ export function sleep(ms: number) {
   });
 }
 
-export function getBlockchainAPIConfiguration() {
+export function getBlockchainAPIConfiguration(privateKey: string) {
   const args = process.argv.slice(2);
   // console.log("ARGS : ", args);
   const testMode : 'gasless' | 'web3' = args.length > 0 && args.includes('gasless') ? 'gasless' : 'web3';
   // args.length > 0 && args[0] === 'direct' ? args[0] : 'gasless';
-  console.log('Test mode : ', testMode);
+  // console.log('Test mode : ', testMode);
 
   let configuration = {
     callType: testMode,
@@ -102,12 +102,6 @@ export function getBlockchainAPIConfiguration() {
   }
 
   if (testMode === 'web3') {
-    // const privateKey = process.env.PRIVATE_KEY
-    const privateKey = dids[0].privateKey
-    
-    if (!privateKey) {
-        throw new Error('No PRIVATE_KEY in the env file');
-    }
     const rpcURL = process.env.RPC_URL;
     if (!rpcURL) {
         throw new Error('No RPC_URL in the env file');
@@ -168,4 +162,24 @@ export async function getNetwork(privateKey): Promise<{
       account,
       keyring
   }
+}
+
+/**
+ * Return keyring & signedProof for given trusted signer
+ * @param privateKey private key of trusted signer
+ */
+export async function getSignerInfo(privateKey: string): Promise<[
+  keyring: Keyring,
+  signedProof: string
+]> {
+  const trustedSignerNetworkInfo = await getNetwork(privateKey)
+  const trustedDid = await trustedSignerNetworkInfo.account.did()
+  const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDidClient().get(trustedDid)
+
+  const signedProof = trustedSignerDIDDocument.locateContextProof(CONTEXT_NAME)!
+
+  return [
+    trustedSignerNetworkInfo.keyring,
+    signedProof
+  ]
 }
