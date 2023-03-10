@@ -1,3 +1,5 @@
+2023-03-07 (v2.1.4)
+-------------------
 
 - Gracefully handle full DID supplied to getUsernames()
 - Replace `chainNameorId` with `network` based on `EnvironmentType`
@@ -5,6 +7,7 @@
 - Improve README to explain `read only` v `read and write` mode
 - Simplify configuration
 - Improve error messages
+- Support looking up usernames from the cache
 - Update unit tests
 
 2022-03-01 (v2.1.3)
