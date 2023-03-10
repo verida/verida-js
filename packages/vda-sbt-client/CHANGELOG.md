@@ -1,4 +1,4 @@
-2023-03-07 (v2.1.4)
+2023-03-10 (v2.2.0)
 -------------------
 
 - Improve documentation in README.md

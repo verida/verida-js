@@ -1,3 +1,5 @@
+2023-03-10 (v2.2.0)
+-------------------
 
 - Fix: Incorrect documentation link
 - Fix: Remove example context from VC payload
