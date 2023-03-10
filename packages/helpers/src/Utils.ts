@@ -18,11 +18,10 @@ export function buildVeridaUri(
 	contextName: string,
 	databaseName: string,
 	itemId?: string,
+	deepAttributes?: string[],
 	params?: { key?: string }
 ): string {
-	const bytes = Buffer.from(contextName);
-	const encodedContextName = bs58.encode(bytes);
-	let uri = `verida://${did}/${encodedContextName}`;
+	let uri = `verida://${did}/${encodeURI(contextName)}`;
 
 	if (databaseName) {
 		uri += `/${databaseName}`;
@@ -30,6 +29,12 @@ export function buildVeridaUri(
 
 	if (itemId) {
 		uri += `/${itemId}`;
+	}
+
+	if (deepAttributes) {
+		deepAttributes.forEach((attr: string) => {
+			uri += `/${attr}`
+		})
 	}
 
 	if (params && params.key) {
@@ -48,7 +53,6 @@ export function buildVeridaUri(
  */
 export function explodeVeridaUri(uri: string): FetchUriParams {
 	const regex = /^verida:\/\/(did\:[^\/]*)\/([^\/]*)\/([^\/]*)\/([^?]*)(\/([^?]*))?/i;
-console.log(uri)
 	const matches = uri.match(regex)
 
 	if (!matches) {
@@ -99,14 +103,14 @@ export async function fetchVeridaUri(uri: string, client: IClient): Promise<any>
 
 	try {
 		let item: any = await db.get(uriParts.recordId, {});
-		if (uriParts.query && uriParts.query.key) {
-			// Return encrypted data if provided with an encryption key
-			const key = Buffer.from(uriParts.query.key as string, 'hex');
-			item = EncryptionUtils.symDecrypt(item.content, key);
-		}
-
 		if (uriParts.deepAttributes.length) {
 			item = getDeepAttributeValue(item, uriParts.deepAttributes)
+		}
+
+		if (uriParts.query && uriParts.query.key) {
+			// Return encrypted data if provided with an encryption key
+			const key = Buffer.from(uriParts.query.key as string, 'hex')
+			item = EncryptionUtils.symDecrypt(item, key)
 		}
 
 		// Otherwise return the actual data
