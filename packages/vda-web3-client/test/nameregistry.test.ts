@@ -9,10 +9,10 @@ const nameRegistry = getVeridaWeb3Instance('NameRegistry');
 const badSigner = Wallet.createRandom(); // dids[1];
 
 const testNames = [
-  'helloworld.verida',
-  'hello----world--.verida',
-  'hello_world-dave.verida',
-  'JerrySmith.verida',
+  'helloworld.vda',
+  'hello----world--.vda',
+  'hello_world-dave.vda',
+  'JerrySmith.vda',
 
   'JerrySmith.test',
   'Billy.test',
@@ -105,7 +105,7 @@ describe('NameRegistry Test', () => {
     });
 
     it('Failed : Invalid character specified in names', async () => {
-      const invalidnames = ['hello world.verida', 'hello!world.verida'];
+      const invalidnames = ['hello world.vda', 'hello!world.vda'];
       for (let i = 0; i < invalidnames.length; i++) {
         await checkRegister(
           invalidnames[i],
@@ -118,7 +118,7 @@ describe('NameRegistry Test', () => {
     });
 
     it('Failed : "." not allowed in name', async () => {
-      const invalidnames = ['david.test.verida', 'hello..verida'];
+      const invalidnames = ['david.test.vda', 'hello..vda'];
       for (let i = 0; i < invalidnames.length; i++) {
         await checkRegister(
           invalidnames[i],
@@ -155,8 +155,8 @@ describe('NameRegistry Test', () => {
 
       it('Failed on length 1 & 33', async () => {
         const invalidnames = [
-          'a.verida', // length 1
-          'abcdefghijklmnopqrstuvwxyz0123456.verida', // length 33
+          'a.vda', // length 1
+          'abcdefghijklmnopqrstuvwxyz0123456.vda', // length 33
         ];
         for (let i = 0; i < invalidnames.length; i++) {
           await checkRegister(
@@ -171,8 +171,8 @@ describe('NameRegistry Test', () => {
 
       it('Success on length 2 & 32', async () => {
         const names = [
-          'ab.verida', // length 2
-          'abcdefghijklmnopqrstuvwxyz012345.verida', // length 32
+          'ab.vda', // length 2
+          'abcdefghijklmnopqrstuvwxyz012345.vda', // length 32
         ];
         for (let i = 0; i < names.length; i++) {
           // register

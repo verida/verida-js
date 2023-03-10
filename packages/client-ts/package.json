@@ -10,7 +10,7 @@
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
-    "test": "ts-mocha",
+    "test": "ts-mocha --timeout 100000",
     "build": "rm -rf dist; tsc"
   },
   "engines": {

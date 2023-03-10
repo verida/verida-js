@@ -1,11 +1,15 @@
 const assert = require('assert')
 import { StorageLink } from '../src/index'
 import { DIDClient } from '@verida/did-client'
+import { EnvironmentType } from '@verida/types'
 
 const MNEMONIC = "slight crop cactus cute trend tape undo exile retreat large clay average"
 const DID_SERVER_URL = 'http://localhost:5001'
 const CONTEXT = 'Verida: Vault'
-const didClient = new DIDClient(DID_SERVER_URL)
+const didClient = new DIDClient({
+    network: EnvironmentType.TESTNET,
+    rpcUrl: DID_SERVER_URL
+})
 didClient.authenticate(MNEMONIC)
 const DID = didClient.getDid()
 
