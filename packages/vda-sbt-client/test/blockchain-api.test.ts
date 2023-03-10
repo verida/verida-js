@@ -168,8 +168,6 @@ describe('vda-sbt-client blockchain api', () => {
         })
 
         it("Should be locked for all minted tokenIDs",async () => {
-            const tokenIdList = [1,2,3,20]
-
             for (const tokenId of mintedTokenIds) {
                 const locked = await blockchainApi.isLocked(tokenId)
                 assert.equal(locked, true, "Locked correctly")
