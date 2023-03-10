@@ -193,6 +193,11 @@ describe('vda-sbt-client blockchain api', () => {
         const sbtURI = "https://gateway.pinata.cloud/ipfs/QmVrTkbrzNHRhmsh88XnwJo5gBu8WqQMFTkVB4KoVLxSEY/3.json"
 
         it("Claim a SBT successfully",async () => {
+            const trustedSigner = dids[2]
+            const trustedSignerNetworkInfo = await getNetwork(trustedSigner.privateKey)
+            const trustedDid = await trustedSignerNetworkInfo.account.did()
+            const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDidClient().get(trustedDid)
+
             // Should check if the trustedSigner is registered to the contract
             const signers = await blockchainApi.getTrustedSignerAddresses()
             assert.ok(signers.includes(trustedSigner.address))

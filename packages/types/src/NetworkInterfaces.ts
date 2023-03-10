@@ -92,6 +92,7 @@ export interface FetchUriParams {
 	did: string;
 	contextName: string;
 	dbName: string;
-	id: string;
+	recordId: string;
+	deepAttributes: string[];
 	query: any;
 }
