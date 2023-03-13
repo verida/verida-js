@@ -177,15 +177,33 @@ export class VeridaSBTClient {
 
     /**
      * Check whether SBT claimed for given type & uniqueId
+     * @param claimer Wallet address that owns the SBT
      * @param sbtType SBT type
      * @param uniqueId Unique id for type. Ex : twitter account id
      * @returns true if SBT claimed
      */
     public async isSBTClaimed(
+        claimer: string,
         sbtType: string,
         uniqueId: string
     ) {
-        const response = await this.vdaWeb3Client.isSBTClaimed(sbtType, uniqueId);
+        const response = await this.vdaWeb3Client.isSBTClaimed(claimer, sbtType, uniqueId);
+        if (response.data === undefined) {
+            throw new Error('Error in isSBTClaimed');
+        }
+        return response.data;
+    }
+
+
+    /**
+     * Returns the claimed tokenID list of a wallet address
+     * @param claimer Wallet address that owns the SBTs
+     * @returns Token ID list
+     */
+    public async getClaimedSBTList(
+        claimer: string
+    ) {
+        const response = await this.vdaWeb3Client.getClaimedSBTList(claimer);
         if (response.data === undefined) {
             throw new Error('Error in isSBTClaimed');
         }
