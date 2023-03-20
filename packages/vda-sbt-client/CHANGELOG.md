@@ -1,4 +1,10 @@
-2023-03-10 (v2.2.0)
+2023-03-13 (v2.1.5)
+-------------------
+- Updated `isSBTClaimed()` function
+- Added `getClaimedSBTList()` function
+- Updated test code
+
+2023-03-07 (v2.1.4)
 -------------------
 
 - Improve documentation in README.md
