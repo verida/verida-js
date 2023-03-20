@@ -177,6 +177,9 @@ export class VeridaNameClient {
             didAddress = address
         }
 
+        // Blockchain stores addresses as lowercase, so lookup as lowercase
+        didAddress = didAddress.toLowerCase()
+
         // Lookup usernames from cache
         const usernames = Object.entries(this.usernameCache)
             .filter(([, existingDid]) => existingDid === did)
@@ -201,13 +204,13 @@ export class VeridaNameClient {
             } else {
                 response = await this.contract!.callStatic.getUserNameList(didAddress)
 
-                if (!response.success) {
-                    return []
-                }
-
                 return response
             }
         } catch (err:any ) {
+            if (err.reason == 'No registered DID') {
+                return []
+            }
+
             throw new Error(`Failed to get usernames for DID: ${didAddress} (${err.message})`)
         }
     }

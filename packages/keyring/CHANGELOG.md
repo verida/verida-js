@@ -1,3 +1,5 @@
+2023-03-10 (v2.2.0)
+-------------------
 
 - Add hex versions of signing keys to `getKeys()`
 

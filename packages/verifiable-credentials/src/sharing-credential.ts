@@ -3,7 +3,7 @@ import EncryptionUtils from '@verida/encryption-utils';
 import { VCResult } from './interfaces';
 import { Credentials } from '.';
 import { IContext, DatabasePermissionOptionsEnum } from '@verida/types';
-import { buildVeridaUri } from '@verida/helpers'
+import { buildVeridaUri, encodeUri } from '@verida/helpers'
 
 const PermissionOptionsEnum = DatabasePermissionOptionsEnum
 
@@ -27,14 +27,14 @@ export default class SharingCredential {
 	 * @returns
 	 */
 
-	async issueEncryptedPresentation(item: any): Promise<any> {
+	async issueEncryptedPresentation(didJwtVc: any): Promise<any> {
 		const account = this.context.getAccount();
 		const did = await account.did();
 		const encryptionKey = new Uint8Array(EncryptionUtils.randomKey(22));
 
 		const contextName = this.context.getContextName();
 
-		const result = (await this.issuePublicPresentation(did, item, contextName, {
+		const result = (await this.issuePublicPresentation(did, didJwtVc, contextName, {
 			key: encryptionKey,
 		})) as VCResult;
 
@@ -43,7 +43,7 @@ export default class SharingCredential {
 	/**
 	 *  Method for for publishing an encrypted credential data
 	 * @param did
-	 * @param item
+	 * @param didJwtVc
 	 * @param contextName
 	 * @param options
 	 * @returns {object}
@@ -51,7 +51,7 @@ export default class SharingCredential {
 
 	async issuePublicPresentation(
 		did: string,
-		item: any,
+		didJwtVc: any,
 		contextName: string,
 		options: any
 	): Promise<VCResult | unknown> {
@@ -83,13 +83,13 @@ export default class SharingCredential {
 			permissions: options.permissions,
 		});
 
-		delete item._rev;
-
 		let params = {};
 
 		// Generate verifiable presentation
 		const credentials = new Credentials()
-		const presentation = await credentials.createVerifiablePresentation([item.didJwtVc], this.context)
+		const presentation = await credentials.createVerifiablePresentation([didJwtVc], this.context)
+
+		let item
 
 		if (options.encrypt) {
 			const key = new Uint8Array(options.key);
@@ -108,14 +108,14 @@ export default class SharingCredential {
 		if (!result) {
 			throw new Error('unable to save jwt item to db')
 		}
-		const uri = buildVeridaUri(did, contextName, dbName, result.id, params) as any
+		const uri = buildVeridaUri(did, contextName, dbName, result.id, ['content'], params) as any
 
 		return {
 			item,
 			result,
 			did,
 			veridaUri: uri,
-			publicUri: `${options.credentialExplorerUrl}?uri=${Buffer.from(uri, 'utf8').toString('base64')}`
+			publicUri: `${options.credentialExplorerUrl}?uri=${encodeUri(uri)}`
 		};
 
 	}

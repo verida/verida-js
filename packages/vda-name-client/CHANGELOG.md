@@ -1,4 +1,8 @@
-2023-03-07 (v2.1.4)
+
+- Fix: Force didAddress to lowercase when fetching usernames
+- Split unit tests into read v read/write
+
+2023-03-10 (v2.2.0)
 -------------------
 
 - Gracefully handle full DID supplied to getUsernames()
