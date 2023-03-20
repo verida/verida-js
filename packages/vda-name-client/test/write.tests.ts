@@ -29,7 +29,7 @@ const createBlockchainAPI = (did: any) => {
     })
 }
 
-describe('vda-name-client blockchain api', () => {
+describe('vda-name-client read and write tests', () => {
     let blockchainApi : VeridaNameClient
     before(() => {
         blockchainApi = createBlockchainAPI(did);

@@ -1,17 +1,17 @@
-// https://nodejs.org/api/assert.html
 const assert = require('assert');
-import { Context, Utils as clientUtils } from '@verida/client-ts/src';
+require('dotenv').config();
 import { getClientContext, connectAccount } from './utils';
 import Credentials from '../src/credentials';
 import SharingCredential from '../src/sharing-credential';
 import config from './config';
-import { EnvironmentType } from '@verida/types';
-
+import { EnvironmentType, IContext } from '@verida/types';
+import { buildVeridaUri, fetchVeridaUri } from '@verida/helpers';
+import { Network } from '@verida/client-ts';
 
 describe('Share Credential tests', function () {
     describe('Share Credential Units', function () {
         this.timeout(100000);
-        let appContext: Context | any;
+        let appContext: IContext;
         let issuerDid: string
         let shareCredential: SharingCredential;
         let credential: Credentials;
@@ -28,17 +28,18 @@ describe('Share Credential tests', function () {
         });
 
         it('Issue an encrypted credential', async function () {
-            const item = await credential.createCredentialJWT({
+            const didJwtVc = await credential.createCredentialJWT({
+                schema: config.SCHEMA_SBT,
                 subjectId: config.SUBJECT_DID,
                 data: config.CREDENTIAL_DATA,
                 context: appContext
-            });
+            })
 
-            const data = await shareCredential.issueEncryptedPresentation(item);
+            const data = await shareCredential.issueEncryptedPresentation(didJwtVc)
             createdUri = data.veridaUri
             assert.ok(data.result.ok, 'Document was saved correctly');
 
-            const expectedUri = clientUtils.buildVeridaUri(
+            const expectedUri = buildVeridaUri(
                 issuerDid,
                 config.VERIDA_CONTEXT_NAME,
                 config.VERIDA_EXPECTED_DATABASE,
@@ -50,28 +51,24 @@ describe('Share Credential tests', function () {
             assert.equal(uriWithoutKey, expectedUri, 'URI is the expected value, without encryption key');
 
             // Fetch and decode the presentation
-            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await clientUtils.fetchVeridaUri(data.veridaUri, context);
+            const fetchedDidJwtVc = await Network.getRecord(createdUri)
 
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
+            const decodedPresentation = await Credentials.verifyPresentation(fetchedDidJwtVc, {
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 
             // Retrieve the verifiable credential within the presentation
-            const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
+            const vc = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
-            delete config.CREDENTIAL_DATA['didJwtVc']
-
-            assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
+            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
         });
         it('Retrieve Credential data from URI using a different account', async function () {
             // BUT using config.PRIVATE_KEY_2
 
             // Fetch and decode the presentation
-            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
+            const fetchedDidJwtVc = await Network.getRecord(createdUri)
 
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
+            const decodedPresentation = await Credentials.verifyPresentation(fetchedDidJwtVc, {
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 
@@ -80,33 +77,28 @@ describe('Share Credential tests', function () {
             const verifiableCredential = decodedPresentation.verifiablePresentation.verifiableCredential[0]
 
             assert.deepEqual(verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Decoded credential data matches the original input');
-
-            await context.close()
         });
 
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
-                const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
-                return await clientUtils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
+                return await Network.getRecord(createdUri)
             };
             assert.rejects(fetchVeridaUri);
         });
         it('Attempt retrieval of invalid URI', async function () {
             const fetchVeridaUri = async () => {
-                const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
-                return await clientUtils.fetchVeridaUri(config.INVALID_VERIDA_URI, context);
+                return await Network.getRecord(config.INVALID_VERIDA_URI)
             };
             assert.rejects(fetchVeridaUri);
         });
         it('Retrieving credential from an existing data object with a DID JWT VC', async function () {
-            const data = await shareCredential.issueEncryptedPresentation(config.RAW_CREDENTIAL_DATA);
+            const data = await shareCredential.issueEncryptedPresentation(config.RAW_CREDENTIAL_DATA.didJwtVc);
 
             createdUri = data.veridaUri
 
             // Fetch and decode the presentation
-            const context = await getClientContext(createdUri, EnvironmentType.TESTNET)
-            const jwt = await clientUtils.fetchVeridaUri(createdUri, context);
-            const decodedPresentation = await Credentials.verifyPresentation(jwt, {
+            const fetchedDidJwtVc = await Network.getRecord(createdUri)
+            const decodedPresentation = await Credentials.verifyPresentation(fetchedDidJwtVc, {
                 rpcUrl: config.DID_CLIENT_CONFIG.rpcUrl
             })
 

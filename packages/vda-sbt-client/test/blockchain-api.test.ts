@@ -14,8 +14,8 @@ const did = dids[0];
 // signed by the did
 const tokenReceiver = RECIPIENT_WALLET
 
-const mintedTokenIds = [1, 3, 5]
-const burntTokenIds = [2, 4]
+const mintedTokenIds = [1, 2, 3] //[1, 3, 5]
+const burntTokenIds =  [22] //[2, 4]
 
 interface InterfaceDID {
     address: string
@@ -168,8 +168,6 @@ describe('vda-sbt-client blockchain api', () => {
         })
 
         it("Should be locked for all minted tokenIDs",async () => {
-            const tokenIdList = [1,2,3,20]
-
             for (const tokenId of mintedTokenIds) {
                 const locked = await blockchainApi.isLocked(tokenId)
                 assert.equal(locked, true, "Locked correctly")
@@ -188,7 +186,7 @@ describe('vda-sbt-client blockchain api', () => {
         this.timeout(60*1000)
 
         // SBT info
-        const sbtType = "twitter-test"
+        const sbtType = "twitters"
         const uniqueId = "12346789"
         const sbtURI = "https://gateway.pinata.cloud/ipfs/QmVrTkbrzNHRhmsh88XnwJo5gBu8WqQMFTkVB4KoVLxSEY/3.json"
 
@@ -219,8 +217,13 @@ describe('vda-sbt-client blockchain api', () => {
         })
 
         it("isSBTClaimed()",async () => {
-            const claimed = await blockchainApi.isSBTClaimed(sbtType, uniqueId)
+            const claimed = await blockchainApi.isSBTClaimed(RECIPIENT_WALLET.address, sbtType, uniqueId)
             assert.ok(claimed === true)
+        })
+
+        it("getClaimedSBTList()",async () => {
+            const idList = await blockchainApi.getClaimedSBTList(RECIPIENT_WALLET.address)
+            assert.ok(idList.length > 0)
         })
 
         it("tokenInfo()",async () => {
