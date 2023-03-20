@@ -5,7 +5,7 @@ import { Account } from '@verida/account'
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
-import { AccountConfig, AccountNodeConfig, AuthContext, IDIDClient, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { AccountConfig, AccountNodeConfig, AuthContext, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 
 /**
  * An Authenticator that automatically signs everything
