@@ -1,5 +1,5 @@
 
-- Fix: Force didAddress to lowercase when fetching usernames
+- Fix: Force did and usernames to be lower case
 - Split unit tests into read v read/write
 
 2023-03-10 (v2.2.0)

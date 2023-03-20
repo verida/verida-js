@@ -130,6 +130,8 @@ export class VeridaNameClient {
             throw new Error(`Unable to submit to blockchain. No 'signKey' provided in config.`)
         }
 
+        username = username.toLowerCase()
+
         const signature = await this.getRegisterSignature(username, this.didAddress!, this.config.signKey!)
         const response = await this.vdaWeb3Client!.register(username, this.didAddress!, signature)
 
@@ -153,6 +155,8 @@ export class VeridaNameClient {
             throw new Error(`Unable to submit to blockchain. In read only mode`)
         }
 
+        username = username.toLowerCase()
+
         const signature = await this.getRegisterSignature(username, this.didAddress!, this.config.signKey!)
         const response = await this.vdaWeb3Client!.unregister(username, this.didAddress, signature)
 
@@ -171,14 +175,11 @@ export class VeridaNameClient {
      */
     public async getUsernames(did: string): Promise<string[]> {
         let response
-        let didAddress = did
+        let didAddress = did.toLowerCase()
         if (didAddress.match('did')) {
             const { address } = explodeDID(did)
             didAddress = address
         }
-
-        // Blockchain stores addresses as lowercase, so lookup as lowercase
-        didAddress = didAddress.toLowerCase()
 
         // Lookup usernames from cache
         const usernames = Object.entries(this.usernameCache)
@@ -222,6 +223,7 @@ export class VeridaNameClient {
      * @returns DID address
      */
     public async getDID(username: string): Promise<string> {
+        username = username.toLowerCase()
         if (this.usernameCache[username]) {
             return this.usernameCache[username]
         }
