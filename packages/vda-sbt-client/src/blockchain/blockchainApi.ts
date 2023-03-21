@@ -189,7 +189,7 @@ export class VeridaSBTClient {
     ) {
         const response = await this.vdaWeb3Client.isSBTClaimed(claimer, sbtType, uniqueId);
         if (response.data === undefined) {
-            throw new Error('Error in isSBTClaimed');
+            throw new Error(`Error in isSBTClaimed (${response.reason})`);
         }
         return response.data;
     }
@@ -205,7 +205,7 @@ export class VeridaSBTClient {
     ) {
         const response = await this.vdaWeb3Client.getClaimedSBTList(claimer);
         if (response.data === undefined) {
-            throw new Error('Error in isSBTClaimed');
+            throw new Error(`Error in isSBTClaimed (${response.reason})`);
         }
         return response.data;
     }

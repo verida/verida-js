@@ -112,7 +112,8 @@ describe('vda-sbt-client blockchain api', () => {
     let keyring: Keyring
     let signedProof: string
 
-    before(async () => {
+    before(async function() {
+        this.timeout(60*1000)
         blockchainApi = createBlockchainAPI(did);
         [keyring, signedProof] = await getSignerInfo(trustedSigner.privateKey)
 
