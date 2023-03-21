@@ -16,8 +16,8 @@ const did = dids[0];
 // signed by the did
 const tokenReceiver = RECIPIENT_WALLET
 
-const mintedTokenIds = [1, 2, 3] //[1, 3, 5]
-const burntTokenIds =  [22] //[2, 4]
+const mintedTokenIds = [1, 3, 5]
+const burntTokenIds =  [2, 4]
 
 interface InterfaceDID {
     address: string
@@ -157,7 +157,9 @@ describe('vda-sbt-client blockchain api', () => {
         })
     })
     
-    describe("isLocked", async () => {
+    describe("isLocked", function() {
+        this.timeout(60*1000)
+
         it("Should reject for invalid token IDs",async () => {
             await assert.rejects(
                 blockchainApi.isLocked(0)
