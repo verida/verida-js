@@ -3,8 +3,6 @@ import { dids, getBlockchainAPIConfiguration, getNetwork, getSignerInfo, CONTEXT
 import { VeridaSBTClient } from "../src/index"
 import { ethers, Wallet } from "ethers";
 import { Keyring } from "@verida/keyring";
-import { EnvironmentType } from "@verida/types";
-import { explodeDID } from "@verida/helpers"
 
 const assert = require('assert')
 
@@ -16,8 +14,8 @@ const did = dids[0];
 // signed by the did
 const tokenReceiver = RECIPIENT_WALLET
 
-const mintedTokenIds = [1, 3, 5]
-const burntTokenIds =  [2, 4]
+const mintedTokenIds = [1, 2, 3] //[1, 3, 5]
+const burntTokenIds =  [22] //[2, 4]
 
 interface InterfaceDID {
     address: string
@@ -25,33 +23,31 @@ interface InterfaceDID {
     publicKey: string
 }
 
-const createBlockchainAPI = (did: InterfaceDID, isWallet = false) => {
+const createBlockchainAPI = (did: InterfaceDID) => {
     const configuration = getBlockchainAPIConfiguration(did.privateKey);
     return new VeridaSBTClient({
-        did: isWallet ? 'did:vda:testnet:' + did.address : did.address,
+        identifier: did.address,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
+        chainNameOrId: "testnet",
         ...configuration
     })
 }
 
 const claimSBT = async (
-    did: string,
+    didAddress: string,
     sbtType: string,
     uniqueId: string,
     sbtURI: string,
     receiverAddress: string,
-    signerContextProof: string,
-    signerKeyring: Keyring,
+    signedProof: string,
+    keyring: Keyring,
     blockchainApi: VeridaSBTClient
 ) => {
-    const { address: didAddress } = explodeDID(did)
-
     const signedDataMsg = ethers.utils.solidityPack(
         ['string','address'],
         [`${sbtType}-${uniqueId}-`, didAddress.toLowerCase()]
     )
-    const signedData = await signerKeyring.sign(signedDataMsg)
+    const signedData = await keyring.sign(signedDataMsg)
 
     await blockchainApi.claimSBT(
         sbtType,
@@ -59,7 +55,7 @@ const claimSBT = async (
         sbtURI,
         receiverAddress.toLowerCase(),
         signedData,
-        signerContextProof
+        signedProof
     )
 }
 
@@ -114,14 +110,13 @@ describe('vda-sbt-client blockchain api', () => {
 
     const trustedSigner = dids[2]
     let keyring: Keyring
-    let signerContextProof: string
+    let signedProof: string
 
-    before(async function() {
-        this.timeout(60*1000)
+    before(async () => {
         blockchainApi = createBlockchainAPI(did);
-        [keyring, signerContextProof] = await getSignerInfo(trustedSigner.privateKey)
+        [keyring, signedProof] = await getSignerInfo(trustedSigner.privateKey)
 
-        await createTestDataIfNotExist(trustedSigner, blockchainApi, keyring, signerContextProof)
+        await createTestDataIfNotExist(trustedSigner, blockchainApi, keyring, signedProof)
     })
 
     describe("totalSupply", () => {
@@ -157,9 +152,7 @@ describe('vda-sbt-client blockchain api', () => {
         })
     })
     
-    describe("isLocked", function() {
-        this.timeout(60*1000)
-
+    describe("isLocked", async () => {
         it("Should reject for invalid token IDs",async () => {
             await assert.rejects(
                 blockchainApi.isLocked(0)
@@ -203,10 +196,9 @@ describe('vda-sbt-client blockchain api', () => {
             const trustedDid = await trustedSignerNetworkInfo.account.did()
             const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDidClient().get(trustedDid)
 
-            const { address: signerAddress } = explodeDID(trustedSigner.address)
             // Should check if the trustedSigner is registered to the contract
             const signers = await blockchainApi.getTrustedSignerAddresses()
-            assert.ok(signers.includes(signerAddress))
+            assert.ok(signers.includes(trustedSigner.address))
 
             // Claim a SBT
             const orgTotalSupply = parseInt(await blockchainApi.totalSupply())
@@ -216,7 +208,7 @@ describe('vda-sbt-client blockchain api', () => {
                 uniqueId,
                 sbtURI,
                 RECIPIENT_WALLET.address.toLowerCase(),
-                signerContextProof,
+                signedProof,
                 keyring,
                 blockchainApi
             )
@@ -247,7 +239,7 @@ describe('vda-sbt-client blockchain api', () => {
             const owner = await blockchainApi.ownerOf(lastTokenId)
             assert.equal(owner, RECIPIENT_WALLET.address)
 
-            const receiverSBTClient = createBlockchainAPI(RECIPIENT_WALLET, true)
+            const receiverSBTClient = createBlockchainAPI(RECIPIENT_WALLET)
             await receiverSBTClient.burnSBT(lastTokenId)
 
             assert.rejects(

@@ -36,6 +36,7 @@ describe('Profile tests', () => {
                     didClientConfig: CONFIG.DID_CLIENT_CONFIG
                 })
                 did1 = await account1.did()
+                console.log(did1)
                 await client1.connect(account1)
                 context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
 
@@ -122,7 +123,7 @@ describe('Profile tests', () => {
                     null
                 );
             }, {
-                message: `Account (${did1}) does not have a public profile for ${wrongContextName}`
+                message: `Account does not have a public profile for ${wrongContextName}`
             })
         });
 
@@ -135,7 +136,7 @@ describe('Profile tests', () => {
                     wrongFallbackContextName
                 );
             }, {
-                message: `Account (${did1}) does not have a public profile for ${wrongFallbackContextName}`
+                message: `Account does not have a public profile for ${wrongFallbackContextName}`
             })
         });
     });

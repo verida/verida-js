@@ -5,11 +5,11 @@ import { box } from "tweetnacl"
 import EncryptionUtils from "../src/index"
 import { Wallet, utils } from 'ethers'
 
-const signer = Wallet.createRandom()
+const wallet = Wallet.createRandom()
 
 const signingKey = {
-    publicKey: new Uint8Array(Buffer.from(signer.publicKey.substr(2),'hex')),
-    privateKey: new Uint8Array(Buffer.from(signer.privateKey.substr(2),'hex'))
+    publicKey: new Uint8Array(Buffer.from(wallet.publicKey.substr(2),'hex')),
+    privateKey: new Uint8Array(Buffer.from(wallet.privateKey.substr(2),'hex'))
 }
 
 const sender = {
@@ -77,7 +77,7 @@ describe('Encryption tests', () => {
             // const input = '0x1234'
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
 
-            const isValid = EncryptionUtils.verifySig(input, signature, signer.address)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
             assert.ok(isValid, 'Signature is valid')
         })
 
@@ -85,7 +85,7 @@ describe('Encryption tests', () => {
             const input = '0x1234'
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
 
-            const isValid = EncryptionUtils.verifySig(input, signature, signer.address)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
             assert.ok(isValid, 'Signature is valid')
         })
 
@@ -95,7 +95,7 @@ describe('Encryption tests', () => {
             }
 
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
-            const isValid = EncryptionUtils.verifySig(input, signature, signer.address)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
             assert.ok(isValid, 'Signature is valid')
         })
 
@@ -103,7 +103,7 @@ describe('Encryption tests', () => {
             const input = [0x1, 0x2, 0x3]
 
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
-            const isValid = EncryptionUtils.verifySig(input, signature, signer.address)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
             assert.ok(isValid, 'Signature is valid')
         })
 
@@ -111,7 +111,7 @@ describe('Encryption tests', () => {
             const input = Buffer.from([1, 2, 3])
 
             const signature = EncryptionUtils.signData(input, signingKey.privateKey)
-            const isValid = EncryptionUtils.verifySig(input, signature, signer.address)
+            const isValid = EncryptionUtils.verifySig(input, signature, signingKey.publicKey)
             assert.ok(isValid, 'Signature is valid')
         })
 
@@ -135,7 +135,7 @@ describe('Encryption tests', () => {
             }
 
             const signature = EncryptionUtils.signData(input1, signingKey.privateKey)
-            const isValid = EncryptionUtils.verifySig(input2, signature, signer.address)
+            const isValid = EncryptionUtils.verifySig(input2, signature, signingKey.publicKey)
             assert.ok(isValid, 'Signature is valid')
         })
     })
