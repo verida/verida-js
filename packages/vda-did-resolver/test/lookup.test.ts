@@ -26,6 +26,6 @@ describe('Lookup test', () => {
         const result = await lookup(did.address, NETWORK, rpcUrl);
 
         assert.equal(typeof(result), 'object', 'DID Controller is a string')
-        assert.ok(result.length > 0, 'Three endpoints returned')
+        assert.equal(result.length, 3, 'Three endpoints returned')
     });
 })

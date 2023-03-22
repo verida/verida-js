@@ -17,7 +17,6 @@ describe('Verida database connectivity tests', () => {
     const network = new Client({
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: {
-            network: CONFIG.ENVIRONMENT,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })

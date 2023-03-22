@@ -35,7 +35,7 @@ describe('Username lookup tests', () => {
             DID = await account.did()
 
             // Make a 32 character username
-            USERNAME = `${DID.substring(26)}.vda`
+            USERNAME = `${DID.substring(30)}.vda`
 
             // register a username if none exists
             try {

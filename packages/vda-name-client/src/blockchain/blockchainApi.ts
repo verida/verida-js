@@ -16,7 +16,7 @@ import { explodeDID } from '@verida/helpers'
 
 /**
  * Interface for vda-name-client instance creation. Same as VDA-DID configuration
- * @param did: DID
+ * @param identifier: DID
  * @param signKey: private key of DID. Used to generate signature in transactions to chains
  * @param chainNameOrId: Target chain name or chain id.
  * @param callType : VDA-DID run mode. Values from vda-did-resolver
@@ -91,10 +91,10 @@ export class VeridaNameClient {
      */
      public async nonceFN() {
         if (!this.vdaWeb3Client) {
-            throw new Error(`Config must specify 'did' or 'signKey'`)
+            throw new Error(`Config must specify 'chainNameOrId' or 'identifier'`)
         }
 
-        const response = await this.vdaWeb3Client.nonce(this.didAddress);
+        const response = await this.vdaWeb3Client!.nonce(this.didAddress);
         if (response.data === undefined) {
             throw new Error('Error in getting nonce');
         }
@@ -123,14 +123,12 @@ export class VeridaNameClient {
      */
     public async register(username: string) {
         if (this.readOnly) {
-            throw new Error(`Unable to submit to blockchain. No 'signKey' provided in config.`)
+            throw new Error(`Unable to submit to blockchain. No 'identifier' provided in config.`)
         }
 
         if (!this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. No 'signKey' provided in config.`)
         }
-
-        username = username.toLowerCase()
 
         const signature = await this.getRegisterSignature(username, this.didAddress!, this.config.signKey!)
         const response = await this.vdaWeb3Client!.register(username, this.didAddress!, signature)
@@ -147,11 +145,13 @@ export class VeridaNameClient {
      * @param username Name to be unregistered
      */
     public async unregister(username: string) {
-        if (this.readOnly || !this.config.signKey) {
+        if (this.readOnly) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
-        username = username.toLowerCase()
+        if (!this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode`)
+        }
 
         const signature = await this.getRegisterSignature(username, this.didAddress!, this.config.signKey!)
         const response = await this.vdaWeb3Client!.unregister(username, this.didAddress, signature)
@@ -171,11 +171,14 @@ export class VeridaNameClient {
      */
     public async getUsernames(did: string): Promise<string[]> {
         let response
-        let didAddress = did.toLowerCase()
+        let didAddress = did
         if (didAddress.match('did')) {
             const { address } = explodeDID(did)
             didAddress = address
         }
+
+        // Blockchain stores addresses as lowercase, so lookup as lowercase
+        didAddress = didAddress.toLowerCase()
 
         // Lookup usernames from cache
         const usernames = Object.entries(this.usernameCache)
@@ -219,7 +222,6 @@ export class VeridaNameClient {
      * @returns DID address
      */
     public async getDID(username: string): Promise<string> {
-        username = username.toLowerCase()
         if (this.usernameCache[username]) {
             return this.usernameCache[username]
         }
