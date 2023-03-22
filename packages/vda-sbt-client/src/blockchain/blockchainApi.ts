@@ -5,57 +5,83 @@ import {
 import {
     Web3SelfTransactionConfig,
     Web3MetaTransactionConfig,
-    Web3CallType
+    Web3CallType,
+    EnvironmentType
 } from '@verida/types'
-import { getContractInfoForNetwork } from "./config";
+import { getContractInfoForNetwork, RPC_URLS } from "./config";
 import { interpretIdentifier } from "./helpers";
+import { JsonRpcProvider } from '@ethersproject/providers';
+import { explodeDID } from '@verida/helpers'
 
-import { ethers } from 'ethers';
+import { ethers, ContractFactory } from "ethers";
 import EncryptionUtils from "@verida/encryption-utils";
 
 /**
  * Interface for vda-sbt-client instance creation. Same as VDA-DID configuration
- * @param identifier @string DID
+ * @param did @string DID
  * @param signKey @string Private key of DID (hex string). Used to generate signature in transactions to chains
  * @param chainNameOrId @string Target chain name or chain id.
  * @param callType @string 'web3' | 'gasless'
  * @param web3Options object Web3 configuration depending on call type. Same as vda-did-resolver
  */
 export interface SBTClientConfig {
-    identifier: string;
-    signKey: string;
-    chainNameOrId?: string | number;
-
-    callType: Web3CallType;
-    web3Options: Web3SelfTransactionConfig | Web3MetaTransactionConfig;
+    network: EnvironmentType
+    did?: string
+    signKey?: string
+    callType?: Web3CallType
+    web3Options?: Web3SelfTransactionConfig | Web3MetaTransactionConfig
 }
 
 export class VeridaSBTClient {
 
     private config: SBTClientConfig
     private network: string
-    private didAddress : string
+    private didAddress?: string
 
-    private vdaWeb3Client : VeridaContract;
+    private readOnly: boolean
+    private vdaWeb3Client?: VeridaContract
+    private contract?: ethers.Contract
 
     public constructor(config: SBTClientConfig) {
-        this.config = config
-
-        const { address, publicKey, network } = interpretIdentifier(config.identifier)
-
-        this.didAddress = address.toLowerCase();
-        // @ts-ignore
-        this.network = network || config.chainNameOrId
-        const contractInfo = getContractInfoForNetwork(this.network);
-
-        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            throw new Error('Web3 transactions must specify `rpcUrl` in the configuration options')
+        if (!config.callType) {
+            config.callType = 'web3'
         }
 
-        this.vdaWeb3Client = getVeridaContract(
-            config.callType, 
-            {...contractInfo,
-            ...config.web3Options});
+        this.config = config
+        this.readOnly = true
+        if (!config.web3Options) {
+            config.web3Options = {}
+        }
+
+        this.network = config.network
+
+        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
+            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
+        }
+
+        if (config.did) {
+            this.readOnly = false
+            const { address } = explodeDID(config.did)
+            this.didAddress = address.toLowerCase()
+
+            const contractInfo = getContractInfoForNetwork(this.network)
+            this.vdaWeb3Client = getVeridaContract(
+                config.callType, 
+                {...contractInfo,
+                ...config.web3Options})
+        } else {
+            let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
+            if (!rpcUrl) {
+                rpcUrl = <string> RPC_URLS[this.network]
+            }
+
+            const contractInfo = getContractInfoForNetwork(this.network)
+            const provider = new JsonRpcProvider(rpcUrl)
+
+            this.contract = ContractFactory.fromSolidity(contractInfo.abi)
+                .attach(contractInfo.address)
+                .connect(provider)
+        }
     }
 
     /**
@@ -63,6 +89,10 @@ export class VeridaSBTClient {
      * @returns nonce of DID
      */
      public async nonceFN() {
+        if (!this.vdaWeb3Client) {
+            throw new Error(`Config must specify 'did' or 'signKey'`)
+        }
+
         const response = await this.vdaWeb3Client.nonce(this.didAddress);
         if (response.data === undefined) {
             throw new Error('Error in getting nonce');
@@ -76,11 +106,24 @@ export class VeridaSBTClient {
      * @returns tokenURI from SBT contract
      */
     public async tokenURI(tokenId: number) {
-        const response = await this.vdaWeb3Client.tokenURI(tokenId);
-        if (response.data === undefined) {
-            throw new Error('Error in getting tokenURI');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.tokenURI(tokenId)
+                if (response.success !== true) {
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.tokenURI(tokenId)
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to get tokenURI for tokenId: ${tokenId} (${message})`)
         }
-        return response.data;
     }
 
     /**
@@ -89,11 +132,25 @@ export class VeridaSBTClient {
      * @returns true if tokenID is locked
      */
     public async isLocked(tokenId: number) {
-        const response = await this.vdaWeb3Client.locked(tokenId);
-        if (response.data === undefined) {
-            throw new Error('Error in isLocked');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.locked(tokenId)
+                if (response.success !== true) {
+
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.locked(tokenId)
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to get locked value for tokenId: ${tokenId} (${message})`)
         }
-        return response.data;
     }
 
     /**
@@ -101,11 +158,24 @@ export class VeridaSBTClient {
      * @returns total number of tokens minted. It includes the burnt tokens.
      */
     public async totalSupply() {
-        const response = await this.vdaWeb3Client.totalSupply();
-        if (response.data === undefined) {
-            throw new Error('Error in totalSupply');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.totalSupply()
+                if (response.success !== true) {
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.totalSupply()
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to get total supply (${message})`)
         }
-        return response.data;
     }
 
     /**
@@ -113,11 +183,24 @@ export class VeridaSBTClient {
      * @returns list of addresses
      */
     public async getTrustedSignerAddresses() {
-        const response = await this.vdaWeb3Client.getTrustedSignerAddresses();
-        if (response.data === undefined) {
-            throw new Error('Error in getTrustedSignerAddresses');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getTrustedSignerAddresses()
+                if (response.success !== true) {
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.getTrustedSignerAddresses()
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to get trusted signer addresses (${message})`)
         }
-        return response.data;
     }
 
     /**
@@ -137,6 +220,10 @@ export class VeridaSBTClient {
         signedProof: string,
         signerContextProof: string
     ) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
         const privateKeyArray = new Uint8Array(
             Buffer.from(this.config.signKey.slice(2), "hex")
         );
@@ -156,7 +243,7 @@ export class VeridaSBTClient {
         const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase()
         const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray)
 
-        const response = await this.vdaWeb3Client.claimSBT(
+        const response = await this.vdaWeb3Client!.claimSBT(
             this.didAddress,
             {
                 sbtType,
@@ -187,11 +274,24 @@ export class VeridaSBTClient {
         sbtType: string,
         uniqueId: string
     ) {
-        const response = await this.vdaWeb3Client.isSBTClaimed(claimer, sbtType, uniqueId);
-        if (response.data === undefined) {
-            throw new Error('Error in isSBTClaimed');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isSBTClaimed(claimer, sbtType, uniqueId)
+                if (response.success !== true) {
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.isSBTClaimed(claimer, sbtType, uniqueId)
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to determine if SBT is claimed (${message})`)
         }
-        return response.data;
     }
 
 
@@ -203,11 +303,24 @@ export class VeridaSBTClient {
     public async getClaimedSBTList(
         claimer: string
     ) {
-        const response = await this.vdaWeb3Client.getClaimedSBTList(claimer);
-        if (response.data === undefined) {
-            throw new Error('Error in isSBTClaimed');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getClaimedSBTList(claimer)
+                if (response.success !== true) {
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.getClaimedSBTList(claimer)
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to get claimed SBT list for claimer: ${claimer} (${message})`)
         }
-        return response.data;
     }
 
     /**
@@ -218,11 +331,24 @@ export class VeridaSBTClient {
     public async tokenInfo(
         tokenId: number
     ) {
-        const response = await this.vdaWeb3Client.tokenInfo(tokenId);
-        if (response.data === undefined) {
-            throw new Error('Error in tokenInfo');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.tokenInfo(tokenId)
+                if (response.success !== true) {
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.tokenInfo(tokenId)
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to get token info for token: ${tokenId} (${message})`)
         }
-        return response.data;
     }
 
     /**
@@ -234,7 +360,11 @@ export class VeridaSBTClient {
     public async burnSBT(
         tokenId: number
     ) {
-        const response = await this.vdaWeb3Client.burnSBT(tokenId);
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.burnSBT(tokenId);
         if (response.data === undefined) {
             throw new Error('Error in burnSBT');
         }
@@ -249,10 +379,23 @@ export class VeridaSBTClient {
     public async ownerOf(
         tokenId: number
     ) {
-        const response = await this.vdaWeb3Client.ownerOf(tokenId);
-        if (response.data === undefined) {
-            throw new Error('Error in ownerOf');
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.ownerOf(tokenId)
+                if (response.success !== true) {
+                    throw new Error(response.reason)
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.ownerOf(tokenId)
+
+                return response
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message
+            throw new Error(`Failed to get token owner for token: ${tokenId} (${message})`)
         }
-        return response.data;
     }
 }

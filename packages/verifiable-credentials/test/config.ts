@@ -1,4 +1,5 @@
-import { AccountNodeDIDClientConfig, DIDClientConfig } from '@verida/types'
+import { AccountNodeDIDClientConfig, EnvironmentType } from '@verida/types'
+require('dotenv').config();
 
 const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech:443/', 'https://node2-apse2.devnet.verida.tech:443/', 'https://node3-apse2.devnet.verida.tech:443/']
 
@@ -14,6 +15,7 @@ export default {
     ISSUER_DID: 'did:vda:testnet:0x20d3b996ec98a9a536efdffbae10e5eaaf11a765a587483c69195c9460165d38',
     SUBJECT_DID: 'did:vda:testnet:0x20d3b996ec98a9a536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
     ADDRESS_1: '0xB3729982A2585544FD72c99CF3773a9c6baBD55c',
+    SCHEMA_SBT: 'https://common.schemas.verida.io/token/sbt/credential/v0.1.0/schema.json',
     DEFAULT_ENDPOINTS: {
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
@@ -25,16 +27,18 @@ export default {
         },
     },
     CREDENTIAL_DATA: {
-        name: 'Vitalik Buterin',
-        firstName: 'Vitalik',
-        lastName: 'Buterin',
-        email: 'me@vitalik.eth',
-        schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json'
+        did: 'did:vda:testnet:0x20d3b996ec98a9a536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
+        didAddress: '0x20d3b996ec98a9a536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
+        name: 'Test credential',
+        type: 'test',
+        description: `Description goes here`,
+        uniqueAttribute: '123',
     },
     DID_CLIENT_CONFIG: <AccountNodeDIDClientConfig> {
         callType: 'web3',
+        network: EnvironmentType.TESTNET,
         web3Config: {
-            privateKey: '383b7ac8d2f4eb6693b2bc8de97d26c69a50f7b10520e11ea97b4f95dd219967',
+            privateKey: process.env.PRIVATE_KEY,
             rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
         didEndpoints: DID_ENDPOINTS
@@ -49,12 +53,8 @@ export default {
     INVALID_VERIDA_URI: `verida://did:vda:testnet:0xB3729982A2585544FD72c99CF3773a9c6baBD55c/0x42406d644c8e884be0f76ee05539cfba03eda65baa2bda33ecd364ce4d18047c/credential_public_encrypted/6273bb80-596a-1331ec-ad0d-f3b4d6aec150?key=1f52db207c48b6c54f6692cb182c41bc3bd0805d0efdc9dcb25f15ade8639d5f`,
     EXISTING_CREDENTIAL_URI: `verida://did:vda:testnet:0x0eB0FeD3Fc4f29303fF462fA789E417936E21eee/GpNDePvWU4RQud9jaZJiNwFyAS/credential_public_encrypted/28916130-4b70-11ed-b782-b5bccbc8755f?key=24104769d8815432029f533bc7dd0872d930955d23f21c27537a9e5297f5baeb`,
     RAW_CREDENTIAL_DATA: {
-        name: 'Vitalik Buterin',
-        firstName: 'Vitalik',
-        lastName: 'Buterin',
-        email: 'me@vitalik.eth',
         schema: 'https://common.schemas.verida.io/social/contact/v0.1.0/schema.json',
-        didJwtVc: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL2V4YW1wbGVzL3YxIl0sInN1YiI6ImRpZDp2ZGE6MHhDMjYyOTk4MkEyNTg1NTQ0RkQ3MmM5OUNGMzc3M2E5YzZiYUJENTVjIiwidHlwZSI6WyJWZXJpZmlhYmxlQ3JlZGVudGlhbCJdLCJpc3N1ZXIiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyIsImlzc3VhbmNlRGF0ZSI6IjIwMjItMDItMjNUMDY6NDE6NTUuMDk3WiIsImNyZWRlbnRpYWxTdWJqZWN0Ijp7Im5hbWUiOiJWaXRhbGlrIEJ1dGVyaW4iLCJmaXJzdE5hbWUiOiJWaXRhbGlrIiwibGFzdE5hbWUiOiJCdXRlcmluIiwiZW1haWwiOiJtZUB2aXRhbGlrLmV0aCIsInNjaGVtYSI6Imh0dHBzOi8vY29tbW9uLnNjaGVtYXMudmVyaWRhLmlvL3NvY2lhbC9jb250YWN0L3YwLjEuMC9zY2hlbWEuanNvbiJ9LCJjcmVkZW50aWFsU2NoZW1hIjp7ImlkIjoiaHR0cHM6Ly9jb21tb24uc2NoZW1hcy52ZXJpZGEuaW8vc29jaWFsL2NvbnRhY3QvdjAuMS4wL3NjaGVtYS5qc29uIiwidHlwZSI6Ikpzb25TY2hlbWFWYWxpZGF0b3IyMDE4In19LCJpc3MiOiJkaWQ6dmRhOjB4QjM3Mjk5ODJBMjU4NTU0NEZENzJjOTlDRjM3NzNhOWM2YmFCRDU1YyJ9.BdokafCkVKavdVM2UgAnCTY4pUlpQ02-7bi5FtKK0Wgvwo2xfpps17qa1iuWa9IsmzgYcB4R8SlBgpybQ5AW_w'
+        didJwtVc: 'eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJkaWQ6dmRhOnRlc3RuZXQ6MHg2YTY0NzJhNDRGODQ0Njg3NGMyOGI2MjgwQTA1Qjc2NzA0RDQwMjIwIiwidmMiOnsiQGNvbnRleHQiOlsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiXSwiY3JlZGVudGlhbFNjaGVtYSI6eyJpZCI6Imh0dHBzOi8vY29tbW9uLnNjaGVtYXMudmVyaWRhLmlvL3Rva2VuL3NidC9jcmVkZW50aWFsL3YwLjEuMC9zY2hlbWEuanNvbiIsInR5cGUiOiJKc29uU2NoZW1hVmFsaWRhdG9yMjAxOCJ9LCJjcmVkZW50aWFsU3ViamVjdCI6eyJkZXNjcmlwdGlvbiI6IkRlc2NyaXB0aW9uIGdvZXMgaGVyZSIsImRpZCI6ImRpZDp2ZGE6dGVzdG5ldDoweDIwZDNiOTk2ZWM5OGE5YTUzNmVmZGZmYmFlMTBmNWVhYWYxMWE3NjVhNTg3NDgzYzY5MTk1Yzk0NjAxNjVkMzgiLCJkaWRBZGRyZXNzIjoiMHgyMGQzYjk5NmVjOThhOWE1MzZlZmRmZmJhZTEwZjVlYWFmMTFhNzY1YTU4NzQ4M2M2OTE5NWM5NDYwMTY1ZDM4IiwibmFtZSI6IlRlc3QgY3JlZGVudGlhbCIsInR5cGUiOiJ0ZXN0IiwidW5pcXVlQXR0cmlidXRlIjoiMTIzIn0sImlzc3VhbmNlRGF0ZSI6IjIwMjMtMDMtMTBUMDc6MDQ6MzIuNzEzWiIsImlzc3VlciI6ImRpZDp2ZGE6dGVzdG5ldDoweDZhNjQ3MmE0NEY4NDQ2ODc0YzI4YjYyODBBMDVCNzY3MDRENDAyMjAiLCJwcm9vZnMiOnsidHlwZS1kaWRBZGRyZXNzIjoiMHg4ZjNiMDQxYjE5MDIzOWY4ZmRhYjA2ZDcyYjMwOWQ5ZDRiNTY5NzI5MjY1ZGM1ZWM4YmFiOTUxYTFjMzAxMDFhNzg4NWZjNmQ1ZTQ4NmE5ZGZkODE1MmM1NjJlODQyYzhiZGRhYjRkNmIxYjVmMDU4YWM3NmQzY2YyYjhjZTE1ZDFjIiwidHlwZS11bmlxdWUiOiIweDhiNGE0MmYwYWQxZTUxYmFlYzgzNTZlZThmMTNkYjQzZjI4ZDMxMDhmMTlmMjk1NWI1OGJhMWQ5YzNmYzgzZWU2ZWM4ZDVjYmNkMTAwNDMyMDNhOGE3Njc1ZjZjOWI1OWQ0NTdjNTkxMDkzMTU4OTYwZThmZTNjZTI3OGJlYzliMWMiLCJ0eXBlLXVuaXF1ZS1kaWRBZGRyZXNzIjoiMHgzZmRkNDUyZTYxZGVmN2FkYjFjNTljNTBkMDBkM2E5NmFjMWI0M2I4M2M5YzMyOWE3NTkwMjFkNjNlOTY1NmMxNzc4MGVlYWJhZTcwMzVkYmEyNDk4NzAzOTczNGZjMWFhYjNjOGE2YzRjMGNmMmQ4ODAxOTNjY2IwYzQ4ZTk1YjFjIn0sInN1YiI6ImRpZDp2ZGE6dGVzdG5ldDoweDIwZDNiOTk2ZWM5OGE5YTUzNmVmZGZmYmFlMTBmNWVhYWYxMWE3NjVhNTg3NDgzYzY5MTk1Yzk0NjAxNjVkMzgiLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIl0sInZlcmlkYUNvbnRleHROYW1lIjoiVmVyaWRhOiBDcmVkZW50aWFscyJ9fQ.eDB9YEM9LtQ8rHQCvGCqoOyZISoUEQP092qs3yWa0b5oqdcoyong6QpNLirRWoDYL_IVfxs5RUm4XKbjpy2igA'
     },
     CREDENTIAL_DATA_PAYLOAD: {
         fullName: "Jane Doe",

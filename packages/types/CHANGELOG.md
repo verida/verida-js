@@ -1,3 +1,7 @@
+2023-03-10 (v2.2.0)
+-------------------
+
+- Update FetchUriParams to support `recordId` and `deepAttributes`
 
 2022-03-01 (v2.1.3)
 -------------------

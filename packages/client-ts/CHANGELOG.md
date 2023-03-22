@@ -1,5 +1,11 @@
+2023-03-10 (v2.2.0)
+-------------------
 
 - Expose `getUsernames()` and `getDID()` helpers on `Client`
+- Add `getDID()` and `getUsernames()` tests
+- Update `network.getRecord()` to use `Client` instead of `Context` when fetching URI data
+- Remove `parseDID` error handling (use nameClient error management)
+- Fix issues with tests
 
 2022-03-01 (v2.1.3)
 -------------------

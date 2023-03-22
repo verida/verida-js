@@ -46,8 +46,7 @@ class Network {
     const client = new Client({
       environment: environment == 'testnet' ? EnvironmentType.TESTNET : EnvironmentType.MAINNET,
     })
-    const context = await client.openExternalContext(uriParts.contextName, uriParts.did)
-    const record = await fetchVeridaUri(veridaUri, context)
+    const record = await fetchVeridaUri(veridaUri, client)
     return record
   }
 }
