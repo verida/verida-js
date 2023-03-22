@@ -202,11 +202,7 @@ describe('vda-sbt-client blockchain api', () => {
             const trustedSignerNetworkInfo = await getNetwork(trustedSigner.privateKey)
             const trustedDid = await trustedSignerNetworkInfo.account.did()
             const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDidClient().get(trustedDid)
-
-<<<<<<< HEAD
-=======
             const { address: signerAddress } = explodeDID(trustedSigner.address)
->>>>>>> 9ba337a355b4b0533b06a32186d55aecbd8292c8
             // Should check if the trustedSigner is registered to the contract
             const signers = await blockchainApi.getTrustedSignerAddresses()
             assert.ok(signers.includes(signerAddress))
