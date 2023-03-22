@@ -2,8 +2,8 @@
 export const CONTRACT_ADDRESSES: Record<string, string | null> = {
     mainnet: null,
     "0x89": null,
-    testnet: "0x7201189556bAF5B58b74FDf99C1957A064B87548",
-    "0x13881": "0x7201189556bAF5B58b74FDf99C1957A064B87548",
+    testnet: "0xc7B8dAD1C0F52cE5a330EFD0d809C2C88DD47330",
+    "0x13881": "0xc7B8dAD1C0F52cE5a330EFD0d809C2C88DD47330",
 };
 
 export const RPC_URLS: Record<string, string | null> = {

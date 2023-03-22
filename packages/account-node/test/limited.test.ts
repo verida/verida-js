@@ -1,16 +1,18 @@
-'use strict'
 const assert = require('assert')
 import { LimitedAccount } from "../src/index"
 import { DIDClient } from "@verida/did-client"
 import { EnvironmentType } from "@verida/types"
+require('dotenv').config()
 
-const DID_SERVER_URL = 'http://localhost:5001'
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
 
 const didClient = new DIDClient({
     network: EnvironmentType.TESTNET
 })
-didClient.authenticate()
+didClient.authenticate(MNEMONIC, 'web3', {
+    privateKey: process.env.PRIVATE_KEY,
+    rpcUrl: process.env.RPC_URL
+}, [])
 const DID = didClient.getDid()
 
 const DEFAULT_ENDPOINTS = {

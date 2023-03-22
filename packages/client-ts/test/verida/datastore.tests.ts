@@ -9,6 +9,8 @@ import { sleep } from '../utils'
 
 const DS_CONTACTS = 'https://common.schemas.verida.io/social/contact/latest/schema.json'
 
+let userDatabase
+
 /**
  * 
  */
@@ -32,7 +34,7 @@ describe('Verida datastore tests', () => {
     })
 
     describe('Manage datastores for the authenticated user', function() {
-        this.timeout(100*1000)
+        this.timeout(20*1000)
         
         it('can open a datastore with owner/owner permissions', async function() {
             // Initialize account 1
@@ -66,9 +68,12 @@ describe('Verida datastore tests', () => {
             const row = await datastore.get(result2.id)
             assert.ok(row, 'Able to fetch the inserted row')
             assert.ok(row.firstName == contact.firstName, 'Data matches')
-            await datastore.close({
-                clearLocal: true
-            })
+
+            // destroy database
+            const db = await datastore.getDb()
+            await db.destroy()
+
+            await sleep(2000)
         })
 
         it('can open a datastore with user permissions, as the owner', async function() {
@@ -86,8 +91,8 @@ describe('Verida datastore tests', () => {
                     write: 'users'
                 }
             })
-            const database = await datastore.getDb()
-            const info = await database.info()
+            userDatabase = await datastore.getDb()
+            const info = await userDatabase.info()
             DB_USER_ENCRYPTION_KEY = info.encryptionKey
 
             // Grant read / write access to DID_2 for future tests relating to read / write of user databases
@@ -103,14 +108,11 @@ describe('Verida datastore tests', () => {
             const data = await datastore.get(result.id)
 
             assert.ok(data.firstName == 'Jane', 'Row has expected value')
-            await database.close({
-                clearLocal: true
-            })
         })
 
         it('can open a datastore with user permissions, as an external user', async function() {
             // Give replication some time to finish
-            await sleep(5000)
+            await sleep(10000)
 
             await network2.connect(account2)
             context2 = await network2.openContext(CONFIG.CONTEXT_NAME, true)
@@ -126,9 +128,9 @@ describe('Verida datastore tests', () => {
             const data = await datastore.getMany()
 
             assert.ok(data.length, 'Results returned')
-            await datastore.close({
-                clearLocal: true
-            })
+
+            await userDatabase.destroy()
+            await sleep(2000)
         })
 
         it(`data signatures correctly drop version information from signatures`, async function() {
@@ -165,9 +167,6 @@ describe('Verida datastore tests', () => {
 
         after(async () => {
             await context.close({
-                clearLocal: true
-            })
-            await context2.close({
                 clearLocal: true
             })
         })

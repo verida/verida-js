@@ -58,7 +58,7 @@ describe('vda-name-client read and write tests', () => {
         })
 
         it('Register successfully', async () => {
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 await blockchainApi.register(testNames[i])
 
                 const nameDID = await blockchainApi.getDID(testNames[i])
@@ -82,7 +82,7 @@ describe('vda-name-client read and write tests', () => {
             const usernames = await blockchainApi.getUsernames(did.address);
             assert.deepEqual(
                 usernames, 
-                [testNames[0], testNames[1], testNames[2]], 
+                [testNames[0].toLowerCase(), testNames[1].toLowerCase(), testNames[2].toLowerCase(), testNames[3].toLowerCase()], 
                 'Get registered usernames');
         })
 
@@ -95,7 +95,7 @@ describe('vda-name-client read and write tests', () => {
     describe('Get DID', function() {
         this.timeout(60*1000)
         it('Get DID successfully', async () => {
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 const foundDID = await blockchainApi.getDID(testNames[i])
 
                 assert.equal(
@@ -108,7 +108,7 @@ describe('vda-name-client read and write tests', () => {
 
         it('Should reject for unregistered usernames', async () => {
             try {
-                const result = await blockchainApi.getDID(testNames[3])
+                const result = await blockchainApi.getDID(testNames[4])
                 assert.fail('Username incorrectly fetched')
             } catch (err) {
                 assert.ok(err.message.match('Failed to locate the DID'), 'Fail to get the DID')
@@ -120,8 +120,8 @@ describe('vda-name-client read and write tests', () => {
         this.timeout(60*1000)
         it('Should reject for unregistered names', async () => {
             await assert.rejects(
-                blockchainApi.unregister(testNames[3]),
-                {message: `Failed to unregister username: ${testNames[3]} (Unregistered name)`}
+                blockchainApi.unregister(testNames[4]),
+                {message: `Failed to unregister username: ${testNames[4].toLowerCase()} (Unregistered name)`}
             )
         })
 
@@ -136,7 +136,7 @@ describe('vda-name-client read and write tests', () => {
         })
 
         it('Unregister successfully', async () => {
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 await blockchainApi.unregister(testNames[i])
             }
 
