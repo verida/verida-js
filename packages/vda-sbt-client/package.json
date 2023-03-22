@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-sbt-client",
-  "version": "2.1.3",
+  "version": "2.1.5",
   "description": "Client to manage adding and fetching names from the blockchain",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
