@@ -1,6 +1,7 @@
 'use strict'
 const assert = require('assert')
 import { DIDClient } from '@verida/did-client'
+import { EnvironmentType } from '@verida/types'
 const util = require('util')
 
 let didClient
@@ -14,7 +15,7 @@ describe('DID GET document tests', () => {
 
     before(async () => {
         didClient = new DIDClient({
-            network: 'testnet'
+            network: EnvironmentType.TESTNET
         })
     })
 

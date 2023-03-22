@@ -1,4 +1,5 @@
 import { AccountNodeDIDClientConfig, EnvironmentType } from '@verida/types'
+require('dotenv').config();
 
 const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech:443/', 'https://node2-apse2.devnet.verida.tech:443/', 'https://node3-apse2.devnet.verida.tech:443/']
 

@@ -9,6 +9,7 @@ import { Wallet } from 'ethers'
 import { getDIDClient } from './utils'
 import { DIDClient } from '@verida/did-client'
 import { SecureContextConfig } from '@verida/types'
+import { CONTEXT_NAME } from './utils'
 
 const wallet = Wallet.createRandom()
 
@@ -16,8 +17,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const CONTEXT_NAME = 'Test App'
-
+console.log(wallet.mnemonic)
 const address = wallet.address.toLowerCase()
 const DID = `did:vda:testnet:${address}`
 
@@ -37,11 +37,11 @@ const testConfig: SecureContextConfig = {
     services: {
         databaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: ['https://storage.endpoint']
+            endpointUri: ['https://storage.endpoint:443/']
         },
         messageServer: {
             type: 'VeridaMessage',
-            endpointUri: ['https://message.endpoint']
+            endpointUri: ['https://message.endpoint:443/']
         }
     }
 }
@@ -60,11 +60,11 @@ const expectedConfig: SecureContextConfig = {
     services: {
         databaseServer: {
             type: 'VeridaDatabase',
-            endpointUri: ['https://storage.endpoint/']
+            endpointUri: ['https://storage.endpoint:443/']
         },
         messageServer: {
             type: 'VeridaMessage',
-            endpointUri: ['https://message.endpoint/']
+            endpointUri: ['https://message.endpoint:443/']
         }
     }
 }
@@ -137,9 +137,9 @@ describe('Storage Link', () => {
             assert.ok(fetchedStorageConfig == undefined, 'Storage config no longer exists')
         })
 
-        it('ensures a DID can only have one secure context for a given context name', async function() {
+        /*it('ensures a DID can only have one secure context for a given context name', async function() {
             // @todo
-        })
+        })*/
 
         /*after(async () => {
             // Cleanup and remove all contexts by creating an empty DID document
