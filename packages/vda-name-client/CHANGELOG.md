@@ -1,3 +1,5 @@
+2023-03-27 (v2.2.1)
+-------------------
 
 - Fix: Force did and usernames to be lower case
 - Split unit tests into read v read/write
