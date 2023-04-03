@@ -16,8 +16,8 @@ const did = dids[0];
 // signed by the did
 const tokenReceiver = RECIPIENT_WALLET
 
-const mintedTokenIds = [1, 2, 3] //[1, 3, 5]
-const burntTokenIds =  [22] //[2, 4]
+const mintedTokenIds = [1, 3, 5] //[1, 2, 3]
+const burntTokenIds =  [2, 4] //[22] 
 
 interface InterfaceDID {
     address: string
@@ -81,7 +81,8 @@ const createTestDataIfNotExist = async (
     
     // Should check if the trustedSigner is registered to the contract
     const signers = await blockchainApi.getTrustedSignerAddresses()
-    assert.ok(signers.includes(trustedSigner.address))
+    const match = trustedSigner.address.match(/0x(.*)/)
+    assert.ok(signers.includes(match![0]))
 
     // Mint tokens
     for (let i = 0; i < uniqueIds.length; i++) {
@@ -101,7 +102,7 @@ const createTestDataIfNotExist = async (
     assert.ok(newTotalSupply === 5, "SBT claimed successfully")
 
     // burn last 2 tokens
-    const receiverSBTClient = createBlockchainAPI(RECIPIENT_WALLET)
+    const receiverSBTClient = createBlockchainAPI(RECIPIENT_WALLET, true)
     for (const id of burntTokenIds) {
         await receiverSBTClient.burnSBT(id)
     }
@@ -117,7 +118,7 @@ describe('vda-sbt-client blockchain api', () => {
     let signerContextProof: string
 
     before(async function() {
-        this.timeout(60*1000)
+        this.timeout(200*1000)
         blockchainApi = createBlockchainAPI(did);
         [keyring, signerContextProof] = await getSignerInfo(trustedSigner.privateKey)
 
