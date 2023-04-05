@@ -26,6 +26,8 @@
     "@ethersproject/abstract-signer": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
+    "@types/node": "^18.15.11",
+    "@types/pouchdb-core": "^7.0.11",
     "did-resolver": "^4.0.1",
     "tweetnacl": "^1.0.3"
   }

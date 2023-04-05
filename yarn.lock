@@ -2006,6 +2006,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.7.10.tgz#7aa732cc47341c12a16b7d562f519c2383b6d4fc"
   integrity sha512-S63Dlv4zIPb8x6MMTgDq5WWRJQe56iBEY0O3SOFA9JrRienkOVDXSXBjjJw6HTNQYSE2JI6GMCR6LVbIMHJVvA==
 
+"@types/node@^18.15.11":
+  version "18.15.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.15.11.tgz#b3b790f09cb1696cffcec605de025b088fa4225f"
+  integrity sha512-E5Kwq2n4SbMzQOn6wnmBjuK9ouqlURrcZDVfbo9ftDDTFt3nk7ZKK4GMOzoYgnpQJKcxwQw+lGaBvvlMo0qN/Q==
+
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz#d3357479a0fdfdd5907fe67e17e0a85c906e1301"
@@ -2091,6 +2096,14 @@
   version "7.0.8"
   resolved "https://registry.yarnpkg.com/@types/pouchdb-core/-/pouchdb-core-7.0.8.tgz#95b20c6be8bff0d7bd820701268ee8d141140215"
   integrity sha512-99pGWgoxW/m1jLpnWQAfy7QGwXK3uCDSy+VtOG8sjuutjNJzX6nmOesbBq7ZpkquMH+X9vnT9CpWPunBpepEGg==
+  dependencies:
+    "@types/debug" "*"
+    "@types/pouchdb-find" "*"
+
+"@types/pouchdb-core@^7.0.11":
+  version "7.0.11"
+  resolved "https://registry.yarnpkg.com/@types/pouchdb-core/-/pouchdb-core-7.0.11.tgz#8fad7a16889dafab765415430a491eb50a54f564"
+  integrity sha512-KTKj0Taf8pLTj8eW3qBtCd1Fh+/yhEyVo6/1czTN46MnseobdmnqgXtzaKgHMbuLouh+SHK1vM++aMPaG1qTTA==
   dependencies:
     "@types/debug" "*"
     "@types/pouchdb-find" "*"

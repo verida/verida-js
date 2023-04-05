@@ -44,7 +44,7 @@ export interface DatabaseOpenConfig {
   isOwner?: boolean;
 
   /**
-   * An optional encryption key to use for encyrpting / decrypting data.
+   * An optional encryption key to use for encrypting / decrypting data.
    *
    * This encryption key will not apply if the database is marked as `public`.
    */
