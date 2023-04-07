@@ -184,8 +184,9 @@ describe('vda-sbt-client blockchain api', () => {
 
     describe("getTrustedSignerAddresses", () => {
         it("Get trusted signers successfully", async () => {
-            const signers = parseInt((await blockchainApi.getTrustedSignerAddresses()).length)
-            assert.ok(signers > 0)
+            const signers = await blockchainApi.getTrustedSignerAddresses()
+            const signerLength = parseInt(signers.length)
+            assert.ok(signerLength > 0)
         })
     })
 

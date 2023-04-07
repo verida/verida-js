@@ -20,7 +20,7 @@ import EncryptionUtils from "@verida/encryption-utils";
  * Interface for vda-sbt-client instance creation. Same as VDA-DID configuration
  * @param did @string DID
  * @param signKey @string Private key of DID (hex string). Used to generate signature in transactions to chains
- * @param chainNameOrId @string Target chain name or chain id.
+ * @param network @string Target chain name or chain id.
  * @param callType @string 'web3' | 'gasless'
  * @param web3Options object Web3 configuration depending on call type. Same as vda-did-resolver
  */
@@ -251,9 +251,11 @@ export class VeridaSBTClient {
                 sbtURI,
                 recipient: recipientAddress,
                 signedData: signedProof,
+                // proof that signer DID controls context address that generated signedProof
                 signedProof: signerContextProof
             },
             requestSignature,
+            // proof that claimer DID controls context address that generated requestSignature
             requestProof
         )
 
