@@ -1,7 +1,6 @@
 import { Keyring } from '@verida/keyring'
-import { AccountConfig, AuthContext, AuthTypeConfig, IDIDClient, SecureContextConfig } from '@verida/types'
+import { AccountConfig, AuthContext, AuthTypeConfig, SecureContextConfig } from '@verida/types'
 import { createJWT, ES256KSigner } from 'did-jwt'
-import { encodeBase64 } from "tweetnacl-util"
 
 const _ = require('lodash')
 
