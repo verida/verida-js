@@ -15,11 +15,11 @@ export default class AutoAccount extends Account {
     private didClient: DIDClient
 
     private wallet: Wallet
-    protected accountConfig: AccountConfig
+    protected accountConfig?: AccountConfig
     protected autoConfig: AccountNodeConfig
     protected contextAuths: Record<string, Record<string, VeridaDatabaseAuthType>> = {}
 
-    constructor(accountConfig: AccountConfig, autoConfig: AccountNodeConfig) {
+    constructor(autoConfig: AccountNodeConfig, accountConfig?: AccountConfig) {
         super()
         this.accountConfig = accountConfig
         this.autoConfig = autoConfig
@@ -60,6 +60,10 @@ export default class AutoAccount extends Account {
         
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
+            if (!this.accountConfig) {
+                throw new Error('Unable to ')
+            }
+
             const endpoints: SecureContextServices = {
                 databaseServer: this.accountConfig.defaultDatabaseServer,
                 messageServer: this.accountConfig.defaultMessageServer
