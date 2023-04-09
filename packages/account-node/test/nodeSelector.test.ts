@@ -39,7 +39,25 @@ describe('Storage node selector tests', () => {
             assert.equal(nodes2.length, 3, '3 nodes returned')
         })
 
-        it('can select nodes by country with region fallback to global', async function () {})
+        it('can select nodes by country with region fallback to global', async function () {
+            const nodes = await nodeSelector.selectNodesByCountry('AU', 1)
+            assert.ok(nodes, 'Nodes were returned')
+            assert.equal(nodes.length, 1, '1 node returned')
+
+            const nodes2 = await nodeSelector.selectNodesByCountry('AU', 3)
+            assert.ok(nodes2, 'Nodes were returned')
+            assert.equal(nodes2.length, 3, '3 nodes returned')
+        })
+
+        it('can select global nodes', async function () {
+            const nodes = await nodeSelector.selectNodesByCountry(undefined, 1)
+            assert.ok(nodes, 'Nodes were returned')
+            assert.equal(nodes.length, 1, '1 node returned')
+
+            const nodes2 = await nodeSelector.selectNodesByCountry(undefined, 3)
+            assert.ok(nodes2, 'Nodes were returned')
+            assert.equal(nodes2.length, 3, '3 nodes returned')
+        })
 
         // @todo ensure ignore nodes
     })

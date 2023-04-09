@@ -67,13 +67,13 @@ export class NodeSelector {
     countryCode?: string,
     numNodes: number = 3
   ): Promise<StorageNode[]> {
-    const countryNodes = await this.nodesByCountry()
-
     // No country specified, so choose globally random nodes
     if (!countryCode) {
       const possibleNodes = await this.loadStorageNodes()
       return this.selectNodesFromList(possibleNodes, numNodes)
     }
+
+    const countryNodes = await this.nodesByCountry()
 
     // No nodes found for country, choose random region nodes
     if (!countryNodes[countryCode]) {
@@ -209,7 +209,7 @@ export class NodeSelector {
     }
 
     if (this.nodeList) {
-      return this.nodeList
+      return [...this.nodeList]
     }
 
     const nodeList = await this.fetchConfigJson(STORAGE_NODE_URLS[this.config.network])
