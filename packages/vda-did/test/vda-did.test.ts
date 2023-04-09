@@ -48,9 +48,9 @@ const VDA_DID_CONFIG2 = {
 }
 
 const ENDPOINTS = [
-    `https://node1-apse2.devnet.verida.tech/did/${DID}`,
-    `https://node2-apse2.devnet.verida.tech/did/${DID}`,
-    `https://node3-apse2.devnet.verida.tech/did/${DID}`
+    `https://node1-euw6.gcp.devnet.verida.tech/did/${DID}`,
+    `https://node2-euw6.gcp.devnet.verida.tech/did/${DID}`,
+    `https://node3-euw6.gcp.devnet.verida.tech/did/${DID}`
 ]
 
 /*
