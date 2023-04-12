@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-name-client",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Client to manage adding and fetching names from the blockchain",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
