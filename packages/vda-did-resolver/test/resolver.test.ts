@@ -5,7 +5,7 @@ import { DIDDocument } from '@verida/did-document'
 import { getResolver } from '../src/resolver'
 import { Resolver } from 'did-resolver'
 import { VdaDid } from '@verida/vda-did'
-import { getBlockchainAPIConfiguration } from "./utils"
+import { getBlockchainAPIConfiguration } from "@verida/vda-common"
 import { VeridaDocInterface } from '@verida/types';
 
 const wallet = ethers.Wallet.createRandom()
@@ -18,12 +18,16 @@ DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
 
 const ENDPOINTS = [
-    `https://node1-apse2.devnet.verida.tech/did/${DID}`,
-    `https://node2-apse2.devnet.verida.tech/did/${DID}`,
-    `https://node3-apse2.devnet.verida.tech/did/${DID}`
+    `https://node1-euw6.gcp.devnet.verida.tech/did/${DID}`,
+    `https://node2-euw6.gcp.devnet.verida.tech/did/${DID}`,
+    `https://node3-euw6.gcp.devnet.verida.tech/did/${DID}`
 ]
 
-const baseConfig = getBlockchainAPIConfiguration()
+const privateKey = process.env.PRIVATE_KEY
+if (!privateKey) {
+    throw new Error('No PRIVATE_KEY in the env file');
+}
+const baseConfig = getBlockchainAPIConfiguration(privateKey)
 
 const VDA_DID_CONFIG = {
     identifier: DID,
@@ -41,7 +45,7 @@ let veridaApi = new VdaDid(VDA_DID_CONFIG)
 let masterDidDoc
 
 describe("DID Resolver Tests", function() {
-    this.timeout(20000)
+    // this.timeout(20000)
     this.beforeAll(async () => {
         // Create the test DID
         const doc = new DIDDocument(DID, DID_PK)

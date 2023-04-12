@@ -9,8 +9,7 @@ import {
     Resolvable
   } from "did-resolver";
 import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
-import { RPC_URLS } from './config'
-import { interpretIdentifier } from './utils'
+import { RPC_URLS, interpretIdentifier } from '@verida/vda-common'
 import { Web3ResolverConfigurationOptions } from '@verida/types';
 
 /**
