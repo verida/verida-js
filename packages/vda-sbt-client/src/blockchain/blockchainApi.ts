@@ -8,8 +8,7 @@ import {
     Web3CallType,
     EnvironmentType
 } from '@verida/types'
-import { getContractInfoForNetwork, RPC_URLS } from "./config";
-import { interpretIdentifier } from "./helpers";
+import { getContractInfoForNetwork, RPC_URLS } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
@@ -59,12 +58,12 @@ export class VeridaSBTClient {
             (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
         }
 
+        const contractInfo = getContractInfoForNetwork("SBT", this.network)
         if (config.did) {
             this.readOnly = false
             const { address } = explodeDID(config.did)
             this.didAddress = address.toLowerCase()
-
-            const contractInfo = getContractInfoForNetwork(this.network)
+            
             this.vdaWeb3Client = getVeridaContract(
                 config.callType, 
                 {...contractInfo,
@@ -75,7 +74,6 @@ export class VeridaSBTClient {
                 rpcUrl = <string> RPC_URLS[this.network]
             }
 
-            const contractInfo = getContractInfoForNetwork(this.network)
             const provider = new JsonRpcProvider(rpcUrl)
 
             this.contract = ContractFactory.fromSolidity(contractInfo.abi)

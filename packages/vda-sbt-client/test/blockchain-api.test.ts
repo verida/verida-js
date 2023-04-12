@@ -1,128 +1,40 @@
-require('dotenv').config();
-import { dids, getBlockchainAPIConfiguration, getNetwork, getSignerInfo, CONTEXT_NAME, RECIPIENT_WALLET } from "./utils"
+import {
+    DID_LIST, 
+    TRUSTED_SIGNER,
+    RECIPIENT_WALLET,
+    getNetwork, 
+    getSignerInfo,
+} from "@verida/vda-common"
 import { VeridaSBTClient } from "../src/index"
-import { ethers, Wallet } from "ethers";
 import { Keyring } from "@verida/keyring";
-import { EnvironmentType } from "@verida/types";
-import { explodeDID } from "@verida/helpers"
-
+import {
+    mintedTokenIds,
+    burntTokenIds,
+    createBlockchainAPI,
+    claimSBT,
+    createTestDataIfNotExist
+} from './utils'
+require('dotenv').config();
 const assert = require('assert')
 
-const did = dids[0];
+const CONTEXT_NAME = 'Verida Testing: SBT Context'
 
-// tokenReceiver should be the same as the did to test the burn() function 
-// of the SBT contract. Because only the owner of tokenID can call the burn 
-// function and all the transactions of vda-sbt-client instance will be 
-// signed by the did
+const did = DID_LIST[0];
 const tokenReceiver = RECIPIENT_WALLET
-
-const mintedTokenIds = [1, 3, 5] //[1, 2, 3]
-const burntTokenIds =  [2, 4] //[22] 
-
-interface InterfaceDID {
-    address: string
-    privateKey: string
-    publicKey: string
-}
-
-const createBlockchainAPI = (did: InterfaceDID, isWallet = false) => {
-    const configuration = getBlockchainAPIConfiguration(did.privateKey);
-    return new VeridaSBTClient({
-        did: isWallet ? 'did:vda:testnet:' + did.address : did.address,
-        signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
-        ...configuration
-    })
-}
-
-const claimSBT = async (
-    did: string,
-    sbtType: string,
-    uniqueId: string,
-    sbtURI: string,
-    receiverAddress: string,
-    signerContextProof: string,
-    signerKeyring: Keyring,
-    blockchainApi: VeridaSBTClient
-) => {
-    const { address: didAddress } = explodeDID(did)
-
-    const signedDataMsg = ethers.utils.solidityPack(
-        ['string','address'],
-        [`${sbtType}-${uniqueId}-`, didAddress.toLowerCase()]
-    )
-    const signedData = await signerKeyring.sign(signedDataMsg)
-
-    await blockchainApi.claimSBT(
-        sbtType,
-        uniqueId,
-        sbtURI,
-        receiverAddress.toLowerCase(),
-        signedData,
-        signerContextProof
-    )
-}
-
-const createTestDataIfNotExist = async (
-    trustedSigner: InterfaceDID, 
-    blockchainApi: VeridaSBTClient,
-    keyring: Keyring,
-    signedProof: string
-    ) => {
-    const orgTotalSupply = parseInt(await blockchainApi.totalSupply())
-    if (orgTotalSupply > 0) return;
-
-    console.log("Creating initial test data by mint & burn operations")
-
-    const sbtType = "twitter-test"
-    const uniqueIds = ["00001", "00002", "00003", "00004", "00005"]
-    const sbtURI = "https://gateway.pinata.cloud/ipfs/QmVrTkbrzNHRhmsh88XnwJo5gBu8WqQMFTkVB4KoVLxSEY/3.json"
-
-    
-    // Should check if the trustedSigner is registered to the contract
-    const signers = await blockchainApi.getTrustedSignerAddresses()
-    const match = trustedSigner.address.match(/0x(.*)/)
-    assert.ok(signers.includes(match![0]))
-
-    // Mint tokens
-    for (let i = 0; i < uniqueIds.length; i++) {
-        await claimSBT(
-            did.address, 
-            sbtType, 
-            uniqueIds[i], 
-            sbtURI, 
-            tokenReceiver.address.toLowerCase(),
-            signedProof, 
-            keyring, 
-            blockchainApi
-        )
-    }
-    const newTotalSupply = parseInt(await blockchainApi.totalSupply())
-
-    assert.ok(newTotalSupply === 5, "SBT claimed successfully")
-
-    // burn last 2 tokens
-    const receiverSBTClient = createBlockchainAPI(RECIPIENT_WALLET, true)
-    for (const id of burntTokenIds) {
-        await receiverSBTClient.burnSBT(id)
-    }
-
-    console.log("Initial test data created")
-}
 
 describe('vda-sbt-client blockchain api', () => {
     let blockchainApi : VeridaSBTClient
 
-    const trustedSigner = dids[2]
+    const trustedSigner = TRUSTED_SIGNER
     let keyring: Keyring
     let signerContextProof: string
 
     before(async function() {
-        this.timeout(200*1000)
+        // this.timeout(60*1000)
         blockchainApi = createBlockchainAPI(did);
-        [keyring, signerContextProof] = await getSignerInfo(trustedSigner.privateKey)
+        [keyring, signerContextProof] = await getSignerInfo(trustedSigner.privateKey, CONTEXT_NAME)
 
-        await createTestDataIfNotExist(trustedSigner, blockchainApi, keyring, signerContextProof)
+        await createTestDataIfNotExist(did, tokenReceiver, trustedSigner, blockchainApi, keyring, signerContextProof)
     })
 
     describe("totalSupply", () => {
@@ -192,19 +104,18 @@ describe('vda-sbt-client blockchain api', () => {
     })
 
     describe("SBT claim & burn", function() {
-        this.timeout(60*1000)
+        // this.timeout(60*1000)
 
         // SBT info
-        const sbtType = "twitters"
-        const uniqueId = "12346789"
+        const sbtType = "twitter"
+        const uniqueId = "-uiniqueId12345"
         const sbtURI = "https://gateway.pinata.cloud/ipfs/QmVrTkbrzNHRhmsh88XnwJo5gBu8WqQMFTkVB4KoVLxSEY/3.json"
 
         it("Claim a SBT successfully",async () => {
-            const trustedSigner = dids[2]
-            const trustedSignerNetworkInfo = await getNetwork(trustedSigner.privateKey)
+            const trustedSignerNetworkInfo = await getNetwork(trustedSigner.privateKey, CONTEXT_NAME)
             const trustedDid = await trustedSignerNetworkInfo.account.did()
             const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDidClient().get(trustedDid)
-            const { address: signerAddress } = explodeDID(trustedSigner.address)
+            const { address: signerAddress } = trustedSigner
             // Should check if the trustedSigner is registered to the contract
             const signers = await blockchainApi.getTrustedSignerAddresses()
             assert.ok(signers.includes(signerAddress))
