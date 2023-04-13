@@ -1,11 +1,25 @@
 /* eslint-disable prettier/prettier */
-export const veridaContractWhiteList = [
-  // ''.toLowerCase(), //BSCTest - NameRegistry
-  // ''.toLowerCase(), //BSCTest - DIDRegistry
-  '0x666F81e59082ccD7C8737f84e1C232a982043140'.toLowerCase(), //Mumbai - NameRegistry
-  '0x6905AD01eA5Bfb2fa651F9a2DF9659A7Cad8752a'.toLowerCase(), //Mumbai - DIDRegistry
-  '0x7201189556bAF5B58b74FDf99C1957A064B87548'.toLowerCase(), //Mumbai - VDA-SBT
-];
+import {CONTRACT_ADDRESS, CONTRACT_NAMES} from '@verida/vda-common';
+
+function createContractWhiteList() {
+  const contractList = new Array<string>();
+  let contractName: CONTRACT_NAMES;
+  for (contractName in CONTRACT_ADDRESS) {
+    const contract = CONTRACT_ADDRESS[contractName];
+    for (const net in contract) {
+      const contractAddress = contract[net];
+      if (
+        contractAddress !== null &&
+        !contractList.includes(contractAddress.toLowerCase())
+      ) {
+        contractList.push(contractAddress.toLowerCase());
+      }
+    }
+  }
+  return contractList;
+}
+
+export const veridaContractWhiteList = createContractWhiteList()
 
 export const DEFAULT_JSON_RPC = 'http://127.0.0.1:8545/'
 

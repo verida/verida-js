@@ -1,3 +1,10 @@
+2023-04-13 (v2.3.0)
+-------------------
+
+- Upadted using `@verida/vda-common` <br>
+**src/constants.ts** : Contract whitelist for `meta-trasaction-server` is generated automatically.
+- Removed all test codes
+
 2023-03-27 (v2.2.1)
 -------------------
 
