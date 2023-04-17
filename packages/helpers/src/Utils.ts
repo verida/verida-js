@@ -147,7 +147,7 @@ function getDeepAttributeValue(data: any, deepAttributes: string[]): any {
  * @param separator optional separator (defaults to `/`)
  * @returns 
  */
-export function wrapUri(veridaUri: string, wrapperUri: string = 'http://data.verida.network') {
+export function wrapUri(veridaUri: string, wrapperUri: string = 'https://data.verida.network') {
 	const encodedVeridaUri = encodeUri(veridaUri)
 	return `${wrapperUri}/${encodedVeridaUri}`
 }
