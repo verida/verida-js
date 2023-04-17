@@ -1,7 +1,6 @@
-2023-04-12 (v2.3.0)
--------------------
-- Updated using `@verida/vda-common`
-- Test code updated
+
+- Updated to use `@verida/vda-common`
+- Update tests
 
 2023-03-27 (v2.2.1)
 -------------------

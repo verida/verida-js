@@ -41,7 +41,7 @@ describe('vda-name-client read and write tests', () => {
     })
 
     describe('register', function() {
-        // this.timeout(60*1000)
+        this.timeout(60*1000)
         it('Should reject for invalid names', async () => {
             const invalidnames = [
                 'hello world.vda',   // Space in the name 
@@ -104,7 +104,7 @@ describe('vda-name-client read and write tests', () => {
 
                 assert.equal(
                     foundDID,
-                    did.address,
+                    did.address.toLowerCase(),
                     'Get registered DID'
                 )
             }
@@ -121,7 +121,7 @@ describe('vda-name-client read and write tests', () => {
     })
 
     describe('Unregister', function() {
-        // this.timeout(60*1000)
+        this.timeout(60*1000)
         it('Should reject for unregistered names', async () => {
             await assert.rejects(
                 blockchainApi.unregister(testNames[4]),

@@ -1,9 +1,7 @@
-2023-04-13 (v2.3.0)
--------------------
 
-- Upadted using `@verida/vda-common` <br>
-**src/constants.ts** : Contract whitelist for `meta-trasaction-server` is generated automatically.
-- Removed all test codes
+- Updated to use `@verida/vda-common`
+- Update tests
+- Contract whitelist for `meta-transaction-server` is generated automatically
 
 2023-03-27 (v2.2.1)
 -------------------

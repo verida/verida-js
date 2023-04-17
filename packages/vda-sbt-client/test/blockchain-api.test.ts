@@ -30,7 +30,7 @@ describe('vda-sbt-client blockchain api', () => {
     let signerContextProof: string
 
     before(async function() {
-        // this.timeout(60*1000)
+        this.timeout(60*1000)
         blockchainApi = createBlockchainAPI(did);
         [keyring, signerContextProof] = await getSignerInfo(trustedSigner.privateKey, CONTEXT_NAME)
 
@@ -104,7 +104,7 @@ describe('vda-sbt-client blockchain api', () => {
     })
 
     describe("SBT claim & burn", function() {
-        // this.timeout(60*1000)
+        this.timeout(60*1000)
 
         // SBT info
         const sbtType = "twitter"

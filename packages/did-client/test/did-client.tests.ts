@@ -21,15 +21,15 @@ const keyring = new Keyring(wallet.mnemonic.phrase)
 const endpoints = {
     database: {
         type: SecureContextEndpointType.DATABASE,
-        endpointUri: ['https://node1-apse2.devnet.verida.tech/', 'https://node2-apse2.devnet.verida.tech/', 'https://node3-apse2.devnet.verida.tech/']
+        endpointUri: ['https://node1-euw6.gcp.devnet.verida.tech/', 'https://node2-euw6.gcp.devnet.verida.tech/', 'https://node3-euw6.gcp.devnet.verida.tech/']
     },
     messaging: {
         type: SecureContextEndpointType.MESSAGING,
-        endpointUri: ['https://node1-apse2.devnet.verida.tech/', 'https://node2-apse2.devnet.verida.tech/', 'https://node3-apse2.devnet.verida.tech/']
+        endpointUri: ['https://node1-euw6.gcp.devnet.verida.tech/', 'https://node2-euw6.gcp.devnet.verida.tech/', 'https://node3-euw6.gcp.devnet.verida.tech/']
     }
 }
 
-const didEndpoints = ['https://node1-apse2.devnet.verida.tech/did/', 'https://node2-apse2.devnet.verida.tech/did/', 'https://node3-apse2.devnet.verida.tech/did/']
+const didEndpoints = ['https://node1-euw6.gcp.devnet.verida.tech/did/', 'https://node2-euw6.gcp.devnet.verida.tech/did/', 'https://node3-euw6.gcp.devnet.verida.tech/did/']
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
