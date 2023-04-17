@@ -122,7 +122,7 @@ describe('vda-sbt-client blockchain api', () => {
 
             // Claim a SBT
             const orgTotalSupply = parseInt(await blockchainApi.totalSupply())
-            await claimSBT(
+            const tokenId = await claimSBT(
                 did.address,
                 sbtType,
                 uniqueId,

@@ -32,13 +32,13 @@ export const claimSBT = async (
   signerContextProof: string,
   signerKeyring: Keyring,
   blockchainApi: VeridaSBTClient
-) => {
+)  => {
   const { address: didAddress } = explodeDID(did)
 
   const signedDataMsg = `${sbtType}-${uniqueId}-${didAddress.toLowerCase()}`
   const signedData = await signerKeyring.sign(signedDataMsg)
 
-  await blockchainApi.claimSBT(
+  return await blockchainApi.claimSBT(
       sbtType,
       uniqueId,
       sbtURI,
