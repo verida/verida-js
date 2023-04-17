@@ -34,7 +34,7 @@ export async function getDIDClient(veridaAccount: Wallet) {
         {
             privateKey
         },
-        ['https://node1-apse2.devnet.verida.tech/did/']
+        ['https://node1-euw6.gcp.devnet.verida.tech/did/']
     )
 
     return didClient
