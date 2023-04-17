@@ -35,6 +35,10 @@ export default class AutoAccount extends Account {
         this.accountConfig = accountConfig
     }
 
+    public getAccountConfig(): AccountConfig | undefined {
+        return this.accountConfig
+    }
+
     public async keyring(contextName: string): Promise<Keyring> {
         let did = await this.did()
         did = did.toLowerCase()
