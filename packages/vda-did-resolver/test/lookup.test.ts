@@ -12,7 +12,8 @@ const NETWORK = 'testnet'
 
 const rpcUrl = "https://rpc-mumbai.maticvigil.com";
 
-describe('Lookup test', () => {
+describe('Lookup test', function() {
+    this.timeout(20000)
     it('Failed : Unregistered DID address', async () => {
         const tempDid = Wallet.createRandom();
         await assert.rejects(

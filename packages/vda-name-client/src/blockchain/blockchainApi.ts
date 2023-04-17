@@ -9,8 +9,7 @@ import {
     EnvironmentType
 } from '@verida/types'
 import { ethers, ContractFactory } from "ethers";
-import { getContractInfoForNetwork, RPC_URLS } from "./config";
-import { getVeridaSignWithNonce } from "./helpers";
+import { getContractInfoForNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
@@ -60,12 +59,13 @@ export class VeridaNameClient {
             (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
         }
 
+        const contractInfo = getContractInfoForNetwork("NameRegistry", this.network)
+
         if (config.did) {
             this.readOnly = false
             const { address } = explodeDID(config.did)
             this.didAddress = address.toLowerCase()
-
-            const contractInfo = getContractInfoForNetwork(this.network)
+            
             this.vdaWeb3Client = getVeridaContract(
                 config.callType, 
                 {...contractInfo,
@@ -76,7 +76,6 @@ export class VeridaNameClient {
                 rpcUrl = <string> RPC_URLS[this.network]
             }
 
-            const contractInfo = getContractInfoForNetwork(this.network)
             const provider = new JsonRpcProvider(rpcUrl)
 
             this.contract = ContractFactory.fromSolidity(contractInfo.abi)
@@ -190,7 +189,7 @@ export class VeridaNameClient {
             if (this.vdaWeb3Client) {
                 response = await this.vdaWeb3Client.getUserNameList(didAddress)
                 if (response.success !== true) {
-                    if (response.reason == 'No registered DID') {
+                    if (response.errorObj?.errorName === 'InvalidAddress') {
                         return []
                     }
 
@@ -204,10 +203,9 @@ export class VeridaNameClient {
                 return response
             }
         } catch (err:any ) {
-            if (err.reason == 'No registered DID') {
+            if (err.errorObj?.errorName === 'InvalidAddress' || err.errorName === 'InvalidAddress' ) {
                 return []
             }
-
             throw new Error(`Failed to get usernames for DID: ${didAddress} (${err.message})`)
         }
     }

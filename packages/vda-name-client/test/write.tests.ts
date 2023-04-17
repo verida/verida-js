@@ -1,13 +1,13 @@
 require('dotenv').config();
-import { dids, getBlockchainAPIConfiguration } from "./utils"
+import { DID_LIST, getBlockchainAPIConfiguration } from "@verida/vda-common"
 import { VeridaNameClient } from "../src/index"
 import { Wallet } from "ethers";
 import { EnvironmentType } from "@verida/types";
 
 const assert = require('assert')
 
-const did = dids[0];
-const unregisteredDID = dids[1];
+const did = DID_LIST[0];
+const unregisteredDID = DID_LIST[1];
 
 const testNames = [
     'helloworld.vda',
@@ -17,9 +17,13 @@ const testNames = [
     'JerrySmith.test',
     'Billy.test',
 ];
-  
 
-const configuration = getBlockchainAPIConfiguration();
+const privateKey = process.env.PRIVATE_KEY
+if (!privateKey) {
+    throw new Error('No PRIVATE_KEY in the env file');
+}
+
+const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNameClient({
         did: did.address,
@@ -56,7 +60,7 @@ describe('vda-name-client read and write tests', () => {
                 }
             }
         })
-
+        
         it('Register successfully', async () => {
             for (let i = 0; i < 4; i++) {
                 await blockchainApi.register(testNames[i])
@@ -100,7 +104,7 @@ describe('vda-name-client read and write tests', () => {
 
                 assert.equal(
                     foundDID,
-                    did.address,
+                    did.address.toLowerCase(),
                     'Get registered DID'
                 )
             }
@@ -121,7 +125,7 @@ describe('vda-name-client read and write tests', () => {
         it('Should reject for unregistered names', async () => {
             await assert.rejects(
                 blockchainApi.unregister(testNames[4]),
-                {message: `Failed to unregister username: ${testNames[4].toLowerCase()} (Unregistered name)`}
+                {message: `Failed to unregister username: ${testNames[4].toLowerCase()} (execution reverted)`}
             )
         })
 
@@ -141,7 +145,7 @@ describe('vda-name-client read and write tests', () => {
             }
 
             const usernames = await blockchainApi.getUsernames(did.address)
-            assert.deepEqual(usernames, [], 'Usernames are empty')
+            await assert.deepEqual(usernames, [], 'Usernames are empty')
         })
     })
 })

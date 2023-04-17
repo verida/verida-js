@@ -4,10 +4,11 @@ import { DIDDocument } from '@verida/did-document'
 import { getResolver } from '@verida/vda-did-resolver'
 import { Resolver } from 'did-resolver'
 import { randomBytes } from 'crypto'
-import { getBlockchainAPIConfiguration } from "./utils"
+import { getBlockchainAPIConfiguration } from "@verida/vda-common"
 
 import VdaDid from '../src/vdaDid'
 import { VeridaDocInterface } from '@verida/types'
+require('dotenv').config();
 
 const wallet = ethers.Wallet.createRandom()
 const DID_PRIVATE_KEY = wallet.privateKey
@@ -31,7 +32,11 @@ const vdaDidResolver = getResolver()
 // @ts-ignore
 const didResolver = new Resolver(vdaDidResolver)
 
-const baseConfig = getBlockchainAPIConfiguration()
+const privateKey = process.env.PRIVATE_KEY;
+if (!privateKey) {
+    throw new Error('No PRIVATE_KEY in the env file');
+}
+const baseConfig = getBlockchainAPIConfiguration(privateKey)
 
 const VDA_DID_CONFIG = {
     identifier: DID,

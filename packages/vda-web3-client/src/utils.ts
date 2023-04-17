@@ -1,8 +1,4 @@
 /* eslint-disable prettier/prettier */
-import { hexlify, hexValue, isBytes } from '@ethersproject/bytes'
-import * as base64 from '@ethersproject/base64'
-import { Base58 } from '@ethersproject/basex'
-import { toUtf8Bytes } from '@ethersproject/strings'
 
 import { veridaContractWhiteList } from './constants'
 

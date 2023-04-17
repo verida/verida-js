@@ -1,5 +1,5 @@
 import { getResolver, VdaDidResolver } from './resolver'
-import { RPC_URLS } from './config'
+import { RPC_URLS } from '@verida/vda-common'
 
 export {
     getResolver,
