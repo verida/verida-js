@@ -48,12 +48,12 @@ const claimSBT = async (
     const { address: didAddress } = explodeDID(did)
 
     const signedDataMsg = ethers.utils.solidityPack(
-        ['string','address'],
+        ['string','string'],
         [`${sbtType}-${uniqueId}-`, didAddress.toLowerCase()]
     )
     const signedData = await signerKeyring.sign(signedDataMsg)
 
-    await blockchainApi.claimSBT(
+    const tokenID = await blockchainApi.claimSBT(
         sbtType,
         uniqueId,
         sbtURI,
@@ -61,6 +61,8 @@ const claimSBT = async (
         signedData,
         signerContextProof
     )
+
+    return tokenID
 }
 
 const createTestDataIfNotExist = async (
@@ -117,7 +119,7 @@ describe('vda-sbt-client blockchain api', () => {
     let signerContextProof: string
 
     before(async function() {
-        this.timeout(60*1000)
+        // this.timeout(60*1000)
         blockchainApi = createBlockchainAPI(did);
         [keyring, signerContextProof] = await getSignerInfo(trustedSigner.privateKey)
 
@@ -210,7 +212,8 @@ describe('vda-sbt-client blockchain api', () => {
 
             // Claim a SBT
             const orgTotalSupply = parseInt(await blockchainApi.totalSupply())
-            await claimSBT(
+
+            const tokenID = await claimSBT(
                 did.address,
                 sbtType,
                 uniqueId,
@@ -220,6 +223,7 @@ describe('vda-sbt-client blockchain api', () => {
                 keyring,
                 blockchainApi
             )
+
             const newTotalSupply = parseInt(await blockchainApi.totalSupply())
             assert.ok(newTotalSupply === (orgTotalSupply + 1), "SBT claimed successfully")
         })

@@ -219,7 +219,7 @@ export class VeridaSBTClient {
         recipientAddress: string,
         signedProof: string,
         signerContextProof: string
-    ) {
+    ) : Promise<number> {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
@@ -262,6 +262,18 @@ export class VeridaSBTClient {
         if (response.success !== true) {
             throw new Error(`Failed to claim SBT: ${response.reason}`)
         }
+
+        const sbtClaimedEvent = response.data?.events?.find( (item: { event: string; }) => item.event === 'SBTClaimed')
+
+        if (!sbtClaimedEvent) {
+            throw new Error(`Failed to claim SBT : No SBTCliamed event`)
+        }
+
+        const tokenID : number = sbtClaimedEvent.args.tokenId.toNumber();
+
+        return new Promise<number>((resolve) => {
+            resolve(tokenID)
+        })
     }
 
     /**
