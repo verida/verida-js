@@ -12,7 +12,14 @@ const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 const VERIDA_AUTH_TOKEN_QUERY_KEY = '_verida_auth'
 
 const CONFIG_DEFAULTS: Record<EnvironmentType, AccountVaultConfig> = {
-    local: {},
+    devnet: {
+        loginUri: 'https://vault.verida.io/request',
+        serverUri: `wss://auth.testnet.verida.io`
+    },
+    local: {
+        loginUri: 'https://vault.verida.io/request',
+        serverUri: `wss://auth.testnet.verida.io`
+    },
     mainnet: {},
     testnet: {
         loginUri: 'https://vault.verida.io/request',

@@ -4,7 +4,6 @@ import { IKeyring } from './IKeyring'
 import { SecureContextConfig } from './StorageLinkInterfaces'
 
 export interface IAccount {
-  didClient: IDIDClient
 
   keyring(contextName: string): Promise<IKeyring>
 

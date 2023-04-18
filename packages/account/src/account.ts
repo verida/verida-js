@@ -1,5 +1,5 @@
 import { Keyring } from '@verida/keyring'
-import { AccountConfig, AuthContext, AuthTypeConfig, SecureContextConfig } from '@verida/types'
+import { AccountConfig, AuthContext, AuthTypeConfig, IAccount, SecureContextConfig } from '@verida/types'
 import { createJWT, ES256KSigner } from 'did-jwt'
 
 const _ = require('lodash')
@@ -7,7 +7,7 @@ const _ = require('lodash')
 /**
  * An Authenticator that automatically signs everything
  */
-export default class Account {
+export default class Account implements IAccount {
 
     /**
      * Generate a keyring for this user for a given storage context.

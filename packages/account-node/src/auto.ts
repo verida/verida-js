@@ -31,6 +31,10 @@ export default class AutoAccount extends Account {
         })
     }
 
+    public getDIDClient(): DIDClient {
+        return this.didClient
+    }
+
     public setAccountConfig(accountConfig: AccountConfig) {
         this.accountConfig = accountConfig
     }

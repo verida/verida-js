@@ -36,7 +36,7 @@ export async function getNetwork(privateKey: string, contextName: string): Promi
     const network = new Client({
         environment: VERIDA_ENVIRONMENT
     })
-    const account = new AutoAccount(DEFAULT_ENDPOINTS, {
+    const account = new AutoAccount({
         privateKey,
         environment: VERIDA_ENVIRONMENT,
         // @ts-ignore
