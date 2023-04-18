@@ -83,8 +83,6 @@ export default class AutoAccount extends Account {
                 endpointUri: config.notificationEndpoints
             }
         }
-
-        console.log(this.accountConfig)
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
