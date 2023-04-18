@@ -11,8 +11,8 @@ export default class LimitedAccount extends AutoAccount {
 
     private signingContexts: string[]
 
-    constructor(accountConfig: AccountConfig, autoConfig: AccountNodeConfig, signingContexts: string[] = []) {
-        super(accountConfig, autoConfig)
+    constructor(autoConfig: AccountNodeConfig, accountConfig?: AccountConfig, signingContexts: string[] = []) {
+        super(autoConfig, accountConfig)
         this.signingContexts = signingContexts
     }
 

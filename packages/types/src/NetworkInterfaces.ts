@@ -4,6 +4,7 @@ import { SecureContextConfig } from './StorageLinkInterfaces';
 
 export enum EnvironmentType {
     LOCAL = "local",
+	DEVNET = "devnet",
     TESTNET = "testnet",
     MAINNET = "mainnet"
 }

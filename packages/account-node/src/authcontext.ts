@@ -22,9 +22,9 @@ export default class AuthContextAccount extends LimitedAccount {
      * @param signingContext 
      * @param authContext 
      */
-    constructor(accountConfig: AccountConfig, autoConfig: AccountNodeConfig, signingContext: string, authContext: VeridaDatabaseAuthContext) {
+    constructor(autoConfig: AccountNodeConfig, signingContext: string, authContext: VeridaDatabaseAuthContext, accountConfig?: AccountConfig) {
         const signingContexts = [signingContext]
-        super(accountConfig, autoConfig, signingContexts)
+        super(autoConfig, accountConfig, signingContexts)
 
         const endpointUri = <string> authContext.endpointUri
 

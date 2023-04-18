@@ -3,6 +3,8 @@ import { IContext } from "./IContext"
 import { IDatabase } from "./IDatabase"
 
 export interface IDatastore {
+    errors: any
+
     save(data: any, options: any): Promise<object | boolean>
 
     getMany(
