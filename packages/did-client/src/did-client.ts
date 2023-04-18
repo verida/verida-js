@@ -1,7 +1,8 @@
 import { DIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
-import { getResolver, RPC_URLS } from '@verida/vda-did-resolver'
+import { getResolver } from '@verida/vda-did-resolver'
+import { RPC_URLS } from "@verida/vda-common"
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
 import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
