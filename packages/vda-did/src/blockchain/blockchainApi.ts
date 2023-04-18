@@ -1,6 +1,6 @@
-import { getVeridaSignWithNonce, interpretIdentifier } from "./helpers"
+import { interpretIdentifier, getContractInfoForNetwork } from "@verida/vda-common"
+import { getVeridaSignWithNonce } from "./helpers"
 import { VdaDidConfigurationOptions } from "@verida/types"
-import {getContractInfoForNetwork} from "./config"
 import { getVeridaContract, VeridaContract } from "@verida/web3"
 import { ethers } from "ethers"
 import EncryptionUtils from "@verida/encryption-utils"
@@ -39,7 +39,7 @@ export default class BlockchainApi {
         this.didAddress = address.toLowerCase();
         // @ts-ignore
         this.network = network || options.chainNameOrId
-        const contractInfo = getContractInfoForNetwork(this.network);
+        const contractInfo = getContractInfoForNetwork( "DidRegistry", this.network);
 
         // @ts-ignore
         if (options.callType == 'web3' && !options.web3Options.rpcUrl) {
@@ -154,7 +154,7 @@ export default class BlockchainApi {
             throw new Error('Failed to set controller');
         }
 
-        this.options.signer = this.options.signer = (data: any) => {
+        this.options.signer = (data: any) => {
             const privateKeyArray = new Uint8Array(
                 Buffer.from(controllerPrivateKey.slice(2), 'hex')
             );

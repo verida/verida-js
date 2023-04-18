@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
 import EncryptionUtils from '@verida/encryption-utils'
 import BlockchainApi from "./blockchain/blockchainApi";
-import { interpretIdentifier } from './blockchain/helpers'
+import { interpretIdentifier } from '@verida/vda-common'
 import { VdaDidConfigurationOptions, VdaDidEndpointResponses } from '@verida/types'
 
 export default class VdaDid {

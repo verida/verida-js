@@ -1,7 +1,5 @@
 require('dotenv').config();
-import { dids, getBlockchainAPIConfiguration } from "./utils"
 import { VeridaNameClient } from "../src/index"
-import { Wallet } from "ethers";
 import { EnvironmentType } from "@verida/types";
 
 const assert = require('assert')
@@ -10,7 +8,7 @@ const assert = require('assert')
 const testNames = [
     'verida-tahpot-1.vda'
 ];
-const did = 'did:vda:testnet:0xAAB9e2F05968e2aAC54323eB3aD378f7fF6D1b7c'
+const did = 'did:vda:testnet:0x65cA9ec85629F3bF4244faC3c387341E31e39675'
 
 const createBlockchainAPI = () => {
     return new VeridaNameClient({
@@ -21,7 +19,7 @@ const createBlockchainAPI = () => {
 describe('vda-name-client read only tests', () => {
     let blockchainApi : VeridaNameClient
     before(() => {
-        blockchainApi = createBlockchainAPI(did)
+        blockchainApi = createBlockchainAPI()
     })
 
     describe('Get usernames', function() {

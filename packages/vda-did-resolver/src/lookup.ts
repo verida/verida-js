@@ -1,4 +1,4 @@
-import { CONTRACT_ADDRESSES } from "./config";
+import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ContractFactory } from 'ethers';
@@ -11,9 +11,9 @@ import { ContractFactory } from 'ethers';
 export async function lookup(didAddress: string, network: string, rpcUrl: string) : Promise<string[]> {
     // Simple read-only of the blockchain
 
-    const contractABI = require(`./abi/DidRegistry.json`);
+    const contractABI = abiList["DidRegistry"];
     const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESSES[network];
+    const address = CONTRACT_ADDRESS["DidRegistry"][network];
 
     const contract = ContractFactory.fromSolidity(contractABI)
         .attach(address!)

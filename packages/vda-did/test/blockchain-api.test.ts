@@ -1,17 +1,21 @@
 const assert = require('assert')
-import { dids, getBlockchainAPIConfiguration } from "./utils"
+import { getBlockchainAPIConfiguration } from "@verida/vda-common";
 import BlockchainApi from "../src/blockchain/blockchainApi"
 import { Wallet } from "ethers";
 require('dotenv').config();
 
-const did = dids[0];
-const badSigner = dids[1];
+const did = Wallet.createRandom();
 
 const endPoints_A = ['https://A_1', 'https://A_2', 'https://A_3'];
 const endPoints_B = ['https://B_1', 'https://B_2'];
 const endPoints_Empty: string[] = [];
 
-const configuration = getBlockchainAPIConfiguration();
+const privateKey = process.env.PRIVATE_KEY;
+if (!privateKey) {
+    throw new Error('No PRIVATE_KEY in the env file');
+}
+
+const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new BlockchainApi({
         identifier: did.address,

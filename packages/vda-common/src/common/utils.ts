@@ -1,5 +1,5 @@
-import {ethers} from 'ethers';
-import EncryptionUtils from '@verida/encryption-utils';
+import { computeAddress, getAddress, solidityPacked } from 'ethers'
+import EncryptionUtils from '@verida/encryption-utils'
 
 export function interpretIdentifier(identifier: string): {
   address: string;
@@ -18,9 +18,9 @@ export function interpretIdentifier(identifier: string): {
   }
   
   if (id.length > 42) {
-    return { address: ethers.utils.computeAddress(id), publicKey: id, network };
+    return { address: computeAddress(id), publicKey: id, network };
   } else {
-    return { address: ethers.utils.getAddress(id), network }; // checksum address
+    return { address: getAddress(id), network }; // checksum address
   }
 }
 
@@ -29,10 +29,10 @@ export function getVeridaSignWithNonce(
   privateKey: string,
   nonce: number
 ) {
-  rawMsg = ethers.utils.solidityPack(['bytes', 'uint256'], [rawMsg, nonce]);
+  rawMsg = solidityPacked(['bytes', 'uint256'], [rawMsg, nonce]);
   return getVeridaSign(rawMsg, privateKey);
 }
-
+  
 export const getVeridaSign = (rawMsg: string, privateKey: string) => {
   const privateKeyArray = new Uint8Array(
     Buffer.from(privateKey.slice(2), 'hex')

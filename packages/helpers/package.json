@@ -1,6 +1,6 @@
 {
   "name": "@verida/helpers",
-  "version": "2.3.0-rc1",
+  "version": "2.3.0-rc2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@verida/encryption-utils": "^2.2.1",
-    "@verida/types": "^2.3.0-rc1",
+    "@verida/types": "^2.3.0-rc2",
     "bs58": "^5.0.0",
     "url": "^0.11.0"
   },

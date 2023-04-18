@@ -1,3 +1,8 @@
+
+- Updated to use `@verida/vda-common`
+- Update tests
+- Contract whitelist for `meta-transaction-server` is generated automatically
+
 2023-03-27 (v2.2.1)
 -------------------
 
