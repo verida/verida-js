@@ -6,7 +6,7 @@ export const TEST_NODES: StorageNode[] = [
       "name": "Localhost 001",
       "description": "Node running in AF",
       "datacenter": "af-1",
-      "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech/",
+      "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech:443",
       "establishmentDate": "2023-01-03T08:22:35Z",
       "countryLocation": "AF",
       "region": "Asia"
@@ -16,7 +16,7 @@ export const TEST_NODES: StorageNode[] = [
       "name": "Localhost 002",
       "description": "Node running in AF",
       "datacenter": "af-2",
-      "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech/",
+      "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech:443",
       "establishmentDate": "2023-01-03T08:22:35Z",
       "countryLocation": "AF",
       "region": "Asia"
@@ -26,7 +26,7 @@ export const TEST_NODES: StorageNode[] = [
       "name": "Verida Foundation Devnet: GCP (Zurich) 001",
       "description": "Node operated by the Verida Foundation on Devnet",
       "datacenter": "gcp-europe-west-6",
-      "serviceEndpoint": "https://node1-euw6.gcp.devnet.verida.tech/",
+      "serviceEndpoint": "https://node1-euw6.gcp.devnet.verida.tech:443",
       "establishmentDate": "2023-04-05T00:00:00Z",
       "countryLocation": "CH",
       "region": "Europe"
@@ -36,7 +36,7 @@ export const TEST_NODES: StorageNode[] = [
       "name": "Verida Foundation Devnet: GCP (Zurich) 001",
       "description": "Node operated by the Verida Foundation on Devnet",
       "datacenter": "gcp-europe-west-6",
-      "serviceEndpoint": "https://node2-euw6.gcp.devnet.verida.tech/",
+      "serviceEndpoint": "https://node2-euw6.gcp.devnet.verida.tech:443",
       "establishmentDate": "2023-04-05T00:00:00Z",
       "countryLocation": "CH",
       "region": "Europe"
@@ -46,7 +46,7 @@ export const TEST_NODES: StorageNode[] = [
       "name": "Verida Foundation Devnet: GCP (Zurich) 001",
       "description": "Node operated by the Verida Foundation on Devnet",
       "datacenter": "gcp-europe-west-6",
-      "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech/",
+      "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech:443",
       "establishmentDate": "2023-04-05T00:00:00Z",
       "countryLocation": "CH",
       "region": "Europe"
@@ -56,7 +56,7 @@ export const TEST_NODES: StorageNode[] = [
         "name": "Verida Foundation Devnet: GCP (Great Britain) 004",
         "description": "Node operated by the Verida Foundation on Devnet",
         "datacenter": "gcp-europe-unknown",
-        "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech/",
+        "serviceEndpoint": "https://node3-euw6.gcp.devnet.verida.tech:443",
         "establishmentDate": "2023-04-05T00:00:00Z",
         "countryLocation": "GB",
         "region": "Europe"

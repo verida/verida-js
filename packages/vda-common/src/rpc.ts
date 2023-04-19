@@ -1,4 +1,5 @@
 export const RPC_URLS: Record<string, string | null> = {
+    devnet: "https://rpc-mumbai.maticvigil.com",
     mainnet: null,
     "0x89": null,
     testnet: "https://rpc-mumbai.maticvigil.com",
