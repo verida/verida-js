@@ -4,7 +4,7 @@ import {
     RECIPIENT_WALLET,
     getNetwork, 
     getSignerInfo,
-} from "@verida/vda-common"
+} from "@verida/vda-common-test"
 import { VeridaSBTClient } from "../src/index"
 import { Keyring } from "@verida/keyring";
 import {

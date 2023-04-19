@@ -1,5 +1,5 @@
 {
-  "name": "@verida/vda-common",
+  "name": "@verida/vda-common-test",
   "version": "2.3.0-rc2",
   "description": "Common utils & contract addresses for Verida",
   "main": "dist/index.js",
@@ -12,16 +12,19 @@
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
-    "copy-files": "copyfiles -u 1 src/**/*.json dist/",
     "test": "ts-mocha --timeout 100000",
-    "build": "rm -rf dist && tsc && yarn copy-files"
+    "build": "rm -rf dist && tsc"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "@verida/account-node": "^2.3.0-rc2",
+    "@verida/client-ts": "^2.3.0-rc2",
+    "@verida/encryption-utils": "^2.2.1",
+    "@verida/keyring": "^2.3.0-rc2",
+    "@verida/types": "^2.3.0-rc2"
   },
   "dependencies": {
-    "copyfiles": "^2.4.1",
     "ethers": "^6.3.0",
     "mocha": "^10.2.0",
     "ts-mocha": "^10.0.0"
