@@ -280,8 +280,7 @@ class Context extends EventEmitter implements IContext {
    */
   public async openProfile(
     profileName: string = "basicProfile",
-    did?: string,
-    writeAccess?: boolean
+    did?: string
   ): Promise<Profile | undefined> {
     let ownAccount = false;
     if (!did) {

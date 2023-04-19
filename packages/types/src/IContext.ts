@@ -40,33 +40,32 @@ export interface IContext {
 
   openProfile(
     profileName?: string,
-    did?: string,
-    writeAccess?: boolean
+    did?: string
   ): Promise<IProfile | undefined> 
 
   openDatabase(
     databaseName: string,
-    config: DatabaseOpenConfig
+    config?: DatabaseOpenConfig
   ): Promise<IDatabase>
 
 
   openExternalDatabase(
     databaseName: string,
     did: string,
-    config: DatabaseOpenConfig
+    config?: DatabaseOpenConfig
   ): Promise<IDatabase>
 
 
   openDatastore(
     schemaUri: string,
-    config: DatastoreOpenConfig
+    config?: DatastoreOpenConfig
   ): Promise<IDatastore>
 
 
   openExternalDatastore(
     schemaUri: string,
     did: string,
-    options: DatastoreOpenConfig
+    options?: DatastoreOpenConfig
   ): Promise<IDatastore> 
 
   getDbRegistry(): IDbRegistry
@@ -77,7 +76,7 @@ export interface IContext {
 
   addEndpoint(engineType: ContextEngineType, endpointUri: string): void
 
-  close(options: ContextCloseOptions): Promise<void>
+  close(options?: ContextCloseOptions): Promise<void>
 
   clearDatabaseCache(did: string, databaseName: string): Promise<void>
 
