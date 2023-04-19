@@ -21,11 +21,9 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@verida/account-node": "^2.3.0-rc2",
-    "@verida/client-ts": "^2.3.0-rc2",
     "@verida/encryption-utils": "^2.2.1",
     "@verida/keyring": "^2.3.0-rc2",
-    "@verida/types": "^2.3.0-rc2",
+    "@verida/types": "^2.2.0",
     "ethers": "^6.3.0",
     "mocha": "^10.2.0",
     "ts-mocha": "^10.0.0"
