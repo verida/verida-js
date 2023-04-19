@@ -177,7 +177,7 @@ export class NodeSelector {
   public async verifyNodeAvailable(storageNode: StorageNode) {
     try {
       const statusResponse = await axios.get(
-        `${storageNode.serviceEndpoint}/status`,
+        `${storageNode.serviceEndpoint}status`,
         {
           timeout: this.config.defaultTimeout,
         }

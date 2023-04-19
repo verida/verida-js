@@ -21,7 +21,6 @@ describe('Storage node selector tests', () => {
 
         it('can select nodes by country', async function () {
             const nodes = await nodeSelector.selectNodesByCountry('CH', 1)
-            console.log(nodes)
             assert.ok(nodes, 'Nodes were returned')
             assert.equal(nodes.length, 1, '1 node returned')
 
