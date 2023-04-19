@@ -18,10 +18,8 @@
     "test": "ts-mocha --timeout 200000",
     "lint": "gts lint",
     "clean": "gts clean",
-    "copy": "cd src/contract && find . -name \"*.json\" | xargs cp --parents -t ../../build/src/contract && cd ../../",
-    "copy-files": "copyfiles -u 1 src/**/*.json build/src/",
-    "compile": "rm -rf build && tsc && yarn copy-files",
-    "build": "rm -rf build && tsc && yarn copy-files",
+    "compile": "rm -rf build && tsc",
+    "build": "rm -rf build && tsc",
     "fix": "gts fix",
     "prepare": "npm run compile"
   },
@@ -34,7 +32,6 @@
     "ethers": "^5.7.0"
   },
   "devDependencies": {
-    "copyfiles": "^2.4.1",
     "dotenv": "^16.0.3",
     "gts": "^3.1.0",
     "mocha": "^10.1.0",

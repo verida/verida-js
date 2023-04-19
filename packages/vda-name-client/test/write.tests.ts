@@ -1,5 +1,5 @@
 require('dotenv').config();
-import { DID_LIST, getBlockchainAPIConfiguration } from "@verida/vda-common"
+import { DID_LIST, getBlockchainAPIConfiguration } from "@verida/vda-common-test"
 import { VeridaNameClient } from "../src/index"
 import { Wallet } from "ethers";
 import { EnvironmentType } from "@verida/types";

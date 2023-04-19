@@ -5,7 +5,7 @@ import { DIDDocument } from '@verida/did-document'
 import { getResolver } from '../src/resolver'
 import { Resolver } from 'did-resolver'
 import { VdaDid } from '@verida/vda-did'
-import { getBlockchainAPIConfiguration } from "@verida/vda-common"
+import { getBlockchainAPIConfiguration } from "@verida/vda-common-test"
 import { VeridaDocInterface } from '@verida/types';
 
 const wallet = ethers.Wallet.createRandom()

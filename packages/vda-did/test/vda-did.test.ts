@@ -4,7 +4,7 @@ import { DIDDocument } from '@verida/did-document'
 import { getResolver } from '@verida/vda-did-resolver'
 import { Resolver } from 'did-resolver'
 import { randomBytes } from 'crypto'
-import { getBlockchainAPIConfiguration } from "@verida/vda-common"
+import { getBlockchainAPIConfiguration } from "@verida/vda-common-test"
 
 import VdaDid from '../src/vdaDid'
 import { VeridaDocInterface } from '@verida/types'

@@ -1,5 +1,5 @@
 const assert = require('assert')
-import { getBlockchainAPIConfiguration } from "@verida/vda-common";
+import { getBlockchainAPIConfiguration } from "@verida/vda-common-test";
 import BlockchainApi from "../src/blockchain/blockchainApi"
 import { Wallet } from "ethers";
 require('dotenv').config();
