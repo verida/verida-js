@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@verida/account": "^2.3.0-rc2",
-    "@verida/account-node": "^2.3.0-rc2",
     "@verida/did-client": "^2.3.0-rc2",
     "@verida/did-document": "^2.3.0-rc2",
     "@verida/encryption-utils": "^2.2.1",
@@ -41,6 +40,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@verida/account-node": "^2.2.1",
     "@types/crypto-pouch": "^4.0.1",
     "@types/mocha": "^9.1.1",
     "@types/pouchdb": "^6.4.0",
