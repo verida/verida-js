@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-name-client",
-  "version": "2.3.0-rc2",
+  "version": "2.3.0-rc3",
   "description": "Client to manage adding and fetching names from the blockchain",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -25,14 +25,14 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@verida/helpers": "^2.3.0-rc2",
-    "@verida/types": "^2.3.0-rc2",
-    "@verida/web3": "^2.3.0-rc2",
+    "@verida/helpers": "^2.3.0-rc3",
+    "@verida/types": "^2.3.0-rc3",
+    "@verida/web3": "^2.3.0-rc3",
     "axios": "^0.27.2",
     "ethers": "^5.7.0"
   },
   "devDependencies": {
-    "@verida/vda-common-test": "2.3.0-rc2",
+    "@verida/vda-common-test": "^2.3.0-rc3",
     "dotenv": "^16.0.3",
     "gts": "^3.1.0",
     "mocha": "^10.1.0",
