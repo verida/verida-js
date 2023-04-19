@@ -1,4 +1,4 @@
-import { DIDDocument } from "@verida/did-document"
+import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
 import { getResolver } from '@verida/vda-did-resolver'
@@ -6,7 +6,6 @@ import { RPC_URLS } from "@verida/vda-common"
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
 import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
-import { VdaDidResolver } from "@verida/vda-did-resolver"
 
 export class DIDClient implements IDIDClient {
 
@@ -129,7 +128,7 @@ export class DIDClient implements IDIDClient {
      * @param document Updated DIDDocuent
      * @returns true if success.
      */
-    public async save(document: DIDDocument): Promise<VdaDidEndpointResponses> {
+    public async save(document: VeridaDIDDocument): Promise<VdaDidEndpointResponses> {
         if (!this.authenticated()) {
             throw new Error("Unable to save DIDDocument. No private key.")
         }
@@ -198,13 +197,13 @@ export class DIDClient implements IDIDClient {
      * 
      * @returns DID Document instance
      */
-    public async get(did: string): Promise<DIDDocument> {
+    public async get(did: string): Promise<VeridaDIDDocument> {
         const resolutionResult = await this.didResolver.resolve(did.toLowerCase())
 
         if (resolutionResult.didResolutionMetadata && resolutionResult.didResolutionMetadata.error) {
             throw new Error(`DID resolution error (${resolutionResult.didResolutionMetadata.error}): ${resolutionResult.didResolutionMetadata.message} (${did})`)
         }
 
-        return new DIDDocument(<VeridaDocInterface> resolutionResult.didDocument)
+        return new VeridaDIDDocument(<VeridaDocInterface> resolutionResult.didDocument)
     }
 }

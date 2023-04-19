@@ -1,5 +1,5 @@
 import { DIDClient } from "@verida/did-client"
-import { DIDDocument } from "@verida/did-document"
+import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 import { DIDDocument as DocInterface, ServiceEndpoint } from 'did-resolver'
 import { IKeyring, SecureContextConfig, SecureContextEndpoints, SecureContextEndpointType, VdaDidEndpointResponses } from "@verida/types"
 const Url = require('url-parse')
@@ -34,7 +34,7 @@ export default class StorageLink {
     static async getLink(didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
         let contextHash = context
         if (contextIsName) {
-            contextHash = DIDDocument.generateContextHash(did, context)
+            contextHash = VeridaDIDDocument.generateContextHash(did, context)
         }
 
         const secureContexts =  await StorageLink.getLinks(didClient, did)
@@ -66,7 +66,7 @@ export default class StorageLink {
             }
         } catch (err) {
             // DID document not found
-            didDocument = new DIDDocument(did, didClient.getPublicKey())
+            didDocument = new VeridaDIDDocument(did, didClient.getPublicKey())
         }
 
         const endpoints: SecureContextEndpoints = {
@@ -102,7 +102,7 @@ export default class StorageLink {
         }
 
         // Build context hash in the correct format
-        const contextHash = DIDDocument.generateContextHash(did, contextName)
+        const contextHash = VeridaDIDDocument.generateContextHash(did, contextName)
 
         // Add the context service
         await didDocument.addContextService(contextHash, endpointType, serverType, StorageLink.standardizeUrls(endpointUris))
@@ -140,7 +140,7 @@ export default class StorageLink {
         }
     }
 
-    static buildSecureContexts(didDocument: DIDDocument): SecureContextConfig[] {
+    static buildSecureContexts(didDocument: VeridaDIDDocument): SecureContextConfig[] {
         const doc: DocInterface = didDocument.export()
         const did = doc.id
 
