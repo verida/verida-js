@@ -37,7 +37,13 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         devnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
     },
 
-    "DidLinkage" : {},
+    "DidLinkage" : {
+        mainnet: null,
+        "0x89": null,
+        testnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
+        "0x13881": "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
+        devnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
+    },
     "VeridaToken" : {},
     "RewardContract": {}
 };
