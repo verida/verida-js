@@ -238,7 +238,7 @@ class Client implements IClient {
       );
     }
 
-    return context!.openProfile(profileName, did, false);
+    return context!.openProfile(profileName, did);
   }
 
   /**
