@@ -24,6 +24,7 @@
     "prepare": "npm run compile"
   },
   "devDependencies": {
+    "@verida/vda-common-test": "2.3.0-rc2",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.0",
     "@verida/types": "^2.3.0-rc2",

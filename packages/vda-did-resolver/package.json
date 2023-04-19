@@ -26,6 +26,7 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@verida/vda-common-test": "2.3.0-rc2",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.0",
     "did-resolver": "^4.0.1",
