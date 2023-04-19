@@ -40,11 +40,11 @@ describe.skip('Performance tests', () => {
     })
     let context1
 
-    const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+    const account1 = new AutoAccount({
         privateKey: PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    })
+    }, CONFIG.DEFAULT_ENDPOINTS)
 
     const client2 = new Client({
         environment: CONFIG.ENVIRONMENT,
@@ -54,11 +54,11 @@ describe.skip('Performance tests', () => {
     })
     let context2, context3
 
-    const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+    const account2 = new AutoAccount({
         privateKey: PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    })
+    }, CONFIG.DEFAULT_ENDPOINTS)
 
     describe('Basic tests', function() {
         this.timeout(120 * 1000)

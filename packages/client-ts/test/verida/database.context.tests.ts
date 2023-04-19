@@ -47,11 +47,11 @@ describe('Verida database tests relating to contexts', () => {
 
         it('can open a database with public write permissions', async function() {
             // Initialize account 1
-            const account1 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            const account1 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, [CONTEXT_1])
+            }, CONFIG.DEFAULT_ENDPOINTS, [CONTEXT_1])
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONTEXT_1, true)
@@ -76,11 +76,11 @@ describe('Verida database tests relating to contexts', () => {
             await sleep(5000)
 
             // Initialize account 2
-            const account2 = new LimitedAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            const account2 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, [CONTEXT_1, CONTEXT_2])
+            }, CONFIG.DEFAULT_ENDPOINTS, [CONTEXT_1, CONTEXT_2])
             did2 = await account2.did()
             await network2.connect(account2)
             context2 = await network2.openContext(CONTEXT_2, true)

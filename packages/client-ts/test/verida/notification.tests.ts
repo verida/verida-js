@@ -47,10 +47,10 @@ const validateDidDocument = async(account: AutoAccount, context: Context, did: s
     const fetchedStorageConfig = await StorageLink.getLink(didClient, did, context.getContextName())
 
     assert.ok(fetchedStorageConfig, 'Have sotrage config for context')
-    assert.ok(fetchedStorageConfig.services.notificationServer, 'Have a notification server in the DID document')
-    assert.equal(fetchedStorageConfig.services.notificationServer.type, ENDPOINT_CONFIG.defaultNotificationServer!.type, 'Have correct notification server type')
+    assert.ok(fetchedStorageConfig!.services.notificationServer, 'Have a notification server in the DID document')
+    assert.equal(fetchedStorageConfig!.services.notificationServer.type, ENDPOINT_CONFIG.defaultNotificationServer!.type, 'Have correct notification server type')
 
-    assert.deepEqual([fetchedStorageConfig.services.notificationServer.endpointUri], [ENDPOINT_CONFIG.defaultNotificationServer!.endpointUri], 'Have correct notification server endpointUri')
+    assert.deepEqual([fetchedStorageConfig!.services.notificationServer.endpointUri], [ENDPOINT_CONFIG.defaultNotificationServer!.endpointUri], 'Have correct notification server endpointUri')
 }
 
 /**
@@ -86,11 +86,11 @@ describe('Verida notification tests', () => {
 
         it('can specify a notification server when creating a new account context', async () => {
             // Initialize account 1
-            const account = new AutoAccount(ENDPOINT_CONFIG, {
+            const account = new AutoAccount({
                 privateKey: wallet.privateKey,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            })
+            }, ENDPOINT_CONFIG)
             const did = await account.did()
             VDA_DID = did
             await client.connect(account)
@@ -108,11 +108,11 @@ describe('Verida notification tests', () => {
 
         it('can force add a notification server to an existing account context', async () => {
             // Initialize account 1 without a notification server
-            const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            const account = new AutoAccount({
                 privateKey: wallet.privateKey,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            })
+            }, CONFIG.DEFAULT_ENDPOINTS)
             VDA_ACCOUNT = account
             const did = await account.did()
             await client2.connect(account)

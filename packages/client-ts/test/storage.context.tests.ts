@@ -36,7 +36,7 @@ describe('Storage context tests', () => {
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, CONFIG.DEFAULT_ENDPOINTS)
             await client.connect(account)
-            await account.loadDefaultStorageNodes('AU')
+            //await account.loadDefaultStorageNodes('AU')
             didClient = await account.getDidClient()
             const did = await account.did()
 

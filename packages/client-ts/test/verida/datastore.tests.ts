@@ -38,11 +38,11 @@ describe('Verida datastore tests', () => {
         
         it('can open a datastore with owner/owner permissions', async function() {
             // Initialize account 1
-            account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            account1 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            })
+            }, CONFIG.DEFAULT_ENDPOINTS)
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)
@@ -78,11 +78,11 @@ describe('Verida datastore tests', () => {
 
         it('can open a datastore with user permissions, as the owner', async function() {
             // Initialize account 2
-            account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            account2 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            })
+            }, CONFIG.DEFAULT_ENDPOINTS)
             did2 = await account2.did()
 
             const datastore = await context.openDatastore(DS_CONTACTS, {
