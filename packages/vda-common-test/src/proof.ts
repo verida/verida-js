@@ -27,7 +27,7 @@ const DID_CLIENT_CONFIG = {
     didEndpoints: ["https://node1-euw6.gcp.devnet.verida.tech/did/", "https://node2-euw6.gcp.devnet.verida.tech/did/", "https://node3-euw6.gcp.devnet.verida.tech/did/"]
 }
   
-export async function getNetwork(privateKey: string, contextName: string): Promise<{
+/*export async function getNetwork(privateKey: string, contextName: string): Promise<{
     network: Client,
     context: Context,
     account: AutoAccount,
@@ -52,13 +52,13 @@ export async function getNetwork(privateKey: string, contextName: string): Promi
         account,
         keyring
     }
-}
+}*/
   
 /**
  * Return keyring & signedProof for given trusted signer
  * @param privateKey private key of trusted signer
  */
-export async function getSignerInfo(privateKey: string, contextName : string): Promise<[
+/*export async function getSignerInfo(privateKey: string, contextName : string): Promise<[
     keyring: Keyring,
     signedProof: string
   ]> {
@@ -72,4 +72,4 @@ export async function getSignerInfo(privateKey: string, contextName : string): P
       trustedSignerNetworkInfo.keyring,
       signedProof
     ]
-}
+}*/
