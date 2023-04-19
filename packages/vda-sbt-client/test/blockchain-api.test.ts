@@ -2,9 +2,13 @@ import {
     DID_LIST, 
     TRUSTED_SIGNER,
     RECIPIENT_WALLET,
-    getNetwork, 
-    getSignerInfo,
 } from "@verida/vda-common-test"
+
+import {
+    getNetwork, 
+    getSignerInfo
+} from "./proof"
+
 import { VeridaSBTClient } from "../src/index"
 import { Keyring } from "@verida/keyring";
 import {

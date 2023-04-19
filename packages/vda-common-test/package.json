@@ -19,9 +19,6 @@
     "build": "rm -rf dist && tsc"
   },
   "devDependencies": {
-    "@verida/encryption-utils": "^2.2.1",
-    "@verida/keyring": "^2.3.0-rc2",
-    "@verida/types": "^2.2.0",
     "dotenv": "^16.0.3",
     "typescript": "^5.0.4"
   },

@@ -2,7 +2,7 @@ import {
   RECIPIENT_WALLET,
   DidInterface,
   getBlockchainAPIConfiguration, 
-} from "@verida/vda-common-test"
+} from "@verida/vda-common"
 
 import { VeridaSBTClient } from "../src/index"
 import { Keyring } from "@verida/keyring";
