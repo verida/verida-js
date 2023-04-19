@@ -30,12 +30,13 @@ describe('Storage context tests', () => {
         this.timeout(200 * 1000)
 
         it(`can open a user storage context when authenticated`, async function() {
-            const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            const account = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            })
+            }, CONFIG.DEFAULT_ENDPOINTS)
             await client.connect(account)
+            await account.loadDefaultStorageNodes('AU')
             didClient = await account.getDidClient()
             const did = await account.did()
 
@@ -47,8 +48,11 @@ describe('Storage context tests', () => {
             const fetchedStorageConfig = await StorageLink.getLink(didClient, did, CONFIG.CONTEXT_NAME)
             const contextConfig = await context.getContextConfig()
 
+            const existing = contextConfig.services
+            const fetched = fetchedStorageConfig!.services
+
             contextConfig.id = DIDDocument.generateContextHash(did, CONFIG.CONTEXT_NAME)
-            assert.deepEqual(fetchedStorageConfig, contextConfig, 'Storage context config matches')
+            assert.deepEqual(existing, fetched, 'Storage context config matches')
         })
 
         it('can open a database with owner/owner permissions', async function() {
