@@ -1,7 +1,9 @@
+2023-04-20 (v2.3.0)
+-------------------
 
-
-- Updated to use `@verida/vda-common`
+- Update to latest protocol dependencies
 - Update tests
+- Update contract address (breaking change)
 
 2023-03-27 (v2.2.1)
 -------------------

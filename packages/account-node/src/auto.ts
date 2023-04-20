@@ -94,20 +94,20 @@ export default class AutoAccount extends Account {
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
             if (!this.accountConfig) {
-                throw new Error('Unable to force create storage context. No storage nodes loaded.')
+                await this.loadDefaultStorageNodes(this.autoConfig.countryCode)
             }
 
             const endpoints: SecureContextServices = {
-                databaseServer: this.accountConfig.defaultDatabaseServer,
-                messageServer: this.accountConfig.defaultMessageServer
+                databaseServer: this.accountConfig!.defaultDatabaseServer,
+                messageServer: this.accountConfig!.defaultMessageServer
             }
 
-            if (this.accountConfig.defaultStorageServer) {
-                endpoints.storageServer = this.accountConfig.defaultStorageServer
+            if (this.accountConfig!.defaultStorageServer) {
+                endpoints.storageServer = this.accountConfig!.defaultStorageServer
             }
 
-            if (this.accountConfig.defaultNotificationServer) {
-                endpoints.notificationServer = this.accountConfig.defaultNotificationServer
+            if (this.accountConfig!.defaultNotificationServer) {
+                endpoints.notificationServer = this.accountConfig!.defaultNotificationServer
             }
 
             storageConfig = await DIDStorageConfig.generate(this, contextName, endpoints)

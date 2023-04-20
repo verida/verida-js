@@ -1,7 +1,8 @@
-
+2023-04-20 (v2.3.0)
 -------------------
 
-- Add missing dependencies
+- Minor fixes to interfaces, making more method properties optional to match implementations
+- Add `devnet` network
 
 2023-03-10 (v2.2.0)
 -------------------

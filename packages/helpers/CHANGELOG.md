@@ -1,3 +1,8 @@
+2023-04-20 (v2.3.0)
+-------------------
+
+- Fix: `wrapUri` didn't have `https` for default `wrapperUri`
+
 2023-03-10 (v2.2.0)
 -------------------
 
