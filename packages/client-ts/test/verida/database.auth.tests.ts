@@ -20,20 +20,23 @@ const INVALID_CONTEXT = 'Verida Testing: Authentication - Invalid'
 describe.skip('Verida auth tests', () => {
     let invalidContext, invalidDid
 
-    const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+    const account = new AutoAccount({
         privateKey: CONFIG.VDA_PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    })
+    }, CONFIG.DEFAULT_ENDPOINTS)
 
-    const invalidAccount = new AutoAccount(CONFIG.INVALID_ENDPOINTS, {
+    const invalidAccount = new AutoAccount({
         privateKey: CONFIG.VDA_PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    })
+    }, CONFIG.DEFAULT_ENDPOINTS)
 
     const invalidNetwork = new Client({
-        didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+        didClientConfig: {
+            network: CONFIG.ENVIRONMENT,
+            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+        },
         environment: CONFIG.ENVIRONMENT
     })
 
@@ -67,12 +70,18 @@ describe.skip('Verida auth tests', () => {
         it('can handle accessToken expiry for an encrypted database', async function() {
             // Create a working connection
             const network = new Client({
-                didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+                didClientConfig: {
+                    network: CONFIG.ENVIRONMENT,
+                    rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+                },
                 environment: CONFIG.ENVIRONMENT
             })
         
             const network2 = new Client({
-                didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+                didClientConfig: {
+                    network: CONFIG.ENVIRONMENT,
+                    rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+                },
                 environment: CONFIG.ENVIRONMENT
             })
 
@@ -93,13 +102,15 @@ describe.skip('Verida auth tests', () => {
             authContext.accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVIUTlLTFprbE9UVERjaU1TOXFOY1Nzb0hBUUJSbUxDbEQ3d2pDUnBsSXNSUE45emZMdHBSM0JlM3d0cXRVVHlFakVPcVhpS2NZeG5zZHBWWTlWRWE3TmUwNUtsUElPUTQxSlpJQktHWW1NYjE2ajRkWkZxVThlek1VZFR1SnRFYmNKUlY0M09JWXE4OTF0ZXY0TDhKY2xPdzBZV1BweTFoMmpKTHkzblNJNVZsZ3RaVG1HVmI5cXlDODRrVnd1NGsySzVvN1VuOFkyUmNWbGpEa2lZRXpaanBxbzlkc0l4Mkh0UGNQcE9TVDhVM05WU29TWjFibzNBdU5CRjkxbE4iLCJkaWQiOiJkaWQ6dmRhOjB4ZTcwZTYyODQyNzg4MGFiMDFiZTU1YTM0OWYxY2VmMDQ3OWIyMWJmOCIsInN1YiI6InZmNWYxOWYyYzcyYTFmNDllYjcwMDIxNWMwNGVhMGM4NjVmMjc4ZTA4MGNkMDU5Njc4NjVhMmE5MTA0YWUzNjUzIiwiY29udGV4dE5hbWUiOiJWZXJpZGEgVGVzdGluZzogQXV0aGVudGljYXRpb24iLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNjYxNDE5ODQ2LCJleHAiOjE2NjE0MTk5MDZ9.tHugqMHM_udE-eV0u2_2oCjzDSiljfK8DVieK-GcXcU'
 
             // 2/ initialise a new testing account that has a single context with an invalid access token
-            const account2 = new AuthContextAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didClientConfig: CONFIG.DID_CLIENT_CONFIG,
-                environment: CONFIG.ENVIRONMENT
-            },
-            VALID_CONTEXT,
-            authContext)
+            const account2 = new AuthContextAccount({
+                    privateKey: CONFIG.VDA_PRIVATE_KEY,
+                    didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+                    environment: CONFIG.ENVIRONMENT
+                },
+                VALID_CONTEXT,
+                authContext,
+                CONFIG.DEFAULT_ENDPOINTS
+            )
 
             // 3/ initiate a new context using the context auth
             await network2.connect(account2)
@@ -119,18 +130,24 @@ describe.skip('Verida auth tests', () => {
         it('can handle refreshToken expiry for an encrypted database', async function() {
             // Create a working connection
             const network = new Client({
-                didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+                didClientConfig: {
+                    network: CONFIG.ENVIRONMENT,
+                    rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+                },
                 environment: CONFIG.ENVIRONMENT
             })
         
             const network2 = new Client({
-                didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+                didClientConfig: {
+                    network: CONFIG.ENVIRONMENT,
+                    rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+                },
                 environment: CONFIG.ENVIRONMENT
             })
             
             await network.connect(account)
             const context = await network.openContext(VALID_CONTEXT, true)
-            await context?.openDatabase(DB_NAME_OWNER)
+            await context!.openDatabase(DB_NAME_OWNER, {})
 
             // 1/ get the context auth
             const did = await account.did()
@@ -142,13 +159,15 @@ describe.skip('Verida auth tests', () => {
             authContext.refreshToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVIUTlLTFprbE9UVERjaU1TOXFOY1Nzb0hBUUJSbUxDbEQ3d2pDUnBsSXNSUE45emZMdHBSM0JlM3d0cXRVVHlFakVPcVhpS2NZeG5zZHBWWTlWRWE3TmUwNUtsUElPUTQxSlpJQktHWW1NYjE2ajRkWkZxVThlek1VZFR1SnRFYmNKUlY0M09JWXE4OTF0ZXY0TDhKY2xPdzBZV1BweTFoMmpKTHkzblNJNVZsZ3RaVG1HVmI5cXlDODRrVnd1NGsySzVvN1VuOFkyUmNWbGpEa2lZRXpaanBxbzlkc0l4Mkh0UGNQcE9TVDhVM05WU29TWjFibzNBdU5CRjkxbE4iLCJkaWQiOiJkaWQ6dmRhOjB4ZTcwZTYyODQyNzg4MGFiMDFiZTU1YTM0OWYxY2VmMDQ3OWIyMWJmOCIsInN1YiI6InZmNWYxOWYyYzcyYTFmNDllYjcwMDIxNWMwNGVhMGM4NjVmMjc4ZTA4MGNkMDU5Njc4NjVhMmE5MTA0YWUzNjUzIiwiY29udGV4dE5hbWUiOiJWZXJpZGEgVGVzdGluZzogQXV0aGVudGljYXRpb24iLCJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNjYxNDE5ODQ2LCJleHAiOjE2NjE0MTk5MDZ9.tHugqMHM_udE-eV0u2_2oCjzDSiljfK8DVieK-GcXcU'
             
             // 2/ initialise a new testing account that has a single context with an invalid access and refresh token
-            const account2 = new AuthContextAccount(CONFIG.DEFAULT_ENDPOINTS, {
-                privateKey: CONFIG.VDA_PRIVATE_KEY,
-                didClientConfig: CONFIG.DID_CLIENT_CONFIG,
-                environment: CONFIG.ENVIRONMENT
-            },
-            VALID_CONTEXT,
-            authContext)
+            const account2 = new AuthContextAccount({
+                    privateKey: CONFIG.VDA_PRIVATE_KEY,
+                    didClientConfig: CONFIG.DID_CLIENT_CONFIG,
+                    environment: CONFIG.ENVIRONMENT
+                },
+                VALID_CONTEXT,
+                authContext,
+                CONFIG.DEFAULT_ENDPOINTS
+            )
 
             // 3/ initiate a new context using the context auth
             await network2.connect(account2)

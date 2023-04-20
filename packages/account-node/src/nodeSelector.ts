@@ -19,26 +19,15 @@ function getRandomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min) + min) // The maximum is exclusive and the minimum is inclusive
 }
 
-/*const dataCentres: object[] = [
-  {
-    id: 'aws-us-east-2',
-    name: 'Amazon Web Services: US East 2 (Ohio)',
-    countryLocation: 'US',
-    latitude: 40.10149,
-    longitude: -83.4797668,
-  },
-  {
-    id: 'aws-ap-southeast-2',
-    name: 'Amazon Web Services: Asia Pacific South East 2 (Sydney)',
-    countryLocation: 'AU',
-    latitude: -33.8727631,
-    longitude: 151.2054683,
-  },
-]*/
+export interface NodeSelectorParams {
+  network?: EnvironmentType
+  notificationEndpoints?: string[]
+  defaultTimeout?: number //5000
+}
 
 export interface NodeSelectorConfig {
   network: EnvironmentType
-  notificationEndpoints: []
+  notificationEndpoints: string[]
   defaultTimeout: number //5000
 }
 
@@ -169,11 +158,14 @@ export class NodeSelector {
     const storageNodes = await this.loadStorageNodes()
 
     return storageNodes.reduce((result: any, item: StorageNode) => {
-      if (!result[item.region]) {
-        result[item.region] = []
+      const countryMeta = COUNTRIES[item.countryLocation]
+      const region = countryMeta.region
+
+      if (!result[region]) {
+        result[region] = []
       }
 
-      result[item.region].push(item)
+      result[region].push(item)
       return result
     }, {})
   }
@@ -217,6 +209,8 @@ export class NodeSelector {
     for (const n in nodeList) {
       nodes.push(<StorageNode>nodeList[n])
     }
+
+    this.nodeList = nodes
 
     return nodes
   }

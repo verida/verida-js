@@ -48,11 +48,11 @@ describe.skip('Storage endpoint tests', () => {
         }
     })
 
-    const account = new AutoAccount(DEFAULT_ENDPOINTS, {
+    const account = new AutoAccount({
         privateKey: PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    })
+    }, CONFIG.DEFAULT_ENDPOINTS)
 
     describe('Initialize user storage contexts', function() {
         this.timeout(100 * 1000)

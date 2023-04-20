@@ -6,6 +6,7 @@ import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
 import { AccountConfig, AccountNodeConfig, AuthContext, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { NodeSelector, NodeSelectorConfig, NodeSelectorParams } from './nodeSelector'
 
 /**
  * An Authenticator that automatically signs everything
@@ -60,6 +61,30 @@ export default class AutoAccount extends Account {
         return this.wallet.did
     }
 
+    public async loadDefaultStorageNodes(countryCode?: string, numNodes: number = 3, config: NodeSelectorParams = {}): Promise<void> {
+        config.network = this.autoConfig.environment
+        config.defaultTimeout = config.defaultTimeout ? config.defaultTimeout : 5000
+        config.notificationEndpoints = config.notificationEndpoints ? config.notificationEndpoints : []
+
+        const nodeSelector = new NodeSelector(<NodeSelectorConfig> config)
+        const nodeUris = await nodeSelector.selectEndpointUris(countryCode, numNodes)
+
+        this.accountConfig = {
+            defaultDatabaseServer: {
+                type: 'VeridaDatabase',
+                endpointUri: nodeUris
+            },
+            defaultMessageServer:  {
+                type: 'VeridaMessage',
+                endpointUri: nodeUris
+            },
+            defaultNotificationServer:  {
+                type: 'VeridaNotification',
+                endpointUri: config.notificationEndpoints
+            }
+        }
+    }
+
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
         this.ensureAuthenticated()
 
@@ -69,7 +94,7 @@ export default class AutoAccount extends Account {
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
             if (!this.accountConfig) {
-                throw new Error('Unable to ')
+                throw new Error('Unable to force create storage context. No storage nodes loaded.')
             }
 
             const endpoints: SecureContextServices = {

@@ -21,11 +21,11 @@ describe('Username lookup tests', () => {
         }
     })
 
-    const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+    const account = new AutoAccount({
         privateKey: CONFIG.VDA_PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    })
+    }, CONFIG.DEFAULT_ENDPOINTS)
 
     describe('Verify username lookups work', function() {
         this.timeout(200 * 1000)

@@ -19,22 +19,31 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         mainnet: null,
         "0x89": null,
         testnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
-        "0x13881": "0x08CB4462958e6462Cc899862393f0b3bB6664efD"
+        "0x13881": "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
+        devnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
     },
     "NameRegistry": {
         mainnet: null,
         "0x89": null,
         testnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
-        "0x13881": "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E"
+        "0x13881": "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
+        devnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
     },
     "SBT" : {
         mainnet: null,
         "0x89": null,
         testnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
-        "0x13881": "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52"
+        "0x13881": "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
+        devnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
     },
 
-    "DidLinkage" : {},
+    "DidLinkage" : {
+        mainnet: null,
+        "0x89": null,
+        testnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
+        "0x13881": "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
+        devnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
+    },
     "VeridaToken" : {},
     "RewardContract": {}
 };

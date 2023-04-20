@@ -13,9 +13,7 @@ const DATA = {
 describe('Profile tests', () => {
     const client1 = new Client({
         environment: CONFIG.ENVIRONMENT,
-        didClientConfig: {
-            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
-        }
+        didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
     let did1, context1, profile1
 
@@ -30,11 +28,11 @@ describe('Profile tests', () => {
 
         it('can initialise own profile', async () => {
             try {
-                const account1 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+                const account1 = new AutoAccount({
                     privateKey: CONFIG.VDA_PRIVATE_KEY,
                     environment: CONFIG.ENVIRONMENT,
                     didClientConfig: CONFIG.DID_CLIENT_CONFIG
-                })
+                }, CONFIG.DEFAULT_ENDPOINTS)
                 did1 = await account1.did()
                 await client1.connect(account1)
                 context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
