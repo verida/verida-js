@@ -44,6 +44,7 @@ export interface AccountNodeConfig {
     environment: EnvironmentType
     didClientConfig: AccountNodeDIDClientConfig
     options?: any
+    countryCode?: string
 }
 
 /**
