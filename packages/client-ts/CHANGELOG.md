@@ -1,3 +1,9 @@
+2023-04-20 (v2.3.0)
+-------------------
+
+- Remove unused `writeAccess` property on `Context.openProfile()`
+- Updates to tests to support breaking changes in `@verida/account-node`
+
 2023-03-27 (v2.2.1)
 -------------------
 

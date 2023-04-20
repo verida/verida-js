@@ -1,3 +1,8 @@
+2023-04-20 (v2.3.0)
+-------------------
+
+- Ensure `Account` implements `IAccount` interface
+
 2023-02-09 (v2.0.5)
 -------------------
 

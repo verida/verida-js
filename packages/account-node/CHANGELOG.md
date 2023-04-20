@@ -1,3 +1,10 @@
+2023-04-20 (v2.3.0)
+-------------------
+
+- Update `AutoAccount` constructor to make `accountNode` configuration optional (Breaking change)
+- Support loading storage nodes by country, region, global with fallbacks via `loadDefaultStorageNodes()`
+- Add storage node selector unit tests
+
 2023-03-27 (v2.2.1)
 -------------------
 

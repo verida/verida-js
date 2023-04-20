@@ -1,3 +1,9 @@
+2023-04-20 (v2.3.0)
+-------------------
+
+- Make `VeridaDIDDocument` and `@did-document/DIDDocument` usage clearer
+- Fix: Update tests to use updated devnet nodes
+
 2023-03-27 (v2.2.1)
 -------------------
 
