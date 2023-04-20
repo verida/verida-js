@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did",
-  "version": "2.3.0-rc3",
+  "version": "2.3.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,15 +17,15 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@verida/did-document": "^2.3.0-rc3",
+    "@verida/did-document": "^2.3.0",
     "@verida/encryption-utils": "^2.2.1",
-    "@verida/types": "^2.3.0-rc3",
-    "@verida/web3": "^2.3.0-rc3",
+    "@verida/types": "^2.3.0",
+    "@verida/web3": "^2.3.0",
     "axios": "1.2.0-alpha.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@verida/vda-common-test": "^2.3.0-rc3",
+    "@verida/vda-common-test": "^2.3.0",
     "dotenv": "^16.0.3",
     "ethers": "^5.7.2",
     "mocha": "7.0.0",
