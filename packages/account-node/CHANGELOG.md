@@ -1,3 +1,8 @@
+2023-04-21 (v2.3.1)
+-------------------
+
+- Support loading DID endpoints in the same way storage nodes are selected
+
 2023-04-20 (v2.3.0)
 -------------------
 
