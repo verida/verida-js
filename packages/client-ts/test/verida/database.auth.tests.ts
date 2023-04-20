@@ -24,13 +24,13 @@ describe.skip('Verida auth tests', () => {
         privateKey: CONFIG.VDA_PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    }, CONFIG.DEFAULT_ENDPOINTS)
+    })
 
     const invalidAccount = new AutoAccount({
         privateKey: CONFIG.VDA_PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    }, CONFIG.DEFAULT_ENDPOINTS)
+    })
 
     const invalidNetwork = new Client({
         didClientConfig: {
@@ -108,8 +108,7 @@ describe.skip('Verida auth tests', () => {
                     environment: CONFIG.ENVIRONMENT
                 },
                 VALID_CONTEXT,
-                authContext,
-                CONFIG.DEFAULT_ENDPOINTS
+                authContext
             )
 
             // 3/ initiate a new context using the context auth
@@ -165,8 +164,7 @@ describe.skip('Verida auth tests', () => {
                     environment: CONFIG.ENVIRONMENT
                 },
                 VALID_CONTEXT,
-                authContext,
-                CONFIG.DEFAULT_ENDPOINTS
+                authContext
             )
 
             // 3/ initiate a new context using the context auth

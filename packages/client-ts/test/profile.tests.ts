@@ -32,7 +32,7 @@ describe('Profile tests', () => {
                     privateKey: CONFIG.VDA_PRIVATE_KEY,
                     environment: CONFIG.ENVIRONMENT,
                     didClientConfig: CONFIG.DID_CLIENT_CONFIG
-                }, CONFIG.DEFAULT_ENDPOINTS)
+                })
                 did1 = await account1.did()
                 await client1.connect(account1)
                 context1 = await client1.openContext(CONFIG.CONTEXT_NAME, true)
@@ -69,7 +69,7 @@ describe('Profile tests', () => {
 
         it('can access an external profile', async () => {
             await sleep(5000)
-            const account2 = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            const account2 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG

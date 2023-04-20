@@ -112,7 +112,7 @@ describe('Verida notification tests', () => {
                 privateKey: wallet.privateKey,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS)
+            })
             VDA_ACCOUNT = account
             const did = await account.did()
             await client2.connect(account)
@@ -139,11 +139,11 @@ describe('Verida notification tests', () => {
         })
 
         it('can ping a notification server when sending a message', async () => {
-            const account = new AutoAccount(ENDPOINT_CONFIG, {
+            const account = new AutoAccount({
                 privateKey: wallet.privateKey,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            });
+            }, ENDPOINT_CONFIG);
             const did = await account.did()
             context = await client3.openContext(CONTEXT_1, false)
             let messaging = await context.getMessaging()

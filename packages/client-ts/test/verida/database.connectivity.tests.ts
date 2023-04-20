@@ -26,7 +26,7 @@ describe('Verida database connectivity tests', () => {
     const eventTypes = ['change', 'paused', 'active', 'complete']
 
     describe('Manage databases for the authenticated user', function() {
-        this.timeout(20*1000)
+        this.timeout(200*1000)
         
         it('can listen for sync events', async function() {
             // Initialize account 1
@@ -34,7 +34,7 @@ describe('Verida database connectivity tests', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS)
+            })
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONFIG.CONTEXT_NAME, true)

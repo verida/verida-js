@@ -25,7 +25,7 @@ describe('Username lookup tests', () => {
         privateKey: CONFIG.VDA_PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    }, CONFIG.DEFAULT_ENDPOINTS)
+    })
 
     describe('Verify username lookups work', function() {
         this.timeout(200 * 1000)

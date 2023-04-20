@@ -40,7 +40,7 @@ describe('Storage initialization tests', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS)
+            })
 
             didClient = await account.getDidClient()
             did = await account.did()

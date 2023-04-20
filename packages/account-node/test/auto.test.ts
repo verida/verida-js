@@ -7,16 +7,6 @@ import { AccountNodeDIDClientConfig, EnvironmentType } from "@verida/types"
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
 
 const APPLICATION_NAME = 'Verida Test: DIDJWT'
-const DEFAULT_ENDPOINTS = {
-    defaultDatabaseServer: {
-        type: 'VeridaDatabase',
-        endpointUri: ['https://db.testnet.verida.io:5002/']
-    },
-    defaultMessageServer: {
-        type: 'VeridaMessage',
-        endpointUri: ['https://db.testnet.verida.io:5002/']
-    },
-}
 
 const DID_CLIENT_CONFIG: AccountNodeDIDClientConfig = {
     //privateKey: CONFIG.networkPrivateKey,
@@ -31,7 +21,7 @@ describe('Auto account tests', () => {
         this.timeout(100000)
 
         it('verify did-jwt', async function () {
-            const account = new AutoAccount(DEFAULT_ENDPOINTS, {
+            const account = new AutoAccount({
                 environment: EnvironmentType.TESTNET,
                 privateKey: MNEMONIC,
                 didClientConfig: DID_CLIENT_CONFIG
@@ -50,7 +40,7 @@ describe('Auto account tests', () => {
         })
 
         it('can reopen the same did account with the same mnemonic and did', async () => {
-            const account1 = new AutoAccount(DEFAULT_ENDPOINTS, {
+            const account1 = new AutoAccount({
                 environment: EnvironmentType.TESTNET,
                 privateKey: MNEMONIC,
                 didClientConfig: DID_CLIENT_CONFIG
@@ -58,7 +48,7 @@ describe('Auto account tests', () => {
 
             const did1 = await account1.did()
 
-            const account2 = new AutoAccount(DEFAULT_ENDPOINTS, {
+            const account2 = new AutoAccount({
                 environment: EnvironmentType.TESTNET,
                 privateKey: MNEMONIC,
                 didClientConfig: DID_CLIENT_CONFIG

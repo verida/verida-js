@@ -1,10 +1,17 @@
 const assert = require('assert')
 import { LimitedAccount } from "../src/index"
 import { DIDClient } from "@verida/did-client"
-import { EnvironmentType } from "@verida/types"
+import { AccountNodeDIDClientConfig, EnvironmentType } from "@verida/types"
 require('dotenv').config()
 
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
+
+const DID_CLIENT_CONFIG: AccountNodeDIDClientConfig = {
+    //privateKey: CONFIG.networkPrivateKey,
+    callType: 'web3',
+    web3Config: {},
+    didEndpoints: []
+}
 
 const didClient = new DIDClient({
     network: EnvironmentType.TESTNET
@@ -14,17 +21,6 @@ didClient.authenticate(MNEMONIC, 'web3', {
     rpcUrl: process.env.RPC_URL
 }, [])
 const DID = didClient.getDid()
-
-const DEFAULT_ENDPOINTS = {
-    defaultDatabaseServer: {
-        type: 'VeridaDatabase',
-        endpointUri: ['https://db.testnet.verida.io:5002/']
-    },
-    defaultMessageServer: {
-        type: 'VeridaMessage',
-        endpointUri: ['https://db.testnet.verida.io:5002/']
-    },
-}
 
 const VALID_CONTEXT = 'Verida Test: Valid Context'
 const INVALID_CONTEXT = 'Verida Test: Invalid Context'
@@ -36,8 +32,10 @@ describe('Limited account tests', () => {
         this.timeout(100000)
 
         it('Won\'t fetch keyring for an unsupported context', async function() {
-            const account = new LimitedAccount(DEFAULT_ENDPOINTS, {
+            const account = new LimitedAccount({
+                environment: EnvironmentType.TESTNET,
                 privateKey: MNEMONIC,
+                didClientConfig: DID_CLIENT_CONFIG
             }, [VALID_CONTEXT])
 
             const validKeyring = await account.keyring(VALID_CONTEXT)

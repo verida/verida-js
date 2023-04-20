@@ -34,7 +34,7 @@ describe('Storage context tests', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS)
+            })
             await client.connect(account)
             //await account.loadDefaultStorageNodes('AU')
             didClient = await account.getDidClient()

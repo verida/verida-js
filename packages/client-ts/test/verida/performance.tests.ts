@@ -44,7 +44,7 @@ describe.skip('Performance tests', () => {
         privateKey: PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    }, CONFIG.DEFAULT_ENDPOINTS)
+    })
 
     const client2 = new Client({
         environment: CONFIG.ENVIRONMENT,
@@ -58,7 +58,7 @@ describe.skip('Performance tests', () => {
         privateKey: PRIVATE_KEY,
         environment: CONFIG.ENVIRONMENT,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
-    }, CONFIG.DEFAULT_ENDPOINTS)
+    })
 
     describe('Basic tests', function() {
         this.timeout(120 * 1000)

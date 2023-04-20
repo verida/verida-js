@@ -61,7 +61,7 @@ describe('Verida messaging tests', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS, [CONTEXT_1])
+            }, undefined, [CONTEXT_1])
             did1 = await account1.did()
             await client1.connect(account1)
             context1 = await client1.openContext(CONTEXT_1, true)
@@ -71,7 +71,7 @@ describe('Verida messaging tests', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS, [CONTEXT_1])
+            }, undefined, [CONTEXT_1])
             did2 = await account2.did()
             await client2.connect(account2)
             context2 = await client2.openContext(CONTEXT_1, true)
@@ -156,7 +156,7 @@ describe('Verida messaging tests', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS, [CONTEXT_2])
+            }, undefined, [CONTEXT_2])
             did3 = await account3.did()
             await client3.connect(account3)
             context3 = await client3.openContext(CONTEXT_2, true)

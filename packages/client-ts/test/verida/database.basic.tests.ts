@@ -31,7 +31,7 @@ describe('Verida basic database tests', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS)
+            })
             did1 = await account1.did()
             await network.connect(account1)
             context1 = await network.openContext(CONFIG.CONTEXT_NAME, true)

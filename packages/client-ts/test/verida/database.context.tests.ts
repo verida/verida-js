@@ -51,7 +51,7 @@ describe('Verida database tests relating to contexts', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS, [CONTEXT_1])
+            }, undefined, [CONTEXT_1])
             did1 = await account1.did()
             await network.connect(account1)
             context = await network.openContext(CONTEXT_1, true)
@@ -80,7 +80,7 @@ describe('Verida database tests relating to contexts', () => {
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
                 environment: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
-            }, CONFIG.DEFAULT_ENDPOINTS, [CONTEXT_1, CONTEXT_2])
+            }, undefined, [CONTEXT_1, CONTEXT_2])
             did2 = await account2.did()
             await network2.connect(account2)
             context2 = await network2.openContext(CONTEXT_2, true)

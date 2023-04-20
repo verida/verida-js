@@ -1,6 +1,9 @@
 import { AccountNodeDIDClientConfig, EnvironmentType } from "@verida/types"
 
-const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech:443/', 'https://node2-apse2.devnet.verida.tech:443/', 'https://node3-apse2.devnet.verida.tech:443/']
+// Note: These default endpoints are now deprecated as `account-node` node server will automatically
+// load them from the network.
+// They are left here for when manual testing that uses specific nodes is required
+const ENDPOINTS = ['https://node1-euw6.gcp.devnet.verida.tech:443/', 'https://node2-euw6.gcp.devnet.verida.tech:443/', 'https://node3-euw6.gcp.devnet.verida.tech:443/']
 
 const DID_ENDPOINTS: string[] = []
 for (let e in ENDPOINTS) {
@@ -8,13 +11,13 @@ for (let e in ENDPOINTS) {
 }
 
 export default {
-    ENVIRONMENT: EnvironmentType.TESTNET,
-    VDA_PRIVATE_KEY:   '0x20d3b996ec98a9a536efdffbae10e5eaaf11a765a587483c69195c9460165d38',
-    VDA_PRIVATE_KEY_2: '0x20d3b996ec98a9a536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
-    VDA_PRIVATE_KEY_3: '0x20d3b996ec98a91536efdffbae10f5eaaf11a765a587483c69195c9460165d38',
+    ENVIRONMENT: EnvironmentType.DEVNET,
+    VDA_PRIVATE_KEY:   '',
+    VDA_PRIVATE_KEY_2: '',
+    VDA_PRIVATE_KEY_3: '',
     CONTEXT_NAME: 'Verida Test: Test Application 1',
-    DATABASE_SERVER: 'https://node1-apse2.devnet.verida.tech/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
-    MESSAGE_SERVER: 'https://node1-apse2.devnet.verida.tech/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
+    DATABASE_SERVER: 'https://node1-euw6.gcp.devnet.verida.tech/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
+    MESSAGE_SERVER: 'https://node1-euw6.gcp.devnet.verida.tech',  // http://localhost:5000/ for local testing when running local @verida/storage-node
     DEFAULT_ENDPOINTS: {
         defaultDatabaseServer: {
             type: 'VeridaDatabase',
@@ -28,7 +31,7 @@ export default {
     DID_CLIENT_CONFIG: <AccountNodeDIDClientConfig> {
         callType: 'web3',
         web3Config: {
-            privateKey: '1eb6776c1626795d2e33e8b063cc7e639f50a45e79cded84d978e3a2524af1dc',
+            privateKey: '',
             rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
         didEndpoints: DID_ENDPOINTS
