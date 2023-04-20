@@ -34,7 +34,7 @@ export default {
             privateKey: '',
             rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
-        didEndpoints: DID_ENDPOINTS
+        //didEndpoints: DID_ENDPOINTS
     },
     INVALID_ENDPOINTS: {    // endpoints that resolve to non-existent storage node
         defaultDatabaseServer: {

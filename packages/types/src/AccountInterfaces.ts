@@ -54,7 +54,7 @@ export interface AccountNodeConfig {
 export interface AccountNodeDIDClientConfig extends Omit<DIDClientConfig, 'network'> {
     callType: Web3CallType,
     web3Config: Web3SelfTransactionConfig | Web3MetaTransactionConfig,
-    didEndpoints: string[]
+    didEndpoints?: string[]
 }
 
 export interface WalletConnectConfig {

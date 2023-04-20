@@ -7,6 +7,7 @@ import EncryptionUtils from "@verida/encryption-utils"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
 import { AccountConfig, AccountNodeConfig, AuthContext, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 import { NodeSelector, NodeSelectorConfig, NodeSelectorParams } from './nodeSelector'
+import { ServiceEndpoint } from 'did-resolver'
 
 /**
  * An Authenticator that automatically signs everything
@@ -19,6 +20,7 @@ export default class AutoAccount extends Account {
     protected accountConfig?: AccountConfig
     protected autoConfig: AccountNodeConfig
     protected contextAuths: Record<string, Record<string, VeridaDatabaseAuthType>> = {}
+    protected defaultNodes: string[] = []
 
     constructor(autoConfig: AccountNodeConfig, accountConfig?: AccountConfig) {
         super()
@@ -62,12 +64,7 @@ export default class AutoAccount extends Account {
     }
 
     public async loadDefaultStorageNodes(countryCode?: string, numNodes: number = 3, config: NodeSelectorParams = {}): Promise<void> {
-        config.network = this.autoConfig.environment
-        config.defaultTimeout = config.defaultTimeout ? config.defaultTimeout : 5000
-        config.notificationEndpoints = config.notificationEndpoints ? config.notificationEndpoints : []
-
-        const nodeSelector = new NodeSelector(<NodeSelectorConfig> config)
-        const nodeUris = await nodeSelector.selectEndpointUris(countryCode, numNodes)
+        const nodeUris = await this.getDefaultNodes(countryCode, numNodes, config)
 
         this.accountConfig = {
             defaultDatabaseServer: {
@@ -80,9 +77,25 @@ export default class AutoAccount extends Account {
             },
             defaultNotificationServer:  {
                 type: 'VeridaNotification',
-                endpointUri: config.notificationEndpoints
+                endpointUri: config.notificationEndpoints!
             }
         }
+    }
+
+    private async getDefaultNodes(countryCode?: string, numNodes: number = 3, config: NodeSelectorParams = {}): Promise<ServiceEndpoint[]> {
+        if (this.defaultNodes && this.defaultNodes.length) {
+            return this.defaultNodes
+        }
+
+        config.network = this.autoConfig.environment
+        config.defaultTimeout = config.defaultTimeout ? config.defaultTimeout : 5000
+        config.notificationEndpoints = config.notificationEndpoints ? config.notificationEndpoints : []
+
+        const nodeSelector = new NodeSelector(<NodeSelectorConfig> config)
+        const nodeUris = await nodeSelector.selectEndpointUris(countryCode, numNodes)
+        this.defaultNodes = nodeUris
+
+        return this.defaultNodes
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
@@ -234,13 +247,18 @@ export default class AutoAccount extends Account {
         return success
     }
 
-    private ensureAuthenticated() {
+    private async ensureAuthenticated() {
         if (!this.didClient.authenticated()) {
+            if (!this.autoConfig.didClientConfig.didEndpoints) {
+                const nodeUris = await this.getDefaultNodes(this.autoConfig.countryCode)
+                this.autoConfig.didClientConfig.didEndpoints = nodeUris.map((item) => `${item}did/`)
+            }
+
             this.didClient.authenticate(
                 this.wallet.privateKey,
                 this.autoConfig.didClientConfig.callType,
                 this.autoConfig.didClientConfig.web3Config,
-                this.autoConfig.didClientConfig.didEndpoints
+                this.autoConfig.didClientConfig.didEndpoints!
             )
         }
     }

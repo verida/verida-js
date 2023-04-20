@@ -1,6 +1,7 @@
 import { EnvironmentType } from '@verida/types'
 import { COUNTRIES } from './countries'
 import axios from 'axios'
+import { ServiceEndpoint } from 'did-resolver'
 
 export interface StorageNode {
   id: string
@@ -21,7 +22,7 @@ function getRandomInt(min: number, max: number) {
 
 export interface NodeSelectorParams {
   network?: EnvironmentType
-  notificationEndpoints?: string[]
+  notificationEndpoints?: ServiceEndpoint[]
   defaultTimeout?: number //5000
 }
 
