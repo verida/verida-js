@@ -44,8 +44,20 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         "0x13881": "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
         devnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
     },
-    "VeridaToken" : {},
-    "RewardContract": {}
+    "VeridaToken" : {
+        mainnet: null,
+        "0x89": null,
+        testnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
+        "0x13881": "0x745Db51351015d61573db37bC16C49B8506B93c8",
+        devnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
+    },
+    "RewardContract": {
+        mainnet: null,
+        "0x89": null,
+        testnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
+        "0x13881": "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
+        devnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
+    }
 };
 
 export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
