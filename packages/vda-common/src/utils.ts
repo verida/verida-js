@@ -1,5 +1,7 @@
-import { computeAddress, getAddress, solidityPacked } from 'ethers'
+import { utils } from 'ethers'
 import EncryptionUtils from '@verida/encryption-utils'
+
+const { computeAddress, getAddress, solidityPack } = utils
 
 export function interpretIdentifier(identifier: string): {
   address: string;
@@ -29,7 +31,7 @@ export function getVeridaSignWithNonce(
   privateKey: string,
   nonce: number
 ) {
-  rawMsg = solidityPacked(['bytes', 'uint256'], [rawMsg, nonce]);
+  rawMsg = solidityPack(['bytes', 'uint256'], [rawMsg, nonce]);
   return getVeridaSign(rawMsg, privateKey);
 }
   
