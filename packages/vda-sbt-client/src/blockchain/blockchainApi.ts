@@ -12,7 +12,7 @@ import { getContractInfoForNetwork, RPC_URLS } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
-import { ethers, ContractFactory } from "ethers";
+import { ethers, Contract } from "ethers";
 import EncryptionUtils from "@verida/encryption-utils";
 
 /**
@@ -76,9 +76,7 @@ export class VeridaSBTClient {
 
             const provider = new JsonRpcProvider(rpcUrl)
 
-            this.contract = ContractFactory.fromSolidity(contractInfo.abi)
-                .attach(contractInfo.address)
-                .connect(provider)
+            this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider)
         }
     }
 
