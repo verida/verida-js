@@ -1,6 +1,6 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "RewardContract",
+  "contractName": "VDARewardContract",
   "sourceName": "contracts/VDARewardContract.sol",
   "abi": [
     {

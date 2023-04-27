@@ -1,6 +1,6 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "DidRegistry",
+  "contractName": "VeridaDIDRegistry",
   "sourceName": "contracts/VeridaDIDRegistry.sol",
   "abi": [
     {

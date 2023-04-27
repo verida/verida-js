@@ -1,6 +1,6 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "SBT",
+  "contractName": "SoulboundNFT",
   "sourceName": "contracts/SoulboundNFT.sol",
   "abi": [
     {
