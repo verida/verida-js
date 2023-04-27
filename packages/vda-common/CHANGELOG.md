@@ -1,3 +1,9 @@
+2023-04-27 (v2.3.3)
+-------------------
+
+- Fix incorrect contract names
+- Fix missing dependencies
+
 2023-04-24 (v2.3.1)
 -------------------
 
