@@ -8,7 +8,7 @@ import {
     Web3CallType,
     EnvironmentType
 } from '@verida/types'
-import { ethers, ContractFactory } from "ethers";
+import { ethers, Contract } from "ethers";
 import { getContractInfoForNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
@@ -78,9 +78,7 @@ export class VeridaNameClient {
 
             const provider = new JsonRpcProvider(rpcUrl)
 
-            this.contract = ContractFactory.fromSolidity(contractInfo.abi)
-                .attach(contractInfo.address)
-                .connect(provider)
+            this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider)
         }
     }
 
@@ -234,6 +232,7 @@ export class VeridaNameClient {
                 response = response.data
             } else {
                 response = await this.contract!.callStatic.findDID(username)
+
                 if (!response) {
                     throw new Error(`Not found`)
                 }

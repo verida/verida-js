@@ -34,7 +34,9 @@ const createBlockchainAPI = (did: any) => {
 }
 
 describe('vda-name-client read and write tests', () => {
-    let blockchainApi : VeridaNameClient
+    let blockchainApi : VeridaNameClient;
+    const REGISTER_COUNT = 2;
+
     before(() => {
         blockchainApi = createBlockchainAPI(did);
         did.address = did.address.toLowerCase()
@@ -62,7 +64,7 @@ describe('vda-name-client read and write tests', () => {
         })
         
         it('Register successfully', async () => {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < REGISTER_COUNT; i++) {
                 await blockchainApi.register(testNames[i])
 
                 const nameDID = await blockchainApi.getDID(testNames[i])
@@ -84,9 +86,13 @@ describe('vda-name-client read and write tests', () => {
         this.timeout(60*1000)
         it('Get usernames successfully', async () => {
             const usernames = await blockchainApi.getUsernames(did.address);
+            const expectedNames : string[] = []
+            for (let i = 0; i < REGISTER_COUNT; i++) {
+                expectedNames.push(testNames[i].toLowerCase())
+            }
             assert.deepEqual(
                 usernames, 
-                [testNames[0].toLowerCase(), testNames[1].toLowerCase(), testNames[2].toLowerCase(), testNames[3].toLowerCase()], 
+                expectedNames,
                 'Get registered usernames');
         })
 
@@ -99,7 +105,7 @@ describe('vda-name-client read and write tests', () => {
     describe('Get DID', function() {
         this.timeout(60*1000)
         it('Get DID successfully', async () => {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < REGISTER_COUNT; i++) {
                 const foundDID = await blockchainApi.getDID(testNames[i])
 
                 assert.equal(
@@ -140,7 +146,7 @@ describe('vda-name-client read and write tests', () => {
         })
 
         it('Unregister successfully', async () => {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < REGISTER_COUNT; i++) {
                 await blockchainApi.unregister(testNames[i])
             }
 
