@@ -24,6 +24,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@verida/encryption-utils": "^2.2.1",
     "copyfiles": "^2.4.1",
     "ethers": "5.5.1"
   }
