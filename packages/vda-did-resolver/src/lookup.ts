@@ -11,9 +11,9 @@ import { ContractFactory } from 'ethers';
 export async function lookup(didAddress: string, network: string, rpcUrl: string) : Promise<string[]> {
     // Simple read-only of the blockchain
 
-    const contractABI = abiList["DidRegistry"];
+    const contractABI = abiList["VeridaDIDRegistry"];
     const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["DidRegistry"][network];
+    const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][network];
 
     const contract = ContractFactory.fromSolidity(contractABI)
         .attach(address!)
