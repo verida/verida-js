@@ -58,7 +58,7 @@ export class VeridaSBTClient {
             (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
         }
 
-        const contractInfo = getContractInfoForNetwork("SBT", this.network)
+        const contractInfo = getContractInfoForNetwork("SoulboundNFT", this.network)
         if (config.did) {
             this.readOnly = false
             const { address } = explodeDID(config.did)
