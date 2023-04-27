@@ -1,6 +1,6 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "DIDLinkage",
+  "contractName": "DidLinkage",
   "sourceName": "contracts/VeridaDIDLinkage.sol",
   "abi": [
     {
