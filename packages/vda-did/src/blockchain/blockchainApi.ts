@@ -39,7 +39,7 @@ export default class BlockchainApi {
         this.didAddress = address.toLowerCase();
         // @ts-ignore
         this.network = network || options.chainNameOrId
-        const contractInfo = getContractInfoForNetwork( "DidRegistry", this.network);
+        const contractInfo = getContractInfoForNetwork( "VeridaDIDRegistry", this.network);
 
         // @ts-ignore
         if (options.callType == 'web3' && !options.web3Options.rpcUrl) {

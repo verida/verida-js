@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { BigNumber } from '@ethersproject/bignumber'
-import { Contract, ContractFactory } from '@ethersproject/contracts'
+import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider, Provider } from '@ethersproject/providers'
 import { knownNetworks } from './constants'
 import { Web3ContractInfo, Web3ProviderConfiguration } from '@verida/types'
@@ -31,9 +31,7 @@ export function getContractForNetwork(conf: Web3ProviderConfiguration & Web3Cont
         }
     }
 
-    const contract: Contract = ContractFactory.fromSolidity(conf.abi)
-        .attach(conf.registry)
-        .connect(provider)
+    const contract = new Contract(conf.registry, conf.abi.abi, provider)
 
     return contract
 }

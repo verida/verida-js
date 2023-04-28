@@ -1,12 +1,12 @@
 // import * as fs from 'fs';
 export type CONTRACT_NAMES = 
-    "DidRegistry"   |
-    "NameRegistry"  |
-    "SBT"           |
+    "VeridaDIDRegistry"     |
+    "NameRegistry"          |
+    "SoulboundNFT"          |
 
-    "DidLinkage"    |
-    "VeridaToken"   |
-    "RewardContract";
+    "VeridaDIDLinkage"      |
+    "VeridaToken"           |
+    "VDARewardContract";
 
 
 export interface CONTRACT_INFO {
@@ -15,7 +15,7 @@ export interface CONTRACT_INFO {
 }
 
 export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | null>> = {
-    "DidRegistry": {
+    "VeridaDIDRegistry": {
         mainnet: null,
         "0x89": null,
         testnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
@@ -29,7 +29,7 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         "0x13881": "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
         devnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
     },
-    "SBT" : {
+    "SoulboundNFT" : {
         mainnet: null,
         "0x89": null,
         testnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
@@ -37,7 +37,7 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         devnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
     },
 
-    "DidLinkage" : {
+    "VeridaDIDLinkage" : {
         mainnet: null,
         "0x89": null,
         testnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
@@ -51,7 +51,7 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         "0x13881": "0x745Db51351015d61573db37bC16C49B8506B93c8",
         devnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
     },
-    "RewardContract": {
+    "VDARewardContract": {
         mainnet: null,
         "0x89": null,
         testnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
@@ -61,13 +61,13 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
 };
 
 export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
-    "DidRegistry": require('./abi/DidRegistry.json'),
+    "VeridaDIDRegistry": require('./abi/VeridaDIDRegistry.json'),
     "NameRegistry": require('./abi/NameRegistry.json'),
-    "SBT": require('./abi/SBT.json'),
+    "SoulboundNFT": require('./abi/SoulboundNFT.json'),
 
-    "DidLinkage": require('./abi/DidLinkage.json'),
+    "VeridaDIDLinkage": require('./abi/VeridaDIDLinkage.json'),
     "VeridaToken": require('./abi/VeridaToken.json'),
-    "RewardContract": require('./abi/RewardContract.json')
+    "VDARewardContract": require('./abi/VDARewardContract.json')
 }
 
 export function getContractInfoForNetwork(name: CONTRACT_NAMES, chainNameOrId: string) : CONTRACT_INFO {

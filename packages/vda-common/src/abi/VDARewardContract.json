@@ -1,21 +1,31 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "NameRegistry",
-  "sourceName": "contracts/NameRegistry.sol",
+  "contractName": "VDARewardContract",
+  "sourceName": "contracts/VDARewardContract.sol",
   "abi": [
     {
       "inputs": [],
-      "name": "InvalidAddress",
+      "name": "DuplicatedRequest",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "InvalidName",
+      "name": "InsufficientTokenAmount",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "InvalidNameCount",
+      "name": "InvalidId",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidRewardAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidSchema",
       "type": "error"
     },
     {
@@ -25,25 +35,80 @@
     },
     {
       "inputs": [],
-      "name": "InvalidSuffix",
+      "name": "NoSigners",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "LimitedNameCount",
+      "name": "RegisteredSigner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UnregisteredSigner",
       "type": "error"
     },
     {
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "string",
-          "name": "suffix",
+          "name": "typeId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "rewardAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "schema",
           "type": "string"
         }
       ],
-      "name": "AddSuffix",
+      "name": "AddClaimType",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "signerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "AddTrustedSigner",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "typeId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "hash",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        }
+      ],
+      "name": "Claim",
       "type": "event"
     },
     {
@@ -82,38 +147,13 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "string",
-          "name": "name",
+          "name": "typeId",
           "type": "string"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "DID",
-          "type": "address"
         }
       ],
-      "name": "Register",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "DID",
-          "type": "address"
-        }
-      ],
-      "name": "Unregister",
+      "name": "RemoveClaimType",
       "type": "event"
     },
     {
@@ -121,29 +161,78 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "from",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "signerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "RemoveTrustedSigner",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "typeId",
+          "type": "string"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "to",
+          "name": "amount",
           "type": "uint256"
         }
       ],
-      "name": "UpdateMaxNamesPerDID",
+      "name": "UpdateClaimTypeReward",
       "type": "event"
     },
     {
       "inputs": [
         {
+          "internalType": "contract IERC20Upgradeable",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "__VDARewardContract_init",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
-          "name": "suffix",
+          "name": "typeId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rewardAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "schema",
           "type": "string"
         }
       ],
-      "name": "addSuffix",
+      "name": "addClaimType",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
+        }
+      ],
+      "name": "addTrustedSigner",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -152,55 +241,54 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "name",
+          "name": "typeId",
           "type": "string"
-        }
-      ],
-      "name": "findDID",
-      "outputs": [
+        },
+        {
+          "internalType": "string",
+          "name": "hash",
+          "type": "string"
+        },
         {
           "internalType": "address",
-          "name": "",
+          "name": "to",
           "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
+        },
         {
-          "internalType": "address",
-          "name": "did",
-          "type": "address"
-        }
-      ],
-      "name": "getUserNameList",
-      "outputs": [
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        },
         {
-          "internalType": "string[]",
-          "name": "",
-          "type": "string[]"
+          "internalType": "bytes",
+          "name": "proof",
+          "type": "bytes"
         }
       ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "initialize",
+      "name": "claim",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "maxNamesPerDID",
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "typeId",
+          "type": "string"
+        }
+      ],
+      "name": "getClaimType",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "reward",
           "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "schema",
+          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -242,23 +330,26 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "name",
+          "name": "typeId",
           "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "did",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "signature",
-          "type": "bytes"
         }
       ],
-      "name": "register",
+      "name": "removeClaimType",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
+        }
+      ],
+      "name": "removeTrustedSigner",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -285,34 +376,16 @@
       "inputs": [
         {
           "internalType": "string",
-          "name": "name",
+          "name": "typeId",
           "type": "string"
         },
         {
-          "internalType": "address",
-          "name": "did",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "signature",
-          "type": "bytes"
-        }
-      ],
-      "name": "unregister",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint256",
-          "name": "count",
+          "name": "amount",
           "type": "uint256"
         }
       ],
-      "name": "updateMaxNamesPerDID",
+      "name": "updateClaimTypeReward",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"

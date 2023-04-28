@@ -1,23 +1,8 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "NameRegistry",
-  "sourceName": "contracts/NameRegistry.sol",
+  "contractName": "VeridaDIDRegistry",
+  "sourceName": "contracts/VeridaDIDRegistry.sol",
   "abi": [
-    {
-      "inputs": [],
-      "name": "InvalidAddress",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InvalidName",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InvalidNameCount",
-      "type": "error"
-    },
     {
       "inputs": [],
       "name": "InvalidSignature",
@@ -25,26 +10,18 @@
     },
     {
       "inputs": [],
-      "name": "InvalidSuffix",
+      "name": "OutOfRange",
       "type": "error"
     },
     {
       "inputs": [],
-      "name": "LimitedNameCount",
+      "name": "RevokedDID",
       "type": "error"
     },
     {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "string",
-          "name": "suffix",
-          "type": "string"
-        }
-      ],
-      "name": "AddSuffix",
-      "type": "event"
+      "inputs": [],
+      "name": "UnregisteredDID",
+      "type": "error"
     },
     {
       "anonymous": false,
@@ -82,16 +59,16 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
+          "indexed": false,
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
         },
         {
-          "indexed": true,
-          "internalType": "address",
-          "name": "DID",
-          "type": "address"
+          "indexed": false,
+          "internalType": "string[]",
+          "name": "endponits",
+          "type": "string[]"
         }
       ],
       "name": "Register",
@@ -101,19 +78,13 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
-          "name": "DID",
+          "name": "didAddress",
           "type": "address"
         }
       ],
-      "name": "Unregister",
+      "name": "Revoke",
       "type": "event"
     },
     {
@@ -121,42 +92,42 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "from",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "to",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "controller",
+          "type": "address"
         }
       ],
-      "name": "UpdateMaxNamesPerDID",
+      "name": "SetController",
       "type": "event"
     },
     {
-      "inputs": [
+      "inputs": [],
+      "name": "activeDIDCount",
+      "outputs": [
         {
-          "internalType": "string",
-          "name": "suffix",
-          "type": "string"
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
-      "name": "addSuffix",
-      "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [
         {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
         }
       ],
-      "name": "findDID",
+      "name": "getController",
       "outputs": [
         {
           "internalType": "address",
@@ -170,17 +141,22 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "did",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "startIndex",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
         }
       ],
-      "name": "getUserNameList",
+      "name": "getDIDs",
       "outputs": [
         {
-          "internalType": "string[]",
+          "internalType": "address[]",
           "name": "",
-          "type": "string[]"
+          "type": "address[]"
         }
       ],
       "stateMutability": "view",
@@ -194,13 +170,24 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "maxNamesPerDID",
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
+        }
+      ],
+      "name": "lookup",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "address",
           "name": "",
-          "type": "uint256"
+          "type": "address"
+        },
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
         }
       ],
       "stateMutability": "view",
@@ -210,7 +197,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "did",
+          "name": "didAddress",
           "type": "address"
         }
       ],
@@ -241,14 +228,14 @@
     {
       "inputs": [
         {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
         },
         {
-          "internalType": "address",
-          "name": "did",
-          "type": "address"
+          "internalType": "string[]",
+          "name": "endpoints",
+          "type": "string[]"
         },
         {
           "internalType": "bytes",
@@ -272,25 +259,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "did",
+          "name": "didAddress",
           "type": "address"
         },
         {
@@ -299,7 +268,7 @@
           "type": "bytes"
         }
       ],
-      "name": "unregister",
+      "name": "revoke",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -307,14 +276,37 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "count",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "controller",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
         }
       ],
-      "name": "updateMaxNamesPerDID",
+      "name": "setController",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]
