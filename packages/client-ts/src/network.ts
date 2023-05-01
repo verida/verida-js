@@ -42,9 +42,10 @@ class Network {
 
     const uriParts = explodeVeridaUri(veridaUri)
     const didParts = explodeDID(uriParts.did)
-    const environment = didParts.network
+    const environment = <EnvironmentType> didParts.network
+
     const client = new Client({
-      environment: environment == 'testnet' ? EnvironmentType.TESTNET : EnvironmentType.MAINNET,
+      environment
     })
     const record = await fetchVeridaUri(veridaUri, client)
     return record

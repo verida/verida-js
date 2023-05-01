@@ -1,3 +1,9 @@
+? (v.2.3.5)
+-------------------
+
+- Fix: Getting data by URI didn't support `devnet`
+
+
 2023-04-20 (v2.3.0)
 -------------------
 
