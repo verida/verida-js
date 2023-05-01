@@ -203,13 +203,13 @@ export default class BlockchainApi {
      * Get active DID count
      * @returns Number of active did count
      */
-    public async getActiveDIDCount() {
+    public async activeDIDCount() {
         const response = await this.vdaWeb3Client.activeDIDCount();
 
         if (response.success !== true) {
             throw new Error('Failed to get active DID count');
         }
 
-        return response.data.toString();
+        return response.data.toNumber();
     }
 }
