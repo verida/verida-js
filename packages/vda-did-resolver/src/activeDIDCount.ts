@@ -8,7 +8,7 @@ import { Contract } from 'ethers';
  * @param didAddress DID address to lookup
  * @param rpcUrl URL
  */
-export async function activeDIDCount(network: string, rpcUrl: string) : Promise<string> {
+export async function activeDIDCount(network: string, rpcUrl: string) : Promise<number> {
     // Simple read-only of the blockchain
 
     const contractABI = abiList["VeridaDIDRegistry"];
