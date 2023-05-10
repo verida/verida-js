@@ -1,4 +1,4 @@
-import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList } from "@verida/vda-common";
+import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
@@ -8,7 +8,12 @@ import { Contract } from 'ethers';
  * @param didAddress DID address to lookup
  * @param rpcUrl URL
  */
-export async function activeDIDCount(network: string, rpcUrl: string) : Promise<number> {
+export async function activeDIDCount(network: string): Promise<number> {
+    const rpcUrl = RPC_URLS[network]
+    if (!rpcUrl) {
+        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
+    }
+
     // Simple read-only of the blockchain
 
     const contractABI = abiList["VeridaDIDRegistry"];
