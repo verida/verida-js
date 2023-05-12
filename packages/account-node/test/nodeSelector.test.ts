@@ -16,7 +16,19 @@ describe('Storage node selector tests', () => {
                 defaultTimeout: 5000
             })
 
-            nodeSelector.loadStorageNodes(TEST_NODES)
+            //nodeSelector.loadStorageNodes(TEST_NODES)
+        })
+
+        it('can avoid duplicates', async function() {
+            // Loop 5x to find nodes in a particular country and ensure
+            // the same node isn't included more than once
+            let i = 0
+            while (i++ < 5) {
+                const nodes = await nodeSelector.selectNodesByCountry('IN', 3)
+                const nodeIds = nodes.map((item) => item.id)
+                const dedupeIds = nodeIds.filter((item, pos) => nodeIds.indexOf(item) == pos)
+                assert.equal(nodeIds.length, dedupeIds.length, 'Duplicates found')
+            }
         })
 
         it('can select nodes by country', async function () {

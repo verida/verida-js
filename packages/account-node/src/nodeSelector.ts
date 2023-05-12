@@ -60,7 +60,7 @@ export class NodeSelector {
     // No country specified, so choose globally random nodes
     if (!countryCode) {
       const possibleNodes = await this.loadStorageNodes()
-      return this.selectNodesFromList(possibleNodes, numNodes)
+      return this.selectNodesFromList(possibleNodes, [], numNodes)
     }
 
     const countryNodes = await this.nodesByCountry()
@@ -68,16 +68,16 @@ export class NodeSelector {
     // No nodes found for country, choose random region nodes
     if (!countryNodes[countryCode]) {
       const countryMeta = COUNTRIES[countryCode]
-      return this.selectNodesByRegion(countryMeta.region, numNodes)
+      return this.selectNodesByRegion(countryMeta.region, [], numNodes)
     }
 
     const possibleNodes: StorageNode[] = countryNodes[countryCode]
-    const selectedNodes = await this.selectNodesFromList(possibleNodes, numNodes)
+    const selectedNodes = await this.selectNodesFromList(possibleNodes, [], numNodes)
 
     if (selectedNodes.length < numNodes) {
       // Not enough country nodes, try to find region nodes
       const countryMeta = COUNTRIES[countryCode]
-      const regionNodes = await this.selectNodesByRegion(countryMeta.region, numNodes - selectedNodes.length)
+      const regionNodes = await this.selectNodesByRegion(countryMeta.region, selectedNodes, numNodes - selectedNodes.length)
       return selectedNodes.concat(regionNodes)
     }
 
@@ -86,6 +86,7 @@ export class NodeSelector {
 
   public async selectNodesByRegion(
     region: string,
+    ignoredNodes: StorageNode[], 
     numNodes: number = 3,
   ): Promise<StorageNode[]> {
     const regionNodes = await this.nodesByRegion()
@@ -98,24 +99,30 @@ export class NodeSelector {
       possibleNodes = regionNodes[region]
     }
 
-    const selectedNodes = await this.selectNodesFromList(possibleNodes, numNodes)
+    const selectedNodes = await this.selectNodesFromList(possibleNodes, ignoredNodes, numNodes)
 
     if (selectedNodes.length < numNodes) {
       // Not enough region nodes, try to find global nodes
       const globalNodes = await this.loadStorageNodes()
-      const globalFoundNodes = await this.selectNodesFromList(globalNodes, numNodes - selectedNodes.length)
+      const globalFoundNodes = await this.selectNodesFromList(globalNodes, selectedNodes, numNodes - selectedNodes.length)
       return selectedNodes.concat(globalFoundNodes)
     }
 
     return selectedNodes
   }
 
-  private async selectNodesFromList(possibleNodes: StorageNode[], numNodes: number = 3) {
+  private async selectNodesFromList(possibleNodes: StorageNode[], ignoredNodes: StorageNode[], numNodes: number = 3) {
     const selectedNodes: StorageNode[] = []
+    const ignoredNodeIds = ignoredNodes.map((item) => item.id)
 
     while (selectedNodes.length < numNodes && possibleNodes.length > 0) {
       const nodeIndex = getRandomInt(0, possibleNodes.length)
       const possibleNode = possibleNodes[nodeIndex]
+      if (ignoredNodeIds.indexOf(possibleNode.id) !== -1) {
+        possibleNodes.splice(nodeIndex, 1)
+        continue
+      }
+
       const nodeAvailable = await this.verifyNodeAvailable(possibleNode)
 
       if (nodeAvailable) {
