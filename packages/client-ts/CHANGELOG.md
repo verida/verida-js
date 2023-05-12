@@ -1,7 +1,8 @@
-? (v.2.3.5)
+2023-05-12 (v.2.3.5)
 -------------------
 
 - Fix: Getting data by URI didn't support `devnet`
+- Test: Add test to easily test multiple storage nodes
 
 
 2023-04-20 (v2.3.0)

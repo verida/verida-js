@@ -1,4 +1,4 @@
-??
+2023-05-12 (v.2.3.5)
 -------------------
 
 - Fix: In some instances, duplicate storage nodes are selected
