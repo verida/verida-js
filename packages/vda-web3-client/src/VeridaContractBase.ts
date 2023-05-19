@@ -249,6 +249,10 @@ export class VeridaContract {
                 reason = e.error && e.error.reason ? e.error.reason : reason
                 reason = reason.replace('execution reverted: ','')
 
+                if (reason === 'Unknown' && e.errorName) {
+                    reason = e.errorName;
+                }
+
                 return Promise.resolve({
                     success: false,
                     error: e.toString(),
