@@ -6,7 +6,9 @@ export type CONTRACT_NAMES =
 
     "VeridaDIDLinkage"      |
     "VeridaToken"           |
-    "VDARewardContract";
+    "VDARewardContract"     |
+    "StorageNodeRegistry"
+    ;
 
 
 export interface CONTRACT_INFO {
@@ -57,6 +59,13 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         testnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
         "0x13881": "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
         devnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
+    },
+    "StorageNodeRegistry": {
+        mainnet: null,
+        "0x89": null,
+        testnet: "0x0b6EbCdcd52723d1Bb141432Ca19f210daeDd51A",
+        "0x13881": "0x0b6EbCdcd52723d1Bb141432Ca19f210daeDd51A",
+        devnet: "0x0b6EbCdcd52723d1Bb141432Ca19f210daeDd51A",
     }
 };
 
@@ -67,7 +76,8 @@ export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
 
     "VeridaDIDLinkage": require('./abi/VeridaDIDLinkage.json'),
     "VeridaToken": require('./abi/VeridaToken.json'),
-    "VDARewardContract": require('./abi/VDARewardContract.json')
+    "VDARewardContract": require('./abi/VDARewardContract.json'),
+    "StorageNodeRegistry": require('./abi/StorageNodeRegistry.json'),
 }
 
 export function getContractInfoForNetwork(name: CONTRACT_NAMES, chainNameOrId: string) : CONTRACT_INFO {
