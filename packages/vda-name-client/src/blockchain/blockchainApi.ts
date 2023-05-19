@@ -2,36 +2,15 @@ import {
     getVeridaContract,
     VeridaContract
 } from "@verida/web3"
-import {
-    Web3SelfTransactionConfig,
-    Web3MetaTransactionConfig,
-    Web3CallType,
-    EnvironmentType
-} from '@verida/types'
+import { Web3SelfTransactionConfig, VdaClientConfig } from '@verida/types'
 import { ethers, Contract } from "ethers";
 import { getContractInfoForNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
-/**
- * Interface for vda-name-client instance creation. Same as VDA-DID configuration
- * @param did: DID
- * @param signKey: private key of DID. Used to generate signature in transactions to chains
- * @param chainNameOrId: Target chain name or chain id.
- * @param callType : VDA-DID run mode. Values from vda-did-resolver
- * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
- */
-export interface NameClientConfig {
-    network: EnvironmentType
-    did?: string
-    signKey?: string
-    callType?: Web3CallType
-    web3Options?: Web3SelfTransactionConfig | Web3MetaTransactionConfig
-}
-
 export class VeridaNameClient {
 
-    private config: NameClientConfig
+    private config: VdaClientConfig
     private network: string
     private didAddress?: string
 
@@ -42,7 +21,7 @@ export class VeridaNameClient {
     // Key = username, Value = DID
     private usernameCache: Record<string, string> = {}
 
-    public constructor(config: NameClientConfig) {
+    public constructor(config: VdaClientConfig) {
         if (!config.callType) {
             config.callType = 'web3'
         }
