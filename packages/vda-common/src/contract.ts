@@ -16,22 +16,22 @@ export interface CONTRACT_INFO {
 
 export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | null>> = {
     "VeridaDIDRegistry": {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
+        "0x89": "0x7f0c4feE1553323668d3d597270D9b525D20d719",
         testnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
         "0x13881": "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
         devnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
     },
     "NameRegistry": {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B",
+        "0x89": "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B",
         testnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
         "0x13881": "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
         devnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
     },
     "SoulboundNFT" : {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0xa7D552ccc8E561164d26711516033bcdeD975ca3",
+        "0x89": "0xa7D552ccc8E561164d26711516033bcdeD975ca3",
         testnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
         "0x13881": "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
         devnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
