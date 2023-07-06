@@ -219,6 +219,7 @@ export class WebUser extends EventEmitter {
             this.account = undefined
             this.did = undefined
             this.profile = undefined
+            this.profileConnection = undefined
             this.connecting = undefined
 
             if (this.config.debug) {
