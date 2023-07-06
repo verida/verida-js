@@ -30,14 +30,14 @@ export interface WebUserMessageLink {
 
 /**
  * Usage:
- * 
- * 1. Configure with this.configure(...)
+ *
+ * 1. Create a new instance of this class with the required configuration.
  * 2. Check if the user is logged in with this.isConnected()
  * 3. Log the user in with this.connect()
  * 4. Listen to when the user has logged in with this.on('connected')
  * 5. Listen to when the user updates their profile with this.on('profileUpdated')
  * 5. Listen to when the user logs out with this.on('disconnected')
- * 
+ *
  * @event profileChanged
  * @event connect
  * @event disconnected
@@ -48,17 +48,22 @@ export class WebUser extends EventEmitter {
     private client?: Client
     private context?: Context
     private account?: VaultAccount
-    private profile?: WebUserProfile
     private did?: string
+    private profile?: WebUserProfile
+    private profileConnection?: IProfile
 
     private connecting?: Promise<boolean>
-    private profileConnection?: IProfile
 
     constructor(config: WebUserConfig) {
         super()
         this.config = config
     }
 
+    /**
+     * Get the instance of the Verida Client.
+     *
+     * @returns A Promise that will resolve to the Verida Client instance.
+     */
     public async getClient(): Promise<Client> {
         if (this.client) {
             return this.client
@@ -68,27 +73,42 @@ export class WebUser extends EventEmitter {
         return this.client
     }
 
+    /**
+     * Get the Verida Context for this Application.
+     *
+     * @returns A Promise that will resolve to the Verida Context instance.
+     */
     public async getContext(): Promise<Context> {
         await this.requireConnection()
         return this.context!
     }
 
+    /**
+     * Get the Verida Account for this user.
+     *
+     * @returns A Promise that will resolve to the Verida Account instance.
+     */
     public async getAccount(): Promise<VaultAccount> {
         await this.requireConnection()
 
         return this.account!
     }
 
+    /**
+     * Get the DID of the connected user.
+     *
+     * @returns A Promise that will resolve to the user's DID.
+     */
     public async getDid(): Promise<string> {
         await this.requireConnection()
-
         return this.did!
     }
 
     /**
-     * 
-     * @param ignoreCache Ignore the cached version of the profile and force refresh a new copy of the profile
-     * @returns 
+     * Fetch the public profile from the user's Vault.
+     *
+     * @param {boolean} ignoreCache Ignore the cached version of the profile and force refresh a new copy of the profile.
+     * @returns A Promise that will resolve to the user's public profile.
      */
     public async getPublicProfile(ignoreCache: boolean = false): Promise<WebUserProfile> {
         await this.requireConnection()
@@ -133,7 +153,7 @@ export class WebUser extends EventEmitter {
     }
 
     /**
-     * Connect the user to the Verida Network
+     * Connect the user to the Verida Network.
      *
      * @emit connected When the user successfully logs in
      * @returns A Promise that will resolve to true / false depending on if the user is connected
@@ -185,6 +205,11 @@ export class WebUser extends EventEmitter {
         return this.connecting
     }
 
+    /**
+     * Disconnect the user from the Verida Network.
+     *
+     * @emit disconnected When the user is successfully logged out.
+     */
     public async disconnect(): Promise<void> {
         try {
             const context = await this.getContext()
@@ -192,8 +217,8 @@ export class WebUser extends EventEmitter {
 
             this.context = undefined
             this.account = undefined
-            this.profile = undefined
             this.did = undefined
+            this.profile = undefined
             this.connecting = undefined
 
             if (this.config.debug) {
@@ -205,19 +230,15 @@ export class WebUser extends EventEmitter {
             if (err.message.match('Not connected')) {
                 return
             }
-
-            throw err 
+            throw err
         }
     }
 
     /**
-     * Send a generic message to a user's Verida Wallet
-     * 
-     * @param {*} did 
-     * @param {*} subject 
-     * @param {*} message 
-     * @param {*} linkUrl 
-     * @param {*} linkText 
+     * Send a generic message to a user's inbox (accessible from the Verida Wallet).
+     *
+     * @param {string} did
+     * @param {WebUserMessage} message the message definition
      */
     public async sendMessage(did: string, message: WebUserMessage): Promise<void> {
         const context = await this.getContext()
@@ -242,11 +263,10 @@ export class WebUser extends EventEmitter {
     }
 
     /**
-     * Is a user connected?
-     * 
+     * Check if the user is connected.
      * Will auto-connect the user from local storage session if it exists.
-     * 
-     * @returns 
+     *
+     * @returns A Promise that will resolve to true / false depending on if the user is connected.
      */
     public async isConnected(): Promise<boolean> {
         if (this.did) {
@@ -262,7 +282,7 @@ export class WebUser extends EventEmitter {
     }
 
     /**
-     * Throw an exception if a user isn't connected
+     * Throw an exception if a user isn't connected.
      */
     private async requireConnection(): Promise<void> {
         const isConnected = await this.isConnected()
@@ -272,11 +292,11 @@ export class WebUser extends EventEmitter {
     }
 
     /**
-     * Open a datastore owned by this user
-     * 
-     * @param schemaURL 
-     * @param config 
-     * @returns 
+     * Open a datastore owned by this user.
+     *
+     * @param {string} schemaURL
+     * @param {DatastoreOpenConfig} config
+     * @returns A Promise that will resolve to the datastore instance.
      */
     public async openDatastore(schemaURL: string, config?: DatastoreOpenConfig): Promise<IDatastore> {
         const context = await this.getContext()
@@ -284,11 +304,11 @@ export class WebUser extends EventEmitter {
     }
 
     /**
-     * Open a database owned by this user
-     * 
-     * @param databaseName 
-     * @param config 
-     * @returns 
+     * Open a database owned by this user.
+     *
+     * @param {string} databaseName
+     * @param {DatabaseOpenConfig} config
+     * @returns A Promise that will resolve to the database instance.
      */
     public async openDatabase(databaseName: string, config?: DatabaseOpenConfig): Promise<IDatabase> {
         const context = await this.getContext()
