@@ -10,7 +10,6 @@ describe('getDIDs test', function() {
         const result = await getDIDs(NETWORK, 0, 20);
 
         assert.ok(result, 'Have a result')
-        assert.equal(typeof(result), 'array', 'Result is a number')
         assert.ok(result.length, 'Have at least one result returned')
         console.log(result)
     });
