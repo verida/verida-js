@@ -2,6 +2,7 @@ import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
+import { activeDIDCount } from "./activeDIDCount";
   
 /**
  * Call lookUp() function of DIDRegistry contract
@@ -9,7 +10,7 @@ import { Contract } from 'ethers';
  * @param startIndex Index to start
  * @param count Total number of results to fetch
  */
-export async function getDIDs(network: string, startIndex: number = 0, count: number=20): Promise<string[]> {
+export async function getDIDs(network: string, startIndex: number = 0, count: number=20, mostRecent: boolean=true): Promise<string[]> {
     const rpcUrl = RPC_URLS[network]
     if (!rpcUrl) {
         throw new Error(`Unable to locate RPC_URL for network: ${network}`)
@@ -25,6 +26,11 @@ export async function getDIDs(network: string, startIndex: number = 0, count: nu
     }
 
     const contract = new Contract(address, contractABI.abi, provider);
+
+    if (mostRecent) {
+        const activeDids = await activeDIDCount(network)
+        startIndex = activeDids - startIndex - count
+    }
     
     let data;
     try {
