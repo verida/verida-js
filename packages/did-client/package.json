@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-client",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -20,7 +20,7 @@
     "@verida/did-document": "^2.3.1",
     "@verida/types": "^2.3.1",
     "@verida/vda-common": "^2.3.4",
-    "@verida/vda-did-resolver": "^2.3.5",
+    "@verida/vda-did-resolver": "^2.3.6",
     "@verida/web3": "^2.3.4",
     "axios": "^0.23.0",
     "deepcopy": "^2.1.0",
