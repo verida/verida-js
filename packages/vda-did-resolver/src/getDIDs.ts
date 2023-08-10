@@ -47,5 +47,4 @@ export async function getDIDs(network: EnvironmentType, startIndex: number=0, co
         throw new Error('Failed to get list of active DIDs');
     }
 
-    return data
 }
