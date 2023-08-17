@@ -1,3 +1,8 @@
+2023-xx-xx (c2.3.x)
+-------------------
+
+- Fix `WebUser` using using previous Identity profile after disconnecting and connecting with a different one.
+
 2023-04-20 (v2.3.0)
 -------------------
 
