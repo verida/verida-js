@@ -172,7 +172,7 @@ export class WebUser extends EventEmitter {
     }
 
     /**
-     * Connect the user if a session already exists locally. It won't prompt the user user to login.
+     * Connect the user if a session already exists locally. It won't prompt the user to login.
      *
      * @returns A promise resolving to 'true' if the user is now connected, 'false' otherwise.
      */
