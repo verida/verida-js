@@ -28,6 +28,7 @@ export interface WebUserMessageLink {
     text: string
 }
 
+// TODO: To move to a single constants in the SDK
 const VAULT_CONTEXT_NAME = "Verida: Vault"
 
 /**
@@ -63,6 +64,8 @@ export class WebUser extends EventEmitter {
 
     /**
      * Check if the user is connected.
+     *
+     * Connected means the 'context', the 'account' and the 'did' are defined.
      *
      * @returns 'true' if connected, 'false' otherwise.
      */
@@ -126,10 +129,10 @@ export class WebUser extends EventEmitter {
     /**
      * Fetch the public profile from the user's Vault.
      *
-     * @param {boolean} ignoreCache Ignore the cached version of the profile and force refresh a new copy of the profile.
+     * @param ignoreCache Ignore the cached version of the profile and force refresh a new copy of the profile.
      * @returns A Promise that will resolve to the user's public profile.
      */
-    public async getPublicProfile(ignoreCache: boolean = false) {
+    public async getPublicProfile(ignoreCache = false) {
         this.requireConnection()
 
         if (!ignoreCache && this.profile) {
@@ -227,8 +230,6 @@ export class WebUser extends EventEmitter {
             this.account = account
             this.context = context
             this.did = did
-
-            // Question: Do we have to get overwrite the client created initially in the constructor by the client from context? (knowing we created the context from this client while connecting)
             this.client = context.getClient()
 
             this.emit('connected', profile)
@@ -260,8 +261,8 @@ export class WebUser extends EventEmitter {
             }
 
             this.emit('disconnected')
-        } catch (error: any) {
-            if (error.message.match('Not connected')) {
+        } catch (error: unknown) {
+            if (error instanceof Error && error.message.match('Not connected')) {
                 return
             }
             throw error
