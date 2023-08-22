@@ -1,3 +1,9 @@
+2023-08-22 (v2.3.7)
+-------------------
+
+- `getDIDs` returns DID addresses instead of blockchain addresses
+- Minor typescript improvements
+
 2023-07-11 (v2.3.6)
 -------------------
 
