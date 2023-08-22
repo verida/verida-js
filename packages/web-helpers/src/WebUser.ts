@@ -1,4 +1,4 @@
-import { Client, Network, type Context } from '@verida/client-ts';
+import { Client, Network, Context } from '@verida/client-ts';
 import { VaultAccount, hasSession } from '@verida/account-web-vault';
 import { EventEmitter } from 'events'
 import type { IProfile, ClientConfig, ContextConfig, MessageSendConfig, DatabaseOpenConfig, DatastoreOpenConfig, AccountVaultConfig } from '@verida/types';
