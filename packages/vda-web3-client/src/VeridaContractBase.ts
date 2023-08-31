@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import Axios from 'axios';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { isVeridaContract } from './utils'
+import { isVeridaContract, getMaticFee } from './utils'
 import { getContractForNetwork, isVeridaWeb3GasConfiguration } from './config'
-import { Wallet, BigNumber, Contract, Signer } from 'ethers';
+import { Wallet, BigNumber, Contract, Signer, utils } from 'ethers';
 import { VdaTransactionResult, VeridaWeb3Config, Web3CallType, Web3GasConfiguration, Web3GaslessPostConfig, Web3GaslessRequestConfig, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from '@verida/types';
 
 /** Create axios instance to make http requests to meta-transaction-server */
@@ -57,6 +57,8 @@ export class VeridaContract {
     protected gaslessServerConfig? : Web3GaslessRequestConfig
     protected gaslessPostConfig? : Web3GaslessPostConfig
 
+    protected isProd = false;
+
     /**
      * Create Verida smart contract instance. Add member functions of contract as parameters.
      * @param type - interaction mode
@@ -67,6 +69,10 @@ export class VeridaContract {
         if (type === 'web3') {
             if (!config) {
                 throw new Error('Input configuration parameters');
+            }
+
+            if (process.env.IS_PROD !== undefined) {
+                this.isProd = (process.env.IS_PROD).toLowerCase() === "true";
             }
 
             const web3Config = <Web3SelfTransactionConfig>config;
@@ -232,14 +238,20 @@ export class VeridaContract {
                     // console.log('Gas Config : ', gasConfig)
 
                     let transaction: any
-                    if (gasConfig === undefined) { //Gas configuration is in the params
-                        transaction = await contract.functions[methodName](...params)
+                    if (gasConfig === undefined || Object.keys(gasConfig).length === 0) { //Gas configuration is in the params
+                        const gasConfig = await getMaticFee(this.isProd);
+                        transaction = await contract.functions[methodName](...params, gasConfig);
+
+                    //     // eslint-disable-next-line prefer-const
+                    //  Uncomment following code if not working well in the Polygon mainnet
+                    // transaction = await contract.functions[methodName](...params, {maxPriorityFeePerGas: BigNumber.from("40000000000")});
                     } else { // Need to use manual gas configuration
                         transaction = await contract.functions[methodName](...params, gasConfig)
                     }
 
-                    const transactionReceipt = await transaction.wait(1)
-                    // console.log('Transaction Receipt = ', transactionRecipt)
+                    // console.log("transaction : ", transaction);
+                    const transactionReceipt = await transaction.wait()
+                    // console.log("transactionReceipt : ", transactionReceipt);
 
                     ret = transactionReceipt
                 }
