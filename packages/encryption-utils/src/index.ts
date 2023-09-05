@@ -113,7 +113,7 @@ export default class EncryptionUtils {
         if (data instanceof Uint8Array) { // this also covers `Buffer`
             data = utils.hexlify(data) // the hashing method that follows also tries to serialize strings, except when they are hex strings
         } else if (typeof data === 'object') {
-            data = JSON.stringify(data)
+            data = JSONSortify(data)
         }
 
         const messageHashBytes = EncryptionUtils.hashBytes(data)
