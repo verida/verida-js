@@ -221,17 +221,15 @@ export class WebUser extends EventEmitter {
             }
 
             const did = await account.did()
+            this.did = did
+            this.account = account
+            this.context = context
+            this.client = context.getClient()
             if (config.debug) {
                 console.log(`Account connected with did: ${did}`)
             }
 
             const profile = await this.getPublicProfile()
-
-            this.account = account
-            this.context = context
-            this.did = did
-            this.client = context.getClient()
-
             this.emit('connected', profile)
             resolve(true)
         })
