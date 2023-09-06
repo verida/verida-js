@@ -1,4 +1,4 @@
-2023-08-22 (v3.0.1)
+2023-08-22 (v3.0.2)
 -------------------
 
 - Fix `WebUser.connect` crashing when getting public profile
