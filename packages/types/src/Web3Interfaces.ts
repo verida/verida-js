@@ -13,11 +13,25 @@ export interface Web3ContractInfo {
     logPerformance?: boolean
 }
 
-/** Gas configuration */
+/** EIP1559 Gas Configuration speed */
+export type EIP1559GasMode = 'safeLow' | 'standard' | 'fast';
+/** Gas configuration 
+ * 
+ * eip1559Mode - optional - Once this parameter is set, all other parameters are not used. Gas information is pulled from network.
+ * 
+ * maxFeePerGas - optional - Used for EIP1559 chains
+ * maxPriorityFeePerGas - optional - Used for EIP1559 chains
+ * gasLimit - optional - Used for non EIP1559 chains
+ * gasPrice - optional - Used for non EIP1559 chains
+*/
 export interface Web3GasConfiguration {
-    maxFeePerGas?: BigNumber
-    maxPriorityFeePerGas?: BigNumber
-    gasLimit?: BigNumber
+    eip1559Mode?: EIP1559GasMode;
+    eip1559gasStationUrl?: string;
+
+    maxFeePerGas?: BigNumber;
+    maxPriorityFeePerGas?: BigNumber;
+    gasLimit?: BigNumber;
+    gasPrice?: BigNumber;
 }
 
 /**
