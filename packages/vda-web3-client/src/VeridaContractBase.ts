@@ -23,18 +23,14 @@ export type address = string
 export type uint256 = BigNumber
 export type BlockTag = string | number;
 
+type TGasConfigKeys = keyof Web3GasConfiguration;
+
 /**
  * Class representing any Verida Smart Contrat
  */
 export class VeridaContract {
     /** Smart contract interaction mode */
     protected type: Web3CallType;
-
-    // /** web3 instance. Only used in web3 mode */
-    // protected web3?: Web3;
-
-    // /** Account to send transactions in Web3 mode */
-    // protected account?: string;
 
     /** Contract instance used in web3 mode */
     protected contract?: Contract
@@ -57,8 +53,6 @@ export class VeridaContract {
     protected gaslessServerConfig? : Web3GaslessRequestConfig
     protected gaslessPostConfig? : Web3GaslessPostConfig
 
-    protected isProd = false;
-
     /**
      * Create Verida smart contract instance. Add member functions of contract as parameters.
      * @param type - interaction mode
@@ -69,10 +63,6 @@ export class VeridaContract {
         if (type === 'web3') {
             if (!config) {
                 throw new Error('Input configuration parameters');
-            }
-
-            if (process.env.IS_PROD !== undefined) {
-                this.isProd = (process.env.IS_PROD).toLowerCase() === "true";
             }
 
             const web3Config = <Web3SelfTransactionConfig>config;
@@ -104,7 +94,7 @@ export class VeridaContract {
                 if (item.type === 'function') {
                     this[item.name] = async(...params : any[]) : Promise<VdaTransactionResult> => {
 
-                        let gasConfig : Web3GasConfiguration | undefined = undefined
+                        let gasConfig : Record<string, any> | undefined = undefined
 
                         const paramLen = params.length
                         if (params !== undefined
@@ -118,22 +108,46 @@ export class VeridaContract {
                         } else if (this.web3Config?.methodDefaults !== undefined && (item.name in this.web3Config?.methodDefaults)) {
                             // Use gas configuration in the methodDefaults
                             gasConfig = Object.assign({}, this.web3Config.methodDefaults[item.name])
-                        } else if (this.web3Config !== undefined) {
+                        } else if (this.web3Config !== undefined && isVeridaWeb3GasConfiguration(this.web3Config)) {
                             // Use gas configuration in the global configuration
+                            const keys:TGasConfigKeys[] = ['eip1559Mode', 'eip1559gasStationUrl', 'maxFeePerGas', 'maxPriorityFeePerGas', 'gasLimit', 'gasPrice'];
                             gasConfig = {}
-                            if ('maxFeePerGas' in this.web3Config) {
-                                gasConfig['maxFeePerGas'] = this.web3Config['maxFeePerGas']
-                            }
-
-                            if ('maxPriorityFeePerGas' in this.web3Config) {
-                                gasConfig['maxPriorityFeePerGas'] = this.web3Config['maxPriorityFeePerGas']
-                            }
-
-                            if ('gasLimit' in this.web3Config) {
-                                gasConfig['gasLimit'] = this.web3Config['gasLimit']
+                            for (let i = 0; i < keys.length; i++) {
+                                if (keys[i] in this.web3Config) {
+                                    gasConfig[keys[i]] = this.web3Config[keys[i]];
+                                }
                             }
                         }
 
+                        // console.log('vda-web3 gasconfig : ', gasConfig);
+                        if (gasConfig === undefined || Object.keys(gasConfig).length === 0) {
+                            // Call transaction without gas configuration
+                            return this.callMethod(item.name, item.stateMutability, params)
+                        }
+
+                        const eip1559Keys:TGasConfigKeys[] = ['eip1559Mode', 'eip1559gasStationUrl'];
+                        const keys:TGasConfigKeys[] = ['maxFeePerGas', 'maxPriorityFeePerGas', 'gasLimit', 'gasPrice'];
+                        let isGasConfigured = false;
+                        for (let i = 0; i < keys.length; i++) {
+                            if (keys[i] in gasConfig) {
+                                isGasConfigured = true;
+                                break;
+                            }
+                        }
+                        if (isGasConfigured) {
+                            // Remove unnecessary EIP1559 keys if exist in the gas config
+                            for (let i = 0; i < eip1559Keys.length; i++) {
+                                if (eip1559Keys[i] in gasConfig) {
+                                    delete gasConfig[eip1559Keys[i]];
+                                }
+                            }
+                        } else { // Need to pull the gas configuration from the station
+                            if ('eip1559Mode' in gasConfig && 'eip1559gasStationUrl' in gasConfig) {
+                                gasConfig = await getMaticFee(gasConfig['eip1559gasStationUrl'], gasConfig['eip1559Mode']);
+                            } else {
+                                throw new Error('To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
+                            }
+                        }
                         return this.callMethod(item.name, item.stateMutability, params, gasConfig)
                     }
                 }
@@ -235,18 +249,12 @@ export class VeridaContract {
                 if (methodType === 'view') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
-                    // console.log('Gas Config : ', gasConfig)
-
                     let transaction: any
-                    if (gasConfig === undefined || Object.keys(gasConfig).length === 0) { //Gas configuration is in the params
-                        const gasConfig = await getMaticFee(this.isProd);
-                        transaction = await contract.functions[methodName](...params, gasConfig);
 
-                    //     // eslint-disable-next-line prefer-const
-                    //  Uncomment following code if not working well in the Polygon mainnet
-                    // transaction = await contract.functions[methodName](...params, {maxPriorityFeePerGas: BigNumber.from("40000000000")});
-                    } else { // Need to use manual gas configuration
-                        transaction = await contract.functions[methodName](...params, gasConfig)
+                    if (gasConfig === undefined || Object.keys(gasConfig).length === 0) { //No gas configuration
+                        transaction = await contract.functions[methodName](...params);
+                    } else {
+                        transaction = await contract.functions[methodName](...params, gasConfig);
                     }
 
                     // console.log("transaction : ", transaction);

@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 
-import { veridaContractWhiteList } from './constants'
-import { ethers } from 'ethers'
+import { veridaContractWhiteList } from './constants';
+import { ethers } from 'ethers';
+import { providers } from 'ethers';
 import Axios from 'axios';
 
 /**
@@ -25,37 +26,49 @@ export function isVeridaContract(contractAddress: string) : boolean {
 
 /**
  * Get Polygon fee data to send the transactions
- * @param isProd true if this is for Polygon mainnet, otherwise false
+ * @param gasStationUrl Gas station url to pull the gas inforamtion
  * @returns Matic fee data
  */
-export async function getMaticFee(isProd: boolean) {
+export async function getMaticFee(gasStationUrl: string, mode: string) {
   let maxFeePerGas = ethers.BigNumber.from(40000000000); // fallback to 40 gwei
   let maxPriorityFeePerGas = ethers.BigNumber.from(40000000000); // fallback to 40 gwei
-  const gasLimit = ethers.BigNumber.from(50000000000); // fallback to 50 gwei
+  // const gasLimit = ethers.BigNumber.from(50000000000); // fallback to 50 gwei
 
   try {
     const { data } = await Axios({
       method: 'get',
-      url: isProd
-        ? 'https://gasstation.polygon.technology/v2'
-        : 'https://gasstation-testnet.polygon.technology/v2',
+      url: gasStationUrl
     });
 
     maxFeePerGas = ethers.utils.parseUnits(
-      Math.ceil(data.fast.maxFee) + '',
+      Math.ceil(data[mode].maxFee) + '',
       'gwei'
     );
     maxPriorityFeePerGas = ethers.utils.parseUnits(
-      Math.ceil(data.fast.maxPriorityFee) + '',
+      Math.ceil(data[mode].maxPriorityFee) + '',
       'gwei'
     );
   } catch {
     // ignore
-    console.log('Error in get gasfee');
+    console.log('Error in get gasfee from gas station url');
   }
 
   // return { maxFeePerGas, maxPriorityFeePerGas, gasLimit };
   return { maxFeePerGas, maxPriorityFeePerGas };
+}
+
+export async function checkEIP1559Enabled(provider?: providers.Provider, chainUrl?:string) : Promise<Boolean> {
+  if (provider === undefined) {
+    if (chainUrl === undefined) {
+      return false;
+    }
+
+    provider = new ethers.providers.JsonRpcProvider(chainUrl);
+  }
+  const blockNumber = await provider.getBlockNumber();
+  const block = await provider.getBlock(blockNumber);
+
+  return block.baseFeePerGas !== undefined;
 }
 
 
