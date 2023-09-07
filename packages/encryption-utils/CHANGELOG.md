@@ -1,3 +1,8 @@
+2023-09-06 (v2.2.2)
+-------------------
+
+- Fix JSON.sortify being global for the javascript runtime environment
+
 2023-03-27 (v2.2.1)
 -------------------
 

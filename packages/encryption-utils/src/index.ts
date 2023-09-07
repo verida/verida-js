@@ -7,7 +7,7 @@ import {
 } from "tweetnacl-util";
 import { ethers, utils } from 'ethers'
 import { isHexString } from "ethers/lib/utils";
-JSON.stringify = require('json.sortify')
+const JSONSortify = require('json.sortify')
 
 const newSymNonce = () => randomBytes(secretbox.nonceLength);
 const newAsymNonce = () => randomBytes(box.nonceLength);
@@ -54,7 +54,7 @@ export default class EncryptionUtils {
             throw new Error("Data to encrypt is undefined")
         }
 
-        data = decodeUTF8(JSON.stringify(data));
+        data = decodeUTF8(JSONSortify(data));
         return EncryptionUtils.symEncryptBuffer(data, keyUint8Array);
     }
 
@@ -66,7 +66,7 @@ export default class EncryptionUtils {
 
     static asymEncrypt(data: any, secretOrSharedKey: Uint8Array) {
         const nonce = newAsymNonce();
-        const messageUint8 = decodeUTF8(JSON.stringify(data));
+        const messageUint8 = decodeUTF8(JSONSortify(data));
         const encrypted = box.after(messageUint8, nonce, secretOrSharedKey);
 
         const fullMessage = new Uint8Array(nonce.length + encrypted.length);
@@ -113,7 +113,7 @@ export default class EncryptionUtils {
         if (data instanceof Uint8Array) { // this also covers `Buffer`
             data = utils.hexlify(data) // the hashing method that follows also tries to serialize strings, except when they are hex strings
         } else if (typeof data === 'object') {
-            data = JSON.stringify(data)
+            data = JSONSortify(data)
         }
 
         const messageHashBytes = EncryptionUtils.hashBytes(data)
@@ -145,7 +145,7 @@ export default class EncryptionUtils {
         if (data instanceof Uint8Array) { // this also covers `Buffer`
             data = utils.hexlify(data) // the hashing method that follows also tries to serialize strings, except when they are hex strings
         } else if (typeof data === 'object') {
-            data = JSON.stringify(data)
+            data = JSONSortify(data)
         }
 
         const messageHashBytes = EncryptionUtils.hashBytes(data)
@@ -168,7 +168,7 @@ export default class EncryptionUtils {
                 data = utils.toUtf8Bytes(data)
             }
         } else {
-            data = utils.toUtf8Bytes(JSON.stringify(data))
+            data = utils.toUtf8Bytes(JSONSortify(data))
         }
 
         return utils.keccak256(data)
