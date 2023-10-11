@@ -184,6 +184,10 @@ class VeridaOutbox {
     outboxEntry.sent = true;
     const outboxResponse = await outbox.save(outboxEntry);
 
+    // Close the database connection
+    // Don't do `await` as there's no need to slow things down
+    outbox.close()
+
     return inboxResponse;
   }
 
