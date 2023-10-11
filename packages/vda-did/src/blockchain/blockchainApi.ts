@@ -117,7 +117,7 @@ export default class BlockchainApi {
         const response = await this.vdaWeb3Client.register(this.didAddress, endpoints, signature);
 
         if (response.success !== true) {
-            throw new Error('Failed to register endpoints');
+            throw new Error(`Failed to register endpoints (${response.error})`);
         }
     }
 
