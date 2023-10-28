@@ -426,6 +426,20 @@ class Context extends EventEmitter implements IContext {
     return database
   }
 
+  public async deleteDatabase(databaseName: string) {
+    if (!this.account) {
+      throw new Error(`Unable to delete database. No authenticated user.`);
+    }
+
+    const accountDid = await this.account!.did()
+    const databaseEngine = await this.getDatabaseEngine(
+      accountDid,
+      false
+    );
+
+    return await databaseEngine.deleteDatabase(databaseName)
+  }
+
   /**
    * Open a dataastore owned by this account.
    *
