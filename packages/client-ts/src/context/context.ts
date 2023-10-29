@@ -426,6 +426,21 @@ class Context extends EventEmitter implements IContext {
     return database
   }
 
+  public async deleteDatabase(databaseName: string) {
+    if (!this.account) {
+      throw new Error(`Unable to delete database. No authenticated user.`);
+    }
+
+    // Close the database if it's open
+    const accountDid = await this.account!.did()    
+    const databaseEngine = await this.getDatabaseEngine(
+      accountDid,
+      false
+    );
+
+    return await databaseEngine.deleteDatabase(databaseName)
+  }
+
   /**
    * Open a dataastore owned by this account.
    *
@@ -554,6 +569,10 @@ class Context extends EventEmitter implements IContext {
       const database = await this.databaseCache[d]
       await database.close(<DatabaseCloseOptions> options)
     }
+
+    // The DbRegistry database has been closed. Reset to a clean instance so
+    // it will be re-opened if necessary
+    this.dbRegistry = new DbRegistry(this)
   }
 
   public async clearDatabaseCache(did: string, databaseName: string) {
@@ -561,6 +580,15 @@ class Context extends EventEmitter implements IContext {
     for (let t in types) {
       const cacheKey = `${did.toLowerCase()}/${databaseName}/${types[t]}`
       if (this.databaseCache[cacheKey]) {
+        // try to close the database
+        try {
+          await this.databaseCache[cacheKey].close({
+            clearLocal: true
+          })
+        } catch (err: any) {
+          // already closed
+        }
+
         delete this.databaseCache[cacheKey]
       }
     }

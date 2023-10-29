@@ -174,6 +174,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         },
         did: this.accountDid,
         readOnly: false,
+        verifyEncryptionKey: true
       },
       options
     );
@@ -302,6 +303,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
+          verifyEncryptionKey: config.verifyEncryptionKey
         },
         this
       );
@@ -368,6 +370,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
+          verifyEncryptionKey: config.verifyEncryptionKey
         },
         this
       );
@@ -456,6 +459,8 @@ class StorageEngineVerida extends BaseStorageEngine {
    * Call deleteDatabase() on all the endpoints
    */
   public async deleteDatabase(databaseName: string): Promise<void> {
+    await this.closeDatabase(this.accountDid!, databaseName)
+
     //const now = (new Date()).getTime()
     const promises = []
     for (let i in this.endpoints) {
@@ -508,8 +513,6 @@ class StorageEngineVerida extends BaseStorageEngine {
     for (let e in this.endpoints) {
       this.endpoints[e].disconnectDatabase(did, databaseName)
     }
-    
-    // @todo delete from registry
   }
 }
 

@@ -16,6 +16,7 @@ export interface VeridaDatabaseConfig {
 
   readOnly?: boolean;
   isOwner?: boolean;
+  verifyEncryptionKey?: boolean;
   encryptionKey?: Buffer;
 
   saveDatabase: boolean;
