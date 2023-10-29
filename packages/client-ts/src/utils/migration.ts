@@ -53,7 +53,7 @@ async function _migrateContext(sourceContext: IContext, destinationContext: ICon
             await destinationDb.close()
 
             // Emit success event
-            eventManager.emit('migrated', sourceDbInfo, i, sourceDatabases.length)
+            eventManager.emit('migrated', sourceDbInfo, parseInt(i) + 1, sourceDatabases.length-1)
         } catch (err: any) {
             eventManager.emit('error', err.message)
             return

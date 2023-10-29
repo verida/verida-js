@@ -81,19 +81,18 @@ describe('Storage context tests', () => {
             })
 
             events.on('migrated', (dbInfo, dbIndex, totalDbs) => {
-                dbIndex++
                 const percentComplete = (dbIndex) / totalDbs * 100
                 console.log(`Migrated database ${dbInfo.databaseName} (${dbIndex}/${totalDbs}) (${percentComplete}%)`)
             })
 
             const promise = new Promise((resolve, rejects) => {
                 events.on('complete', () => {
-                    console.log('migration complete!')
+                    console.log('Migration complete!')
                     resolve(true)
                 })
 
                 events.on('error', (err: any) => {
-                    console.log('migration error!')
+                    console.log('Migration error!')
                     rejects(err)
                 })
             })
@@ -154,9 +153,6 @@ describe('Storage context tests', () => {
                     const sourceIds = sourceRows.map((item) => item.id)
                     const destinationIds = destinationRows.map((item) => item.id)
                     assert.deepEqual(sourceIds, destinationIds, `${dbName}: source and destination databases have same records`)
-
-                    await sourceDb.close()
-                    await destinationDb.close()
                 } catch (err) {
                     console.log(dbName)
                     console.log(err)
@@ -169,13 +165,26 @@ describe('Storage context tests', () => {
         if (sourceContext) {
             for (let i in TEST_DBS) {
                 const dbName = TEST_DBS[i]
-                await sourceContext.deleteDatabase(dbName)
-                await destinationContext.deleteDatabase(dbName)
+
+                // Delete databases
+                try {
+                    await sourceContext.deleteDatabase(dbName)
+                } catch (err) {
+                    console.log(err.message)
+                }
+
+                try {
+                    await destinationContext.deleteDatabase(dbName)
+                } catch (err) {
+                    console.log(err.message)
+                }
             }
-        
+
+            // Close contexts
             await sourceContext.close({
                 clearLocal: true
             })
+
             await destinationContext.close({
                 clearLocal: true
             })
