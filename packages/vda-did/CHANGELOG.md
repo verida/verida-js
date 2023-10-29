@@ -1,3 +1,9 @@
+2023-09-07 (v2.3.    )
+-------------------
+- Added manual gas configuration for the non-view contract functions
+- Update test files for testnet with various gas configurations
+- Added test file for mainnet test
+
 2023-04-27 (v2.3.4)
 -------------------
 

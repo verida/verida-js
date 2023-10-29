@@ -1,6 +1,6 @@
 import { interpretIdentifier, getContractInfoForNetwork } from "@verida/vda-common"
 import { getVeridaSignWithNonce } from "./helpers"
-import { VdaDidConfigurationOptions } from "@verida/types"
+import { VdaDidConfigurationOptions, Web3GasConfiguration } from "@verida/types"
 import { getVeridaContract, VeridaContract } from "@verida/web3"
 import { ethers } from "ethers"
 import EncryptionUtils from "@verida/encryption-utils"
@@ -108,13 +108,18 @@ export default class BlockchainApi {
      * Register endpoints to blockchain
      * @param endpoints Array of endpoints to be registered
      */
-    public async register(endpoints: string[]) {
+    public async register(endpoints: string[], gasConfig?: Web3GasConfiguration) {
         if (!this.options.signer) {
             throw new Error(`Unable to create DID. No signer specified in config.`)
         }
 
         const signature = await this.getRegisterSignature(endpoints);
-        const response = await this.vdaWeb3Client.register(this.didAddress, endpoints, signature);
+        let response: any;
+        if (gasConfig !== undefined) {
+            response = await this.vdaWeb3Client.register(this.didAddress, endpoints, signature, gasConfig);
+        } else {
+            response = await this.vdaWeb3Client.register(this.didAddress, endpoints, signature);
+        }
 
         if (response.success !== true) {
             throw new Error(`Failed to register endpoints (${response.error})`);
@@ -140,7 +145,7 @@ export default class BlockchainApi {
      * Set a controller of the {@link BlockchainApi#didAddress} to the blockchain
      * @param controllerPrivateKey private key of new controller
      */
-    public async setController(controllerPrivateKey: string) {
+    public async setController(controllerPrivateKey: string, gasConfig?: Web3GasConfiguration) {
         if (!this.options.signer) {
             throw new Error(`Unable to create DID. No signer specified in config.`)
         }
@@ -148,7 +153,12 @@ export default class BlockchainApi {
         const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase();
 
         const signature = await this.getControllerSignature(controllerAddress);
-        const response = await this.vdaWeb3Client.setController(this.didAddress, controllerAddress, signature);
+        let response: any;
+        if (gasConfig !== undefined) {
+            response = await this.vdaWeb3Client.setController(this.didAddress, controllerAddress, signature, gasConfig);
+        } else {
+            response = await this.vdaWeb3Client.setController(this.didAddress, controllerAddress, signature);
+        }
 
         if (response.success !== true) {
             throw new Error('Failed to set controller');
@@ -187,13 +197,19 @@ export default class BlockchainApi {
     /**
      * Revoke a DID address from the blockchain
      */
-    public async revoke() {
+    public async revoke(gasConfig?: Web3GasConfiguration) {
         if (!this.options.signer) {
             throw new Error(`Unable to create DID. No signer specified in config.`)
         }
         
         const signature = await this.getRevokeSignature();
-        const response = await this.vdaWeb3Client.revoke(this.didAddress, signature);
+        let response: any;
+        if (gasConfig !== undefined) {
+            response = await this.vdaWeb3Client.revoke(this.didAddress, signature, gasConfig);
+        } else {
+            response = await this.vdaWeb3Client.revoke(this.didAddress, signature);
+        }
+        
         if (response.success !== true) {
             throw new Error('Failed to revoke');
         }
