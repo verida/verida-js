@@ -72,10 +72,38 @@ describe('Storage context tests', () => {
             assert.ok(true, 'Test database data created')
         })
 
-        it('can migrate data from source context to the detination context', async function() {
-            await migrateContext(sourceContext, destinationContext)
+        it('can migrate data from source context to the destination context', async function() {
+            const events = migrateContext(sourceContext, destinationContext)
 
-            assert.ok(true, 'Data migrated')
+            events.on('start', (databases: object) => {
+                console.log('Migration starting with databases:')
+                console.log(databases)
+            })
+
+            events.on('migrated', (dbInfo, dbIndex, totalDbs) => {
+                dbIndex++
+                const percentComplete = (dbIndex) / totalDbs * 100
+                console.log(`Migrated database ${dbInfo.databaseName} (${dbIndex}/${totalDbs}) (${percentComplete}%)`)
+            })
+
+            const promise = new Promise((resolve, rejects) => {
+                events.on('complete', () => {
+                    console.log('migration complete!')
+                    resolve(true)
+                })
+
+                events.on('error', (err: any) => {
+                    console.log('migration error!')
+                    rejects(err)
+                })
+            })
+
+            try {
+                const result = await promise
+                assert.ok(true, 'Data migrated')
+            } catch (err) {
+                assert.fail(err.message)
+            }
         })
 
         it('can verify database data matches exactly', async function() {
@@ -87,28 +115,45 @@ describe('Storage context tests', () => {
                 clearLocal: true
             })
 
-            sourceContext = await client1.openContext(SOURCE_CONTEXT_NAME, true)
-            destinationContext = await client2.openContext(DESTINATION_CONTEXT_NAME, true)
+            sourceContext = await client1.openContext(SOURCE_CONTEXT_NAME)
+            destinationContext = await client2.openContext(DESTINATION_CONTEXT_NAME)
 
             // Verify data for all databases
             for (let i in TEST_DBS) {
+                const dbName = TEST_DBS[i]
+
                 try {
-                    const dbName = TEST_DBS[i]
-                    console.log('a')
-                    const sourceDb = await sourceContext.openDatabase(dbName)
-                    console.log('b')
-                    const destinationDb = await destinationContext.openDatabase(dbName)
+                    const sourceDb = await sourceContext.openDatabase(dbName, {
+                        verifyEncryptionKey: false
+                    })
+                    const destinationDb = await destinationContext.openDatabase(dbName, {
+                        verifyEncryptionKey: false
+                    })
 
-                    const sourceRows = await sourceDb.getMany()
-                    const destinationRows = await destinationDb.getMany()
+                    let sourceCouchDb, destinationCouchDb
 
-                    console.log('source: ')
-                    console.log(sourceRows)
+                    if (sourceDb.getRemoteEncrypted) {
+                        sourceCouchDb = await sourceDb.getRemoteEncrypted()
+                        destinationCouchDb = await destinationDb.getRemoteEncrypted()
+                    } else {
+                        sourceCouchDb = await sourceDb.getDb()
+                        destinationCouchDb = await destinationDb.getDb()
+                    }
 
-                    console.log('destination: ')
-                    console.log(destinationRows)
+                    const sourceRows = (await sourceCouchDb.allDocs({
+                        include_docs: true
+                    })).rows
+                    const destinationRows = (await destinationCouchDb.allDocs({
+                        include_docs: true
+                    })).rows
 
-                    assert.ok(true, `${dbName} source and destination databases match`)
+                    // Verify the same number of rows returned
+                    assert.equal(sourceRows.length, destinationRows.length, `${dbName}: source and destination databases have same length`)
+
+                    // Verify the same row IDs are returned
+                    const sourceIds = sourceRows.map((item) => item.id)
+                    const destinationIds = destinationRows.map((item) => item.id)
+                    assert.deepEqual(sourceIds, destinationIds, `${dbName}: source and destination databases have same records`)
 
                     await sourceDb.close()
                     await destinationDb.close()
@@ -118,27 +163,16 @@ describe('Storage context tests', () => {
                 }
             }
         })
-
-        it('can delete test database data', async function() {
-            for (let i in TEST_DBS) {
-                const dbName = TEST_DBS[i]
-                await sourceContext.deleteDatabase(dbName)
-                assert.ok(true, `Source database deleted: ${dbName}`)
-
-                try {
-                    await destinationContext.deleteDatabase(dbName)
-                    assert.ok(true, `Destination database deleted: ${dbName}`)
-                } catch (err) {
-                    if (!err.message.match(/not exist/)) {
-                        assert.fail(err.message)
-                    }
-                }
-            }
-        })
     })
 
     after(async () => {
         if (sourceContext) {
+            for (let i in TEST_DBS) {
+                const dbName = TEST_DBS[i]
+                await sourceContext.deleteDatabase(dbName)
+                await destinationContext.deleteDatabase(dbName)
+            }
+        
             await sourceContext.close({
                 clearLocal: true
             })

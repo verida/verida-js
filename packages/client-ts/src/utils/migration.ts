@@ -1,9 +1,22 @@
 import { IContext } from "@verida/types";
 import BaseDb from "../context/engines/verida/database/base-db";
+const _ = require("lodash");
+import { EventEmitter } from 'events'
 
-export class MigrateContextError extends Error {}
+/**
+ * 
+ * Note: May need the ability to force override the DID if migrating data between testnet -> mainnet?
+ * 
+ * @param sourceContext 
+ * @param destinationContext 
+ */
+export function migrateContext(sourceContext: IContext, destinationContext: IContext): EventEmitter {
+    const eventManager = new EventEmitter()
+    _migrateContext(sourceContext, destinationContext, eventManager)
+    return eventManager
+}
 
-export async function migrateContext(sourceContext: IContext, destinationContext: IContext) {
+async function _migrateContext(sourceContext: IContext, destinationContext: IContext, eventManager: EventEmitter) {
     const sourceAccount = sourceContext.getAccount()
     const sourceDid = await sourceAccount.did()
 
@@ -11,59 +24,57 @@ export async function migrateContext(sourceContext: IContext, destinationContext
     const sourceDbInfo = await sourceDbEngine.info()
     const sourceDatabases = sourceDbInfo.databases
 
-    console.log('located databases: ', sourceDatabases)
+    eventManager.emit('start', sourceDatabases)
+
     for (let i in sourceDatabases) {
         const sourceDbInfo = sourceDatabases[i]
 
-        // open source and destination databases
-        const sourceDb = await sourceContext.openDatabase(sourceDbInfo.databaseName, sourceDbInfo.permissions)
-        const destinationDb = await sourceContext.openDatabase(sourceDbInfo.databaseName, sourceDbInfo.permissions)
-        // show info on how much data is being migrated
-        const rows = await sourceDb.getMany()
-        console.log(`Migrating ${rows.length} rows for source database (${sourceDbInfo.databaseName})`)
+        // Don't migrate the special storage_database that is internally managed to maintain
+        // a list of all the databases in a context
+        if (sourceDbInfo.databaseName == 'storage_database') {
+            continue
+        }
 
         try {
+            // Open source and destination databases
+            const config = {
+                permissions: sourceDbInfo.permissions,
+                verifyEncryptionKey: false
+            }
+
+            const sourceDb = await sourceContext.openDatabase(sourceDbInfo.databaseName, config)
+            const destinationDb = await destinationContext.openDatabase(sourceDbInfo.databaseName, config)
+
+            // Migrate data
             await migrateDatabase(sourceDb, destinationDb)
-            console.log('closing...')
+
+            // Close databases
             await sourceDb.close()
             await destinationDb.close()
-            console.log('migrated!')
+
+            // Emit success event
+            eventManager.emit('migrated', sourceDbInfo, i, sourceDatabases.length)
         } catch (err: any) {
-            throw new MigrateContextError(err.message)
+            eventManager.emit('error', err.message)
+            return
         }
     }
+
+    eventManager.emit('complete')
 }
 
 export async function migrateDatabase(sourceDb: BaseDb, destinationDb: BaseDb): Promise<void> {
     let sourceCouchDb, destinationCouchDb
 
+    // Sync the remote databases, which is different depending on the type of database
     if (sourceDb.getRemoteEncrypted) {
-        console.log('have encrypted database, so replicated encrypted')
         sourceCouchDb = await sourceDb.getRemoteEncrypted()
         destinationCouchDb = await destinationDb.getRemoteEncrypted()
     } else {
-        console.log('have non-necrypted database, so replicated normal')
         sourceCouchDb = await sourceDb.getDb()
         destinationCouchDb = await destinationDb.getDb()
     }
 
-    try {
-        const result = await sourceCouchDb.replicate.to(destinationCouchDb)
-        console.log(result)
-    } catch (err: any) {
-        console.log('replication error')
-        console.log(err)
-    }
-
-    const destinationRows = await destinationCouchDb.allDocs({
-        include_docs: true
-    })
-
-    console.log('destination rows')
-    console.log(destinationRows)
-
-    const destinationRowsLocal = await destinationDb.getMany()
-
-    console.log('destination rows local')
-    console.log(destinationRowsLocal)
+    // Don't catch replication errors, allow them to bubble up
+    await sourceCouchDb.replicate.to(destinationCouchDb)
 }
