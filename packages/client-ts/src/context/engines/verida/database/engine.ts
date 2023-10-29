@@ -174,6 +174,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         },
         did: this.accountDid,
         readOnly: false,
+        verifyEncryptionKey: true
       },
       options
     );
@@ -302,6 +303,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
+          verifyEncryptionKey: config.verifyEncryptionKey
         },
         this
       );
@@ -368,6 +370,7 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
+          verifyEncryptionKey: config.verifyEncryptionKey
         },
         this
       );

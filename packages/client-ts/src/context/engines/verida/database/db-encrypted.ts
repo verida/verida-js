@@ -115,23 +115,25 @@ class EncryptedDatabase extends BaseDb {
      * If there is data in this database, it ensures the current encryption key
      * can decrypt the data.
      */
-    try {
-      await this.getMany();
-      //console.log(`Db.init-5(${databaseName}): ${(new Date()).getTime()-now}`)
-    } catch (err: any) {
-      // This error message is thrown by the underlying decrypt library if the
-      // data can't be decrypted
-      if (
-        err.message == `Unsupported state or unable to authenticate data` ||
-        err.message == "Could not decrypt!"
-      ) {
-        // Clear the instantiated PouchDb instances and throw a more useful exception
-        await this.close()
-        throw new Error(`Invalid encryption key supplied`);
-      }
+    if (this.config.verifyEncryptionKey) {
+      try {
+        await this.getMany();
+        //console.log(`Db.init-5(${databaseName}): ${(new Date()).getTime()-now}`)
+      } catch (err: any) {
+        // This error message is thrown by the underlying decrypt library if the
+        // data can't be decrypted
+        if (
+          err.message == `Unsupported state or unable to authenticate data` ||
+          err.message == "Could not decrypt!"
+        ) {
+          // Clear the instantiated PouchDb instances and throw a more useful exception
+          await this.close()
+          throw new Error(`Invalid encryption key supplied`);
+        }
 
-      // Unknown error, rethrow
-      throw err;
+        // Unknown error, rethrow
+        throw err;
+      }
     }
 
     //console.log(`Db.init-Final(${databaseName}): ${(new Date()).getTime()-now}`)
