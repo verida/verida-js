@@ -1,7 +1,7 @@
-2023-09-07 (v2.3.6)
+2023-10-29 (v2.4.0)
 -------------------
-- Updated gas configuration in `web3` mode
 
+- Feature: Updated gas configuration in `web3` mode
 
 2023-04-27 (v2.3.3)
 -------------------

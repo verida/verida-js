@@ -1,3 +1,15 @@
+
+2023-10-29 (v2.4.0)
+-------------------
+
+- Fix: Close outbox database connection after sending a message
+- Feature: Expose new `migrateContext()` and `migrateDatase()` utility methods
+- Feature: Implement utility method `context.deleteDatabase(databaseName)`
+- Fix: Close databases when they are removed from the cache
+- Fix: Close databases prior to deletion
+- Feature: Support `verifyEncryptionKey: boolean` property on the config options when opening a database
+- Fix: Closing encrypted database could have a race condition if called more than once
+
 2023-05-12 (v.2.3.5)
 -------------------
 
