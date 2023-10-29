@@ -230,6 +230,14 @@ class EncryptedDatabase extends BaseDb {
   public async close(options: DatabaseCloseOptions = {
     clearLocal: false
   }) {
+    if (this._sync === null) {
+      // No sync object indicates this database is closed
+      return
+    }
+
+    this._sync = null;
+    this._syncError = null;
+
     if (options.clearLocal) {
       await this.destroy({
         localOnly: true
@@ -254,8 +262,6 @@ class EncryptedDatabase extends BaseDb {
       // may already be closed
     }
 
-    this._sync = null;
-    this._syncError = null;
     await this.engine.closeDatabase(this.did, this.databaseName)
     this.emit('closed', this.databaseName)
   }
@@ -292,14 +298,14 @@ class EncryptedDatabase extends BaseDb {
     localOnly: false
   }): Promise<void> {
     try {
-      // Destory the local pouch database (this deletes this._local and this._localDbEncrypted as they share the same underlying data source)
+      // Destroy the local pouch database (this deletes this._local and this._localDbEncrypted as they share the same underlying data source)
       await this._localDbEncrypted.destroy()
 
       if (!options.localOnly) {
         // Only delete remote database if required
         await this.engine.deleteDatabase(this.databaseName)
       }
-     
+
       await this.close({
         clearLocal: false
       })

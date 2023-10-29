@@ -459,6 +459,8 @@ class StorageEngineVerida extends BaseStorageEngine {
    * Call deleteDatabase() on all the endpoints
    */
   public async deleteDatabase(databaseName: string): Promise<void> {
+    await this.closeDatabase(this.accountDid!, databaseName)
+
     //const now = (new Date()).getTime()
     const promises = []
     for (let i in this.endpoints) {
@@ -511,8 +513,6 @@ class StorageEngineVerida extends BaseStorageEngine {
     for (let e in this.endpoints) {
       this.endpoints[e].disconnectDatabase(did, databaseName)
     }
-    
-    // @todo delete from registry
   }
 }
 
