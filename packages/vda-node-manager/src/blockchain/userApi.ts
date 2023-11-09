@@ -21,18 +21,18 @@ export interface IStorageNode {
     status?: string;
 }
 
-export class VeridaNodeClient {
+export class VeridaNodeManager {
 
-    private config: VdaClientConfig
-    private network: string
-    private didAddress?: string
+    protected config: VdaClientConfig
+    protected network: string
+    protected didAddress?: string
 
-    private vdaWeb3Client? : VeridaContract
+    protected vdaWeb3Client? : VeridaContract
 
-    private readOnly: boolean
-    private contract?: ethers.Contract
+    protected readOnly: boolean
+    protected contract?: ethers.Contract
 
-    private CONTRACT_DECIMAL?: number
+    protected CONTRACT_DECIMAL?: number
     
     public constructor(config: VdaClientConfig) {
         if (!config.callType) {
@@ -214,6 +214,7 @@ export class VeridaNodeClient {
         datacenterId: BigNumberish,
         latVal: number,
         longVal: number,
+        slotCount: BigNumberish,
         authSignature: BytesLike
     ) {
         if (this.readOnly || !this.config.signKey) {
@@ -233,8 +234,8 @@ export class VeridaNodeClient {
         // Sign the blockchain request as this DID
         const nonce = await this.nonceFN();
         const requestMsg = ethers.utils.solidityPack(
-            ["address", "string", "uint", "int", "int", "uint"],
-            [this.didAddress, `${endpointUri}${countryCode}${regionCode}`, datacenterId, lat, long, nonce]
+            ["address", "string", "uint", "int", "int", "uint", "uint"],
+            [this.didAddress, `${endpointUri}${countryCode}${regionCode}`, datacenterId, lat, long, slotCount, nonce]
         );
         const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
 
@@ -250,6 +251,7 @@ export class VeridaNodeClient {
                 datacenterId,
                 lat,
                 long,
+                slotCount
             },
             requestSignature,
             requestProof,
@@ -467,4 +469,328 @@ export class VeridaNodeClient {
             throw new Error(`Failed to get nodes by region (${message})`);
         }
     }
+
+    /**
+     * Returns whether staking is required to call `addNode()` function
+     * @returns The value of required status
+     */
+    public async isStakingRequired() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isStakingRequired();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.isStakingRequired();
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to check staking required (${message})`);
+        }
+    }
+
+    /**
+     * Returns the `STAKE_PER_SLOT` value of contract
+     * @returns Required token amount for one slot
+     */
+    public async getStakePerSlot() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getStakePerSlot();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getStakePerSlot();
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get StakePerSlot (${message})`);
+        }
+    }
+
+    /**
+     * Return the range of `slotCount` value by pair of minimum and maximum value
+     * @returns Array of min and max value
+     */
+    public async getSlotCountRange() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getSlotCountRange();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getSlotCountRange();
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get StakePerSlot (${message})`);
+        }
+    }
+
+    /**
+     * Returns the amount of staked token for inputed DID address.
+     * @param didAddress DID address that added a storage node
+     * @returns Amount of staked token
+     */
+    public async getBalance(didAddress: string) {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getBalance(didAddress);
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getBalance(didAddress);
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get Balance (${message})`);
+        }
+    }
+
+    /**
+     * Returns the amount of excess tokens
+     * @param didAddress DID address
+     * @returns 
+     */
+    public async excessTokenAmount(didAddress: string) {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.excessTokenAmount(didAddress);
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.excessTokenAmount(didAddress);
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get excess tokenamount (${message})`);
+        }
+    }
+
+    /**
+     * Withdraw amount of tokens to the requestor
+     * @param amount Token amount to be withdrawn
+     */
+    public async withdraw(amount: BigNumberish) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(this.config.signKey.slice(2), "hex")
+        );
+
+        // Sign the blockchain request as this DID
+        const nonce = await this.nonceFN();
+        const requestMsg = ethers.utils.solidityPack(
+            ["address", "uint", "uint"],
+            [this.didAddress, amount, nonce]
+        );
+        const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
+
+        const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase();
+        const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray);
+
+        const response = await this.vdaWeb3Client!.withdraw(
+            this.didAddress,
+            amount,
+            requestSignature,
+            requestProof
+        );
+
+        if (response.success !== true) {
+            throw new Error(`Failed to withdraw: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Depoist verida tokens
+     * @param amount Depositing amount of Verida token
+     */
+    public async depositToken(amount: BigNumberish) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+        
+        const response = await this.vdaWeb3Client!.depositToken(
+            this.didAddress,
+            amount
+        );
+
+        if (response.success !== true) {
+            throw new Error(`Failed to deposit token: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Get the fee for logging a node issue
+     * @returns Amount of Verida token for fee
+     */
+    public async getNodeIssueFee() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getNodeIssueFee();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getNodeIssueFee();
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get node issue fee (${message})`);
+        }
+    }
+
+    /**
+     * Return the current token amount staked by logging issues
+     * @returns Amount of VDA tokens
+     */
+    public async getTotalIssueFee() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getTotalIssueFee();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getTotalIssueFee();
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get total staked issue fee (${message})`);
+        }
+    }
+
+    /**
+     * Return the current same node log duration
+     * @returns Same node log duration in seconds
+     */
+    public async getSameNodeLogDuration() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getSameNodeLogDuration();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getSameNodeLogDuration();
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get log duration per same node (${message})`);
+        }
+    }
+
+    /**
+     * Return the current log limit per day
+     * @returns Log limit count per day
+     */
+    public async getLogLimitPerDay() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getLogLimitPerDay();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getLogLimitPerDay();
+                return response;
+            }
+            
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get log limit per day (${message})`);
+        }
+    }
+
+    /**
+     * Log a node issue
+     * @param nodeAddress DID address of the node
+     * @param reasonCode reason code of the issue
+     */
+    public async logNodeIssue(nodeAddress: string, reasonCode: BigNumberish) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(this.config.signKey.slice(2), "hex")
+        );
+
+        // Sign the blockchain request as this DID
+        const nonce = await this.nonceFN();
+        const requestMsg = ethers.utils.solidityPack(
+            ["address", "address", "uint", "uint"],
+            [this.didAddress, nodeAddress, reasonCode, nonce]
+        );
+        const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
+
+        const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase();
+        const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray);
+
+        const response = await this.vdaWeb3Client!.logNodeIssue(
+            this.didAddress,
+            nodeAddress,
+            reasonCode,
+            requestSignature,
+            requestProof
+        );
+
+        if (response.success !== true) {
+            throw new Error(`Failed to log node issue: ${response.reason}`);
+        }
+    }
+
+
+    
+
 }
