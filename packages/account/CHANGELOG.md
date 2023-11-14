@@ -1,3 +1,8 @@
+? (v2.4.0)
+-------------------
+
+- Fix: Account disconnect should be optional, not throw an exception
+
 2023-04-20 (v2.3.0)
 -------------------
 
