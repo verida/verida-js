@@ -5,7 +5,7 @@ import PublicDatabase from "./db-public";
 import DbRegistry from "../../../db-registry";
 import Context from '../../../context';
 import Endpoint from "./endpoint";
-import { ContextDatabaseInfo, DatabaseOpenConfig, DatabasePermissionsConfig, IDatabase, SecureContextConfig } from "@verida/types";
+import { ContextDatabaseInfo, DatabaseOpenConfig, DatabaseDeleteConfig, DatabasePermissionsConfig, IDatabase, SecureContextConfig } from "@verida/types";
 
 const _ = require("lodash");
 
@@ -458,7 +458,7 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Call deleteDatabase() on all the endpoints
    */
-  public async deleteDatabase(databaseName: string): Promise<void> {
+  public async deleteDatabase(databaseName: string, config?: DatabaseDeleteConfig): Promise<void> {
     await this.closeDatabase(this.accountDid!, databaseName)
 
     //const now = (new Date()).getTime()

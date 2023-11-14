@@ -73,7 +73,7 @@ class BaseStorageEngine extends EventEmitter {
 
   public async deleteDatabase(
     databaseName: string,
-    config: DatabaseDeleteConfig
+    config?: DatabaseDeleteConfig
   ): Promise<void> {
     throw new Error("Not implemented");
   }

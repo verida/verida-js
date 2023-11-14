@@ -8,13 +8,13 @@ export interface IDatastore {
     save(data: any, options: any): Promise<object | boolean>
 
     getMany(
-        customFilter: any,
-        options: any
+        customFilter?: any,
+        options?: any
     ): Promise<object[]>
 
     getOne(
-        customFilter: any,
-        options: any
+        customFilter?: any,
+        options?: any
     ): Promise<object | undefined>
 
     get(key: string, options: any): Promise<any>
@@ -34,5 +34,5 @@ export interface IDatastore {
         writeList: string[]
     ): Promise<void>
 
-    close(options: DatabaseCloseOptions): Promise<void>
+    close(options?: DatabaseCloseOptions): Promise<void>
 }

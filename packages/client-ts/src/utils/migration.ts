@@ -1,7 +1,7 @@
-import { IContext } from "@verida/types";
-import BaseDb from "../context/engines/verida/database/base-db";
+import { IContext, IDatabase } from "@verida/types";
 const _ = require("lodash");
 import { EventEmitter } from 'events'
+import EncryptedDatabase from "../context/engines/verida/database/db-encrypted";
 
 /**
  * 
@@ -21,7 +21,7 @@ async function _migrateContext(sourceContext: IContext, destinationContext: ICon
     const sourceDid = await sourceAccount.did()
 
     const sourceDbEngine = await sourceContext.getDatabaseEngine(sourceDid)
-    const sourceDbInfo = await sourceDbEngine.info()
+    const sourceDbInfo: any = await sourceDbEngine.info()
     const sourceDatabases = sourceDbInfo.databases
 
     eventManager.emit('start', sourceDatabases)
@@ -63,13 +63,13 @@ async function _migrateContext(sourceContext: IContext, destinationContext: ICon
     eventManager.emit('complete')
 }
 
-export async function migrateDatabase(sourceDb: BaseDb, destinationDb: BaseDb): Promise<void> {
+export async function migrateDatabase(sourceDb: IDatabase, destinationDb: IDatabase): Promise<void> {
     let sourceCouchDb, destinationCouchDb
 
     // Sync the remote databases, which is different depending on the type of database
-    if (sourceDb.getRemoteEncrypted) {
-        sourceCouchDb = await sourceDb.getRemoteEncrypted()
-        destinationCouchDb = await destinationDb.getRemoteEncrypted()
+    if (sourceDb instanceof EncryptedDatabase) {
+        sourceCouchDb = await (<EncryptedDatabase> sourceDb).getRemoteEncrypted()
+        destinationCouchDb = await (<EncryptedDatabase> destinationDb).getRemoteEncrypted()
     } else {
         sourceCouchDb = await sourceDb.getDb()
         destinationCouchDb = await destinationDb.getDb()
