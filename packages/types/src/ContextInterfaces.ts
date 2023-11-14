@@ -69,6 +69,11 @@ export interface DatabaseOpenConfig {
    * Ignore any cached instance already created
    */
   ignoreCache?: boolean
+
+  /**
+   * Verify the encryption key is correct when opening the database
+   */
+  verifyEncryptionKey?: boolean
 }
 
 export interface DatabaseDeleteConfig {

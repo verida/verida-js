@@ -33,7 +33,7 @@ export interface IStorageEngine {
 
   deleteDatabase(
     databaseName: string,
-    config: DatabaseDeleteConfig
+    config?: DatabaseDeleteConfig
   ): Promise<void>
 
   logout(): void
