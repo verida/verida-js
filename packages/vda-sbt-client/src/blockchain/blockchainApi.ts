@@ -7,7 +7,7 @@ import { getContractInfoForNetwork, RPC_URLS } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
-import { ethers, Contract } from "ethers";
+import { ethers, Contract, BigNumberish } from "ethers";
 import EncryptionUtils from "@verida/encryption-utils";
 
 
@@ -81,7 +81,7 @@ export class VeridaSBTClient {
      * @param tokenId tokenId
      * @returns tokenURI from SBT contract
      */
-    public async tokenURI(tokenId: number) {
+    public async tokenURI(tokenId: BigNumberish) {
         let response
         try {
             if (this.vdaWeb3Client) {
@@ -107,7 +107,7 @@ export class VeridaSBTClient {
      * @param tokenId Token ID
      * @returns true if tokenID is locked
      */
-    public async isLocked(tokenId: number) {
+    public async isLocked(tokenId: BigNumberish) {
         let response
         try {
             if (this.vdaWeb3Client) {
@@ -320,7 +320,7 @@ export class VeridaSBTClient {
      * @returns string array of SBT type & uniqueId
      */
     public async tokenInfo(
-        tokenId: number
+        tokenId: BigNumberish
     ) {
         let response
         try {
@@ -349,7 +349,7 @@ export class VeridaSBTClient {
      * @param tokenId SBT tokenId
      */
     public async burnSBT(
-        tokenId: number
+        tokenId: BigNumberish
     ) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
@@ -368,7 +368,7 @@ export class VeridaSBTClient {
      * @returns owner address of the token
      */
     public async ownerOf(
-        tokenId: number
+        tokenId: BigNumberish
     ) {
         let response
         try {
