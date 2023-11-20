@@ -1,3 +1,8 @@
+2023-10-29 (v2.4.1)
+-------------------
+
+- Update `callMethod()` function to return BigNumber as BigNumber itself
+
 2023-10-29 (v2.4.0)
 -------------------
 
