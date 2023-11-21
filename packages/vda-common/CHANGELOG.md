@@ -1,9 +1,4 @@
-2023-11-06 (v2.5.0)
--------------------
-
-- Updated mainnet contract addresses
-
-2023-10-29 (v2.4.0)
+2023-11-21 (v2.4.0)
 -------------------
 
 - Feature: Add mainnet configuration

@@ -1,4 +1,4 @@
-2023-10-29 (v2.4.0)
+2023-11-21 (v2.4.0)
 -------------------
 
 - Fix: Ethers dependency was dev only

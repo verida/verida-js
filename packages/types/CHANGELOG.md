@@ -1,4 +1,4 @@
-2023-10-29 (v2.4.0)
+2023-11-21 (v2.4.0)
 -------------------
 
 - Feature: Added EIP1559 gas configuration to `Web3Interface`
