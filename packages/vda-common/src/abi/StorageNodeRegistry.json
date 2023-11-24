@@ -31,12 +31,18 @@
           "type": "uint256"
         }
       ],
-      "name": "InvalidDatacenterId",
+      "name": "InvalidDataCenterId",
       "type": "error"
     },
     {
-      "inputs": [],
-      "name": "InvalidDatacenterName",
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "InvalidDataCenterName",
       "type": "error"
     },
     {
@@ -52,11 +58,6 @@
     {
       "inputs": [],
       "name": "InvalidLongitude",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InvalidNumberSlots",
       "type": "error"
     },
     {
@@ -77,6 +78,11 @@
     {
       "inputs": [],
       "name": "InvalidSignature",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidSlotCount",
       "type": "error"
     },
     {
@@ -210,7 +216,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "numberSlots",
+          "name": "slotCount",
           "type": "uint256"
         },
         {
@@ -301,6 +307,12 @@
           "internalType": "uint256",
           "name": "datacenterId",
           "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
         }
       ],
       "name": "RemoveDataCenter",
@@ -374,6 +386,12 @@
         },
         {
           "indexed": false,
+          "internalType": "uint256",
+          "name": "rewardedCount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
           "internalType": "string",
           "name": "moreInfoUrl",
           "type": "string"
@@ -438,11 +456,17 @@
         {
           "indexed": false,
           "internalType": "uint256",
+          "name": "orgVal",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
           "name": "newVal",
           "type": "uint256"
         }
       ],
-      "name": "UpdateMaxSlots",
+      "name": "UpdateLogLimitPerDay",
       "type": "event"
     },
     {
@@ -455,7 +479,20 @@
           "type": "uint256"
         }
       ],
-      "name": "UpdateMinSlots",
+      "name": "UpdateMaxSlotCount",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newVal",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateMinSlotCount",
       "type": "event"
     },
     {
@@ -526,25 +563,6 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "internalType": "address",
-          "name": "oldAddress",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "newAddress",
-          "type": "address"
-        }
-      ],
-      "name": "UpdateTokenAddress",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
           "indexed": true,
           "internalType": "address",
           "name": "to",
@@ -603,12 +621,12 @@
               "type": "int256"
             }
           ],
-          "internalType": "struct IStorageNodeRegistry.Datacenter",
+          "internalType": "struct IStorageNodeRegistry.DatacenterInput",
           "name": "data",
           "type": "tuple"
         }
       ],
-      "name": "addDatacenter",
+      "name": "addDataCenter",
       "outputs": [
         {
           "internalType": "uint256",
@@ -660,7 +678,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "numberSlots",
+              "name": "slotCount",
               "type": "uint256"
             }
           ],
@@ -715,7 +733,7 @@
           "type": "uint256"
         }
       ],
-      "name": "depoistToken",
+      "name": "depositToken",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -731,9 +749,9 @@
       "name": "excessTokenAmount",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "int256",
           "name": "",
-          "type": "uint256"
+          "type": "int256"
         }
       ],
       "stateMutability": "view",
@@ -761,6 +779,57 @@
     {
       "inputs": [
         {
+          "internalType": "uint256[]",
+          "name": "ids",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "getDataCenters",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "countryCode",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "regionCode",
+              "type": "string"
+            },
+            {
+              "internalType": "int256",
+              "name": "lat",
+              "type": "int256"
+            },
+            {
+              "internalType": "int256",
+              "name": "long",
+              "type": "int256"
+            }
+          ],
+          "internalType": "struct IStorageNodeRegistry.Datacenter[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "countryCode",
           "type": "string"
@@ -770,6 +839,62 @@
       "outputs": [
         {
           "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "countryCode",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "regionCode",
+              "type": "string"
+            },
+            {
+              "internalType": "int256",
+              "name": "lat",
+              "type": "int256"
+            },
+            {
+              "internalType": "int256",
+              "name": "long",
+              "type": "int256"
+            }
+          ],
+          "internalType": "struct IStorageNodeRegistry.Datacenter[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string[]",
+          "name": "names",
+          "type": "string[]"
+        }
+      ],
+      "name": "getDataCentersByName",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
             {
               "internalType": "string",
               "name": "name",
@@ -817,51 +942,10 @@
         {
           "components": [
             {
-              "internalType": "string",
-              "name": "name",
-              "type": "string"
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
             },
-            {
-              "internalType": "string",
-              "name": "countryCode",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "regionCode",
-              "type": "string"
-            },
-            {
-              "internalType": "int256",
-              "name": "lat",
-              "type": "int256"
-            },
-            {
-              "internalType": "int256",
-              "name": "long",
-              "type": "int256"
-            }
-          ],
-          "internalType": "struct IStorageNodeRegistry.Datacenter[]",
-          "name": "",
-          "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "ids",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "getDatacenters",
-      "outputs": [
-        {
-          "components": [
             {
               "internalType": "string",
               "name": "name",
@@ -898,7 +982,7 @@
     },
     {
       "inputs": [],
-      "name": "getIssueFeeAmount",
+      "name": "getLogLimitPerDay",
       "outputs": [
         {
           "internalType": "uint256",
@@ -958,7 +1042,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "numberSlots",
+              "name": "slotCount",
               "type": "uint256"
             },
             {
@@ -1029,7 +1113,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "numberSlots",
+              "name": "slotCount",
               "type": "uint256"
             },
             {
@@ -1113,7 +1197,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "numberSlots",
+              "name": "slotCount",
               "type": "uint256"
             },
             {
@@ -1179,7 +1263,7 @@
             },
             {
               "internalType": "uint256",
-              "name": "numberSlots",
+              "name": "slotCount",
               "type": "uint256"
             },
             {
@@ -1191,24 +1275,6 @@
           "internalType": "struct IStorageNodeRegistry.StorageNode[]",
           "name": "",
           "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getNumberSlotsRange",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -1229,7 +1295,38 @@
     },
     {
       "inputs": [],
+      "name": "getSlotCountRange",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "getStakePerSlot",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTotalIssueFee",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1254,8 +1351,46 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "isDataCenterNameRegistered",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "isStakingRequired",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
+        }
+      ],
+      "name": "isTrustedSigner",
       "outputs": [
         {
           "internalType": "bool",
@@ -1339,7 +1474,20 @@
           "type": "uint256"
         }
       ],
-      "name": "removeDatacenter",
+      "name": "removeDataCenter",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "removeDataCenterByName",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -1473,11 +1621,24 @@
       "inputs": [
         {
           "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateLogLimitPerDay",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
           "name": "maxSlots",
           "type": "uint256"
         }
       ],
-      "name": "updateMaxSlots",
+      "name": "updateMaxSlotCount",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -1490,7 +1651,7 @@
           "type": "uint256"
         }
       ],
-      "name": "updateMinSlots",
+      "name": "updateMinSlotCount",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -1530,19 +1691,6 @@
         }
       ],
       "name": "updateStakePerSlot",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newTokenAddress",
-          "type": "address"
-        }
-      ],
-      "name": "updateTokenAddress",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -1606,5 +1754,5 @@
       "stateMutability": "payable",
       "type": "function"
     }
-  ]  
+  ]
 }
