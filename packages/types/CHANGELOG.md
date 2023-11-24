@@ -1,7 +1,8 @@
-2023-10-29 (v2.4.0)
+2023-11-21 (v2.4.0)
 -------------------
 
 - Feature: Added EIP1559 gas configuration to `Web3Interface`
+- Make optional database params, actually optional with typescript
 
 2023-04-20 (v2.3.0)
 -------------------

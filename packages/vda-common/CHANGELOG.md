@@ -3,7 +3,6 @@
 - Added `StorageNodeRegistry` support
 
 2023-10-29 (v2.3.5)
--------------------
 
 - Feature: Add mainnet configuration
 

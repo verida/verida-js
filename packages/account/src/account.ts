@@ -100,7 +100,7 @@ export default class Account implements IAccount {
      * For example, in a web browser context, it would remove any stored signatures from local storage.
      */
     public async disconnect(contextName?: string): Promise<void> {
-        throw new Error("Not implemented.")
+        return
     }
 
     public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig = {

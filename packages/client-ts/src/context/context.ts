@@ -72,7 +72,7 @@ class Context extends EventEmitter implements IContext {
   private databaseEngines: DatabaseEngines = {};
   private dbRegistry: DbRegistry;
 
-  private databaseCache: Record<string, IDatabase | Promise<IDatabase>> = {}
+  private databaseCache: Record<string, IDatabase> = {}
 
   /**
    * Instantiate a new context.
@@ -331,7 +331,7 @@ class Context extends EventEmitter implements IContext {
     }
 
     const instance = this
-    this.databaseCache[cacheKey] = new Promise(async (resolve, rejects) => {
+    const promise = new Promise(async (resolve, rejects) => {
       //const now = (new Date()).getTime()
       try {
         const databaseEngine = await instance.getDatabaseEngine(
@@ -355,6 +355,8 @@ class Context extends EventEmitter implements IContext {
         rejects(err)
       }
     })
+
+    this.databaseCache[cacheKey] = <IDatabase> await promise
 
     return this.databaseCache[cacheKey]
   }
