@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-common-test",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Common utils & contract addresses for Verida",
   "main": "dist/index.js",
   "author": "Alex J",
@@ -14,16 +14,18 @@
     "url": "git+https://github.com/verida/verida-js.git"
   },
   "scripts": {
+    "copy-files": "copyfiles -u 1 src/**/*.json dist/",
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha --timeout 100000",
-    "build": "rm -rf dist && tsc"
+    "build": "rm -rf dist && tsc && yarn copy-files"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "ethers": "^6.3.0",
+    "@ethersproject/providers": "5.7.2",
+    "ethers": "5.7.2",
     "mocha": "^10.2.0",
     "ts-mocha": "^10.0.0"
   },
