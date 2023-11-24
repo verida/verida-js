@@ -7,6 +7,68 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
     public constructor(config: VdaClientConfig) {
         super(config);
     }
+
+    /**
+     * Add a trusted signer
+     * @param didAddress DID address to be added
+     */
+    public async addTrustedSigner(
+        didAddress: string
+    ) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.addTrustedSigner(didAddress);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to add a data center: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Remove a trusted signer
+     * @param didAddress DID address to be added
+     */
+    public async removeTrustedSigner(
+        didAddress: string
+    ) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.removeTrustedSigner(didAddress);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to add a data center: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Check whether given address is a trusted signer
+     * @param didAddress DID address to be checked
+     * @returns true if trusted signer, otherwise false
+     */
+    public async isTrustedSigner(didAddress: string) {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isTrustedSigner(didAddress);
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.isTrustedSigner(didAddress);
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to check trusted signer (${message})`);
+        }
+    }
     
     /**
      * Add a data center to the network.
@@ -16,9 +78,9 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      * @param lat Latitude value. [-90, 90]
      * @param long Longitude value. [-180, 180]
      */
-    public async addDatacenter(
+    public async addDataCenter(
         name: string,
-        countryCoude: string,
+        countryCode: string,
         regionCode: string,
         lat: number,
         long: number
@@ -28,9 +90,9 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
-        const response = await this.vdaWeb3Client!.addDatacenter({
+        const response = await this.vdaWeb3Client!.addDataCenter({
             name,
-            countryCoude,
+            countryCode,
             regionCode,
             lat: ethers.utils.parseUnits(lat.toString(), CONTRACT_DECIMAL),
             long: ethers.utils.parseUnits(long.toString(), CONTRACT_DECIMAL),
@@ -43,18 +105,35 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
     }
 
     /**
-     * Remove a data center
-     * @param datacenterId datacenterId created by `addDatacenter()` function
+     * Remove a data center by id
+     * @param datacenterId datacenterId created by `addDataCenter()` function
      */
-    public async removeDatacenter(datacenterId: BigNumberish) {
+    public async removeDataCenter(datacenterId: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
-        const response = await this.vdaWeb3Client!.removeDatacenter(datacenterId);
+        const response = await this.vdaWeb3Client!.removeDataCenter(datacenterId);
         
         if (response.success !== true) {
             throw new Error(`Failed to remove a data center: ${response.reason}`);
+        }
+
+    }
+
+    /**
+     * Remove a data center by name
+     * @param name datacenter name to be removed
+     */
+    public async removeDataCenterByName(name: string) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.removeDataCenterByName(name);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to remove a data center by name: ${response.reason}`);
         }
 
     }

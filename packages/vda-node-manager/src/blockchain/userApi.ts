@@ -1,7 +1,7 @@
 import {
     getVeridaContract,
     VeridaContract
-} from "@verida/web3"
+} from "@verida/web3";
 import { VdaClientConfig, Web3SelfTransactionConfig } from '@verida/types'
 import { ethers, Contract, BigNumberish, BytesLike } from "ethers";
 import { getContractInfoForNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
@@ -57,7 +57,7 @@ export class VeridaNodeManager {
             this.readOnly = false
             const { address } = explodeDID(config.did)
             this.didAddress = address.toLowerCase()
-            
+
             this.vdaWeb3Client = getVeridaContract(
                 config.callType, 
                 {...contractInfo,
@@ -120,22 +120,74 @@ export class VeridaNodeManager {
     }
 
     /**
-     * Return an array of `Datacenter` structs for given array of datacenterIds
-     * @param ids Array of datacenterIds
-     * @returns Array of Datacenters
+     * Check whether data center name is existing
+     * @param name Datacenter name to be checked
+     * @returns `true` if datacenter name exist, otherwise `false`
      */
-    public async getDataCenters(ids: number[]) {
+    public async isDataCenterNameRegistered(name: string) {
         let response;
         try {
             if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.getDatacenters(ids);
+                response = await this.vdaWeb3Client.isDataCenterNameRegistered(name);
                 if (response.success !== true) {
                     throw new Error(response.reason);
                 }
 
                 return response.data
             } else {
-                response = await this.contract!.callStatic.getDatacenters(ids);
+                response = await this.contract!.callStatic.isDataCenterNameRegistered(name);
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get datacenters (${message})`);
+        }
+    }
+
+    /**
+     * Return an array of `Datacenter` structs for given array of datacenterIds
+     * @param ids Array of datacenterIds
+     * @returns Array of Datacenters
+     */
+    public async getDataCenters(ids: BigNumberish[]) {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getDataCenters(ids);
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.getDataCenters(ids);
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get datacenters (${message})`);
+        }
+    }
+
+    /**
+     * Return a `Datacenter` struct matched to the given name
+     * @param names Array of datacenter name
+     * @returns `undefined` if not exist
+     */
+    public async getDataCentersByName(names: string[]) {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getDataCentersByName(names);
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.getDataCentersByName(names);
 
                 return response;
             }
@@ -359,9 +411,9 @@ export class VeridaNodeManager {
     /**
      * Returns a storage node for didAddress
      * @param didAddress DID address that is associated with the storage node
-     * @returns Storage node
+     * @returns Storage node if exist. `undefined` if not exist
      */
-    public async getNodeByAddress(didAddress = this.didAddress) {
+    public async getNodeByAddress(didAddress = this.didAddress) : Promise<IStorageNode | undefined> {
         if (this.readOnly && !didAddress) {
             throw new Error(`Need didAddress in read only mode`)
         }
@@ -371,6 +423,9 @@ export class VeridaNodeManager {
             if (this.vdaWeb3Client) {
                 response = await this.vdaWeb3Client.getNodeByAddress(didAddress);
                 if (response.success !== true) {
+                    if (response.errorObj?.errorName === 'InvalidDIDAddress') {
+                        return undefined;
+                    }
                     throw new Error(response.reason);
                 }
 
@@ -380,6 +435,9 @@ export class VeridaNodeManager {
                 return await this.standardizeNode(response[0], response[1]);
             }
         } catch (err:any ) {
+            if (err.errorObj?.errorName === 'InvalidDIDAddress' || err.errorName === 'InvalidDIDAddress' ) {
+                return undefined;
+            }
             const message = err.reason ? err.reason : err.message;
             throw new Error(`Failed to get node by address (${message})`);
         }
@@ -388,14 +446,17 @@ export class VeridaNodeManager {
     /**
      * Returns a storage node for didAddress
      * @param endpointUri The storage node endpoint
-     * @returns Storage node
+     * @returns Storage node if exist. `undefined` if not exist
      */
-    public async getNodeByEndpoint(endpintUri: string) {
+    public async getNodeByEndpoint(endpintUri: string) : Promise<IStorageNode | undefined> {
         let response;
         try {
             if (this.vdaWeb3Client) {
                 response = await this.vdaWeb3Client.getNodeByEndpoint(endpintUri);
                 if (response.success !== true) {
+                    if (response.errorObj?.errorName === 'InvalidEndpointUri') {
+                        return undefined;
+                    }
                     throw new Error(response.reason);
                 }
 
@@ -406,6 +467,9 @@ export class VeridaNodeManager {
                 return await this.standardizeNode(response[0], response[1]);
             }
         } catch (err:any ) {
+            if (err.errorObj?.errorName === 'InvalidEndpointUri' || err.errorName === 'InvalidEndpointUri' ) {
+                return undefined;
+            }
             const message = err.reason ? err.reason : err.message;
             throw new Error(`Failed to get node by endpoint (${message})`);
         }
@@ -550,8 +614,12 @@ export class VeridaNodeManager {
      * @param didAddress DID address that added a storage node
      * @returns Amount of staked token
      */
-    public async getBalance(didAddress: string) {
+    public async getBalance(didAddress = this.didAddress) {
         let response;
+        if (this.readOnly && !didAddress) {
+            throw new Error(`Need didAddress in read only mode`)
+        }
+
         try {
             if (this.vdaWeb3Client) {
                 response = await this.vdaWeb3Client.getBalance(didAddress);
@@ -576,8 +644,12 @@ export class VeridaNodeManager {
      * @param didAddress DID address
      * @returns 
      */
-    public async excessTokenAmount(didAddress: string) {
+    public async excessTokenAmount(didAddress = this.didAddress) {
         let response;
+        if (this.readOnly && !didAddress) {
+            throw new Error(`Need didAddress in read only mode`)
+        }
+
         try {
             if (this.vdaWeb3Client) {
                 response = await this.vdaWeb3Client.excessTokenAmount(didAddress);
@@ -593,7 +665,7 @@ export class VeridaNodeManager {
             
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to get excess tokenamount (${message})`);
+            throw new Error(`Failed to get excess token amount (${message})`);
         }
     }
 
