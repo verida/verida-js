@@ -28,10 +28,11 @@ export async function isStakingRequired(network: string) {
     let data;
     try {
         data = (await contract.callStatic.isStakingRequired());
-    } catch (e: any) {
-        throw new Error('Failed to check whether staking required');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to check whether staking required' (${message})`);
     }
-
+    
     return data;
 }
 
@@ -60,10 +61,11 @@ export async function getStakePerSlot(network: string) {
     let data;
     try {
         data = (await contract.callStatic.getStakePerSlot());
-    } catch (e: any) {
-        throw new Error('Failed to get stake per slot');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get stake per slot' (${message})`);
     }
-
+    
     return data;
 }
 
@@ -92,9 +94,10 @@ export async function getSlotCountRange(network: string) {
     let data;
     try {
         data = (await contract.callStatic.getSlotCountRange());
-    } catch (e: any) {
-        throw new Error('Failed to get slot count range');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get slot count range' (${message})`);
     }
-
+    
     return data;
 }

@@ -28,10 +28,14 @@ export async function getNodeByAddress(network: string, didAddress: string) {
     let data;
     try {
         data = (await contract.callStatic.getNodeByAddress(didAddress));
-    } catch (e: any) {
-        throw new Error('Failed to get node by DID address');
+    } catch (err: any) {
+        if (err.errorObj?.errorName === 'InvalidDIDAddress' || err.errorName === 'InvalidDIDAddress' ) {
+            return undefined;
+        }
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get node by DID address (${message})`);
     }
-
+    
     return data;
 }
 
@@ -60,10 +64,14 @@ export async function getNodeByEndpoint(network: string, endpointUri: string) {
     let data;
     try {
         data = (await contract.callStatic.getNodeByEndpoint(endpointUri));
-    } catch (e: any) {
-        throw new Error('Failed to get node by endpointUri');
+    } catch (err: any) {
+        if (err.errorObj?.errorName === 'InvalidEndpointUri' || err.errorName === 'InvalidEndpointUri' ) {
+            return undefined;
+        }
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get node by endpointUri (${message})`);
     }
-
+    
     return data;
 }
 
@@ -92,10 +100,11 @@ export async function getNodesByCountry(network: string, countryCode: string) {
     let data;
     try {
         data = (await contract.callStatic.getNodesByCountry(countryCode));
-    } catch (e: any) {
-        throw new Error('Failed to get nodes by country');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get nodes by country (${message})`);
     }
-
+    
     return data;
 }
 
@@ -124,9 +133,10 @@ export async function getNodesByRegion(network: string, regionCode: string) {
     let data;
     try {
         data = (await contract.callStatic.getNodesByRegion(regionCode));
-    } catch (e: any) {
-        throw new Error('Failed to get nodes by region');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get nodes by region (${message})`);
     }
-
+    
     return data;
 }

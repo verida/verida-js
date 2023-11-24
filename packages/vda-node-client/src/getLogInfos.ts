@@ -28,10 +28,11 @@ export async function getNodeIssueFee(network: string) {
     let data;
     try {
         data = (await contract.callStatic.getNodeIssueFee());
-    } catch (e: any) {
-        throw new Error('Failed to get node issue fee');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get node issue fee (${message})`);
     }
-
+    
     return data;
 }
 
@@ -60,10 +61,11 @@ export async function getSameNodeLogDuration(network: string) {
     let data;
     try {
         data = (await contract.callStatic.getSameNodeLogDuration());
-    } catch (e: any) {
-        throw new Error('Failed to get log duration for same node');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get log duration for same node (${message})`);
     }
-
+    
     return data;
 }
 
@@ -92,8 +94,9 @@ export async function getLogLimitPerDay(network: string) {
     let data;
     try {
         data = (await contract.callStatic.getLogLimitPerDay());
-    } catch (e: any) {
-        throw new Error('Failed to get log limit per day');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get log limit per day (${message})`);
     }
 
     return data;

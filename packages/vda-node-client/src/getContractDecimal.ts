@@ -26,9 +26,10 @@ export async function getContractDecimal(network: string): Promise<number> {
     
     let data;
     try {
-        data = (await contract.callStatic.DECIMAL()).toNumber();
-    } catch (e: any) {
-        throw new Error('Failed to get DECIMAL');
+        data = await contract.callStatic.DECIMAL();
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get DECIMAL (${message})`);
     }
 
     return data

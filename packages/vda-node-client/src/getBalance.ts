@@ -29,10 +29,11 @@ export async function getBalance(network: string, didAddress: string) {
     let data;
     try {
         data = (await contract.callStatic.getBalance(didAddress));
-    } catch (e: any) {
-        throw new Error('Failed to get balance');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get balance (${message})`);
     }
-
+    
     return data;
 }
 
@@ -62,9 +63,10 @@ export async function excessTokenAmount(network: string, didAddress: string) {
     let data;
     try {
         data = (await contract.callStatic.excessTokenAmount(didAddress));
-    } catch (e: any) {
-        throw new Error('Failed to get excess token amount');
+    } catch (err: any) {
+        const message = err.reason ? err.reason : err.message;
+        throw new Error(`Failed to get excess token amount (${message})`);
     }
-
+    
     return data;
 }
