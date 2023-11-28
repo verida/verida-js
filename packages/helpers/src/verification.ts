@@ -12,17 +12,21 @@ import Axios from 'axios'
 export async function verifyDidControlsDomain(did: string, domain: string): Promise<boolean> {
     // Strip out protocol if specified
     domain = domain.replace(/^https?:\/\//, '')
-    // Append trailing '/'
-    domain = domain.substring(domain.length-1,domain.length) == '/' ? domain : `${domain}/`
+    // Remove any trailing '/'
+    domain = domain.replace(/\/$/,'')
     // Force SSL
-    const didJsonUrl = `https://${domain}.well-known/did.json`
+    const didJsonUrl = `https://${domain}/.well-known/did.json`
     try {
         const response = await Axios.get(didJsonUrl)
         const didJson = response.data
+        if (didJson.id !== `did:web:${domain}`) {
+            return false
+        }
+
         const match = didJson.verificationMethod!.find((entry: any) => {
             return (
                 // Verify authentication and entry ID match the domain
-                entry.id.match(`did:web:verida.network`) && // entry.id.match(`did:web:${domain}`)
+                entry.id.match(`did:web:${domain}`) &&
                 didJson.authentication.find((authEntry: any) => authEntry == entry.id) &&
                 // Verify the entry matches the DID
                 entry.controller.toLowerCase().match(`${did.toLowerCase()}`)
