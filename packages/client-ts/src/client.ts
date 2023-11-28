@@ -270,7 +270,8 @@ class Client implements IClient {
     delete _data["_rev"];
 
     let validSignatures = [];
-    for (let key in data.signatures) {
+    for (let sigIndex in data.signatures) {
+      const key = data.signatures[sigIndex]['secp256k1']
       const signerParts = key.match(/did:vda:([^]*):([^]*)\?context=(.*)$/);
       if (!signerParts || signerParts.length != 4) {
         continue;
