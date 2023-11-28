@@ -2,6 +2,7 @@ const EventEmitter = require("events");
 import { DatabasePermissionOptionsEnum, IProfile } from "@verida/types";
 import Context from "../context";
 import Datastore from "../datastore";
+import { verifyDidControlsDomain } from '@verida/helpers'
 const _ = require("lodash");
 
 interface ProfileDocument {
@@ -157,6 +158,15 @@ export class Profile extends EventEmitter implements IProfile {
     };
 
     await this.store!.changes(cb);
+  }
+
+  public async verifyWebsite(): Promise<boolean> {
+    const domain = await this.get('website')
+    if (!domain) {
+      return false
+    }
+
+    return verifyDidControlsDomain(this.did, domain)
   }
 
   private async getRecord(): Promise<ProfileDocument> {
