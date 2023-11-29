@@ -14,7 +14,9 @@ export default class AuthClient {
             schemeUri: 'veridavault://login-request',
             loginUri: 'https://vault.verida.io/request/',
             deeplinkId: 'verida-auth-client-deeplink',
-            request: {}
+            request: {
+                environment: config.environment
+            }
         }, config)
         this.modal = modal
 
