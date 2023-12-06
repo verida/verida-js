@@ -184,9 +184,9 @@ class VeridaOutbox {
     outboxEntry.sent = true;
     const outboxResponse = await outbox.save(outboxEntry);
 
-    // Close the database connection
+    // Close the database connection to the other user's inbox
     // Don't do `await` as there's no need to slow things down
-    outbox.close()
+    inbox.close()
 
     return inboxResponse;
   }
