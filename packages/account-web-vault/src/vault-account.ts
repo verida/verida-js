@@ -20,7 +20,10 @@ const CONFIG_DEFAULTS: Record<EnvironmentType, AccountVaultConfig> = {
         loginUri: 'https://vault.verida.io/request',
         serverUri: `wss://auth.testnet.verida.io`
     },
-    mainnet: {},
+    mainnet: {
+        loginUri: 'https://vault.verida.io/request',
+        serverUri: `wss://auth.testnet.verida.io`
+    },
     testnet: {
         loginUri: 'https://vault.verida.io/request',
         serverUri: `wss://auth.testnet.verida.io`
@@ -85,7 +88,7 @@ export class VaultAccount extends Account {
         this.config.request.userAgent = navigator.userAgent
 
         if (!this.config.environment) {
-            this.config.environment = EnvironmentType.TESTNET
+            this.config.environment = EnvironmentType.MAINNET
         }
 
         this.config = _.merge(CONFIG_DEFAULTS[this.config.environment], this.config)

@@ -564,7 +564,7 @@ class Context extends EventEmitter implements IContext {
    * Closes all open database connections, returns resources, cancels event listeners
    */
   public async close(options: ContextCloseOptions = {
-    clearLocal: false
+    clearLocal: true
   }): Promise<void> {
     // close all the other databases
     for (let d in this.databaseCache) {
