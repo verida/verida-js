@@ -202,6 +202,7 @@ export class WebUser extends EventEmitter {
         // Create a promise that will connect to the network and resolve once complete
         // Also pre-populates the user's public profile
         const config = this.config
+        const webUser = this
         this.connecting = new Promise(async (resolve, reject) => {
             const account = new VaultAccount(config.accountConfig);
 
@@ -214,6 +215,7 @@ export class WebUser extends EventEmitter {
             if (!context) {
                 if (config.debug) {
                     console.log('User cancelled login attempt by closing the QR code modal or an unexpected error occurred');
+                    webUser.connecting = undefined
                 }
 
                 resolve(false)
