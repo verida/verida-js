@@ -1,6 +1,6 @@
 {
   "name": "@verida/web3",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",

@@ -245,7 +245,7 @@ export class VeridaContract {
             // console.log('Contract = ', contract)
 
             try {
-                if (methodType === 'view') {
+                if (methodType === 'view' || methodType === 'pure') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
                     let transaction: any
