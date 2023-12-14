@@ -193,6 +193,10 @@ export class WebUser extends EventEmitter {
      * @returns A Promise that will resolve to true / false depending on if the user is connected
      */
     public async connect() {
+        if (this.isConnected()) {
+            return true
+        }
+        
         if (this.connecting) {
             // Have an existing promise (that may or may not be resolved)
             // Return it so if it's pending, the requestor will wait
