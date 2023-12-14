@@ -215,9 +215,9 @@ export class WebUser extends EventEmitter {
             if (!context) {
                 if (config.debug) {
                     console.log('User cancelled login attempt by closing the QR code modal or an unexpected error occurred');
-                    webUser.connecting = undefined
                 }
 
+                webUser.connecting = undefined
                 resolve(false)
                 return
             }
@@ -233,6 +233,7 @@ export class WebUser extends EventEmitter {
 
             const profile = await this.getPublicProfile()
             this.emit('connected', profile)
+            webUser.connecting = undefined
             resolve(true)
         })
 
