@@ -1,6 +1,7 @@
 2023-12-15 (v2.3.7)
 -------------------
 - Update abi & contract address of `StorageNodeRegistry` - diamond
+- UPdate abi & contracts for newly deployed on mainnet
 
 2023-11-24 (v2.3.6)
 -------------------
