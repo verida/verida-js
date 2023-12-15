@@ -6,7 +6,6 @@ const NETWORK = 'testnet';
 
 describe('getContractDecimal test', function() {
     this.timeout(20000);
-    const wallet = Wallet.createRandom();
 
     it('Success',async () => {
         const result = await getContractDecimal(NETWORK);

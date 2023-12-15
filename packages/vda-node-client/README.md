@@ -16,20 +16,28 @@ This library provide following functions:
 ```ts
 async function getContractDecimal(network: string): Promise<number>
 ```
+#### *Get Verida Token address*
+```ts
+async function getVDATokenAddress(network: string): Promise<string>
+```
 #### *Data Centers*
 ```ts
-async function isDataCenterNameRegistered(network: string, name: string)
+async function isRegisteredDataCenterName(network: string, name: string)
 async function getDataCenters(network: string, ids: BigNumberish[])
 async function getDataCentersByName(network: string, names: string[])
-async function getDataCentersByCountry(network: string, countryCode: string)
-async function getDataCentersByRegion(network: string, regionCode: string)
+async function getDataCentersByCountry(network: string, countryCode: string, status?: EnumStatus)
+async function getDataCentersByRegion(network: string, regionCode: string, status?: EnumStatus)
 ```
 #### *Storage Node*
 ```ts
+async function isRegisteredNodeName(network: string, name: string)
+async function isRegisteredNodeAddress(network: string, didAddress: string)
+async function isRegisteredNodeEndpoint(network: string, endpointUri: string)
+async function getNodeByName(network: string, name: string)
 async function getNodeByAddress(network: string, didAddress: string)
 async function getNodeByEndpoint(network: string, endpointUri: string)
-async function getNodesByCountry(network: string, countryCode: string)
-async function getNodesByRegion(network: string, regionCode: string)
+async function getNodesByCountry(network: string, countryCode: string, status?: EnumStatus)
+async function getNodesByRegion(network: string, regionCode: string, status?: EnumStatus)
 
 async function getBalance(network: string, didAddress: string)
 async function excessTokenAmount(network: string, didAddress: string)
@@ -41,6 +49,8 @@ async function getSlotCountRange(network: string)
 async function getNodeIssueFee(network: string)
 async function getSameNodeLogDuration(network: string)
 async function getLogLimitPerDay(network: string)
+async function getReasonCodeList(network: string)
+async function getReasonCodeDescription(network: string, reasonCode: BigNumberish)
 ```
 
 ## Usage

@@ -1,39 +1,15 @@
-import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda-common";
-
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { Contract } from 'ethers';
-  
+import { BigNumberish } from "ethers";
+import { executeFunction } from "./utils";  
 /**
  * Call getNodeIssueFee() function of `StorageNodeRegistry` contract
  * @returns Amount of Verida token for fee
  */
 export async function getNodeIssueFee(network: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getNodeIssueFee());
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get node issue fee (${message})`);
-    }
-    
-    return data;
+    return await executeFunction(
+        network,
+        'getNodeIssueFee',
+        'Failed to get node issue fee'
+    );
 }
 
 /**
@@ -41,32 +17,11 @@ export async function getNodeIssueFee(network: string) {
  * @returns Same node log duration in seconds
  */
 export async function getSameNodeLogDuration(network: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getSameNodeLogDuration());
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get log duration for same node (${message})`);
-    }
-    
-    return data;
+    return await executeFunction(
+        network,
+        'getSameNodeLogDuration',
+        'Failed to get log duration for same node'
+    );
 }
 
 /**
@@ -74,30 +29,34 @@ export async function getSameNodeLogDuration(network: string) {
  * @returns Same node log duration in seconds
  */
 export async function getLogLimitPerDay(network: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
+    return await executeFunction(
+        network,
+        'getLogLimitPerDay',
+        'Failed to get log limit per day'
+    );
+}
 
-    // Simple read-only of the blockchain
+/**
+ * Call getReasonCodeList() function of `StorageNodeRegistry` contract
+ * @returns List of reason codes
+ */
+export async function getReasonCodeList(network: string) {
+    return await executeFunction(
+        network,
+        'getReasonCodeList',
+        'Failed to get reason code list'
+    );
+}
 
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getLogLimitPerDay());
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get log limit per day (${message})`);
-    }
-
-    return data;
+/**
+ * Call getReasonCodeDescription() function of `StorageNodeRegistry` contract
+ * @returns List of reason codes
+ */
+export async function getReasonCodeDescription(network: string, reasonCode: BigNumberish) {
+    return await executeFunction(
+        network,
+        'getReasonCodeDescription',
+        'Failed to get reason code description',
+        reasonCode
+    );
 }

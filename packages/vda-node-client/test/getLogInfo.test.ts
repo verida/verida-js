@@ -1,6 +1,6 @@
 const assert = require("assert");
 import { BigNumber } from 'ethers';
-import { getNodeIssueFee, getSameNodeLogDuration, getLogLimitPerDay } from '../src/getLogInfos';
+import { getNodeIssueFee, getSameNodeLogDuration, getLogLimitPerDay, getReasonCodeList, getReasonCodeDescription } from '../src/getLogInfos';
 
 const NETWORK = 'testnet';
 
@@ -23,5 +23,18 @@ describe('getLogInfo test', function() {
         const result: BigNumber = await getLogLimitPerDay(NETWORK);
 
         assert.ok(result.gt(0), 'Log limit per day is always greater than 0')
+    })
+
+    it('getReasonCodeList',async () => {
+        const result = await getReasonCodeList(NETWORK);
+
+        assert.ok(result.length > 0, 'Get reason code list')
+    })
+
+    it('getReasonCodeDescription',async () => {
+        const reasonCodeList = await getReasonCodeList(NETWORK);
+
+        const description = await getReasonCodeDescription(NETWORK, reasonCodeList[0].reasonCode);
+        assert.ok(typeof(description) === 'string', 'Get description of reason code')
     })
 })

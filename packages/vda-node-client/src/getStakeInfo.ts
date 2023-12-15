@@ -1,39 +1,15 @@
-import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda-common";
-
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { Contract } from 'ethers';
+import { executeFunction } from "./utils";
   
 /**
  * Call isStakingRequired() function of `StorageNodeRegistry` contract
  * @returns The value of required status
  */
 export async function isStakingRequired(network: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.isStakingRequired());
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to check whether staking required' (${message})`);
-    }
-    
-    return data;
+    return await executeFunction(
+        network,
+        'isStakingRequired',
+        'Failed to check staking required'
+    );
 }
 
 /**
@@ -41,32 +17,11 @@ export async function isStakingRequired(network: string) {
  * @returns Required token amount for one slot
  */
 export async function getStakePerSlot(network: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getStakePerSlot());
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get stake per slot' (${message})`);
-    }
-    
-    return data;
+    return await executeFunction(
+        network,
+        'getStakePerSlot',
+        'Failed to get stake per slot'
+    );
 }
 
 /**
@@ -74,30 +29,9 @@ export async function getStakePerSlot(network: string) {
  * @returns Array of min and max value
  */
 export async function getSlotCountRange(network: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getSlotCountRange());
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get slot count range' (${message})`);
-    }
-    
-    return data;
+    return await executeFunction(
+        network,
+        'getSlotCountRange',
+        'Failed to get slot count range'
+    );
 }

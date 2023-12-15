@@ -1,142 +1,148 @@
-import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda-common";
+import { executeFunction } from "./utils";
+import { EnumStatus } from "@verida/types";
 
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { Contract } from 'ethers';
-  
 /**
- * Call getNodeByAddress() function of `StorageNodeRegistry` contract
- * @param didAddress DID address that is associated with the storage node
+ * Check `name` is registered as node name
+ * @param network One of Verida supported network
+ * @param name Name to be checked
+ * @returns true if registered, otherwise false
+ */
+export async function isRegisteredNodeName(network: string, name: string) {
+    return await executeFunction(
+        network,
+        'isRegisteredNodeName',
+        'Failed to check node name',
+        name
+    );
+}
+
+/**
+ * Check `didAddress` is registered as node address
+ * @param network One of Verida supported network
+ * @param didAddress DID address to be checked
+ * @returns true if registered, otherwise false
+ */
+export async function isRegisteredNodeAddress(network: string, didAddress: string) {
+    return await executeFunction(
+        network,
+        'isRegisteredNodeAddress',
+        'Failed to check node address',
+        didAddress
+    );
+}
+
+/**
+ * Check `endpointUri` is registered as node endpoint
+ * @param network One of Verida supported network
+ * @param endpointUri EndpointUri to be checked
+ * @returns true if registered, otherwise false
+ */
+export async function isRegisteredNodeEndpoint(network: string, endpointUri: string) {
+    return await executeFunction(
+        network,
+        'isRegisteredNodeEndpoint',
+        'Failed to check node endpoint',
+        endpointUri
+    );
+}
+
+/**
+ * Get a node by name
+ * @param network One of Verida supported network
+ * @param name Node name
+ * @returns A storage node if name is registered. Otherwise rejected
+ */
+export async function getNodeByName(network: string, name: string) {
+    return await executeFunction(
+        network,
+        'getNodeByName',
+        'Failed to get node by name',
+        name
+    );
+}
+
+/**
+ * Get a node by DID address
+ * @param network One of Verida supported network
+ * @param didAddress Node address
+ * @returns A storage node if address is registered. Otherwise rejected
  */
 export async function getNodeByAddress(network: string, didAddress: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getNodeByAddress(didAddress));
-    } catch (err: any) {
-        if (err.errorObj?.errorName === 'InvalidDIDAddress' || err.errorName === 'InvalidDIDAddress' ) {
-            return undefined;
-        }
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get node by DID address (${message})`);
-    }
-    
-    return data;
+    return await executeFunction(
+        network,
+        'getNodeByAddress',
+        'Failed to get node by address',
+        didAddress
+    );
 }
 
 /**
- * Call getNodeByEndpoint() function of `StorageNodeRegistry` contract
- * @param endpointUri The storage node endpoint
+ * Get a node by endpointUri
+ * @param network One of Verida supported network
+ * @param endpointUri EndpointUri of a storage node
+ * @returns A storage node if endpointUri is registered. Otherwise rejected
  */
 export async function getNodeByEndpoint(network: string, endpointUri: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
-    }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getNodeByEndpoint(endpointUri));
-    } catch (err: any) {
-        if (err.errorObj?.errorName === 'InvalidEndpointUri' || err.errorName === 'InvalidEndpointUri' ) {
-            return undefined;
-        }
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get node by endpointUri (${message})`);
-    }
-    
-    return data;
+    return await executeFunction(
+        network,
+        'getNodeByEndpoint',
+        'Failed to get node by endpoint',
+        endpointUri
+    );
 }
 
 /**
- * Call getNodesByCountry() function of `StorageNodeRegistry` contract
- * @param countryCode Unique two-character string code
+ * Get nodes by country and status
+ * @param network Target network
+ * @param countryCode Country code of nodes
+ * @param status Status of nodes
  */
-export async function getNodesByCountry(network: string, countryCode: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
+export async function getNodesByCountry(
+    network: string, 
+    countryCode: string, 
+    status?: EnumStatus) {
+    if (status === undefined) {
+        return await executeFunction(
+            network,
+            'getNodesByCountry',
+            'Failed to get nodes by country',
+            countryCode
+        );
+    } else {
+        return await executeFunction(
+            network,
+            'getNodesByCountryAndStatus',
+            'Failed to get nodes by country and status',
+            countryCode,
+            status
+        );
     }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getNodesByCountry(countryCode));
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get nodes by country (${message})`);
-    }
-    
-    return data;
 }
 
 /**
- * Call getNodesByRegion() function of `StorageNodeRegistry` contract
- * @param regionCode Unique region string code
+ * Get nodes by region and status
+ * @param network Target network
+ * @param regionCode Region code of nodes
+ * @param status Status of nodes
  */
-export async function getNodesByRegion(network: string, regionCode: string) {
-    const rpcUrl = RPC_URLS[network]
-    if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
+export async function getNodesByRegion(
+    network: string, 
+    regionCode: string, 
+    status?: EnumStatus) {
+    if (status === undefined) {
+        return await executeFunction(
+            network,
+            'getNodesByRegion',
+            'Failed to get nodes by region',
+            regionCode
+        );
+    } else {
+        return await executeFunction(
+            network,
+            'getNodesByRegionAndStatus',
+            'Failed to get nodes by region and status',
+            regionCode,
+            status
+        );
     }
-
-    // Simple read-only of the blockchain
-
-    const contractABI = abiList["StorageNodeRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
-
-    const contract = new Contract(address, contractABI.abi, provider);
-    
-    let data;
-    try {
-        data = (await contract.callStatic.getNodesByRegion(regionCode));
-    } catch (err: any) {
-        const message = err.reason ? err.reason : err.message;
-        throw new Error(`Failed to get nodes by region (${message})`);
-    }
-    
-    return data;
 }
