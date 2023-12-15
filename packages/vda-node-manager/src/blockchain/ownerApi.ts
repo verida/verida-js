@@ -291,4 +291,54 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
             throw new Error(`Failed to slash : ${response.reason}`);
         }
     }
+
+    /**
+     * Add a reason code
+     * @param reasonCode Code to be added 
+     * @param description Description of the code
+     */
+    public async addReasonCode(reasonCode: BigNumberish, description: string) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.addReasonCode(reasonCode, description);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to add the reason code: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Disable a reason code
+     * @param reasonCode Code to be disabled
+     */
+    public async disableReasonCode(reasonCode: BigNumberish) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.disableReasonCode(reasonCode);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to disable the reason code: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Update the description of a registered reason code
+     * @param reasonCode Code to be updated
+     * @param description Description to be updated
+     */
+    public async updateReasonCodeDescription(reasonCode: BigNumberish, description: string) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.updateReasonCodeDescription(reasonCode, description);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to update the description of the reason code: ${response.reason}`);
+        }
+    }
 }
