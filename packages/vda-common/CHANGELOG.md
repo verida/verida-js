@@ -1,3 +1,7 @@
+2023-12-15 (v2.3.7)
+-------------------
+- Update abi & contract address of `StorageNodeRegistry` - diamond
+
 2023-11-24 (v2.3.6)
 -------------------
 - Added `StorageNodeRegistry` support
