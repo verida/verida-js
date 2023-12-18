@@ -92,6 +92,7 @@ export class NodeSelector {
     const regionNodes = await this.nodesByRegion()
     let possibleNodes: StorageNode[]
 
+
     if (!regionNodes[region]) {
       // no region nodes, find global nodes
       possibleNodes = await this.loadStorageNodes()
@@ -118,7 +119,7 @@ export class NodeSelector {
     while (selectedNodes.length < numNodes && possibleNodes.length > 0) {
       const nodeIndex = getRandomInt(0, possibleNodes.length)
       const possibleNode = possibleNodes[nodeIndex]
-      if (ignoredNodeIds.indexOf(possibleNode.id) !== -1) {
+      if (ignoredNodeIds.indexOf(possibleNode.id) === -1) {
         possibleNodes.splice(nodeIndex, 1)
         continue
       }
