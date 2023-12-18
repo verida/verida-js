@@ -6,6 +6,7 @@
 - Feature: Added manual gas configuration for the non-view contract functions
 - Feature: Update test files for testnet with various gas configurations
 - Feature: Added test file for mainnet test
+- Fix: Maximum three retries when creating a DID to prevent infinite loops
 
 2023-04-27 (v2.3.4)
 -------------------
