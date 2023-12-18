@@ -99,6 +99,7 @@ class VeridaInbox extends EventEmitter {
         // We have a conflict. This can happen if `processItem()` is called twice
         // for the same inbox item. This can occur if called via the PouchDB changes
         // listener and also by the `processAll()` method call inside `init()`.
+        this.emit("newMessage", inboxEntry);
         return;
       }
 
