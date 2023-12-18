@@ -1,6 +1,6 @@
 {
   "name": "@verida/web-helpers",
-  "version": "2.4.0-rc3",
+  "version": "2.4.0-rc4",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@verida/account-web-vault": "^2.4.0-rc3",
-    "@verida/client-ts": "^2.4.0-rc3",
+    "@verida/client-ts": "^2.4.0-rc4",
     "@verida/types": "^2.4.0-rc1"
   },
   "devDependencies": {
