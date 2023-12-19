@@ -242,11 +242,10 @@ export class VeridaContract {
             let ret;
 
             const contract = await this.attachContract()
-
             // console.log('Contract = ', contract)
 
             try {
-                if (methodType === 'view') {
+                if (methodType === 'view' || methodType === 'pure') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
                     let transaction: any
@@ -264,10 +263,14 @@ export class VeridaContract {
                     ret = transactionReceipt
                 }
             } catch(e: any) {
-                // console.log('Error in transaction', e)
+                // console.log('vda-web3 : Error in transaction', e)
                 let reason = e.reason ? e.reason : 'Unknown'
                 reason = e.error && e.error.reason ? e.error.reason : reason
                 reason = reason.replace('execution reverted: ','')
+
+                if (reason === 'Unknown' && e.errorName) {
+                    reason = e.errorName;
+                }
 
                 return Promise.resolve({
                     success: false,
@@ -277,7 +280,8 @@ export class VeridaContract {
                 })
             }
 
-            if (BigNumber.isBigNumber(ret)) ret = ret.toNumber()
+            // Overflow error in `vda-node-manager` to get node issue fee.
+            // if (BigNumber.isBigNumber(ret)) ret = ret.toNumber()
 
             return {
                 success: true,

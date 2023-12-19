@@ -1,4 +1,4 @@
-import { utils } from 'ethers'
+import { BigNumberish, utils } from 'ethers'
 import EncryptionUtils from '@verida/encryption-utils'
 
 const { computeAddress, getAddress, solidityPack } = utils
@@ -29,7 +29,7 @@ export function interpretIdentifier(identifier: string): {
 export function getVeridaSignWithNonce(
   rawMsg: string,
   privateKey: string,
-  nonce: number
+  nonce: BigNumberish
 ) {
   rawMsg = solidityPack(['bytes', 'uint256'], [rawMsg, nonce]);
   return getVeridaSign(rawMsg, privateKey);

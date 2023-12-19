@@ -18,6 +18,7 @@ import {
     claimSBT,
     createTestDataIfNotExist
 } from './utils'
+import { BigNumber } from 'ethers';
 require('dotenv').config();
 const assert = require('assert')
 
@@ -51,9 +52,9 @@ describe('vda-sbt-client blockchain api', () => {
     describe("tokenURI", function() {
         this.timeout(60*1000)
 
-        let totalSupply : number
+        let totalSupply : BigNumber;
         before(async () => {
-            totalSupply = parseInt(await blockchainApi.totalSupply());
+            totalSupply = await blockchainApi.totalSupply();
         })
 
         it("Should reject for invalid token IDs",async () => {
@@ -62,12 +63,12 @@ describe('vda-sbt-client blockchain api', () => {
             )
 
             await assert.rejects(
-                blockchainApi.tokenURI(totalSupply + 1)
+                blockchainApi.tokenURI(totalSupply.add(1))
             )
         })
 
         it("Get tokenURI successfully", async () => {
-            assert.ok(totalSupply > 0, "TotalSupply should be greater than 0")
+            assert.ok(totalSupply.gt(0), "TotalSupply should be greater than 0")
 
             const tokenURI = await blockchainApi.tokenURI(1)
             assert.ok(tokenURI && tokenURI.length > 0)
