@@ -235,20 +235,28 @@ class EncryptedDatabase extends BaseDb {
       return
     }
 
-    this._sync = null;
-    this._syncError = null;
-
     if (options.clearLocal) {
       await this.destroy({
         localOnly: true
       })
 
+      if (this._sync) {
+        this._sync.cancel();
+      }
+  
+      this._sync = null;
+      this._syncError = null;
+
+      // Return, because destroy will close all database connections
       return
     }
 
     if (this._sync) {
       this._sync.cancel();
     }
+
+    this._sync = null;
+    this._syncError = null;
 
     try {
       await this._localDbEncrypted.close();
@@ -300,7 +308,11 @@ class EncryptedDatabase extends BaseDb {
     try {
       // Destroy the local pouch database (this deletes this._local and this._localDbEncrypted as they share the same underlying data source)
       await this._localDbEncrypted.destroy()
+    } catch (err) {
+      // do nothing, database is likely already destroyed
+    }
 
+    try {
       if (!options.localOnly) {
         // Only delete remote database if required
         await this.engine.deleteDatabase(this.databaseName)
@@ -310,8 +322,9 @@ class EncryptedDatabase extends BaseDb {
         clearLocal: false
       })
     } catch (err) {
-      console.error(err)
+      console.log(err)
     }
+    
   }
 
   public async updateUsers(

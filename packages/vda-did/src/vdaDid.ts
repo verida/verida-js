@@ -27,7 +27,7 @@ export default class VdaDid {
      * @param endpoints 
      * @return VdaDidEndpointResponses Map of endpoints where the DID Document was successfully published
      */
-    public async create(didDocument: DIDDocument, endpoints: string[]): Promise<VdaDidEndpointResponses> {
+    public async create(didDocument: DIDDocument, endpoints: string[], retries: number = 3): Promise<VdaDidEndpointResponses> {
         this.lastEndpointErrors = undefined
         if (!this.options.signKey) {
             throw new Error(`Unable to create DID: No private key specified in config.`)
@@ -75,7 +75,9 @@ export default class VdaDid {
                     await this.deleteFromEndpoints(endpoints)
 
                     // try again
-                    return await this.create(didDocument, endpoints)
+                    if (retries > 0) {
+                        return await this.create(didDocument, endpoints, retries--)
+                    }
                 }
 
                 // DID already exists, so use update instead
