@@ -64,6 +64,10 @@ export interface WalletConnectConfig {
 }
 
 export interface AccountVaultRequest {
+    /**
+     * Optional, environment to use for the request, should match the expected environment of Application
+     */
+    environment?: EnvironmentType,
     logoUrl?: string,       // Optional URL that will be displayed as part of the login process
     openUrl?: string,       // Optional URL that will be opened on the user's mobile device once the user is logged in
     walletConnect?: {       // Optional, WalletConnect configuration to enable a seamless connection with both Verida and WalletConnect with a single request
