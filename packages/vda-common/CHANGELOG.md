@@ -1,7 +1,7 @@
-2023-11-21 (v2.4.0)
+
 -------------------
 
-- Feature: Add mainnet configuration
+- Feature: Add gas station config for all networks
 
 2023-04-27 (v2.3.4)
 -------------------
