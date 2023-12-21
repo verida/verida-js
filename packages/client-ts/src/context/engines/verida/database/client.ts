@@ -150,8 +150,6 @@ export class DatastoreServerClient {
         await this.reAuth()
         return this.pingDatabases(databaseHashes, isWritePublic, did, contextName, false)
       }
-      //console.log(`error with pingDatabase() ${err.response.data.message}`)
-      // Ignore errors for now as the endpoint doesn't exist on storage nodes
     }
   }
 
