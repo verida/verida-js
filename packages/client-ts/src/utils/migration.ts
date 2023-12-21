@@ -51,7 +51,6 @@ async function _migrateContext(sourceContext: IContext, destinationContext: ICon
             }
             const destinationDb = await destinationContext.openDatabase(sourceDbInfo.databaseName, destinationConfig)
 
-            console.debug('migration.ts - _migrateContext - Execute DB migration')
             // Migrate data
             await migrateDatabase(sourceDb, destinationDb)
 
@@ -80,7 +79,7 @@ export async function migrateDatabase(sourceDb: IDatabase, destinationDb: IDatab
     } else {
         sourceCouchDb = await sourceDb.getDb()
         destinationCouchDb = await destinationDb.getDb()
-    }``
+    }
 
     // Don't catch replication errors, allow them to bubble up
     await sourceCouchDb.replicate.to(destinationCouchDb)
