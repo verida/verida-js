@@ -4,11 +4,11 @@ import { EventEmitter } from 'events'
 import EncryptedDatabase from "../context/engines/verida/database/db-encrypted";
 
 /**
- * 
+ *
  * Note: May need the ability to force override the DID if migrating data between testnet -> mainnet?
- * 
- * @param sourceContext 
- * @param destinationContext 
+ *
+ * @param sourceContext
+ * @param destinationContext
  */
 export function migrateContext(sourceContext: IContext, destinationContext: IContext): EventEmitter {
     const eventManager = new EventEmitter()
@@ -32,19 +32,26 @@ async function _migrateContext(sourceContext: IContext, destinationContext: ICon
         // Don't migrate the special storage_database that is internally managed to maintain
         // a list of all the databases in a context
         if (sourceDbInfo.databaseName == 'storage_database') {
+            eventManager.emit('migrated', sourceDbInfo, parseInt(i) + 1, sourceDatabases.length)
             continue
         }
 
         try {
             // Open source and destination databases
-            const config = {
+
+            const sourceConfig = {
                 permissions: sourceDbInfo.permissions,
                 verifyEncryptionKey: false
             }
+            const sourceDb = await sourceContext.openDatabase(sourceDbInfo.databaseName, sourceConfig)
 
-            const sourceDb = await sourceContext.openDatabase(sourceDbInfo.databaseName, config)
-            const destinationDb = await destinationContext.openDatabase(sourceDbInfo.databaseName, config)
+            const destinationConfig = {
+                permissions: sourceDbInfo.permissions,
+                verifyEncryptionKey: false
+            }
+            const destinationDb = await destinationContext.openDatabase(sourceDbInfo.databaseName, destinationConfig)
 
+            console.debug('migration.ts - _migrateContext - Execute DB migration')
             // Migrate data
             await migrateDatabase(sourceDb, destinationDb)
 
@@ -53,7 +60,7 @@ async function _migrateContext(sourceContext: IContext, destinationContext: ICon
             await destinationDb.close()
 
             // Emit success event
-            eventManager.emit('migrated', sourceDbInfo, parseInt(i) + 1, sourceDatabases.length-1)
+            eventManager.emit('migrated', sourceDbInfo, parseInt(i) + 1, sourceDatabases.length)
         } catch (err: any) {
             eventManager.emit('error', err.message)
             return
@@ -73,7 +80,7 @@ export async function migrateDatabase(sourceDb: IDatabase, destinationDb: IDatab
     } else {
         sourceCouchDb = await sourceDb.getDb()
         destinationCouchDb = await destinationDb.getDb()
-    }
+    }``
 
     // Don't catch replication errors, allow them to bubble up
     await sourceCouchDb.replicate.to(destinationCouchDb)
