@@ -154,6 +154,14 @@ describe('Storage context tests', () => {
          * source data that was already migrated that is then deleted, will not be deleted on the destination
          */
         it('can partially migrate, then fully complete', async function() {
+            // Close and re-open contexts to reset everything
+            await sourceContext.close({
+                clearLocal: true
+            })
+            await destinationContext.close({
+                clearLocal: true
+            })
+
             // Just work with the first test database
             const dbName = TEST_DBS[0]
 
@@ -161,12 +169,8 @@ describe('Storage context tests', () => {
             sourceContext = await client1.openContext(SOURCE_CONTEXT_NAME)
             destinationContext = await client2.openContext(DESTINATION_CONTEXT_NAME)
 
-            // Delete the first record
-            const db = await sourceContext.openDatabase(dbName)
-            /*const records = await db.getMany()
-            await db.delete(records[0])*/
-
             // Add a new record
+            const db = await sourceContext.openDatabase(dbName)
             await db.save({record: 4})
 
             // Re-run the migration
@@ -185,7 +189,7 @@ describe('Storage context tests', () => {
             })
 
             try {
-                const result = await promise
+                await promise
                 assert.ok(true, 'Data migrated')
             } catch (err) {
                 assert.fail(err.message)
@@ -210,6 +214,13 @@ describe('Storage context tests', () => {
                 const sourceIds = sourceRows.map((item) => item.id)
                 const destinationIds = destinationRows.map((item) => item.id)
                 assert.deepEqual(sourceIds, destinationIds, `${dbName}: source and destination databases have same records`)
+
+                await sourceDb.close({
+                    clearLocal: true
+                })
+                await destinationDb.close({
+                    clearLocal: true
+                })
             } catch (err) {
                 assert.fail(err.message)
             }
