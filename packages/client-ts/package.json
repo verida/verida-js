@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "2.4.0-rc4",
+  "version": "2.4.0-rc5",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,14 +17,14 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@verida/account": "^2.4.0-rc3",
-    "@verida/did-client": "^2.4.0-rc3",
+    "@verida/account": "^2.4.0-rc5",
+    "@verida/did-client": "^2.4.0-rc5",
     "@verida/did-document": "^2.4.0-rc1",
     "@verida/encryption-utils": "^2.2.2",
     "@verida/keyring": "^2.4.0-rc1",
-    "@verida/storage-link": "^2.4.0-rc3",
+    "@verida/storage-link": "^2.4.0-rc5",
     "@verida/types": "^2.4.0-rc1",
-    "@verida/vda-name-client": "^2.4.0-rc2",
+    "@verida/vda-name-client": "^2.4.0-rc5",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.2",
@@ -44,7 +44,7 @@
     "@types/mocha": "^9.1.1",
     "@types/pouchdb": "^6.4.0",
     "@types/uuid": "^8.3.4",
-    "@verida/account-node": "^2.4.0-rc4",
+    "@verida/account-node": "^2.4.0-rc5",
     "dependency-cruiser": "^11.3.0",
     "mocha": "^8.2.1",
     "ts-mocha": "^8.0.0",
