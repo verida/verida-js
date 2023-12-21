@@ -70,17 +70,38 @@ async function _migrateContext(sourceContext: IContext, destinationContext: ICon
 }
 
 export async function migrateDatabase(sourceDb: IDatabase, destinationDb: IDatabase): Promise<void> {
-    let sourceCouchDb, destinationCouchDb
+    // Loop through all records in the source database and save them to the destination database
+    // We do this to ensure the data is re-encrypted using the correct key of the destination database
+    // If we used pouchdb in-built replication, the data would be migrated to a database with an incorrect
+    // encryption key
 
-    // Sync the remote databases, which is different depending on the type of database
-    if (sourceDb instanceof EncryptedDatabase) {
-        sourceCouchDb = await (<EncryptedDatabase> sourceDb).getRemoteEncrypted()
-        destinationCouchDb = await (<EncryptedDatabase> destinationDb).getRemoteEncrypted()
-    } else {
-        sourceCouchDb = await sourceDb.getDb()
-        destinationCouchDb = await destinationDb.getDb()
+    const limit = 1
+    let skip = 0
+    while (true) {
+        const records = await sourceDb.getMany({}, {
+            limit,
+            skip
+        })
+
+        for (let r in records) {
+            const record: any = records[r]
+
+            // Delete revision info so the record saves correctly
+            delete record['_rev']
+            try {
+                await destinationDb.save(records[r])
+            } catch (err: any) {
+                if (err.status != 409) {
+                    throw err
+                }
+            }
+        }
+
+        if (records.length == 0 || records.length < limit) {
+            // All data migrated
+            break
+        }
+
+        skip += limit
     }
-
-    // Don't catch replication errors, allow them to bubble up
-    await sourceCouchDb.replicate.to(destinationCouchDb)
 }
