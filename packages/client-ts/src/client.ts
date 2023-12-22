@@ -6,6 +6,8 @@ import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
 import DEFAULT_CONFIG from "./config";
+import Axios from "axios";
+import { ServiceEndpoint } from "did-resolver";
 const _ = require("lodash");
 
 /**
@@ -303,6 +305,53 @@ class Client implements IClient {
     }
 
     return validSignatures;
+  }
+
+  public async getContextNameFromHash(contextHash: string) {
+    // Check user authenticated
+    if (!this.account) {
+      throw new Error('Account must be connected to get context name from hash')
+    }
+
+    // Get the DID document of this user
+    const didDocument = await this.didClient.get(this.did!)
+    const services = didDocument.export().service!
+
+    // Locate the endpoints for the given context hash
+    const service = services.find((item) => item.id.match(contextHash) && item.type == 'VeridaDatabase')
+    if (!service) {
+      throw new Error(`Unable to locate service associated with context hash ${contextHash}`)
+    }
+
+    const timestamp = parseInt(((new Date()).getTime() / 1000.0).toString())
+    const did = (await this.account!.did()).toLowerCase()
+
+    // Loop through endpoints, hitting `/user/contextHash` until a response is received
+    const endpoints: ServiceEndpoint[] = <ServiceEndpoint[]> service.serviceEndpoint
+    for (let e in endpoints) {
+      let endpointUri = endpoints[e]
+      endpointUri = endpointUri.substring(0, endpointUri.length-1)  // strip trailing slash
+
+      const consentMessage = `Obtain context hash (${contextHash}) for server: "${endpointUri}"?\n\n${did}\n${timestamp}`
+      const signature = await this.account!.sign(consentMessage)
+
+      try {
+        const response = await Axios.post(`${endpointUri}/user/contextHash`, {
+            did,
+            timestamp,
+            signature,
+            contextHash
+        });
+
+        if (response.data.status == 'success') {
+          return response.data.result.contextName
+        }
+      } catch (err) {
+          // ignore errors, try another endpoint
+      }
+    }
+
+    throw new Error(`Unable to access any endpoints associated with context hash ${contextHash}`)
   }
 
   /**

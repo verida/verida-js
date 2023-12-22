@@ -2,6 +2,7 @@
 -------------------
 
 - Add `devnet` as a known network
+- Support swapping a `contextHash` for a `contextName` if authenticated
 
 2023-02-16 (v2.1.1)
 -------------------
