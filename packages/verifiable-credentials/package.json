@@ -1,6 +1,6 @@
 {
 	"name": "@verida/verifiable-credentials",
-	"version": "2.4.0-rc6",
+	"version": "2.4.0-rc6.1",
 	"main": "dist/index.js",
 	"license": "ISC",
 	"directories": {
@@ -31,7 +31,7 @@
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.14.177",
-		"@verida/client-ts": "^2.4.0-rc6",
+		"@verida/client-ts": "^2.4.0-rc6.1",
 		"dotenv": "^16.0.3",
 		"mocha": "^8.2.1",
 		"ts-mocha": "^8.0.0",

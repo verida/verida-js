@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-sbt-client",
-  "version": "2.4.0-rc6",
+  "version": "2.4.0-rc6.1",
   "description": "Client to manage adding and fetching names from the blockchain",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@verida/account-node": "^2.4.0-rc6",
-    "@verida/client-ts": "^2.4.0-rc6",
+    "@verida/client-ts": "^2.4.0-rc6.1",
     "@verida/keyring": "^2.4.0-rc1",
     "@verida/vda-common-test": "^2.3.0",
     "dotenv": "^16.0.3",
