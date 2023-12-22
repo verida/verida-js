@@ -327,6 +327,7 @@ class Client implements IClient {
     // Find all contexts for this account
     const contextNames = []
     for (let i in doc.keyAgreement) {
+      // @ts-ignore
       const keyAgreement = doc.keyAgreement[i]
       const matches = keyAgreement.match(/=(0x[^&]*)/)
 
