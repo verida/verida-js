@@ -10,6 +10,8 @@
 - Feature: Support `verifyEncryptionKey: boolean` property on the config options when opening a database
 - Fix: Closing encrypted database could have a race condition if called more than once
 - Support `verifyWebsite()` helper method on `Profile` object (uses `.well-known/did.json`)
+- Feature: Support `client.destroyContext()`
+- Feature: Support `client.destroyAccount()`
 
 2023-05-12 (v.2.3.5)
 -------------------

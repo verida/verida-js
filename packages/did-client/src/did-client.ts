@@ -126,6 +126,19 @@ export class DIDClient implements IDIDClient {
     }
 
     /**
+     * Destroy this DID
+     * 
+     * Note: This can not be reversed and is written to the blockchain
+     */
+    public async destroy(): Promise<VdaDidEndpointResponses> {
+        if (!this.authenticated()) {
+            throw new Error("Unable to save DIDDocument. No private key.")
+        }
+
+        return await this.vdaDid!.delete()
+    }
+
+    /**
      * Save DIDDocument to the chain
      * 
      * @param document Updated DIDDocuent

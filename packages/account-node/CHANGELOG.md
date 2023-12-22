@@ -2,6 +2,8 @@
 -------------------
 
 - Fix: In some instances, duplicate storage nodes are selected
+- Fix: Missing await on multiple `this.ensureAuthenticated()` calls
+- Fix: Make `getDidClient()` async
 
 2023-05-12 (v.2.3.5)
 -------------------
