@@ -1,6 +1,6 @@
 {
   "name": "@verida/web3",
-  "version": "2.4.0-rc5",
+  "version": "3.0.0",
   "description": "",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -27,7 +27,7 @@
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.0",
     "@verida/types": "^2.3.1",
-    "@verida/vda-common-test": "^2.3.0",
+    "@verida/vda-common-test": "^3.0.0",
     "chai": "^4.3.7",
     "dotenv": "^16.0.3",
     "gts": "^3.1.0",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@verida/types": "^2.4.0-rc1",
-    "@verida/vda-common": "^2.4.0-rc5",
+    "@verida/vda-common": "^3.0.0",
     "axios": "^1.2.3",
     "ethers": "^5.7.0"
   }
