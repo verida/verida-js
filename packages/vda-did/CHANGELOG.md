@@ -1,6 +1,7 @@
-2023-12-26 (v.2.4.0)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Fix: Ethers dependency was dev only
 - Feature: Include on-chain error message in thrown exception
 - Feature: Added manual gas configuration for the non-view contract functions

@@ -1,6 +1,7 @@
-2023-12-26 (v.2.4.0)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Feature: Make `web3config` auto-populate `RPC_URL` and other defaults based on Verida environment
 - Feature: Support easy method to destroy a DID
 
