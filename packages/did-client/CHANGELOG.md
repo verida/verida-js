@@ -1,6 +1,7 @@
 -------------------
 
-- Make `web3config` auto-populate `RPC_URL` and other defaults based on Verida environment
+- Feature: Make `web3config` auto-populate `RPC_URL` and other defaults based on Verida environment
+- Feature: Support easy method to destroy a DID
 
 2023-04-20 (v2.3.0)
 -------------------

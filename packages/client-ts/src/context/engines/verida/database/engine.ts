@@ -45,7 +45,7 @@ class StorageEngineVerida extends BaseStorageEngine {
     }
   }
 
-  private async locateAvailableEndpoint(endpoints: Record<string, Endpoint>, checkStatus = true): Promise<Endpoint> {
+  public async locateAvailableEndpoint(endpoints: Record<string, Endpoint>, checkStatus = true): Promise<Endpoint> {
     // Maintain a list of failed endpoints
     const failedEndpoints = []
 
@@ -72,7 +72,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       try {
         const status = await endpoints[primaryEndpointUri].getStatus()
         if (status.data.status != 'success') {
-          throw new Error()
+          throw new Error('Storage node is not available')
         }
 
         return endpoints[primaryEndpointUri]
@@ -82,6 +82,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         failedEndpoints.push(primaryEndpointUri)
         primaryIndex++
         primaryIndex = primaryIndex % Object.keys(endpoints).length
+        primaryEndpointUri = Object.keys(endpoints)[primaryIndex]
       }
     }
 
@@ -91,7 +92,11 @@ class StorageEngineVerida extends BaseStorageEngine {
   /**
    * Get an active endpoint
    */
-  public async getActiveEndpoint(checkStatus: boolean = true) {
+  public async getActiveEndpoint(checkStatus: boolean = true, clearActive: boolean = false) {
+    if (clearActive) {
+      this.activeEndpoint = undefined
+    }
+
     if (this.activeEndpoint) {
       return this.activeEndpoint
     }
@@ -431,9 +436,23 @@ class StorageEngineVerida extends BaseStorageEngine {
       promises.push(endpoint.createDb(databaseName, permissions, retry))
     }
 
-    // No need for await as this can occur in the background?
-    const result = await Promise.all(promises)
-    //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
+    // A node may be down, so quietly ignore that
+    // If all nodes are down, throw an error as they database won't have been created
+    const results = await Promise.allSettled(promises)
+    let resultIndex = 0
+    let failureCount = 0
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      const result = results[resultIndex++]
+
+      if (result.status !== 'fulfilled') {
+        failureCount++
+      }
+    }
+
+    if (failureCount == Object.keys(this.endpoints).length) {
+      throw new Error(`Unable to create database (${databaseName}) on remote nodes`)
+    }
 
     // Call check replication to ensure this new database gets replicated across all nodes
     await this.checkReplication(databaseName)
@@ -450,9 +469,23 @@ class StorageEngineVerida extends BaseStorageEngine {
       promises.push(endpoint.updateDatabase(databaseName, options))
     }
 
-    // No need for await as this can occur in the background?
-    const result = await Promise.all(promises)
-    //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)
+    // A node may be down, so quietly ignore that
+    // If all nodes are down, throw an error as they database won't have been updated
+    const results = await Promise.allSettled(promises)
+    let resultIndex = 0
+    let failureCount = 0
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      const result = results[resultIndex++]
+
+      if (result.status !== 'fulfilled') {
+        failureCount++
+      }
+    }
+
+    if (failureCount == Object.keys(this.endpoints).length) {
+      throw new Error(`Unable to update database (${databaseName}) on remote nodes`)
+    }
   }
 
   /**
@@ -468,10 +501,26 @@ class StorageEngineVerida extends BaseStorageEngine {
       promises.push(endpoint.deleteDatabase(databaseName))
     }
 
-    // delete from database registry
+    // Check the status of the storage node delete requests
+    // A node may be down, so quietly ignore that
+    // If all nodes are down, throw an error as they database won't have been deleted
+    const results = await Promise.allSettled(promises)
+    let resultIndex = 0
+    let failureCount = 0
+    for (let i in this.endpoints) {
+      const endpoint = this.endpoints[i]
+      const result = results[resultIndex++]
 
-    // No need for await as this can occur in the background?
-    const result = await Promise.all(promises)
+      if (result.status !== 'fulfilled') {
+        failureCount++
+      }
+    }
+
+    if (failureCount == Object.keys(this.endpoints).length) {
+      throw new Error(`Unable to delete database (${databaseName}) on remote nodes`)
+    }
+
+    // delete from database registry
     const dbRegistry = this.context.getDbRegistry()
     await dbRegistry.removeDb(databaseName, this.accountDid!, this.storageContext)
     //console.log(`createDb(${databaseName}, ${did}): ${(new Date()).getTime()-now}`)

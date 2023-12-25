@@ -1,4 +1,4 @@
-import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig } from "@verida/types";
+import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig, SecureContextEndpointType } from "@verida/types";
 import { DIDClient } from "@verida/did-client";
 import { VeridaNameClient } from '@verida/vda-name-client'
 
@@ -6,6 +6,9 @@ import Context from "./context/context";
 import DIDContextManager from "./did-context-manager";
 import Schema from "./context/schema";
 import DEFAULT_CONFIG from "./config";
+import Axios from "axios";
+import { ServiceEndpoint } from "did-resolver";
+import { DIDDocument } from "@verida/did-document";
 const _ = require("lodash");
 
 /**
@@ -303,6 +306,162 @@ class Client implements IClient {
     }
 
     return validSignatures;
+  }
+
+  public async destroyAccount() {
+    // Check user authenticated
+    if (!this.account) {
+      throw new Error('Account must be connected to get context name from hash')
+    }
+
+    // @ts-ignore
+    if (!this.account.getDidClient) {
+      throw new Error('Account object is not capable of deleting DID')
+    }
+
+    // Get the DID document of this user
+    // @ts-ignore
+    const didDocument = <DIDDocument> await this.didClient.get(this.did!)
+    const doc = didDocument.export()
+
+    // Find all contexts for this account
+    const contextNames = []
+    for (let i in doc.keyAgreement) {
+      // @ts-ignore
+      const keyAgreement = doc.keyAgreement[i]
+      const matches = keyAgreement.match(/=(0x[^&]*)/)
+
+      if (matches.length == 2) {
+        const contextHash = matches[1]
+        try {
+          const contextName = await this.getContextNameFromHash(contextHash, didDocument)
+          contextNames.push(contextName)
+        } catch (err) {
+          // skip if the context hash doesn't exist
+        }
+      }
+    }
+
+    // Destroy all the contexts
+    for (let c in contextNames) {
+      await this.destroyContext(contextNames[c])
+    }
+
+    // Destroy the DID on the blockchain
+    // @ts-ignore
+    const didClient = await this.account!.getDIDClient()
+    await didClient.destroy()
+
+    // Logout the account
+    this.account = undefined
+    this.did = undefined
+    this.didContextManager = new DIDContextManager(this.didClient);
+  }
+
+  public async destroyContext(contextName: string) {
+    // Check user authenticated
+    if (!this.account) {
+      throw new Error('Account must be connected to get context name from hash')
+    }
+
+    const timestamp = parseInt(((new Date()).getTime() / 1000.0).toString())
+    const did = (await this.account!.did()).toLowerCase()
+
+    // Locate endpoints for the contextName
+    const didDocument = await this.didClient.get(this.did!)
+    // @ts-ignore
+    const endpointInfo = didDocument.locateServiceEndpoint(contextName, SecureContextEndpointType.DATABASE)
+    if (!endpointInfo) {
+      throw new Error('Context not found in DID Document')
+    }
+
+    const endpointUris: ServiceEndpoint[] = <ServiceEndpoint[]> endpointInfo!.serviceEndpoint
+    
+    // Delete context from all endpoints
+    // For each endpoint; this deletes all context databases, plus the database that tracks all databases for a context
+    const promises = []
+    for (let e in endpointUris) {
+      let endpointUri = endpointUris[e]
+      endpointUri = endpointUri.substring(0, endpointUri.length-1)  // strip trailing slash
+      const consentMessage = `Delete context (${contextName}) from server: "${endpointUri}"?\n\n${did}\n${timestamp}`
+      const signature = await this.account!.sign(consentMessage)
+      
+      promises.push(Axios.post(`${endpointUri}/user/destroyContext`, {
+        did,
+        timestamp,
+        signature,
+        contextName
+      }));
+    }
+
+    const results = await Promise.allSettled(promises)
+    let resultIndex = 0
+    let failureCount = 0
+    const promiseResults: any = {}
+    for (let e in endpointUris) {
+      const endpoint = endpointUris[e].toString()
+      const result = results[resultIndex++]
+      promiseResults[endpoint] = result
+
+      if (result.status !== 'fulfilled') {
+        failureCount++
+      }
+    }
+
+    // Remove the context from the DID document
+    await this.account!.unlinkStorage(contextName)
+
+    return promiseResults
+  }
+
+  public async getContextNameFromHash(contextHash: string, didDocument?: DIDDocument) {
+    // Check user authenticated
+    if (!this.account) {
+      throw new Error('Account must be connected to get context name from hash')
+    }
+
+    // Get the DID document of this user
+    if (!didDocument) {
+      // @ts-ignore
+      didDocument = <DIDDocument> await this.didClient.get(this.did!)
+    }
+    const services = didDocument.export().service!
+
+    // Locate the endpoints for the given context hash
+    const service = services.find((item) => item.id.match(contextHash) && item.type == 'VeridaDatabase')
+    if (!service) {
+      throw new Error(`Unable to locate service associated with context hash ${contextHash}`)
+    }
+
+    const timestamp = parseInt(((new Date()).getTime() / 1000.0).toString())
+    const did = (await this.account!.did()).toLowerCase()
+
+    // Loop through endpoints, hitting `/user/contextHash` until a response is received
+    const endpoints: ServiceEndpoint[] = <ServiceEndpoint[]> service.serviceEndpoint
+    for (let e in endpoints) {
+      let endpointUri = endpoints[e]
+      endpointUri = endpointUri.substring(0, endpointUri.length-1)  // strip trailing slash
+
+      const consentMessage = `Obtain context hash (${contextHash}) for server: "${endpointUri}"?\n\n${did}\n${timestamp}`
+      const signature = await this.account!.sign(consentMessage)
+
+      try {
+        const response = await Axios.post(`${endpointUri}/user/contextHash`, {
+            did,
+            timestamp,
+            signature,
+            contextHash
+        });
+
+        if (response.data.status == 'success') {
+          return response.data.result.contextName
+        }
+      } catch (err) {
+          // ignore errors, try another endpoint
+      }
+    }
+
+    throw new Error(`Unable to access any endpoints associated with context hash ${contextHash}`)
   }
 
   /**

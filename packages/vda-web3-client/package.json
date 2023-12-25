@@ -1,6 +1,6 @@
 {
   "name": "@verida/web3",
-  "version": "2.4.2",
+  "version": "2.4.0-rc5",
   "description": "",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@verida/types": "^2.4.0-rc1",
-    "@verida/vda-common": "^2.4.0-rc1",
+    "@verida/vda-common": "^2.4.0-rc5",
     "axios": "^1.2.3",
     "ethers": "^5.7.0"
   }

@@ -99,7 +99,7 @@ export default class AutoAccount extends Account {
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
-        this.ensureAuthenticated()
+        await this.ensureAuthenticated()
 
         const did = await this.did()
         let storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true)
@@ -136,7 +136,7 @@ export default class AutoAccount extends Account {
      * @param storageConfig 
      */
      public async linkStorage(storageConfig: SecureContextConfig): Promise<boolean> {
-        this.ensureAuthenticated()
+        await this.ensureAuthenticated()
         const keyring = await this.keyring(storageConfig.id)
         const result = await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
 
@@ -156,7 +156,7 @@ export default class AutoAccount extends Account {
       * @param contextName 
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
-        this.ensureAuthenticated()
+        await this.ensureAuthenticated()
         let result = await StorageLink.unlink(this.didClient, contextName)
         if (!result) {
             return false
@@ -178,7 +178,7 @@ export default class AutoAccount extends Account {
      * 
      */
     public async linkStorageContextService(contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
-        this.ensureAuthenticated()
+        await this.ensureAuthenticated()
         const result = await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUris)
 
         for (let i in result) {
@@ -191,8 +191,8 @@ export default class AutoAccount extends Account {
         return true
     }
 
-    public getDidClient(): DIDClient {
-        this.ensureAuthenticated()
+    public async getDidClient(): Promise<DIDClient> {
+        await this.ensureAuthenticated()
         return this.didClient
     }
 

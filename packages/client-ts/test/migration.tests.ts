@@ -93,6 +93,7 @@ describe('Storage context tests', () => {
 
                 events.on('error', (err: any) => {
                     console.log('Migration error!')
+                    console.log(err)
                     rejects(err)
                 })
             })
@@ -129,25 +130,11 @@ describe('Storage context tests', () => {
                         verifyEncryptionKey: false
                     })
 
-                    let sourceCouchDb, destinationCouchDb
-
-                    if (sourceDb.getRemoteEncrypted) {
-                        sourceCouchDb = await sourceDb.getRemoteEncrypted()
-                        destinationCouchDb = await destinationDb.getRemoteEncrypted()
-                    } else {
-                        sourceCouchDb = await sourceDb.getDb()
-                        destinationCouchDb = await destinationDb.getDb()
-                    }
-
-                    const sourceRows = (await sourceCouchDb.allDocs({
-                        include_docs: true
-                    })).rows
-                    const destinationRows = (await destinationCouchDb.allDocs({
-                        include_docs: true
-                    })).rows
+                    const sourceRows = await sourceDb.getMany()
+                    const destinationRows = await destinationDb.getMany()
 
                     // Verify the same number of rows returned
-                    assert.equal(sourceRows.length, destinationRows.length, `${dbName}: source and destination databases have same length`)
+                    assert.equal(destinationRows.length, sourceRows.length, `${dbName}: source and destination databases have same length`)
 
                     // Verify the same row IDs are returned
                     const sourceIds = sourceRows.map((item) => item.id)
@@ -156,7 +143,86 @@ describe('Storage context tests', () => {
                 } catch (err) {
                     console.log(dbName)
                     console.log(err)
+                    assert.fail(err.message)
                 }
+            }
+        })
+
+        /**
+         * When re-starting an existing migration, any changes to the source data that has already
+         * been sent to the destination will not be updated. This also includes deletions on the 
+         * source data that was already migrated that is then deleted, will not be deleted on the destination
+         */
+        it('can partially migrate, then fully complete', async function() {
+            // Close and re-open contexts to reset everything
+            await sourceContext.close({
+                clearLocal: true
+            })
+            await destinationContext.close({
+                clearLocal: true
+            })
+
+            // Just work with the first test database
+            const dbName = TEST_DBS[0]
+
+            // Re-open application contexts
+            sourceContext = await client1.openContext(SOURCE_CONTEXT_NAME)
+            destinationContext = await client2.openContext(DESTINATION_CONTEXT_NAME)
+
+            // Add a new record
+            const db = await sourceContext.openDatabase(dbName)
+            await db.save({record: 4})
+
+            // Re-run the migration
+            const events = migrateContext(sourceContext, destinationContext)
+            const promise = new Promise((resolve, rejects) => {
+                events.on('complete', () => {
+                    console.log('Migration complete!')
+                    resolve(true)
+                })
+
+                events.on('error', (err: any) => {
+                    console.log('Migration error!')
+                    console.log(err)
+                    rejects(err)
+                })
+            })
+
+            try {
+                await promise
+                assert.ok(true, 'Data migrated')
+            } catch (err) {
+                assert.fail(err.message)
+            }
+
+            // Verify the data in the first database is correct
+            try {
+                const sourceDb = await sourceContext.openDatabase(dbName, {
+                    verifyEncryptionKey: false
+                })
+                const destinationDb = await destinationContext.openDatabase(dbName, {
+                    verifyEncryptionKey: false
+                })
+
+                const sourceRows = await sourceDb.getMany()
+                const destinationRows = await destinationDb.getMany()
+
+                // Verify the same number of rows returned
+                assert.equal(destinationRows.length, sourceRows.length, `${dbName}: source and destination databases have same length`)
+
+                // Verify the same row IDs are returned
+                const sourceIds = sourceRows.map((item) => item.id)
+                const destinationIds = destinationRows.map((item) => item.id)
+                assert.deepEqual(sourceIds, destinationIds, `${dbName}: source and destination databases have same records`)
+
+                await sourceDb.close({
+                    clearLocal: true
+                })
+                await destinationDb.close({
+                    clearLocal: true
+                })
+            } catch (err) {
+                assert.fail(err.message)
             }
         })
     })
