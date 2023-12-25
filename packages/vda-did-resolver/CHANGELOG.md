@@ -1,6 +1,8 @@
 2023-08-22 (v2.3.7)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - `getDIDs` returns DID addresses instead of blockchain addresses
 - Minor typescript improvements
 

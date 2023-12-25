@@ -1,6 +1,7 @@
-2023-12-26 (v.2.4.0)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Fix: In some instances, duplicate storage nodes are selected
 - Fix: Missing await on multiple `this.ensureAuthenticated()` calls
 - Fix: Make `getDidClient()` async

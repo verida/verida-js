@@ -1,6 +1,7 @@
-2023-12-26 (v.2.4.0)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Fix bugs in `pure` type function call
 - Update `callMethod()` function to return BigNumber as BigNumber itself
 - Feature: Updated gas configuration in `web3` mode

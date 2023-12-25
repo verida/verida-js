@@ -1,6 +1,7 @@
-2023-12-26 (v.2.4.0)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Fix: Close outbox database connection after sending a message
 - Feature: Expose new `migrateContext()` and `migrateDatase()` utility methods
 - Feature: Implement utility method `context.deleteDatabase(databaseName)`
