@@ -1,7 +1,7 @@
 const assert = require('assert')
-import { getBlockchainAPIConfiguration } from "@verida/vda-common-test";
 import BlockchainApi from "../src/blockchain/blockchainApi"
 import { Wallet } from "ethers";
+import { VdaDidConfigurationOptions, VeridaWeb3ConfigurationOptions, Web3CallType } from '@verida/types';
 require('dotenv').config();
 
 const did = Wallet.createRandom();
@@ -15,9 +15,33 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const configuration = getBlockchainAPIConfiguration(privateKey);
+const rpcUrl = process.env.RPC_URL;
+if (!rpcUrl) {
+    throw new Error('No RPC_URL in the env file');
+}
+
+const PORT = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5021;
+const SERVER_URL = `http://localhost:${PORT}`;
+
+const configuration = {
+    callType: 'gasless',
+    web3Options: {
+        serverConfig: {
+            headers: {
+                'context-name': 'Verida Test',
+              },
+        },
+        postConfig: {
+            headers: {
+                'user-agent': 'Verida-Vault',
+              },
+        },
+        endpointUrl: SERVER_URL,
+    }
+  }
+
 const createBlockchainAPI = (did: any) => {
-    return new BlockchainApi({
+    return new BlockchainApi(<VdaDidConfigurationOptions>{
         identifier: did.address,
         signKey: did.privateKey,
         chainNameOrId: "testnet",
@@ -34,7 +58,7 @@ describe('vda-did blockchain api', () => {
     describe('register', function() {
         this.timeout(100 * 1000)
 
-        it('Register successfully', async () => {
+        it.only('Register successfully', async () => {
             await blockchainApi.register(endPoints_A);
 
             const lookupResult = await blockchainApi.lookup(did.address);

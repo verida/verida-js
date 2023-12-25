@@ -1,3 +1,8 @@
+2023-12-26 (v.2.4.0)
+-------------------
+
+- Update data type of `tokenID` as `BigNumberish` from `number`
+
 2023-04-27 (v2.3.4)
 -------------------
 

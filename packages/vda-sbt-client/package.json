@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-sbt-client",
-  "version": "2.3.9",
+  "version": "2.4.0-rc6.1",
   "description": "Client to manage adding and fetching names from the blockchain",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -25,15 +25,15 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@verida/helpers": "^2.3.3",
-    "@verida/web3": "^2.3.6",
+    "@verida/helpers": "^2.4.0-rc2",
+    "@verida/web3": "^2.4.0-rc5",
     "axios": "^0.27.2",
     "ethers": "^5.7.0"
   },
   "devDependencies": {
-    "@verida/account-node": "^2.3.9",
-    "@verida/client-ts": "^2.3.9",
-    "@verida/keyring": "^2.3.3",
+    "@verida/account-node": "^2.4.0-rc6",
+    "@verida/client-ts": "^2.4.0-rc6.1",
+    "@verida/keyring": "^2.4.0-rc1",
     "@verida/vda-common-test": "^2.3.0",
     "dotenv": "^16.0.3",
     "gts": "^3.1.0",

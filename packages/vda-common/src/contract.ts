@@ -16,48 +16,48 @@ export interface CONTRACT_INFO {
 
 export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | null>> = {
     "VeridaDIDRegistry": {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
+        "0x89": "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
         testnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
         "0x13881": "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
         devnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
     },
     "NameRegistry": {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
+        "0x89": "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
         testnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
         "0x13881": "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
         devnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
     },
     "SoulboundNFT" : {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0xB500418b5F47758903Ae02bfB3605cBd19062889",
+        "0x89": "0xB500418b5F47758903Ae02bfB3605cBd19062889",
         testnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
         "0x13881": "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
         devnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
     },
 
     "VeridaDIDLinkage" : {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0x5916F97e31B77884d81bdA875b7686A988E0d517",
+        "0x89": "0x5916F97e31B77884d81bdA875b7686A988E0d517",
         testnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
         "0x13881": "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
         devnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
     },
     "VeridaToken" : {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0x683565196C3EAb450003C964D4bad1fd3068D4cC",
+        "0x89": "0x683565196C3EAb450003C964D4bad1fd3068D4cC",
         testnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
         "0x13881": "0x745Db51351015d61573db37bC16C49B8506B93c8",
         devnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
     },
     "VDARewardContract": {
-        mainnet: null,
-        "0x89": null,
+        mainnet: "0xBAeEA910f6BBe29Ef33e0051e51dc60f9702B7b9",
+        "0x89": "0xBAeEA910f6BBe29Ef33e0051e51dc60f9702B7b9",
         testnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
         "0x13881": "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
         devnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
-    }
+    },
 };
 
 export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
@@ -67,7 +67,7 @@ export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
 
     "VeridaDIDLinkage": require('./abi/VeridaDIDLinkage.json'),
     "VeridaToken": require('./abi/VeridaToken.json'),
-    "VDARewardContract": require('./abi/VDARewardContract.json')
+    "VDARewardContract": require('./abi/VDARewardContract.json'),
 }
 
 export function getContractInfoForNetwork(name: CONTRACT_NAMES, chainNameOrId: string) : CONTRACT_INFO {

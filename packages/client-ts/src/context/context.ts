@@ -72,7 +72,7 @@ class Context extends EventEmitter implements IContext {
   private databaseEngines: DatabaseEngines = {};
   private dbRegistry: DbRegistry;
 
-  private databaseCache: Record<string, IDatabase | Promise<IDatabase>> = {}
+  private databaseCache: Record<string, IDatabase> = {}
 
   /**
    * Instantiate a new context.
@@ -331,7 +331,7 @@ class Context extends EventEmitter implements IContext {
     }
 
     const instance = this
-    this.databaseCache[cacheKey] = new Promise(async (resolve, rejects) => {
+    const promise = new Promise(async (resolve, rejects) => {
       //const now = (new Date()).getTime()
       try {
         const databaseEngine = await instance.getDatabaseEngine(
@@ -355,6 +355,8 @@ class Context extends EventEmitter implements IContext {
         rejects(err)
       }
     })
+
+    this.databaseCache[cacheKey] = <IDatabase> await promise
 
     return this.databaseCache[cacheKey]
   }
@@ -424,6 +426,21 @@ class Context extends EventEmitter implements IContext {
     // Add to cache of databases
     this.databaseCache[cacheKey] = database
     return database
+  }
+
+  public async deleteDatabase(databaseName: string) {
+    if (!this.account) {
+      throw new Error(`Unable to delete database. No authenticated user.`);
+    }
+
+    // Close the database if it's open
+    const accountDid = await this.account!.did()    
+    const databaseEngine = await this.getDatabaseEngine(
+      accountDid,
+      false
+    );
+
+    return await databaseEngine.deleteDatabase(databaseName)
   }
 
   /**
@@ -547,13 +564,17 @@ class Context extends EventEmitter implements IContext {
    * Closes all open database connections, returns resources, cancels event listeners
    */
   public async close(options: ContextCloseOptions = {
-    clearLocal: false
+    clearLocal: true
   }): Promise<void> {
     // close all the other databases
     for (let d in this.databaseCache) {
       const database = await this.databaseCache[d]
       await database.close(<DatabaseCloseOptions> options)
     }
+
+    // The DbRegistry database has been closed. Reset to a clean instance so
+    // it will be re-opened if necessary
+    this.dbRegistry = new DbRegistry(this)
   }
 
   public async clearDatabaseCache(did: string, databaseName: string) {
@@ -561,6 +582,15 @@ class Context extends EventEmitter implements IContext {
     for (let t in types) {
       const cacheKey = `${did.toLowerCase()}/${databaseName}/${types[t]}`
       if (this.databaseCache[cacheKey]) {
+        // try to close the database
+        try {
+          await this.databaseCache[cacheKey].close({
+            clearLocal: true
+          })
+        } catch (err: any) {
+          // already closed
+        }
+
         delete this.databaseCache[cacheKey]
       }
     }

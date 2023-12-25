@@ -24,9 +24,9 @@ export interface IDatabase {
 
     registryEntry(): Promise<DbRegistryEntry>
 
-    close(options: DatabaseCloseOptions): Promise<void>
+    close(options?: DatabaseCloseOptions): Promise<void>
 
-    destroy(options: DatabaseDeleteConfig): Promise<void>
+    destroy(options?: DatabaseDeleteConfig): Promise<void>
 
     usage(): Promise<EndpointUsage>
 }

@@ -43,7 +43,14 @@ export class RecordSignature {
           _data['schema'] = Schema.getVersionlessSchemaName(_data['schema'])
         }
     
-        data.signatures[signKey.toLowerCase()] = await keyring.sign(_data);
+        const sig = await keyring.sign(_data)
+
+        // Create empty signature object if this DID hasn't signed, or if this DID has an old signature format (string, not object)
+        if (!data.signatures[signKey.toLowerCase()] || typeof(data.signatures[signKey.toLowerCase()]) === 'string') {
+          data.signatures[signKey.toLowerCase()] = {}
+        }
+
+        data.signatures[signKey.toLowerCase()]['secp256k1'] = sig;
         return data;
     }
 }

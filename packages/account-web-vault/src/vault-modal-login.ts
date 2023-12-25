@@ -313,9 +313,12 @@ export default async function (
     </style>
   `;
 
-  document.body.insertAdjacentHTML("beforeend", modalHTML);
+  let modal: HTMLElement | null = document.getElementById("verida-modal");
+  if (!modal) {
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+    modal = document.getElementById("verida-modal");
+  }
 
-  const modal: HTMLElement | null = document.getElementById("verida-modal");
   const closeModal: HTMLElement | null =
     document.getElementById("verida-modal-close");
 
@@ -335,7 +338,7 @@ export default async function (
 
   if (modal && closeModal) {
     closeModal.onclick = () => {
-      modal.style.display = 'none';
+      modal!.style.display = 'none';
       authConfig.callbackRejected!();
     }
   }

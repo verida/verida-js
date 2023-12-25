@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import Axios from 'axios';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { isVeridaContract } from './utils'
+import { isVeridaContract, getMaticFee } from './utils'
 import { getContractForNetwork, isVeridaWeb3GasConfiguration } from './config'
-import { Wallet, BigNumber, Contract, Signer } from 'ethers';
+import { Wallet, BigNumber, Contract, Signer, utils } from 'ethers';
 import { VdaTransactionResult, VeridaWeb3Config, Web3CallType, Web3GasConfiguration, Web3GaslessPostConfig, Web3GaslessRequestConfig, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from '@verida/types';
 
 /** Create axios instance to make http requests to meta-transaction-server */
@@ -23,18 +23,14 @@ export type address = string
 export type uint256 = BigNumber
 export type BlockTag = string | number;
 
+type TGasConfigKeys = keyof Web3GasConfiguration;
+
 /**
  * Class representing any Verida Smart Contrat
  */
 export class VeridaContract {
     /** Smart contract interaction mode */
     protected type: Web3CallType;
-
-    // /** web3 instance. Only used in web3 mode */
-    // protected web3?: Web3;
-
-    // /** Account to send transactions in Web3 mode */
-    // protected account?: string;
 
     /** Contract instance used in web3 mode */
     protected contract?: Contract
@@ -98,7 +94,7 @@ export class VeridaContract {
                 if (item.type === 'function') {
                     this[item.name] = async(...params : any[]) : Promise<VdaTransactionResult> => {
 
-                        let gasConfig : Web3GasConfiguration | undefined = undefined
+                        let gasConfig : Record<string, any> | undefined = undefined
 
                         const paramLen = params.length
                         if (params !== undefined
@@ -112,22 +108,46 @@ export class VeridaContract {
                         } else if (this.web3Config?.methodDefaults !== undefined && (item.name in this.web3Config?.methodDefaults)) {
                             // Use gas configuration in the methodDefaults
                             gasConfig = Object.assign({}, this.web3Config.methodDefaults[item.name])
-                        } else if (this.web3Config !== undefined) {
+                        } else if (this.web3Config !== undefined && isVeridaWeb3GasConfiguration(this.web3Config)) {
                             // Use gas configuration in the global configuration
+                            const keys:TGasConfigKeys[] = ['eip1559Mode', 'eip1559gasStationUrl', 'maxFeePerGas', 'maxPriorityFeePerGas', 'gasLimit', 'gasPrice'];
                             gasConfig = {}
-                            if ('maxFeePerGas' in this.web3Config) {
-                                gasConfig['maxFeePerGas'] = this.web3Config['maxFeePerGas']
-                            }
-
-                            if ('maxPriorityFeePerGas' in this.web3Config) {
-                                gasConfig['maxPriorityFeePerGas'] = this.web3Config['maxPriorityFeePerGas']
-                            }
-
-                            if ('gasLimit' in this.web3Config) {
-                                gasConfig['gasLimit'] = this.web3Config['gasLimit']
+                            for (let i = 0; i < keys.length; i++) {
+                                if (keys[i] in this.web3Config) {
+                                    gasConfig[keys[i]] = this.web3Config[keys[i]];
+                                }
                             }
                         }
 
+                        // console.log('vda-web3 gasconfig : ', gasConfig);
+                        if (gasConfig === undefined || Object.keys(gasConfig).length === 0) {
+                            // Call transaction without gas configuration
+                            return this.callMethod(item.name, item.stateMutability, params)
+                        }
+
+                        const eip1559Keys:TGasConfigKeys[] = ['eip1559Mode', 'eip1559gasStationUrl'];
+                        const keys:TGasConfigKeys[] = ['maxFeePerGas', 'maxPriorityFeePerGas', 'gasLimit', 'gasPrice'];
+                        let isGasConfigured = false;
+                        for (let i = 0; i < keys.length; i++) {
+                            if (keys[i] in gasConfig) {
+                                isGasConfigured = true;
+                                break;
+                            }
+                        }
+                        if (isGasConfigured) {
+                            // Remove unnecessary EIP1559 keys if exist in the gas config
+                            for (let i = 0; i < eip1559Keys.length; i++) {
+                                if (eip1559Keys[i] in gasConfig) {
+                                    delete gasConfig[eip1559Keys[i]];
+                                }
+                            }
+                        } else { // Need to pull the gas configuration from the station
+                            if ('eip1559Mode' in gasConfig && 'eip1559gasStationUrl' in gasConfig) {
+                                gasConfig = await getMaticFee(gasConfig['eip1559gasStationUrl'], gasConfig['eip1559Mode']);
+                            } else {
+                                throw new Error('To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
+                            }
+                        }
                         return this.callMethod(item.name, item.stateMutability, params, gasConfig)
                     }
                 }
@@ -222,32 +242,35 @@ export class VeridaContract {
             let ret;
 
             const contract = await this.attachContract()
-
             // console.log('Contract = ', contract)
 
             try {
-                if (methodType === 'view') {
+                if (methodType === 'view' || methodType === 'pure') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
-                    // console.log('Gas Config : ', gasConfig)
-
                     let transaction: any
-                    if (gasConfig === undefined) { //Gas configuration is in the params
-                        transaction = await contract.functions[methodName](...params)
-                    } else { // Need to use manual gas configuration
-                        transaction = await contract.functions[methodName](...params, gasConfig)
+
+                    if (gasConfig === undefined || Object.keys(gasConfig).length === 0) { //No gas configuration
+                        transaction = await contract.functions[methodName](...params);
+                    } else {
+                        transaction = await contract.functions[methodName](...params, gasConfig);
                     }
 
-                    const transactionReceipt = await transaction.wait(1)
-                    // console.log('Transaction Receipt = ', transactionRecipt)
+                    // console.log("transaction : ", transaction);
+                    const transactionReceipt = await transaction.wait()
+                    // console.log("transactionReceipt : ", transactionReceipt);
 
                     ret = transactionReceipt
                 }
             } catch(e: any) {
-                // console.log('Error in transaction', e)
+                // console.log('vda-web3 : Error in transaction', e)
                 let reason = e.reason ? e.reason : 'Unknown'
                 reason = e.error && e.error.reason ? e.error.reason : reason
                 reason = reason.replace('execution reverted: ','')
+
+                if (reason === 'Unknown' && e.errorName) {
+                    reason = e.errorName;
+                }
 
                 return Promise.resolve({
                     success: false,
@@ -257,7 +280,8 @@ export class VeridaContract {
                 })
             }
 
-            if (BigNumber.isBigNumber(ret)) ret = ret.toNumber()
+            // Overflow error in `vda-node-manager` to get node issue fee.
+            // if (BigNumber.isBigNumber(ret)) ret = ret.toNumber()
 
             return {
                 success: true,

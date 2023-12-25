@@ -2,7 +2,7 @@ import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 
 import { default as VeridaWallet } from "./wallet"
 import { getResolver } from '@verida/vda-did-resolver'
-import { RPC_URLS } from "@verida/vda-common"
+import { RPC_URLS, getWeb3ConfigDefaults } from "@verida/vda-common"
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
 import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
@@ -30,9 +30,7 @@ export class DIDClient implements IDIDClient {
             timeout: config.timeout ? config.timeout : 10000
         }
         
-        if (this.config.rpcUrl) {
-            resolverConfig.rpcUrl = this.config.rpcUrl
-        }
+        resolverConfig.rpcUrl = this.getRpcUrl()
 
         const vdaDidResolver = getResolver(resolverConfig)
         // @ts-ignore
@@ -73,6 +71,11 @@ export class DIDClient implements IDIDClient {
         // @ts-ignore
         if (callType == 'web3' && !web3Config.privateKey) {
             throw new Error('Web3 transactions must specify `web3config.privateKey`')
+        }
+
+        web3Config = {
+            ...getWeb3ConfigDefaults(this.config.network),
+            ...web3Config
         }
 
         // @ts-ignore
@@ -120,6 +123,19 @@ export class DIDClient implements IDIDClient {
         }
 
         return undefined
+    }
+
+    /**
+     * Destroy this DID
+     * 
+     * Note: This can not be reversed and is written to the blockchain
+     */
+    public async destroy(): Promise<VdaDidEndpointResponses> {
+        if (!this.authenticated()) {
+            throw new Error("Unable to save DIDDocument. No private key.")
+        }
+
+        return await this.vdaDid!.delete()
     }
 
     /**

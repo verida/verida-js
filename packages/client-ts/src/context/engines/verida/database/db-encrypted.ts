@@ -75,11 +75,14 @@ class EncryptedDatabase extends BaseDb {
       // Setting to 1,000 -- Any higher and it takes too long on mobile devices
     });
 
+    await this.initSync()
+  }
+
+  protected async initSync() {
     const databaseName = this.databaseName;
 
     /* @ts-ignore */
     const instance = this;
-    //console.log(`Db.init-2(${databaseName}): ${(new Date()).getTime()-now}`)
 
     // Do a once off sync to ensure the local database pulls all data from remote server
     // before commencing live syncronisation between the two databases
@@ -115,23 +118,25 @@ class EncryptedDatabase extends BaseDb {
      * If there is data in this database, it ensures the current encryption key
      * can decrypt the data.
      */
-    try {
-      await this.getMany();
-      //console.log(`Db.init-5(${databaseName}): ${(new Date()).getTime()-now}`)
-    } catch (err: any) {
-      // This error message is thrown by the underlying decrypt library if the
-      // data can't be decrypted
-      if (
-        err.message == `Unsupported state or unable to authenticate data` ||
-        err.message == "Could not decrypt!"
-      ) {
-        // Clear the instantiated PouchDb instances and throw a more useful exception
-        await this.close()
-        throw new Error(`Invalid encryption key supplied`);
-      }
+    if (this.config.verifyEncryptionKey) {
+      try {
+        await this.getMany();
+        //console.log(`Db.init-5(${databaseName}): ${(new Date()).getTime()-now}`)
+      } catch (err: any) {
+        // This error message is thrown by the underlying decrypt library if the
+        // data can't be decrypted
+        if (
+          err.message == `Unsupported state or unable to authenticate data` ||
+          err.message == "Could not decrypt!"
+        ) {
+          // Clear the instantiated PouchDb instances and throw a more useful exception
+          await this.close()
+          throw new Error(`Invalid encryption key supplied`);
+        }
 
-      // Unknown error, rethrow
-      throw err;
+        // Unknown error, rethrow
+        throw err;
+      }
     }
 
     //console.log(`Db.init-Final(${databaseName}): ${(new Date()).getTime()-now}`)
@@ -149,6 +154,7 @@ class EncryptedDatabase extends BaseDb {
     if (this._sync) {
       // Cancel any existing sync
       this._sync.cancel();
+      this._syncError = null
     }
 
     const instance = this;
@@ -156,7 +162,8 @@ class EncryptedDatabase extends BaseDb {
 
     this._sync = PouchDB.sync(this._localDbEncrypted, this.db, {
       live: true,
-      retry: true,
+      retry: false,   // don't retry on error, so we can quietly handle nodes going down
+      timeout: 5000,
       // Dont sync design docs
       filter: function (doc: any) {
         return doc._id.indexOf("_design") !== 0;
@@ -178,18 +185,17 @@ class EncryptedDatabase extends BaseDb {
         instance._syncStatus = 'complete'
         instance._syncInfo = info
       })
-      .on("error", function (err: any) {
+      .on("error", async function (err: any) {
+        instance._syncStatus = 'error'
         instance._syncError = err;
-        console.error(
-          `Unknown error occurred syncing with remote database: ${databaseName}`
-        );
-        console.error(err);
+
+        await instance.replaceEndpoint()
       })
       .on("denied", function (err: any) {
-        console.error(
-          `Permission denied to sync with remote database: ${databaseName}`
-        );
-        console.error(err);
+        instance._syncStatus = 'denied'
+        instance._syncError = err;
+
+        instance.replaceEndpoint()
       });
 
     return this._sync;
@@ -228,16 +234,20 @@ class EncryptedDatabase extends BaseDb {
   public async close(options: DatabaseCloseOptions = {
     clearLocal: false
   }) {
+    if (this._sync === null) {
+      // No sync object indicates this database is closed
+      return
+    }
+
+    await this.finalizeSync()
+
     if (options.clearLocal) {
       await this.destroy({
         localOnly: true
       })
 
+      // Return, because destroy will close all database connections
       return
-    }
-
-    if (this._sync) {
-      this._sync.cancel();
     }
 
     try {
@@ -252,17 +262,13 @@ class EncryptedDatabase extends BaseDb {
       // may already be closed
     }
 
-    this._sync = null;
-    this._syncError = null;
     await this.engine.closeDatabase(this.did, this.databaseName)
     this.emit('closed', this.databaseName)
   }
 
-  public async destroy(options: DatabaseDeleteConfig = {
-    localOnly: false
-  }): Promise<void> {
-    if (!this.isOwner && !options.localOnly) {
-      throw new Error(`Unable to update users for a database you don't own`)
+  private async finalizeSync() {
+    if (!this._sync) {
+      return
     }
 
     // Need to ensure any database sync to remote server has completed
@@ -276,11 +282,59 @@ class EncryptedDatabase extends BaseDb {
         instance._sync.on('complete', async () => {
           resolve()
         })
+        instance._sync.on('error', async () => {
+          // If we have an error, that's okay, because the final replication will
+          // fix any issues or replace the endpoint if required
+          resolve()
+        })
       })
       
+      // console.log('waiting for sync to complete', this._syncStatus, this._sync.pull.state, this._sync.push.state)
       // Wait until sync completes
       await promise
     }
+
+    // Cancel the current sync
+    await this._sync.cancel()
+    this._sync = null
+    this._syncError = null
+
+    // Perform one final replication to the remote server
+    try {
+      const result = await PouchDB.replicate(this._localDbEncrypted, this.db, {
+        live: false,      // do a once off sync
+        retry: false,     // don't retry, just fail
+        timeout: 5000,    // 5 second timeout
+      })
+
+      // replication completed successfully
+    } catch (err) {
+      // Replication has failed, this is likely because the endpoint is down
+      // We need to connect to a different endpoint
+      await this.replaceEndpoint()
+
+      // Try again
+      try {
+        const result = await PouchDB.replicate(this._localDbEncrypted, this.db, {
+          live: false,      // do a once off sync
+          retry: false,     // don't retry, just fail
+          timeout: 5000,    // 5 second timeout
+        })
+      } catch (err) {
+        console.log(err)
+        throw new Error(`Unable to sync data with network when closing database ${this.databaseName}`)
+      }
+    }
+  }
+
+  public async destroy(options: DatabaseDeleteConfig = {
+    localOnly: false
+  }): Promise<void> {
+    if (!this.isOwner && !options.localOnly) {
+      throw new Error(`Unable to update users for a database you don't own`)
+    }
+
+    await this.finalizeSync()
 
     // Actually perform database deletion
     await this._destroy(options)
@@ -290,20 +344,25 @@ class EncryptedDatabase extends BaseDb {
     localOnly: false
   }): Promise<void> {
     try {
-      // Destory the local pouch database (this deletes this._local and this._localDbEncrypted as they share the same underlying data source)
+      // Destroy the local pouch database (this deletes this._local and this._localDbEncrypted as they share the same underlying data source)
       await this._localDbEncrypted.destroy()
+    } catch (err) {
+      // do nothing, database is likely already destroyed
+    }
 
+    try {
       if (!options.localOnly) {
         // Only delete remote database if required
         await this.engine.deleteDatabase(this.databaseName)
       }
-     
+
       await this.close({
         clearLocal: false
       })
     } catch (err) {
-      console.error(err)
+      console.log(err)
     }
+    
   }
 
   public async updateUsers(
