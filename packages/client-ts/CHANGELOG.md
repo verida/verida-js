@@ -1,5 +1,4 @@
-
-2023-11-21 (v2.4.0)
+2023-12-26 (v.2.4.0)
 -------------------
 
 - Fix: Close outbox database connection after sending a message

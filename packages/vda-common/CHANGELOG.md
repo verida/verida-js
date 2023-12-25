@@ -1,4 +1,4 @@
-
+2023-12-26 (v.2.4.0)
 -------------------
 
 - Feature: Add gas station config for all networks

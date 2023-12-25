@@ -1,4 +1,4 @@
-
+2023-12-26 (v.2.4.0)
 -------------------
 
 - Fix: Unable to re-open modal after closing (`WebUser.connecting` wasn't being reset)

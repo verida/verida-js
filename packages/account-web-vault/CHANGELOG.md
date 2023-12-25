@@ -1,3 +1,4 @@
+2023-12-26 (v.2.4.0)
 -------------------
 
 - Fix: Don't inject modal if it is already in the DOM

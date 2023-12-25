@@ -1,4 +1,4 @@
-2023-11-28 (v2.3.4)
+2023-12-26 (v.2.4.0)
 -------------------
 
 - Support `verifyDidControlsDomain()` helper

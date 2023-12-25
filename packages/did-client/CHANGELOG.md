@@ -1,3 +1,4 @@
+2023-12-26 (v.2.4.0)
 -------------------
 
 - Feature: Make `web3config` auto-populate `RPC_URL` and other defaults based on Verida environment
