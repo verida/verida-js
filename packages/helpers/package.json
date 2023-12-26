@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@verida/encryption-utils": "^3.0.0",
-    "@verida/types": "^2.4.0-rc1",
+    "@verida/types": "^3.0.0",
     "axios": "^1.6.2",
     "bs58": "^5.0.0",
     "url": "^0.11.0"

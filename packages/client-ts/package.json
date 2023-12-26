@@ -23,7 +23,7 @@
     "@verida/encryption-utils": "^3.0.0",
     "@verida/keyring": "^3.0.0",
     "@verida/storage-link": "^3.0.0",
-    "@verida/types": "^2.4.0-rc1",
+    "@verida/types": "^3.0.0",
     "@verida/vda-name-client": "^3.0.0",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",

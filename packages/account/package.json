@@ -19,7 +19,7 @@
   "dependencies": {
     "@verida/keyring": "^3.0.0",
     "@verida/storage-link": "^3.0.0",
-    "@verida/types": "^2.4.0-rc1",
+    "@verida/types": "^3.0.0",
     "did-jwt": "^6.11.0",
     "did-resolver": "^4.0.1",
     "lodash": "^4.17.21",

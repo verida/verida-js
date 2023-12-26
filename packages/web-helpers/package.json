@@ -17,7 +17,7 @@
   "dependencies": {
     "@verida/account-web-vault": "^3.0.0",
     "@verida/client-ts": "^3.0.0",
-    "@verida/types": "^2.4.0-rc1"
+    "@verida/types": "^3.0.0"
   },
   "devDependencies": {
     "mocha": "^8.2.1",

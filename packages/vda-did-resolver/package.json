@@ -20,7 +20,7 @@
     "@ethersproject/providers": "^5.7.2",
     "@verida/did-document": "^3.0.0",
     "@verida/encryption-utils": "^3.0.0",
-    "@verida/types": "^2.4.0-rc1",
+    "@verida/types": "^3.0.0",
     "@verida/vda-common": "^3.0.0",
     "@verida/vda-did": "^3.0.0",
     "axios": "1.2.0-alpha.1",

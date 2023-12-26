@@ -26,7 +26,7 @@
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
     "@verida/helpers": "^3.0.0",
-    "@verida/types": "^2.4.0-rc1",
+    "@verida/types": "^3.0.0",
     "@verida/web3": "^3.0.0",
     "axios": "^0.27.2",
     "ethers": "^5.7.0"
