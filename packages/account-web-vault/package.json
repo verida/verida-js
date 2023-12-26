@@ -1,6 +1,6 @@
 {
   "name": "@verida/account-web-vault",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -15,9 +15,9 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@verida/account": "^3.0.0",
+    "@verida/account": "^3.0.1",
     "@verida/encryption-utils": "^3.0.0",
-    "@verida/keyring": "^3.0.0",
+    "@verida/keyring": "^3.0.1",
     "@verida/types": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",

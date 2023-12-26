@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did-resolver",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,11 +18,11 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@verida/did-document": "^3.0.0",
+    "@verida/did-document": "^3.0.1",
     "@verida/encryption-utils": "^3.0.0",
     "@verida/types": "^3.0.0",
     "@verida/vda-common": "^3.0.0",
-    "@verida/vda-did": "^3.0.0",
+    "@verida/vda-did": "^3.0.1",
     "axios": "1.2.0-alpha.1",
     "lodash": "^4.17.21"
   },
