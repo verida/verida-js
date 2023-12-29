@@ -185,10 +185,13 @@ class VeridaOutbox {
     const outboxResponse = await outbox.save(outboxEntry);
 
     // Close the database connection to the other user's inbox
-    // Don't do `await` as there's no need to slow things down
-    inbox.close()
+    await inbox.close()
 
-    return inboxResponse;
+    if (!inboxResponse) {
+      return null
+    }
+
+    return <object> inboxResponse
   }
 
   /**
@@ -199,11 +202,6 @@ class VeridaOutbox {
    * @param {object} config Config to be passed to the dataserver
    */
   private async getInboxDatastore(did: string, config: MessageSendConfig) {
-    const cacheKey = did + config.recipientContextName!;
-    if (this.inboxes[cacheKey]) {
-      return this.inboxes[cacheKey];
-    }
-
     /**
      * Open a database owned by any user
      */
@@ -219,7 +217,6 @@ class VeridaOutbox {
       }
     );
 
-    this.inboxes[cacheKey] = inbox;
     return inbox;
   }
 
