@@ -1,3 +1,9 @@
+2023-12-26 (v.3.0.2)
+-------------------
+
+- Fix: Sending multiple inbox messages to same inbox would throw `database closed` error
+
+
 2023-12-26 (v.3.0.0)
 -------------------
 
