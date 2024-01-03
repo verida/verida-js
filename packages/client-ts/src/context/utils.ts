@@ -37,7 +37,10 @@ export class RecordSignature {
     
         let _data = _.merge({}, data);
     
+        // Don't include signatures or revision in the signature
+        // Revision won't be generated until after the record is saved, so can't include in sig
         delete _data["signatures"];
+        delete _data["_rev"];
         
         if (_data['schema']) {
           _data['schema'] = Schema.getVersionlessSchemaName(_data['schema'])
