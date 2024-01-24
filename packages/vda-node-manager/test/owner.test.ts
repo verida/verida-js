@@ -121,12 +121,12 @@ describe("Verida NodeOwnerApi Test", () => {
             expect(await ownerApi.isStakingRequired() === false, "Set as non-required");
         })
 
-        it("Set withdrawl enabled",async () => {
-            await ownerApi.setWithdrawlEnabled(false);
-            expect(await ownerApi.isWithdrawlEnabled() === false, "Withdrawl disabled");
+        it("Set withdrawal enabled",async () => {
+            await ownerApi.setWithdrawalEnabled(false);
+            expect(await ownerApi.isWithdrawalEnabled() === false, "Withdrawal disabled");
             
-            await ownerApi.setWithdrawlEnabled(true);
-            expect(await ownerApi.isWithdrawlEnabled() === true, "Withdrawl enabled");
+            await ownerApi.setWithdrawalEnabled(true);
+            expect(await ownerApi.isWithdrawalEnabled() === true, "Withdrawal enabled");
         })
     
         it("Update stake per slot",async () => {

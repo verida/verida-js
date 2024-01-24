@@ -346,15 +346,15 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      * Update the status of staking required
      * @param isRequired The new value to be updated
      */
-    public async setWithdrawlEnabled(isEnabled: boolean) {
+    public async setwithdrawalEnabled(isEnabled: boolean) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
-        const response = await this.vdaWeb3Client!.setWithdrawlEnabled(isEnabled);
+        const response = await this.vdaWeb3Client!.setWithdrawalEnabled(isEnabled);
         
         if (response.success !== true) {
-            throw new Error(`Failed to set withdrawl enabled: ${response.reason}`);
+            throw new Error(`Failed to set withdrawal enabled: ${response.reason}`);
         }
 
     }

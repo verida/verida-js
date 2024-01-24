@@ -1118,27 +1118,27 @@ export class VeridaNodeManager {
     }
 
     /**
-     * Returns whether withdrawl enabled
-     * @returns Status of withdrawl enabled
+     * Returns whether withdrawal enabled
+     * @returns Status of withdrawal enabled
      */
-    public async isWithdrawlEnabled() {
+    public async isWithdrawalEnabled() {
         let response;
         try {
             if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.isWithdrawlEnabled();
+                response = await this.vdaWeb3Client.isWithdrawalEnabled();
                 if (response.success !== true) {
                     throw new Error(response.reason);
                 }
 
                 return response.data;
             } else {
-                response = await this.contract!.callStatic.isWithdrawlEnabled();
+                response = await this.contract!.callStatic.isWithdrawalEnabled();
                 return response;
             }
             
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to check withdrawl enabled (${message})`);
+            throw new Error(`Failed to check withdrawal enabled (${message})`);
         }
     }
 }
