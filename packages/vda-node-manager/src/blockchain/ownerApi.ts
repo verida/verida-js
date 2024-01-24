@@ -341,4 +341,21 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
             throw new Error(`Failed to update the description of the reason code: ${response.reason}`);
         }
     }
+
+    /**
+     * Update the status of staking required
+     * @param isRequired The new value to be updated
+     */
+    public async setWithdrawlEnabled(isEnabled: boolean) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.setWithdrawlEnabled(isEnabled);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to set withdrawl enabled: ${response.reason}`);
+        }
+
+    }
 }

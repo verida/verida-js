@@ -63,9 +63,9 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
     "StorageNodeRegistry": {
         mainnet: null,
         "0x89": null,
-        testnet: "0x6253Db2AeE0D329F38FB3A6Dc9b39B6EA0CdA00C",
-        "0x13881": "0x6253Db2AeE0D329F38FB3A6Dc9b39B6EA0CdA00C",
-        devnet: "0x6253Db2AeE0D329F38FB3A6Dc9b39B6EA0CdA00C"
+        testnet: "0x087304220106Dc247226F5921dA0635218907635",
+        "0x13881": "0x087304220106Dc247226F5921dA0635218907635",
+        devnet: "0x087304220106Dc247226F5921dA0635218907635"
     }
 };
 

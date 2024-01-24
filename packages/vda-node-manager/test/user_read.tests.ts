@@ -118,6 +118,11 @@ describe('vda-node-manager read only tests', () => {
                 assert.ok(result !== undefined, 'Get staking required');
             })
 
+            it("isWithdrawlEnabled",async () => {
+                const result = await blockchainApi.isWithdrawlEnabled();
+                assert.ok(result !== undefined, 'Get withdrawl enabled');
+            })
+
             it("getStakePerSlot",async () => {
                 const result = await blockchainApi.getStakePerSlot();
                 assert.ok(typeof(result) === 'object', 'Get stake amount per slot');

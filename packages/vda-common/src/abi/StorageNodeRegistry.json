@@ -874,6 +874,20 @@
     },
     {
       "type": "function",
+      "name": "isWithdrawlEnabled",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "logNodeIssue",
       "constant": false,
       "payable": false,
@@ -910,6 +924,19 @@
         {
           "type": "bool",
           "name": "isRequired"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setWithdrawlEnabled",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bool",
+          "name": "isEnabled"
         }
       ],
       "outputs": []
