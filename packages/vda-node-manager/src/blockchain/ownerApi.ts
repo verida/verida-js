@@ -346,7 +346,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      * Update the status of staking required
      * @param isRequired The new value to be updated
      */
-    public async setwithdrawalEnabled(isEnabled: boolean) {
+    public async setWithdrawalEnabled(isEnabled: boolean) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }

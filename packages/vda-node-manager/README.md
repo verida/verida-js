@@ -194,3 +194,30 @@ Also, this function requires fallback migration proof that is signed by the fall
 const fallbackMigrationProof = '0x...';
 await nodeManager.removeNodeComplete(fallbackMigrationProof);
 ```
+
+## Test
+There are 3 test files in the `test` directory
+```
+owner.test.ts
+user_read.test.ts
+user_write.test.ts
+```
+### Owner feature test
+You can test owner specific features by following command:
+```
+yarn test test/owner.test.ts
+```
+### Read-only functions test
+You can test read-only functions by following command:
+```
+yarn test test/user_read.test.ts
+```
+### Read-write functions test
+You can test all functions by following command:
+```
+yarn test test/user_write.test.ts
+```
+#### **_Caution_**
+To check the `depositToken()` function, transaction sender address should own more than 5000 tokens and approve it to the `StorageNodeRegistry` contract.
+
+Also to check the `depositTokenFromProvider()` function, the provider own more than 5000 tokens and approve it to the `StorageNodeRegistry` contract.

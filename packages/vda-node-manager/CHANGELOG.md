@@ -1,4 +1,12 @@
-2023-12-15 (v1.1.0)
+2024-01-25 (v1.0.0)
+-------------------
+- Enable/disable withdrawal feature added
+- Added `depositTokenFromProvider()` function
+- Added `recipient` parameter in the `withdraw()` and `removeNodeComplete()` functions
+- Test code updated to test with/without token minting operation
+- `ReadMe.md` updated for test
+
+2023-12-15 (v1.0.0)
 -------------------
 - Added following functions to `src/ownerApi.ts`
 ```ts
