@@ -415,8 +415,11 @@ export class VeridaNodeManager {
 
     /**
      * Complete storage node unregisteration
+     * @param fundReleasedTo Address that receives the remaining fund 
+     * @param fallbackMigrationProof A message signed by the `fallbackNode` specified in the 
+     * original `removeNodeStart()` request confirming the migration of any remaining data has been completed.
      */
-    public async removeNodeComplete(fallbackMigrationProof: BytesLike) {
+    public async removeNodeComplete(fundReleasedTo:string, fallbackMigrationProof: BytesLike) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
@@ -428,8 +431,8 @@ export class VeridaNodeManager {
         // Sign the blockchain request as this DID
         const nonce = await this.nonceFN();
         const requestMsg = ethers.utils.solidityPack(
-            ["address", "bytes", "uint"],
-            [this.didAddress, fallbackMigrationProof, nonce]
+            ["address", "address", "bytes", "uint"],
+            [this.didAddress, fundReleasedTo, fallbackMigrationProof, nonce]
         );
         const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
 
@@ -438,6 +441,7 @@ export class VeridaNodeManager {
 
         const response = await this.vdaWeb3Client!.removeNodeComplete(
             this.didAddress,
+            fundReleasedTo,
             fallbackMigrationProof,
             requestSignature,
             requestProof
@@ -874,10 +878,11 @@ export class VeridaNodeManager {
     }
 
     /**
-     * Withdraw amount of tokens to the requestor
+     * Withdraw `amount` of tokens to the `to` address
+     * @param to Recipient address
      * @param amount Token amount to be withdrawn
      */
-    public async withdraw(amount: BigNumberish) {
+    public async withdraw(to:string, amount: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
@@ -889,8 +894,8 @@ export class VeridaNodeManager {
         // Sign the blockchain request as this DID
         const nonce = await this.nonceFN();
         const requestMsg = ethers.utils.solidityPack(
-            ["address", "uint", "uint"],
-            [this.didAddress, amount, nonce]
+            ["address", "address", "uint", "uint"],
+            [this.didAddress, to, amount, nonce]
         );
         const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
 
@@ -899,6 +904,7 @@ export class VeridaNodeManager {
 
         const response = await this.vdaWeb3Client!.withdraw(
             this.didAddress,
+            to,
             amount,
             requestSignature,
             requestProof
@@ -910,7 +916,7 @@ export class VeridaNodeManager {
     }
 
     /**
-     * Depoist verida tokens
+     * Depoist verida tokens from self
      * @param amount Depositing amount of Verida token
      */
     public async depositToken(amount: BigNumberish) {
@@ -925,6 +931,27 @@ export class VeridaNodeManager {
 
         if (response.success !== true) {
             throw new Error(`Failed to deposit token: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Depoist verida tokens from external provider
+     * @param from Wallet or smart contract address that provides tokens
+     * @param amount Depositing amount of Verida token
+     */
+    public async depositTokenFromProvider(from: string, amount: BigNumberish) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+        
+        const response = await this.vdaWeb3Client!.depositTokenFromProvider(
+            this.didAddress,
+            from,
+            amount
+        );
+
+        if (response.success !== true) {
+            throw new Error(`Failed to deposit token from provider: ${response.reason}`);
         }
     }
 
