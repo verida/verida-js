@@ -35,3 +35,15 @@ export async function getSlotCountRange(network: string) {
         'Failed to get slot count range'
     );
 }
+
+/**
+ * Call isWithdrawalEnabled() function of `StorageNodeRegistry` contract
+ * @returns The status of withdrawal enabled
+ */
+export async function isWithdrawalEnabled(network: string) {
+    return await executeFunction(
+        network,
+        'isWithdrawalEnabled',
+        'Failed to check withdrawal enabled'
+    );
+}

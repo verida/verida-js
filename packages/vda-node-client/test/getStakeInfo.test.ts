@@ -1,6 +1,6 @@
 const assert = require("assert");
 import { BigNumber } from 'ethers';
-import { isStakingRequired, getStakePerSlot, getSlotCountRange } from '../src/getStakeInfo';
+import { isStakingRequired, getStakePerSlot, getSlotCountRange, isWithdrawalEnabled } from '../src/getStakeInfo';
 
 const NETWORK = 'testnet';
 
@@ -20,5 +20,10 @@ describe('getNodes test', function() {
     it('getSlotCountRange',async () => {
         const result = await getSlotCountRange(NETWORK);
         assert.equal(typeof(result), 'object', `SlotCountRange is object`);
+    })
+
+    it('isWithdrawalEnabled',async () => {
+        const result = await isWithdrawalEnabled(NETWORK);
+        assert.equal(typeof(result), 'boolean', `isWithdrawalEnabled return boolean`);
     })
 })

@@ -1,3 +1,10 @@
+2024-01-25 (v1.2.0)
+-------------------
+- Added a function
+```ts
+async function isWithdrawalEnabled(network: string)
+```
+
 2023-12-15 (v1.1.0)
 -------------------
 - Updated the code structure
