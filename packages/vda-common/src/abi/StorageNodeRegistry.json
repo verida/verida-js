@@ -664,6 +664,27 @@
     },
     {
       "type": "function",
+      "name": "depositTokenFromProvider",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "address",
+          "name": "from"
+        },
+        {
+          "type": "uint256",
+          "name": "tokenAmount"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "disableReasonCode",
       "constant": false,
       "payable": false,
@@ -874,7 +895,7 @@
     },
     {
       "type": "function",
-      "name": "isWithdrawlEnabled",
+      "name": "isWithdrawalEnabled",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -930,7 +951,7 @@
     },
     {
       "type": "function",
-      "name": "setWithdrawlEnabled",
+      "name": "setWithdrawalEnabled",
       "constant": false,
       "payable": false,
       "inputs": [
@@ -1070,6 +1091,10 @@
         {
           "type": "address",
           "name": "didAddress"
+        },
+        {
+          "type": "address",
+          "name": "to"
         },
         {
           "type": "uint256",
@@ -1802,6 +1827,10 @@
         {
           "type": "address",
           "name": "didAddress"
+        },
+        {
+          "type": "address",
+          "name": "fundReleasedTo"
         },
         {
           "type": "bytes",

@@ -54,18 +54,18 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
         devnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
     },
     "VDARewardContract": {
-        mainnet: "0xBAeEA910f6BBe29Ef33e0051e51dc60f9702B7b9",
-        "0x89": "0xBAeEA910f6BBe29Ef33e0051e51dc60f9702B7b9",
-        testnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
-        "0x13881": "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
-        devnet: "0x5044bba95ad5a526c83086966B00F5ebB47A6673",
+        mainnet: "",
+        "0x89": "",
+        testnet: "0x5A7c6101b79eFf376dDe1518BC227B1269305657",
+        "0x13881": "0x5A7c6101b79eFf376dDe1518BC227B1269305657",
+        devnet: "0x5A7c6101b79eFf376dDe1518BC227B1269305657",
     },
     "StorageNodeRegistry": {
         mainnet: null,
         "0x89": null,
-        testnet: "0x087304220106Dc247226F5921dA0635218907635",
-        "0x13881": "0x087304220106Dc247226F5921dA0635218907635",
-        devnet: "0x087304220106Dc247226F5921dA0635218907635"
+        testnet: "0xDbFa75B77f573677C2b3aA08d016b7E6A2e554C9",
+        "0x13881": "0xDbFa75B77f573677C2b3aA08d016b7E6A2e554C9",
+        devnet: "0xDbFa75B77f573677C2b3aA08d016b7E6A2e554C9"
     }
 };
 
