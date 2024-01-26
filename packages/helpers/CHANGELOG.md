@@ -1,6 +1,7 @@
-2023-11-28 (v2.3.4)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Support `verifyDidControlsDomain()` helper
 
 2023-04-20 (v2.3.0)

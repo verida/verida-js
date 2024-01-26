@@ -1,5 +1,7 @@
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Fix: Don't inject modal if it is already in the DOM
 
 2023-04-20 (v2.3.0)
