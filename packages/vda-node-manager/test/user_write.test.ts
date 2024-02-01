@@ -625,7 +625,7 @@ describe('vda-node-manager read and write tests', () => {
                 assert.ok(excessAmount.eq(orgExcessAmount.add(depositAmount)), "Excess token increased");
 
                 // Check sender's balance decreased
-                const updatedBalance : BigNumber = await tokenAPI.balanceOf(transactionSender.address);
+                const updatedBalance : BigNumber = await tokenAPI.balanceOf(from);
                 assert.ok(updatedBalance.eq(orgBalance.sub(depositAmount)), "Sender balance decreased");
             }
 

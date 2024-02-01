@@ -1,6 +1,7 @@
 import { VdaClientConfig } from '@verida/types'
 import { ethers, BigNumberish } from "ethers";
 import { VeridaNodeManager } from "./userApi";
+import { VdaVerificationUtils } from "@verida/vda-common";
 
 export class VeridaNodeOwnerApi extends VeridaNodeManager {
 
@@ -15,15 +16,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
     public async addTrustedSigner(
         didAddress: string
     ) {
-        if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
-        }
-
-        const response = await this.vdaWeb3Client!.addTrustedSigner(didAddress);
-        
-        if (response.success !== true) {
-            throw new Error(`Failed to add a data center: ${response.reason}`);
-        }
+        await VdaVerificationUtils.addTrustedSigner.call(this, didAddress);
     }
 
     /**
@@ -33,15 +26,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
     public async removeTrustedSigner(
         didAddress: string
     ) {
-        if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
-        }
-
-        const response = await this.vdaWeb3Client!.removeTrustedSigner(didAddress);
-        
-        if (response.success !== true) {
-            throw new Error(`Failed to add a data center: ${response.reason}`);
-        }
+        await VdaVerificationUtils.removeTrustedSigner.call(this, didAddress);
     }
 
     /**
@@ -50,24 +35,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      * @returns true if trusted signer, otherwise false
      */
     public async isTrustedSigner(didAddress: string) {
-        let response;
-        try {
-            if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.isTrustedSigner(didAddress);
-                if (response.success !== true) {
-                    throw new Error(response.reason);
-                }
-
-                return response.data
-            } else {
-                response = await this.contract!.callStatic.isTrustedSigner(didAddress);
-
-                return response;
-            }
-        } catch (err:any ) {
-            const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to check trusted signer (${message})`);
-        }
+        return await VdaVerificationUtils.isTrustedSigner.call(this, didAddress);
     }
     
     /**

@@ -1,3 +1,9 @@
+2024-02-01 (v1.0.0)
+-------------------
+- Update the ownerApi for managing the trusted signers using the `VdaVerificationUtils` of `@verida/vda-common`
+- Fix issue in the `package.json`
+- Fix minor issue in the `user_write.test.ts`
+
 2024-01-25 (v1.0.0)
 -------------------
 - Enable/disable withdrawal feature added
