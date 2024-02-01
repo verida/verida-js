@@ -1,3 +1,7 @@
+2024-02-01 (v2.4.0)
+- Update abi & contract address of `VDA-Reward-Contract`
+- Added `VdaVerificationUtilsClass` in the `verification.ts` that contains functions to manage trusted signers for the verida-js packages.
+
 2023-12-15 (v2.3.8)
 - Update abi & contract address of `StorageNodeRegistry` - diamond
 - Update abi & contract address of `VDA-Reward-Contract`
