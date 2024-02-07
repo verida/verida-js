@@ -1,7 +1,9 @@
-2023-04-20 (v2.3.0)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Update to latest protocol dependencies
+- Fix version of did-jwt-vc
 
 2023-03-27 (v2.2.1)
 -------------------

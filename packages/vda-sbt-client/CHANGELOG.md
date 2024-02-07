@@ -1,6 +1,7 @@
-2023-11-20 (v2.3.9)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Update data type of `tokenID` as `BigNumberish` from `number`
 
 2023-04-27 (v2.3.4)

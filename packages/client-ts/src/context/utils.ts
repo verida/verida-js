@@ -37,14 +37,19 @@ export class RecordSignature {
     
         let _data = _.merge({}, data);
     
+        // Don't include signatures or revision in the signature
+        // Revision won't be generated until after the record is saved, so can't include in sig
         delete _data["signatures"];
+        delete _data["_rev"];
         
         if (_data['schema']) {
           _data['schema'] = Schema.getVersionlessSchemaName(_data['schema'])
         }
     
         const sig = await keyring.sign(_data)
-        if (!data.signatures[signKey.toLowerCase()]) {
+
+        // Create empty signature object if this DID hasn't signed, or if this DID has an old signature format (string, not object)
+        if (!data.signatures[signKey.toLowerCase()] || typeof(data.signatures[signKey.toLowerCase()]) === 'string') {
           data.signatures[signKey.toLowerCase()] = {}
         }
 

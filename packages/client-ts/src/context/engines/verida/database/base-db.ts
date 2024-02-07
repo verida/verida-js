@@ -302,6 +302,12 @@ class BaseDb extends EventEmitter implements IDatabase {
     this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
   }
 
+  // This is called when an endpoint is found to have died
+  public async replaceEndpoint() {
+    this.endpoint = await this.engine.getActiveEndpoint(true, true)
+    this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
+  }
+
   /**
    * Update the users that can access the database
    */

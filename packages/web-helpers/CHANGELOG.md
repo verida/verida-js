@@ -1,6 +1,7 @@
-
+2023-12-26 (v.3.1.0)
 -------------------
 
+- Mainnet release
 - Fix: Unable to re-open modal after closing (`WebUser.connecting` wasn't being reset)
 
 2023-08-22 (v3.0.2)

@@ -1,10 +1,8 @@
-2023-11-21 (v2.5.0)
+2023-12-26 (v.3.0.0)
 -------------------
+
+- Mainnet release
 - Added types for `StorageNode`
-
-2023-11-21 (v2.4.0)
--------------------
-
 - Feature: Added EIP1559 gas configuration to `Web3Interface`
 - Make optional database params, actually optional with typescript
 

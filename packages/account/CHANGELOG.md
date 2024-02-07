@@ -1,6 +1,7 @@
-2023-11-21 (v2.4.0)
+2023-12-26 (v.3.0.0)
 -------------------
 
+- Mainnet release
 - Fix: Account disconnect should be optional, not throw an exception
 
 2023-04-20 (v2.3.0)
