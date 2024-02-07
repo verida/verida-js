@@ -1,3 +1,8 @@
+2024-02-07 (v1.0.0)
+-------------------
+- Version reset as 1.0.0
+- Updates on review
+
 2024-01-25 (v1.2.0)
 -------------------
 - Added a function
@@ -19,8 +24,8 @@ async function getNodeByName(network: string, name: string)
 ```
 - Updated functions
 ```ts
-async function getDataCentersByCountry(network: string, countryCode: string, status?: EnumStatus)
-async function getDataCentersByRegion(network: string, regionCode: string, status?: EnumStatus)
+async function getDataCentresByCountry(network: string, countryCode: string, status?: EnumStatus)
+async function getDataCentresByRegion(network: string, regionCode: string, status?: EnumStatus)
 
 async function getNodesByCountry(network: string, countryCode: string, status?: EnumStatus)
 async function getNodesByRegion(network: string, regionCode: string, status?: EnumStatus)

@@ -1,6 +1,6 @@
 export * from './getBalance'
 export * from './getContractDecimal'
-export * from './getDataCenters'
+export * from './getDataCentres'
 export * from './getLogInfos'
 export * from './getNodes'
 export * from './getStakeInfo'

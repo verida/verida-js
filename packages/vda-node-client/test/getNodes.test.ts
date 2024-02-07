@@ -1,6 +1,6 @@
 const assert = require("assert");
 import { BigNumber, Wallet } from 'ethers';
-import { getNodeByAddress, getNodeByEndpoint, getNodeByName, getNodesByCountry, getNodesByRegion, isRegisteredNodeAddress, isRegisteredNodeEndpoint, isRegisteredNodeName } from '../src/getNodes';
+import { getNodeByAddress, getNodeByEndpoint, getNodeByName, getNodesByCountryCode, getNodesByRegionCode, getNodesByStatus, isRegisteredNodeAddress, isRegisteredNodeEndpoint, isRegisteredNodeName } from '../src/getNodes';
 import { REGISTERED_DIDS, DID_NODE_MAP, REMOVE_START_DIDS } from '@verida/vda-common-test';
 import { EnumStatus } from '@verida/types';
 
@@ -82,7 +82,7 @@ describe('getNodes test', function() {
         assert.equal(typeof(result), 'object', 'Returned a node for registered DID address');
     })
 
-    it('getNodesByCountry',async () => {
+    it('getNodesByCountryCode',async () => {
         const counrtryList: any[] = [];
         DID_NODE_MAP.forEach((node) => {
             counrtryList.push(node.countryCode);
@@ -90,18 +90,18 @@ describe('getNodes test', function() {
         const countries = [...new Set(counrtryList)];
 
         for (let i = 0; i < countries.length; i++) {
-            const result = await getNodesByCountry(NETWORK, countries[i]);
+            const result = await getNodesByCountryCode(NETWORK, countries[i]);
             assert.ok(result.length > 0, "Return 1 or more nodes for registered country code");
         }
     })
 
-    it('getNodesByCountryAndStatus',async () => {
-        const removedCountryCode = (DID_NODE_MAP.get(REMOVE_START_DIDS[0].address)).countryCode;
-        const result = await getNodesByCountry(NETWORK, removedCountryCode, EnumStatus.removing);
+    it('getNodesByCountryCodeAndStatus',async () => {
+        const removingCountryCode = (DID_NODE_MAP.get(REMOVE_START_DIDS[0].address)).countryCode;
+        const result = await getNodesByCountryCode(NETWORK, removingCountryCode, EnumStatus.removing);
         assert.ok(result.length > 0, "Return 1 or more removing nodes for registered country code");
     })
 
-    it('getNodesByRegion',async () => {
+    it('getNodesByRegionCode',async () => {
         const regionList: any[] = [];
         DID_NODE_MAP.forEach((node) => {
             regionList.push(node.regionCode);
@@ -109,15 +109,26 @@ describe('getNodes test', function() {
         const regions = [...new Set(regionList)];
 
         for (let i = 0; i < regions.length; i++) {
-            const result = await getNodesByRegion(NETWORK, regions[i]);
+            const result = await getNodesByRegionCode(NETWORK, regions[i]);
             assert.ok(result.length > 0, "Return 1 or more nodes for registered region code");
         }
     })
 
-    it('getNodesByCountryAndStatus',async () => {
-        const removedRegioinCode = (DID_NODE_MAP.get(REMOVE_START_DIDS[0].address)).regionCode;
-        const result = await getNodesByRegion(NETWORK, removedRegioinCode, EnumStatus.removing);
+    it('getNodesByRegionCodeAndStatus',async () => {
+        const removingRegioinCode = (DID_NODE_MAP.get(REMOVE_START_DIDS[0].address)).regionCode;
+        const result = await getNodesByRegionCode(NETWORK, removingRegioinCode, EnumStatus.removing);
         assert.ok(result.length > 0, "Return 1 or more removing nodes for registered country code");
+    })
+
+    it("getNodesByStatus", async () => {
+        let result = await getNodesByStatus(NETWORK, EnumStatus.active);
+        assert.ok(result.length > 0, "Return 1 or more active nodes");
+
+        result = await getNodesByStatus(NETWORK, EnumStatus.removing);
+        assert.ok(result.length > 0, "Return 1 or more pending removal nodes");
+
+        result = await getNodesByStatus(NETWORK, EnumStatus.removed);
+        assert.ok(result.length >= 0, "Return 0 or more active nodes");
     })
 
 })

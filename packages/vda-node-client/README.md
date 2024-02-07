@@ -1,6 +1,6 @@
 
 # VDA Node Client
-A client library that read nodat & datacenter information.
+A client library that read nodat & datacentre information.
 This library calls only read functions of `vda-node-manager` package.
 
 ## Installation
@@ -20,13 +20,13 @@ async function getContractDecimal(network: string): Promise<number>
 ```ts
 async function getVDATokenAddress(network: string): Promise<string>
 ```
-#### *Data Centers*
+#### *Data Centres*
 ```ts
-async function isRegisteredDataCenterName(network: string, name: string)
-async function getDataCenters(network: string, ids: BigNumberish[])
-async function getDataCentersByName(network: string, names: string[])
-async function getDataCentersByCountry(network: string, countryCode: string, status?: EnumStatus)
-async function getDataCentersByRegion(network: string, regionCode: string, status?: EnumStatus)
+async function isRegisteredDataCentreName(network: string, name: string)
+async function getDataCentres(network: string, ids: BigNumberish[])
+async function getDataCentresByName(network: string, names: string[])
+async function getDataCentresByCountry(network: string, countryCode: string, status?: EnumStatus)
+async function getDataCentresByRegion(network: string, regionCode: string, status?: EnumStatus)
 ```
 #### *Storage Node*
 ```ts

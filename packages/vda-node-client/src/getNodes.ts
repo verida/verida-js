@@ -97,21 +97,21 @@ export async function getNodeByEndpoint(network: string, endpointUri: string) {
  * @param countryCode Country code of nodes
  * @param status Status of nodes
  */
-export async function getNodesByCountry(
+export async function getNodesByCountryCode(
     network: string, 
     countryCode: string, 
     status?: EnumStatus) {
     if (status === undefined) {
         return await executeFunction(
             network,
-            'getNodesByCountry',
+            'getNodesByCountryCode',
             'Failed to get nodes by country',
             countryCode
         );
     } else {
         return await executeFunction(
             network,
-            'getNodesByCountryAndStatus',
+            'getNodesByCountryCodeAndStatus',
             'Failed to get nodes by country and status',
             countryCode,
             status
@@ -125,24 +125,40 @@ export async function getNodesByCountry(
  * @param regionCode Region code of nodes
  * @param status Status of nodes
  */
-export async function getNodesByRegion(
+export async function getNodesByRegionCode(
     network: string, 
     regionCode: string, 
     status?: EnumStatus) {
     if (status === undefined) {
         return await executeFunction(
             network,
-            'getNodesByRegion',
+            'getNodesByRegionCode',
             'Failed to get nodes by region',
             regionCode
         );
     } else {
         return await executeFunction(
             network,
-            'getNodesByRegionAndStatus',
+            'getNodesByRegionCodeAndStatus',
             'Failed to get nodes by region and status',
             regionCode,
             status
         );
     }
+}
+
+/**
+ * Get nodes by status
+ * @param network Target network
+ * @param status Status of nodes
+ */
+export async function getNodesByStatus(
+    network: string, 
+    status: EnumStatus) {
+    return await executeFunction(
+        network,
+        'getNodesByStatus',
+        'Failed to get nodes by status',
+        status
+    );
 }
