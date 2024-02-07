@@ -205,7 +205,7 @@
     },
     {
       "type": "function",
-      "name": "addDataCenter",
+      "name": "addDataCentre",
       "constant": false,
       "payable": false,
       "inputs": [
@@ -245,7 +245,117 @@
     },
     {
       "type": "function",
-      "name": "getDataCenters",
+      "name": "getDataCentresByCountryCode",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "countryCode"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresByCountryCodeAndStatus",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "countryCode"
+        },
+        {
+          "type": "uint8",
+          "name": "status"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresById",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -298,117 +408,7 @@
     },
     {
       "type": "function",
-      "name": "getDataCentersByCountry",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        {
-          "type": "string",
-          "name": "countryCode"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "tuple[]",
-          "name": "",
-          "components": [
-            {
-              "type": "uint256",
-              "name": "id"
-            },
-            {
-              "type": "string",
-              "name": "name"
-            },
-            {
-              "type": "string",
-              "name": "countryCode"
-            },
-            {
-              "type": "string",
-              "name": "regionCode"
-            },
-            {
-              "type": "int256",
-              "name": "lat"
-            },
-            {
-              "type": "int256",
-              "name": "long"
-            },
-            {
-              "type": "uint256",
-              "name": "nodeCount"
-            },
-            {
-              "type": "uint8",
-              "name": "status"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "function",
-      "name": "getDataCentersByCountryAndStatus",
-      "constant": true,
-      "stateMutability": "view",
-      "payable": false,
-      "inputs": [
-        {
-          "type": "string",
-          "name": "countryCode"
-        },
-        {
-          "type": "uint8",
-          "name": "status"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "tuple[]",
-          "name": "",
-          "components": [
-            {
-              "type": "uint256",
-              "name": "id"
-            },
-            {
-              "type": "string",
-              "name": "name"
-            },
-            {
-              "type": "string",
-              "name": "countryCode"
-            },
-            {
-              "type": "string",
-              "name": "regionCode"
-            },
-            {
-              "type": "int256",
-              "name": "lat"
-            },
-            {
-              "type": "int256",
-              "name": "long"
-            },
-            {
-              "type": "uint256",
-              "name": "nodeCount"
-            },
-            {
-              "type": "uint8",
-              "name": "status"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "function",
-      "name": "getDataCentersByName",
+      "name": "getDataCentresByName",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -461,7 +461,7 @@
     },
     {
       "type": "function",
-      "name": "getDataCentersByRegion",
+      "name": "getDataCentresByRegionCode",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -514,7 +514,7 @@
     },
     {
       "type": "function",
-      "name": "getDataCentersByRegionAndStatus",
+      "name": "getDataCentresByRegionCodeAndStatus",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -571,7 +571,7 @@
     },
     {
       "type": "function",
-      "name": "isRegisteredDataCenterName",
+      "name": "isRegisteredDataCentreName",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -590,20 +590,20 @@
     },
     {
       "type": "function",
-      "name": "removeDataCenter",
+      "name": "removeDataCentre",
       "constant": false,
       "payable": false,
       "inputs": [
         {
           "type": "uint256",
-          "name": "datacenterId"
+          "name": "datacentreId"
         }
       ],
       "outputs": []
     },
     {
       "type": "function",
-      "name": "removeDataCenterByName",
+      "name": "removeDataCentreByName",
       "constant": false,
       "payable": false,
       "inputs": [
@@ -1160,7 +1160,7 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
             },
             {
               "type": "int256",
@@ -1234,7 +1234,7 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
             },
             {
               "type": "int256",
@@ -1311,7 +1311,7 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
             },
             {
               "type": "int256",
@@ -1388,7 +1388,7 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
             },
             {
               "type": "int256",
@@ -1428,7 +1428,7 @@
     },
     {
       "type": "function",
-      "name": "getNodesByCountry",
+      "name": "getNodesByCountryCode",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -1465,7 +1465,7 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
             },
             {
               "type": "int256",
@@ -1505,7 +1505,7 @@
     },
     {
       "type": "function",
-      "name": "getNodesByCountryAndStatus",
+      "name": "getNodesByCountryCodeAndStatus",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -1546,7 +1546,7 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
             },
             {
               "type": "int256",
@@ -1586,7 +1586,7 @@
     },
     {
       "type": "function",
-      "name": "getNodesByRegion",
+      "name": "getNodesByRegionCode",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -1623,7 +1623,7 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
             },
             {
               "type": "int256",
@@ -1663,7 +1663,7 @@
     },
     {
       "type": "function",
-      "name": "getNodesByRegionAndStatus",
+      "name": "getNodesByRegionCodeAndStatus",
       "constant": true,
       "stateMutability": "view",
       "payable": false,
@@ -1704,7 +1704,84 @@
             },
             {
               "type": "uint256",
-              "name": "datacenterId"
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodesByStatus",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint8",
+          "name": "status"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
             },
             {
               "type": "int256",
