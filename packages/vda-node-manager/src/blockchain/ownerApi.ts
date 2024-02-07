@@ -39,14 +39,14 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
     }
     
     /**
-     * Add a data center to the network.
-     * @param name Data center name
+     * Add a data centre to the network.
+     * @param name Data centre name
      * @param countryCode Unique two-character string code
      * @param regionCode Unique region string code
      * @param lat Latitude value. [-90, 90]
      * @param long Longitude value. [-180, 180]
      */
-    public async addDataCenter(
+    public async addDataCentre(
         name: string,
         countryCode: string,
         regionCode: string,
@@ -58,7 +58,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
-        const response = await this.vdaWeb3Client!.addDataCenter({
+        const response = await this.vdaWeb3Client!.addDataCentre({
             name,
             countryCode,
             regionCode,
@@ -67,41 +67,41 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
         });
         
         if (response.success !== true) {
-            throw new Error(`Failed to add a data center: ${response.reason}`);
+            throw new Error(`Failed to add a data centre: ${response.reason}`);
         }
 
     }
 
     /**
-     * Remove a data center by id
-     * @param datacenterId datacenterId created by `addDataCenter()` function
+     * Remove a data centre by id
+     * @param datacentreId datacentreId created by `addDataCentre()` function
      */
-    public async removeDataCenter(datacenterId: BigNumberish) {
+    public async removeDataCentre(datacentreId: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
-        const response = await this.vdaWeb3Client!.removeDataCenter(datacenterId);
+        const response = await this.vdaWeb3Client!.removeDataCentre(datacentreId);
         
         if (response.success !== true) {
-            throw new Error(`Failed to remove a data center: ${response.reason}`);
+            throw new Error(`Failed to remove a data centre: ${response.reason}`);
         }
 
     }
 
     /**
-     * Remove a data center by name
-     * @param name datacenter name to be removed
+     * Remove a data centre by name
+     * @param name datacentre name to be removed
      */
-    public async removeDataCenterByName(name: string) {
+    public async removeDataCentreByName(name: string) {
         if (this.readOnly || !this.config.signKey) {
             throw new Error(`Unable to submit to blockchain. In read only mode.`)
         }
 
-        const response = await this.vdaWeb3Client!.removeDataCenterByName(name);
+        const response = await this.vdaWeb3Client!.removeDataCentreByName(name);
         
         if (response.success !== true) {
-            throw new Error(`Failed to remove a data center by name: ${response.reason}`);
+            throw new Error(`Failed to remove a data centre by name: ${response.reason}`);
         }
 
     }

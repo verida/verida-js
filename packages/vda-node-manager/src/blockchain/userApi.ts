@@ -15,7 +15,7 @@ export interface IStorageNode {
     endpointUri: string;
     countryCode: string;
     regionCode: string;
-    datacenterId: BigNumberish;
+    datacentreId: BigNumberish;
     lat: number;
     long: number;
     slotCount: BigNumberish,
@@ -125,7 +125,7 @@ export class VeridaNodeManager {
                 }
             } catch (err:any ) {
                 const message = err.reason ? err.reason : err.message;
-                throw new Error(`Failed to get datacenters by country (${message})`);
+                throw new Error(`Failed to get datacentres by country (${message})`);
             }
         }
 
@@ -158,96 +158,96 @@ export class VeridaNodeManager {
     }
 
     /**
-     * Check whether data center name is registered before
-     * @param name Datacenter name to be checked
-     * @returns `true` if datacenter name exist, otherwise `false`
+     * Check whether data centre name is registered before
+     * @param name Datacentre name to be checked
+     * @returns `true` if datacentre name exist, otherwise `false`
      */
-    public async isRegisteredDataCenterName(name: string): Promise<boolean> {
+    public async isRegisteredDataCentreName(name: string): Promise<boolean> {
         let response;
         try {
             if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.isRegisteredDataCenterName(name);
+                response = await this.vdaWeb3Client.isRegisteredDataCentreName(name);
                 if (response.success !== true) {
                     throw new Error(response.reason);
                 }
 
                 return response.data
             } else {
-                response = await this.contract!.callStatic.isRegisteredDataCenterName(name);
+                response = await this.contract!.callStatic.isRegisteredDataCentreName(name);
 
                 return response;
             }
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to check datacenter name (${message})`);
+            throw new Error(`Failed to check datacentre name (${message})`);
         }
     }
 
     /**
-     * Return an array of `Datacenter` structs for given array of datacenterIds
-     * @param ids Array of datacenterIds
-     * @returns Array of Datacenters
+     * Return an array of `Datacentre` structs for given array of datacentreIds
+     * @param ids Array of datacentreIds
+     * @returns Array of Datacentres
      */
-    public async getDataCenters(ids: BigNumberish[]) {
+    public async getDataCentresById(ids: BigNumberish[]) {
         let response;
         try {
             if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.getDataCenters(ids);
+                response = await this.vdaWeb3Client.getDataCentresById(ids);
                 if (response.success !== true) {
                     throw new Error(response.reason);
                 }
 
                 return response.data
             } else {
-                response = await this.contract!.callStatic.getDataCenters(ids);
+                response = await this.contract!.callStatic.getDataCentresById(ids);
 
                 return response;
             }
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to get datacenters (${message})`);
+            throw new Error(`Failed to get datacentres (${message})`);
         }
     }
 
     /**
-     * Return a `Datacenter` struct matched to the given name
-     * @param names Array of datacenter name
+     * Return a `Datacentre` struct matched to the given name
+     * @param names Array of datacentre name
      * @returns `undefined` if not exist
      */
-    public async getDataCentersByName(names: string[]) {
+    public async getDataCentresByName(names: string[]) {
         let response;
         try {
             if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.getDataCentersByName(names);
+                response = await this.vdaWeb3Client.getDataCentresByName(names);
                 if (response.success !== true) {
                     throw new Error(response.reason);
                 }
 
                 return response.data
             } else {
-                response = await this.contract!.callStatic.getDataCentersByName(names);
+                response = await this.contract!.callStatic.getDataCentresByName(names);
 
                 return response;
             }
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to get datacenters by name (${message})`);
+            throw new Error(`Failed to get datacentres by name (${message})`);
         }
     }
 
     /**
-     * Return an array of `Datacenter` structs for country code
+     * Return an array of `Datacentre` structs for country code
      * @param countryCode Unique two-character string code
-     * @returns Array of Datacenters
+     * @returns Array of Datacentres
      */
-    public async getDataCentersByCountry(countryCode: string, status?: EnumStatus) {
+    public async getDataCentresByCountryCode(countryCode: string, status?: EnumStatus) {
         let response;
         try {
             if (this.vdaWeb3Client) {
                 if (status === undefined) {
-                    response = await this.vdaWeb3Client.getDataCentersByCountry(countryCode);
+                    response = await this.vdaWeb3Client.getDataCentresByCountryCode(countryCode);
                 } else {
-                    response = await this.vdaWeb3Client.getDataCentersByCountryAndStatus(countryCode, status);
+                    response = await this.vdaWeb3Client.getDataCentresByCountryCodeAndStatus(countryCode, status);
                 }
                 
                 if (response.success !== true) {
@@ -257,32 +257,32 @@ export class VeridaNodeManager {
                 return response.data
             } else {
                 if (status === undefined) {
-                    response = await this.contract!.callStatic.getDataCentersByCountry(countryCode);
+                    response = await this.contract!.callStatic.getDataCentresByCountryCode(countryCode);
                 } else {
-                    response = await this.contract!.callStatic.getDataCentersByCountryAndStatus(countryCode, status);
+                    response = await this.contract!.callStatic.getDataCentresByCountryCodeAndStatus(countryCode, status);
                 }
 
                 return response;
             }
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to get datacenters by country (${message})`);
+            throw new Error(`Failed to get datacentres by country code (${message})`);
         }
     }
 
     /**
-     * Return an array of `Datacenter` structs for region code
+     * Return an array of `Datacentre` structs for region code
      * @param regionCode Unique region string code
-     * @returns Array of Datacenters
+     * @returns Array of Datacentres
      */
-    public async getDataCentersByRegion(regionCode: string, status?: EnumStatus) {
+    public async getDataCentresByRegionCode(regionCode: string, status?: EnumStatus) {
         let response;
         try {
             if (this.vdaWeb3Client) {
                 if (status === undefined) {
-                    response = await this.vdaWeb3Client.getDataCentersByRegion(regionCode);
+                    response = await this.vdaWeb3Client.getDataCentresByRegionCode(regionCode);
                 } else {
-                    response = await this.vdaWeb3Client.getDataCentersByRegionAndStatus(regionCode, status);
+                    response = await this.vdaWeb3Client.getDataCentresByRegionCodeAndStatus(regionCode, status);
                 }
                 
                 if (response.success !== true) {
@@ -292,16 +292,16 @@ export class VeridaNodeManager {
                 return response.data
             } else {
                 if (status === undefined) {
-                    response = await this.contract!.callStatic.getDataCentersByRegion(regionCode);
+                    response = await this.contract!.callStatic.getDataCentresByRegionCode(regionCode);
                 } else {
-                    response = await this.contract!.callStatic.getDataCentersByRegionAndStatus(regionCode, status);
+                    response = await this.contract!.callStatic.getDataCentresByRegionCodeAndStatus(regionCode, status);
                 }
 
                 return response;
             }
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
-            throw new Error(`Failed to get datacenters by region (${message})`);
+            throw new Error(`Failed to get datacentres by region code (${message})`);
         }
     }
 
@@ -310,7 +310,7 @@ export class VeridaNodeManager {
      * @param endpointUri The storage node endpoint
      * @param countryCode Unique two-character string code
      * @param regionCode Unique region string code
-     * @param datacenterId Unique datacenter identifier registered by contract owner
+     * @param datacentreId Unique datacentre identifier registered by contract owner
      * @param lat Latitude
      * @param long Longitude
      * @param authSignature Signature signed by a trusted signer
@@ -320,7 +320,7 @@ export class VeridaNodeManager {
         endpointUri: string,
         countryCode: string,
         regionCode: string,
-        datacenterId: BigNumberish,
+        datacentreId: BigNumberish,
         latVal: number,
         longVal: number,
         slotCount: BigNumberish,
@@ -345,7 +345,7 @@ export class VeridaNodeManager {
         const nonce = await this.nonceFN();
         const requestMsg = ethers.utils.solidityPack(
             ["string", "address", "string", "uint", "int", "int", "uint", "bool", "uint"],
-            [name, this.didAddress, `${endpointUri}${countryCode}${regionCode}`, datacenterId, lat, long, slotCount, acceptFallbackSlots, nonce]
+            [name, this.didAddress, `${endpointUri}${countryCode}${regionCode}`, datacentreId, lat, long, slotCount, acceptFallbackSlots, nonce]
         );
         const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
 
@@ -359,7 +359,7 @@ export class VeridaNodeManager {
                 endpointUri,
                 countryCode,
                 regionCode,
-                datacenterId,
+                datacentreId,
                 lat,
                 long,
                 slotCount,
@@ -548,7 +548,7 @@ export class VeridaNodeManager {
             endpointUri: data.endpointUri,
             countryCode: data.countryCode,
             regionCode: data.regionCode,
-            datacenterId: data.datacenterId.toNumber(),
+            datacentreId: data.datacentreId.toNumber(),
             lat: Number(ethers.utils.formatUnits(data.lat, decimal)),
             long: Number(ethers.utils.formatUnits(data.long, decimal)),
             slotCount: data.slotCount,
@@ -669,14 +669,14 @@ export class VeridaNodeManager {
      * @param countryCode Unique two-character string code
      * @returns An array of `Storagenode` structs
      */
-    public async getNodesByCountry(countryCode: string, status?: EnumStatus) {
+    public async getNodesByCountryCode(countryCode: string, status?: EnumStatus) {
         let response;
         try {
             if (this.vdaWeb3Client) {
                 if (status === undefined) {
-                    response = await this.vdaWeb3Client.getNodesByCountry(countryCode);
+                    response = await this.vdaWeb3Client.getNodesByCountryCode(countryCode);
                 } else {
-                    response = await this.vdaWeb3Client.getNodesByCountryAndStatus(countryCode, status);
+                    response = await this.vdaWeb3Client.getNodesByCountryCodeAndStatus(countryCode, status);
                 }
                 
                 if (response.success !== true) {
@@ -688,9 +688,9 @@ export class VeridaNodeManager {
                 );
             } else {
                 if (status === undefined) {
-                    response = await this.contract!.callStatic.getNodesByCountry(countryCode);
+                    response = await this.contract!.callStatic.getNodesByCountryCode(countryCode);
                 } else {
-                    response = await this.contract!.callStatic.getNodesByCountryAndStatus(countryCode, status);
+                    response = await this.contract!.callStatic.getNodesByCountryCodeAndStatus(countryCode, status);
                 }
                 
                 return await Promise.all(
@@ -708,14 +708,14 @@ export class VeridaNodeManager {
      * @param regionCode Unique region string code
      * @returns An array of `Storagenode` structs
      */
-    public async getNodesByRegion(regionCode: string, status?: EnumStatus) {
+    public async getNodesByRegionCode(regionCode: string, status?: EnumStatus) {
         let response;
         try {
             if (this.vdaWeb3Client) {
                 if (status === undefined) {
-                    response = await this.vdaWeb3Client.getNodesByRegion(regionCode);
+                    response = await this.vdaWeb3Client.getNodesByRegionCode(regionCode);
                 } else {
-                    response = await this.vdaWeb3Client.getNodesByRegionAndStatus(regionCode, status);
+                    response = await this.vdaWeb3Client.getNodesByRegionCodeAndStatus(regionCode, status);
                 }
                 
                 if (response.success !== true) {
@@ -727,9 +727,9 @@ export class VeridaNodeManager {
                 );
             } else {
                 if (status === undefined) {
-                    response = await this.contract!.callStatic.getNodesByRegion(regionCode);
+                    response = await this.contract!.callStatic.getNodesByRegionCode(regionCode);
                 } else {
-                    response = await this.contract!.callStatic.getNodesByRegionAndStatus(regionCode, status);
+                    response = await this.contract!.callStatic.getNodesByRegionCodeAndStatus(regionCode, status);
                 }
 
                 return await Promise.all(
@@ -739,6 +739,37 @@ export class VeridaNodeManager {
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
             throw new Error(`Failed to get nodes by region (${message})`);
+        }
+    }
+
+    /**
+     * Return an array of `Storagenode` structs for specified status
+     * @param status Status of targeting storage nodes
+     * @returns An array of `Storagenode` structs
+     */
+    public async getNodesByStatus(status: EnumStatus) {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getNodesByStatus(status);
+                
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return await Promise.all(
+                    response.data.map(async (item: any) => await this.standardizeNode(item))
+                );
+            } else {
+                response = await this.contract!.callStatic.getNodesByStatus(status);
+
+                return await Promise.all(
+                    response.map(async (item: any) => await this.standardizeNode(item))
+                );
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get nodes by status (${message})`);
         }
     }
 
@@ -916,7 +947,7 @@ export class VeridaNodeManager {
     }
 
     /**
-     * Depoist verida tokens from self
+     * Deposit verida tokens from self
      * @param amount Depositing amount of Verida token
      */
     public async depositToken(amount: BigNumberish) {
@@ -935,7 +966,7 @@ export class VeridaNodeManager {
     }
 
     /**
-     * Depoist verida tokens from external provider
+     * Deposit verida tokens from external provider
      * @param from Wallet or smart contract address that provides tokens
      * @param amount Depositing amount of Verida token
      */

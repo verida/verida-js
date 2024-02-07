@@ -1,7 +1,7 @@
 import { ethers, BigNumber, Wallet, BigNumberish, BytesLike } from 'ethers';
 import { VeridaNodeOwnerApi, VeridaNodeManager } from '../src';
 import { EnvironmentType, EnumStatus } from "@verida/types";
-import { TRUSTED_SIGNER, REGISTERED_DATACENTERS, DID_NODE_MAP, REGISTERED_DIDS, REMOVED_DATACENTERS, FALLBACK_DIDS, REMOVE_START_DIDS } from "@verida/vda-common-test"
+import { TRUSTED_SIGNER, REGISTERED_DATACENTRES, DID_NODE_MAP, REGISTERED_DIDS, REMOVED_DATACENTRES, FALLBACK_DIDS, REMOVE_START_DIDS } from "@verida/vda-common-test"
 import EncryptionUtils from "@verida/encryption-utils";
 
 const CONTRACT_DECIMAL = 9;
@@ -86,24 +86,24 @@ export const getFallbackMigrationProof = (nodeAddress: string, fallbackNodeAddre
 }
 
 /**
- * Add data centers if not registered yet
+ * Add data centres if not registered yet
  * @param ownerApi Owenr API
- * @param dataCenters Array of data centers
+ * @param dataCentres Array of data centres
  */
-async function checkAndAddDataCenters(ownerApi : VeridaNodeOwnerApi, dataCenters: any[]) : Promise<string[]> {
+async function checkAndAddDataCentres(ownerApi : VeridaNodeOwnerApi, dataCentres: any[]) : Promise<string[]> {
     const names : string[] = [];
-    for (let i = 0; i < dataCenters.length; i++) {
-        let result = await ownerApi.isRegisteredDataCenterName(dataCenters[i].name);
+    for (let i = 0; i < dataCentres.length; i++) {
+        let result = await ownerApi.isRegisteredDataCentreName(dataCentres[i].name);
         if (result === false) {
-            await ownerApi.addDataCenter(
-                dataCenters[i].name,
-                dataCenters[i].countryCode,
-                dataCenters[i].regionCode,
-                dataCenters[i].lat,
-                dataCenters[i].long
+            await ownerApi.addDataCentre(
+                dataCentres[i].name,
+                dataCentres[i].countryCode,
+                dataCentres[i].regionCode,
+                dataCentres[i].lat,
+                dataCentres[i].long
             );
         }
-        names.push(dataCenters[i].name);
+        names.push(dataCentres[i].name);
     }
     return names
 }
@@ -132,7 +132,7 @@ async function checkAndAddNodes(configuration : Record<string, any>, nodes: any[
                 NODE_DATA.endpointUri,
                 NODE_DATA.countryCode,
                 NODE_DATA.regionCode,
-                NODE_DATA.datacenterId,
+                NODE_DATA.datacentreId,
                 NODE_DATA.lat,
                 NODE_DATA.long,
                 NODE_DATA.slotCount,
@@ -189,30 +189,30 @@ export async function addInitialData (
     }
     console.log("### Trusted signer added");
 
-    // Check & add data centers if not added
-    let DATA_CENTER_IDS : BigNumber[];
+    // Check & add data centres if not added
+    let DATA_CENTRE_IDS : BigNumber[];
     try {
-        // Add registered data centers
-        const names = await checkAndAddDataCenters(ownerApi, REGISTERED_DATACENTERS);
+        // Add registered data centres
+        const names = await checkAndAddDataCentres(ownerApi, REGISTERED_DATACENTRES);
         
-        // Add and remove datacenters for test
-        await checkAndAddDataCenters(ownerApi, REMOVED_DATACENTERS);
+        // Add and remove datacentres for test
+        await checkAndAddDataCentres(ownerApi, REMOVED_DATACENTRES);
 
-        const removeNames = REMOVED_DATACENTERS.map(item => item.name);
-        const removeDataCenters = await ownerApi.getDataCentersByName(removeNames);
-        for (let i = 0; i < removeDataCenters.length; i++) {
-            if (removeDataCenters[i].status === EnumStatus.active) {
-                await ownerApi.removeDataCenterByName(removeDataCenters[i].name);
+        const removeNames = REMOVED_DATACENTRES.map(item => item.name);
+        const removeDataCentres = await ownerApi.getDataCentresByName(removeNames);
+        for (let i = 0; i < removeDataCentres.length; i++) {
+            if (removeDataCentres[i].status === EnumStatus.active) {
+                await ownerApi.removeDataCentreByName(removeDataCentres[i].name);
             }
         }
 
-        // Get IDs of registered data centers
-        DATA_CENTER_IDS = await ownerApi.getDataCentersByName(names);
-        DATA_CENTER_IDS = DATA_CENTER_IDS.map(item => item["id"]);
+        // Get IDs of registered data centres
+        DATA_CENTRE_IDS = await ownerApi.getDataCentresByName(names);
+        DATA_CENTRE_IDS = DATA_CENTRE_IDS.map(item => item["id"]);
     } catch (err) {
-        throw new Error(`Failed to add data centers ${err}`);
+        throw new Error(`Failed to add data centres ${err}`);
     }
-    console.log("### Data centers are added")
+    console.log("### Data centres are added")
 
     // Check & add nodes
     await checkAndAddNodes(configuration, REGISTERED_DIDS);
@@ -226,7 +226,7 @@ export async function addInitialData (
     await CheckAndRemoveNodes(configuration, REMOVE_START_DIDS, unregisterTime, fallbackInfo);
     console.log("### Nodes are added");
 
-    return DATA_CENTER_IDS;
+    return DATA_CENTRE_IDS;
 }
 
 export const compareNodeData = (org: any, result: any) => {
@@ -237,7 +237,7 @@ export const compareNodeData = (org: any, result: any) => {
             org.endpointUri === result.endpointUri &&
             org.countryCode === result.countryCode && 
             org.regionCode === result.regionCode &&
-            org.datacenterId === result.datacenterId &&
+            org.datacentreId === result.datacentreId &&
             org.lat === result.lat &&
             org.long === result.long &&
             // org.slotCount === result.slotCount &&

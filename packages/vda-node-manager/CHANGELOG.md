@@ -1,3 +1,9 @@
+2024-02-07 (V1.0.0)
+-------------------
+- Replace the spelling of `datacenter` to `datacentre`
+- Add function `getNodesByStatus()`
+- Update function names on review
+
 2024-02-01 (v1.0.0)
 -------------------
 - Update the ownerApi for managing the trusted signers using the `VdaVerificationUtils` of `@verida/vda-common`
@@ -32,9 +38,9 @@ public async getReasonCodeList()
 ```
 - Updated following functions in `src/userApi.ts`
 ```ts
-public async isRegisteredDataCenterName(name: string)
-public async getDataCentersByCountry(countryCode: string, status?: EnumStatus)
-public async getDataCentersByRegion(regionCode: string, status?: EnumStatus)
+public async isRegisteredDataCentreName(name: string)
+public async getDataCentresByCountry(countryCode: string, status?: EnumStatus)
+public async getDataCentresByRegion(regionCode: string, status?: EnumStatus)
 public async addNode(...)
 public async removeNodeStart(unregisterDateTime: BigNumberish, fallbackInfo: IFallbackNodeInfo)
 public async removeNodeComplete(fallbackMigrationProof: BytesLike)

@@ -36,12 +36,12 @@ const createNodeManagerAPI = (did: any) => {
 }
 
 describe("Verida NodeOwnerApi Test", () => {
-    let DATA_CENTER_IDS : BigNumberish[] = [];
+    let DATA_CENTRE_IDS : BigNumberish[] = [];
     const ownerApi = createOwnerAPI(ownerDID);
     let tokenAPI: ERC20Manager;
     
     before(async () => {
-        DATA_CENTER_IDS = await addInitialData(configuration, ownerApi);
+        DATA_CENTRE_IDS = await addInitialData(configuration, ownerApi);
         const TOKEN_ADDRESS = await ownerApi.getVDATokenAddress();
 
         tokenAPI = new ERC20Manager(
@@ -52,63 +52,63 @@ describe("Verida NodeOwnerApi Test", () => {
     
     })
 
-    describe("Data centers", () => {
-        const dataCenter = {
-            name: "center-owner-test" + Wallet.createRandom().address.toLowerCase(),
+    describe("Data centres", () => {
+        const dataCentre = {
+            name: "centre-owner-test" + Wallet.createRandom().address.toLowerCase(),
             countryCode: "cl", 
             regionCode: "south america",
             lat: 0, 
             long: 0
         }
         
-        it("Add data center",async () => {
-            expect((await ownerApi.isRegisteredDataCenterName(dataCenter.name)) === false, "Data center not exist");
+        it("Add data centre",async () => {
+            expect((await ownerApi.isRegisteredDataCentreName(dataCentre.name)) === false, "Data centre not exist");
             
-            await ownerApi.addDataCenter(
-                dataCenter.name,
-                dataCenter.countryCode,
-                dataCenter.regionCode,
-                dataCenter.lat,
-                dataCenter.long
+            await ownerApi.addDataCentre(
+                dataCentre.name,
+                dataCentre.countryCode,
+                dataCentre.regionCode,
+                dataCentre.lat,
+                dataCentre.long
             );
 
             // await sleep(500);
             
-            expect((await ownerApi.isRegisteredDataCenterName(dataCenter.name)) === true, "Data center added");
+            expect((await ownerApi.isRegisteredDataCentreName(dataCentre.name)) === true, "Data centre added");
         })
     
-        it("Remove data center by ID",async () => {
-            expect((await ownerApi.isRegisteredDataCenterName(dataCenter.name)) === true, "Data center exist");
+        it("Remove data centre by ID",async () => {
+            expect((await ownerApi.isRegisteredDataCentreName(dataCentre.name)) === true, "Data centre exist");
 
-            let result = await ownerApi.getDataCentersByName([dataCenter.name]);
-            await ownerApi.removeDataCenter(result[0].id);
+            let result = await ownerApi.getDataCentresByName([dataCentre.name]);
+            await ownerApi.removeDataCentre(result[0].id);
 
-            expect((await ownerApi.isRegisteredDataCenterName(dataCenter.name)) === false, "Data center removed");
+            expect((await ownerApi.isRegisteredDataCentreName(dataCentre.name)) === false, "Data centre removed");
         })
 
-        it("Remove data center by name",async () => {
-            const dataCenter = {
-                name: "center-owner-test" + Wallet.createRandom().address.toLowerCase(),
+        it("Remove data centre by name",async () => {
+            const dataCentre = {
+                name: "centre-owner-test" + Wallet.createRandom().address.toLowerCase(),
                 countryCode: "cl", 
                 regionCode: "south america",
                 lat: 0, 
                 long: 0
             }
     
-            // Add data center
-            expect((await ownerApi.isRegisteredDataCenterName(dataCenter.name)) === false, "Data center not exist");
-            await ownerApi.addDataCenter(
-                dataCenter.name,
-                dataCenter.countryCode,
-                dataCenter.regionCode,
-                dataCenter.lat,
-                dataCenter.long
+            // Add data centre
+            expect((await ownerApi.isRegisteredDataCentreName(dataCentre.name)) === false, "Data centre not exist");
+            await ownerApi.addDataCentre(
+                dataCentre.name,
+                dataCentre.countryCode,
+                dataCentre.regionCode,
+                dataCentre.lat,
+                dataCentre.long
             );
-            expect((await ownerApi.isRegisteredDataCenterName(dataCenter.name)) === true, "Data center added");
+            expect((await ownerApi.isRegisteredDataCentreName(dataCentre.name)) === true, "Data centre added");
 
-            // Remove data center
-            await ownerApi.removeDataCenterByName(dataCenter.name);
-            expect((await ownerApi.isRegisteredDataCenterName(dataCenter.name)) === false, "Data center removed");
+            // Remove data centre
+            await ownerApi.removeDataCentreByName(dataCentre.name);
+            expect((await ownerApi.isRegisteredDataCentreName(dataCentre.name)) === false, "Data centre removed");
         })
     })
 
@@ -231,7 +231,7 @@ describe("Verida NodeOwnerApi Test", () => {
                 endpointUri: 'https://' + user.address,
                 countryCode: 'to',
                 regionCode: 'oceania',
-                datacenterId: 1,
+                datacentreId: 1,
                 lat: 0,
                 long: 0,
                 slotCount: 20000,
@@ -267,7 +267,7 @@ describe("Verida NodeOwnerApi Test", () => {
                     newNode.endpointUri,
                     newNode.countryCode,
                     newNode.regionCode,
-                    newNode.datacenterId,
+                    newNode.datacentreId,
                     newNode.lat,
                     newNode.long,
                     newNode.slotCount,

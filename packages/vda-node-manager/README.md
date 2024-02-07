@@ -9,7 +9,7 @@ struct StorageNode {
     string endpointUri;
     string countryCode;
     string regionCode;
-    uint datacenterId;
+    uint datacentreId;
     int lat;
     int long;
     uint slotCount;
@@ -18,9 +18,9 @@ struct StorageNode {
 ```
 Here, `name`, `didAddress` and `endpointUri` are unique values. In turn, there are no duplicated values for these fields.
 
-## About Datacenter (Contract owner specific)
-To add storage nodes, we need `datacenterId`. Adding `datacenter`s are specific to the owner of `StorageNodeContract`.
-Before adding any storage node, the contract owner should add `data center`s.
+## About Datacentre (Contract owner specific)
+To add storage nodes, we need `datacentreId`. Adding `datacentre`s are specific to the owner of `StorageNodeContract`.
+Before adding any storage node, the contract owner should add `data centre`s.
 
 ## Installation
 
@@ -31,7 +31,7 @@ yarn add @verida/vda-node-manager
 ## Usage
 
 This library can be run in 2 modes of `read only` and `read and write`.
-In `read only` mode, it can fetch the `data center ids` and `storage nodes`.
+In `read only` mode, it can fetch the `data centre ids` and `storage nodes`.
 `read and write` mode adds `adding storage node` feature to the `read only` mode.
 
 ### Read Only
@@ -46,26 +46,26 @@ const nodeClient = new VeridaNodeManager({
 })
 ```
 
-#### Get datacenters
-##### by datacenter names
+#### Get datacentres
+##### by datacentre names
 ```ts
-const datacenters = await nodeClient.getDataCentersByName(['center-1', 'center-2']);
-console.log(datacenters);
+const datacentres = await nodeClient.getDataCentresByName(['centre-1', 'centre-2']);
+console.log(datacentres);
 ```
-##### by datacenterIds
+##### by datacentreIds
 ```ts
-const datacenters = await nodeClient.getDataCenters([1, 2]);
-console.log(datacenters);
+const datacentres = await nodeClient.getDataCentres([1, 2]);
+console.log(datacentres);
 ```
 ##### by country code
 ```ts
-const datacenters = await nodeClient.getDataCentersByCountry('au');
-console.log(datacenters);
+const datacentres = await nodeClient.getDataCentresByCountry('au');
+console.log(datacentres);
 ```
 ##### by region code
 ```ts
-const datacenters = await nodeClient.getDataCentersByRegion('oceania');
-console.log(datacenters);
+const datacentres = await nodeClient.getDataCentresByRegion('oceania');
+console.log(datacentres);
 ```
 
 #### Get storage nodes
@@ -142,7 +142,7 @@ const name = "node-1";
 const endpointUri = "https://...";
 const countryCode = "au";
 const regionCode = "oceania";
-const datacenterId = 1; // datacenter ID can be fetched by `getDatacenter...()` functions
+const datacentreId = 1; // datacentre ID can be fetched by `getDataCentre...()` functions
 const lat = 27.01;
 const long = 144.001;
 const slotCount = BigNumber.from(20000);
@@ -154,7 +154,7 @@ await nodeManager.addNode(
     endpointUri,
     countryCode,
     regionCode,
-    datacenterId,
+    datacentreId,
     lat,
     long,
     slotCount,

@@ -3,7 +3,7 @@ import { VeridaNodeManager } from "../src/index"
 import { EnvironmentType, EnumStatus } from "@verida/types";
 import { BigNumber, Wallet } from 'ethers';
 import { addInitialData, compareNodeData } from "./helpers";
-import { REGISTERED_DIDS, DID_NODE_MAP, getBlockchainAPIConfiguration, REGISTERED_DATACENTERS, REMOVED_DATACENTERS, REMOVE_START_DIDS } from "@verida/vda-common-test";
+import { REGISTERED_DIDS, DID_NODE_MAP, getBlockchainAPIConfiguration, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS } from "@verida/vda-common-test";
 
 const assert = require('assert')
 
@@ -22,84 +22,84 @@ const createBlockchainAPI = () => {
 }
 
 describe('vda-node-manager read only tests', () => {
-    let registeredCenterIds : BigNumber[] = [];
+    let registeredCentreIds : BigNumber[] = [];
     let blockchainApi : VeridaNodeManager
 
     before(async () => {
-        registeredCenterIds = await addInitialData(configuration);
+        registeredCentreIds = await addInitialData(configuration);
         blockchainApi = createBlockchainAPI()
     })
 
-    describe("Data Center test", () => {
-        describe('Check data center name registered', () => {
-            it("Return false for unregistered data center name",async () => {
-                const unregisterdNames = ['Invalid name', 'unregisterd-center'];
+    describe("Data Centre test", () => {
+        describe('Check data centre name registered', () => {
+            it("Return false for unregistered data centre name",async () => {
+                const unregisterdNames = ['Invalid name', 'unregisterd-centre'];
                 for (let i = 0; i < unregisterdNames.length; i++) {
-                    const result = await blockchainApi.isRegisteredDataCenterName(unregisterdNames[i]);
+                    const result = await blockchainApi.isRegisteredDataCentreName(unregisterdNames[i]);
                     assert.ok(result === false, 'False for unregistered name');
                 }
             })
     
-            it("Return true for registered data center name",async () => {
-                const activeNames = REGISTERED_DATACENTERS.map(item => item.name);
+            it("Return true for registered data centre name",async () => {
+                const activeNames = REGISTERED_DATACENTRES.map(item => item.name);
                 for (let i = 0; i < activeNames.length; i++) {
-                    const result = await blockchainApi.isRegisteredDataCenterName(activeNames[i]);
+                    const result = await blockchainApi.isRegisteredDataCentreName(activeNames[i]);
                     assert.ok(result === true, 'True for registered name');
                 }
     
-                const removedNames = REMOVED_DATACENTERS.map(item => item.name);
+                const removedNames = REMOVED_DATACENTRES.map(item => item.name);
                 for (let i = 0; i < removedNames.length; i++) {
-                    const result = await blockchainApi.isRegisteredDataCenterName(removedNames[i]);
+                    const result = await blockchainApi.isRegisteredDataCentreName(removedNames[i]);
                     assert.ok(result === true, 'True for removed name');
                 }
             })
         })
     
-        describe('Get data centers', () => {
+        describe('Get data centres', () => {
             const unregisteredCountry = ['sg', 'al'];
             const registeredCountry = ['us', 'uk'];
             const registeredRegion = ['north america', 'europe'];
 
-            it('Get data centers by names',async () => {
-                const names = REGISTERED_DATACENTERS.map(item => item.name);
-                const result = await blockchainApi.getDataCentersByName(names);
-                assert.ok(result.length === names.length, 'Get same length data centers');
+            it('Get data centres by names',async () => {
+                const names = REGISTERED_DATACENTRES.map(item => item.name);
+                const result = await blockchainApi.getDataCentresByName(names);
+                assert.ok(result.length === names.length, 'Get same length data centres');
             })
     
-            it('Get data centers by ids',async () => {
-                const validIdGroup = [...registeredCenterIds]
-                const result = await blockchainApi.getDataCenters(validIdGroup);
-                assert.ok(result.length === validIdGroup.length, 'Get same length data centers');
+            it('Get data centres by ids',async () => {
+                const validIdGroup = [...registeredCentreIds]
+                const result = await blockchainApi.getDataCentresById(validIdGroup);
+                assert.ok(result.length === validIdGroup.length, 'Get same length data centres');
             })
     
-            it('Get data centers by country', async () => {
+            it('Get data centres by country code', async () => {
                 // Empty array for unregistered countries
                 for (let i = 0; i < unregisteredCountry.length; i++) {
-                    const result = await blockchainApi.getDataCentersByCountry(unregisteredCountry[i]);
+                    const result = await blockchainApi.getDataCentresByCountryCode(unregisteredCountry[i]);
                     assert.deepEqual(result, [], 'Get empty array');
                 }
     
                 // Get result for registered countries
                 for (let i = 0; i < registeredCountry.length; i++) {
-                    const result = await blockchainApi.getDataCentersByCountry(registeredCountry[i]);
+                    const result = await blockchainApi.getDataCentresByCountryCode(registeredCountry[i]);
                     assert.ok(result.length > 0, "Got successfully");
                 }
             })
     
-            it('Get data centers by region', async () => {
+            it('Get data centres by region code', async () => {
                 // Empty array for unregistered regions            
                 const unregisteredRegionCodes = [
                     "asia",
                     "africa"
                 ]
                 for (let i = 0; i < unregisteredRegionCodes.length; i++) {
-                    const result = await blockchainApi.getDataCentersByRegion(unregisteredRegionCodes[i]);
+                    const result = await blockchainApi.getDataCentresByRegionCode(unregisteredRegionCodes[i]);
                     assert.deepEqual(result, [], 'Get empty array');
                 }
     
                 // Get result for registered regions
                 for (let i = 0; i < registeredRegion.length; i++) {
-                    const result = await blockchainApi.getDataCentersByRegion(registeredRegion[i]);
+                    const result = await blockchainApi.getDataCentresByRegionCode(registeredRegion[i]);
                     assert.ok(result.length > 0, "Got successfully");
                 }
             })
@@ -282,25 +282,25 @@ describe('vda-node-manager read only tests', () => {
                     assert.ok(compareNodeData(nodes[0], result), "Get node by address");
             })
     
-            it("Get nodes by country", async () => {
+            it("Get nodes by country code", async () => {
                 const codeArr = nodes.map(item => item.countryCode);
                 const countryCodes = [...new Set(codeArr)]
     
                 for (let i = 0; i < countryCodes.length; i++) {
                     const countryNodes = nodes.filter(item => item.countryCode === countryCodes[i]);
-                    const result = await blockchainApi.getNodesByCountry(countryCodes[i]);
+                    const result = await blockchainApi.getNodesByCountryCode(countryCodes[i]);
     
                     assert.ok(countryNodes.length === result.length, "Get nodes by country code");
                 }
             })
 
-            it("Get nodes by country and status",async () => {
+            it("Get nodes by country code and status",async () => {
                 const codeArr = nodes.map(item => item.countryCode);
                 const countryCodes = [...new Set(codeArr)]
 
                 // Get `active` nodes
                 for (let i = 0; i < countryCodes.length; i++) {
-                    let result = await blockchainApi.getNodesByCountry(countryCodes[i], EnumStatus.active);
+                    let result = await blockchainApi.getNodesByCountryCode(countryCodes[i], EnumStatus.active);
                     assert.ok(result.length > 0, "Get 'active' nodes by country code");
                 }
                 
@@ -308,29 +308,29 @@ describe('vda-node-manager read only tests', () => {
                 const did = REMOVE_START_DIDS[0];
                 const removedNode = DID_NODE_MAP.get(did.address);
                 const removedCountryCode = removedNode.countryCode;
-                const result = await blockchainApi.getNodesByCountry(removedCountryCode, EnumStatus.removing);
+                const result = await blockchainApi.getNodesByCountryCode(removedCountryCode, EnumStatus.removing);
                 assert.ok(result.length > 0, "Get 'removing' nodes by country code");
             })
     
-            it("Get nodes by region", async () => {
+            it("Get nodes by region code", async () => {
                 const regionArr = nodes.map(item => item.regionCode);
                 const regionCodes = [...new Set(regionArr)]
     
                 for (let i = 0; i < regionCodes.length; i++) {
                     const regionNodes = nodes.filter(item => item.regionCode === regionCodes[i]);
-                    const result = await blockchainApi.getNodesByRegion(regionCodes[i]);
+                    const result = await blockchainApi.getNodesByRegionCode(regionCodes[i]);
     
                     assert.ok(regionNodes.length === result.length, "Get nodes by region code");
                 }
             })
 
-            it("Get nodes by region and status",async () => {
+            it("Get nodes by region code and status",async () => {
                 // Get `active` nodes
                 const regionArr = nodes.map(item => item.regionCode);
                 const regionCodes = [...new Set(regionArr)]
     
                 for (let i = 0; i < regionCodes.length; i++) {
-                    const result = await blockchainApi.getNodesByRegion(regionCodes[i], EnumStatus.active);
+                    const result = await blockchainApi.getNodesByRegionCode(regionCodes[i], EnumStatus.active);
                     assert.ok(result.length > 0, "Get 'active' nodes by region code");
                 }
 
@@ -338,8 +338,22 @@ describe('vda-node-manager read only tests', () => {
                 const did = REMOVE_START_DIDS[0];
                 const removedNode = DID_NODE_MAP.get(did.address);
                 const removedregionCode = removedNode.regionCode;
-                const result = await blockchainApi.getNodesByRegion(removedregionCode, EnumStatus.removing);
-                assert.ok(result.length > 0, "Get 'removing' nodes by region and status");
+                const result = await blockchainApi.getNodesByRegionCode(removedregionCode, EnumStatus.removing);
+                assert.ok(result.length > 0, "Get 'removing' nodes by region code and status");
+            })
+
+            it("Get nodes by status", async () => {
+                // Get `active` nodes
+                let result = await blockchainApi.getNodesByStatus(EnumStatus.active);
+                assert.ok(result.length >= REGISTERED_DIDS.length, "Get active nodes");
+
+                // Get `pending removal` nodes
+                result = await blockchainApi.getNodesByStatus(EnumStatus.removing);
+                assert.ok(result.length > 0, "Get pending removal nodes");
+
+                // Get `removed` nodes
+                result = await blockchainApi.getNodesByStatus(EnumStatus.removed);
+                assert.ok(result.length >= 0, "Get removed nodes");                
             })
         })
     })
