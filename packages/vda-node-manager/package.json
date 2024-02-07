@@ -2,10 +2,10 @@
   "name": "@verida/vda-node-manager",
   "version": "1.0.0",
   "description": "Client to manage storage nodes from the blockchain",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
-    "build/src"
+    "build"
   ],
   "directories": {
     "src": "src",
