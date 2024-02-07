@@ -1,30 +1,30 @@
 import { DID_LIST } from "./const";
 
-// Data centers added to the contract
-export const REGISTERED_DATACENTERS = [
+// Data centres added to the contract
+export const REGISTERED_DATACENTRES = [
   {
-    name: "center-1",
+    name: "centre-1",
     countryCode: "us", 
     regionCode: "north america",
     lat: 54.526, 
     long: 105.255
   },
   {
-    name: "center-2",
+    name: "centre-2",
     countryCode: "uk", 
     regionCode: "europe",
     lat: 55.378, 
     long: 3.436
   },
   {
-    name: "center-3",
+    name: "centre-3",
     countryCode: "us", 
     regionCode: "north america",
     lat: 55.126, 
     long: 90.255
   },
   {
-    name: "center-4",
+    name: "centre-4",
     countryCode: "uk", 
     regionCode: "europe",
     lat: 56.822, 
@@ -32,9 +32,9 @@ export const REGISTERED_DATACENTERS = [
   },
 ];
 
-export const REMOVED_DATACENTERS = [
+export const REMOVED_DATACENTRES = [
   {
-    name: "center-removed",
+    name: "centre-removed",
     countryCode: "fr", 
     regionCode: "europe",
     lat: 55.126, 
@@ -70,7 +70,7 @@ export const DID_NODE_MAP : Map<string, any> = new Map([
     endpointUri: 'https://1',
     countryCode: 'us',
     regionCode: 'north america',
-    datacenterId: 1,
+    datacentreId: 1,
     lat: -90,
     long: -180,
     slotCount: 20000,
@@ -81,7 +81,7 @@ export const DID_NODE_MAP : Map<string, any> = new Map([
     endpointUri: 'https://2',
     countryCode: 'us',
     regionCode: 'europe',
-    datacenterId: 2,
+    datacentreId: 2,
     lat: -88.5,
     long: 10.436,
     slotCount: 20000,
@@ -92,7 +92,7 @@ export const DID_NODE_MAP : Map<string, any> = new Map([
     endpointUri: 'https://fallback-node-1',
     countryCode: 'us',
     regionCode: 'north america',
-    datacenterId: 2,
+    datacentreId: 2,
     lat: -88.5,
     long: 10.436,
     slotCount: 20000,
@@ -103,7 +103,7 @@ export const DID_NODE_MAP : Map<string, any> = new Map([
     endpointUri: 'https://remove-started-node',
     countryCode: 'us',
     regionCode: 'north america',
-    datacenterId: 1,
+    datacentreId: 1,
     lat: -88.5,
     long: 10.436,
     slotCount: 20000,
@@ -114,7 +114,7 @@ export const DID_NODE_MAP : Map<string, any> = new Map([
     endpointUri: 'https://remove-completed-node',
     countryCode: 'us',
     regionCode: 'north america',
-    datacenterId: 3,
+    datacentreId: 3,
     lat: -88.5,
     long: 10.436,
     slotCount: 20000,

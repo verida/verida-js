@@ -1,3 +1,7 @@
+2023-12-14 (v2.3.3)
+-------------------
+- Update variable names for `StorageNode`
+
 2023-12-14 (v2.3.2)
 -------------------
 - Update constants for `StorageNode`
