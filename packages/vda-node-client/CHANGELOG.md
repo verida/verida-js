@@ -1,6 +1,12 @@
-2024-02-07 (v1.0.0)
+2024-02-08 (v0.3.0)
 -------------------
-- Version reset as 1.0.0
+- Removed individual files
+- Create `VeridaNodeClient` class
+- Update test code
+
+2024-02-07 (v0.2.0)
+-------------------
+- Version reset as 0.2.0
 - Updates on review
 
 2024-01-25 (v1.2.0)

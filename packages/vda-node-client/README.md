@@ -7,56 +7,65 @@ This library calls only read functions of `vda-node-manager` package.
 
 ```
 yarn add @verida/vda-node-client
-```
 
-## Function List
-This library provide following functions:
-
-#### *Contract Decimal for Latitude and Longitude*
-```ts
-async function getContractDecimal(network: string): Promise<number>
-```
-#### *Get Verida Token address*
-```ts
-async function getVDATokenAddress(network: string): Promise<string>
-```
-#### *Data Centres*
-```ts
-async function isRegisteredDataCentreName(network: string, name: string)
-async function getDataCentres(network: string, ids: BigNumberish[])
-async function getDataCentresByName(network: string, names: string[])
-async function getDataCentresByCountry(network: string, countryCode: string, status?: EnumStatus)
-async function getDataCentresByRegion(network: string, regionCode: string, status?: EnumStatus)
-```
-#### *Storage Node*
-```ts
-async function isRegisteredNodeName(network: string, name: string)
-async function isRegisteredNodeAddress(network: string, didAddress: string)
-async function isRegisteredNodeEndpoint(network: string, endpointUri: string)
-async function getNodeByName(network: string, name: string)
-async function getNodeByAddress(network: string, didAddress: string)
-async function getNodeByEndpoint(network: string, endpointUri: string)
-async function getNodesByCountry(network: string, countryCode: string, status?: EnumStatus)
-async function getNodesByRegion(network: string, regionCode: string, status?: EnumStatus)
-
-async function getBalance(network: string, didAddress: string)
-async function excessTokenAmount(network: string, didAddress: string)
-
-async function isStakingRequired(network: string)
-async function getStakePerSlot(network: string)
-async function getSlotCountRange(network: string)
-
-async function getNodeIssueFee(network: string)
-async function getSameNodeLogDuration(network: string)
-async function getLogLimitPerDay(network: string)
-async function getReasonCodeList(network: string)
-async function getReasonCodeDescription(network: string, reasonCode: BigNumberish)
 ```
 
 ## Usage
-Import necessary functions from the library and call with NETWORK parameter.
-
+This library provides the `VeridaNodeClient` class.
+Users can create `VeridaNodeClient` with or without RPC_URLS
+### Create without RPC_URL
 ```ts
-import { getBalance } from '@verida/vda-node-client'
-const result = await getBalance(NETWORK, `<Wallet address>`);
+import { VeridaNodeClient } from '@verida/vda-node-client'
+const nodeClient = VeridaNodeClient("testnet");
+```
+### Create with RPC_URL
+```ts
+import { VeridaNodeClient } from '@verida/vda-node-client'
+const nodeClient = VeridaNodeClient("testnet", "<Input your RPC_URL>");
+```
+
+## Function List
+The `VeridaNodeClient` class provide following function list:
+
+#### *Contract Decimal for Latitude and Longitude*
+```ts
+public async getContractDecimal(network: string): Promise<number>
+```
+#### *Get Verida Token address*
+```ts
+public async getVDATokenAddress(network: string): Promise<string>
+```
+#### *Data Centres*
+```ts
+public async isRegisteredDataCentreName(network: string, name: string)
+public async getDataCentresById(network: string, ids: BigNumberish[])
+public async getDataCentresByName(network: string, names: string[])
+public async getDataCentresByCountryCode(network: string, countryCode: string, status?: EnumStatus)
+public async getDataCentresByRegionCode(network: string, regionCode: string, status?: EnumStatus)
+```
+#### *Storage Node*
+```ts
+public async isRegisteredNodeName(network: string, name: string)
+public async isRegisteredNodeAddress(network: string, didAddress: string)
+public async isRegisteredNodeEndpoint(network: string, endpointUri: string)
+public async getNodeByName(network: string, name: string)
+public async getNodeByAddress(network: string, didAddress: string)
+public async getNodeByEndpoint(network: string, endpointUri: string)
+public async getNodesByCountryCode(network: string, countryCode: string, status?: EnumStatus)
+public async getNodesByRegionCode(network: string, regionCode: string, status?: EnumStatus)
+public async getNodesByStatus(status: EnumStatus)
+
+public async getBalance(network: string, didAddress: string)
+public async excessTokenAmount(network: string, didAddress: string)
+
+public async isStakingRequired(network: string)
+public async isWithdrawalEnabled()
+public async getStakePerSlot(network: string)
+public async getSlotCountRange(network: string)
+
+public async getNodeIssueFee(network: string)
+public async getSameNodeLogDuration(network: string)
+public async getLogLimitPerDay(network: string)
+public async getReasonCodeList(network: string)
+public async getReasonCodeDescription(network: string, reasonCode: BigNumberish)
 ```

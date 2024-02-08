@@ -1,6 +1,1 @@
-export * from './getBalance'
-export * from './getContractDecimal'
-export * from './getDataCentres'
-export * from './getLogInfos'
-export * from './getNodes'
-export * from './getStakeInfo'
+export * from './blockchain/blockchainApi'
