@@ -56,9 +56,9 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
     "VDARewardContract": {
         mainnet: "",
         "0x89": "",
-        testnet: "0x5A7c6101b79eFf376dDe1518BC227B1269305657",
-        "0x13881": "0x5A7c6101b79eFf376dDe1518BC227B1269305657",
-        devnet: "0x5A7c6101b79eFf376dDe1518BC227B1269305657",
+        testnet: "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
+        "0x13881": "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
+        devnet: "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
     },
     "StorageNodeRegistry": {
         mainnet: null,
