@@ -62,9 +62,13 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
         nodeManagerApi = createNodeManagerAPI();
 
         // Check out token amount of reward contract
-        if (await tokenAPI.balanceOf(rewardContractAddress) < 100n) {
-            const tokenAmount = 1000000n;
-            tokenAPI.mint(rewardContractAddress, tokenAmount);
+        if (await tokenAPI.balanceOf(rewardContractAddress) < 1000n) {
+            if (process.env.NEED_TOKEN_MINT === `true`) {
+                const mintAmount = 1000n;
+                tokenAPI.mint(rewardContractAddress, mintAmount);
+            } else {
+                throw new Error(`Not enough token in the 'VDARewardContract' at ${rewardContractAddress}`);
+            }            
         }
 
         // Generate proof
