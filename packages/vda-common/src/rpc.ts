@@ -1,9 +1,12 @@
+/* Default RPC URLs to the Polygon blockchains. These default endpoints are public and free but potentially unstable */
 export const RPC_URLS: Record<string, string | null> = {
-    devnet: "https://rpc-mumbai.maticvigil.com",
-    mainnet: "https://polygon-rpc.com/",
-    "0x89": "https://polygon-rpc.com/",
-    testnet: "https://rpc-mumbai.maticvigil.com",
-    "0x13881": "https://rpc-mumbai.maticvigil.com",
+    // Ankr is the official RPC provider of the Polygon foundation
+    // https://rpc.ankr.com/polygon is the same as https://polygon-rpc.com as also provided by Ankr
+    mainnet: "https://rpc.ankr.com/polygon",
+    "0x89": "https://rpc.ankr.com/polygon",
+    testnet: "https://rpc.ankr.com/polygon_mumbai",
+    "0x13881": "https://rpc.ankr.com/polygon_mumbai",
+    devnet: "https://rpc.ankr.com/polygon_mumbai",
 };
 
 export function getDefaultRpcUrl(chainNameOrId: any) {
