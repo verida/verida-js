@@ -1,22 +1,10 @@
-2024-02-01 (v2.4.0)
-- Update abi & contract address of `VDA-Reward-Contract`
-- Added `VdaVerificationUtilsClass` in the `verification.ts` that contains functions to manage trusted signers for the verida-js packages.
-
-2023-12-15 (v2.3.8)
-- Update abi & contract address of `StorageNodeRegistry` - diamond
-- Update abi & contract address of `VDA-Reward-Contract`
-
-2023-12-15 (v2.3.7)
+2024-03-15 (v3.0.1)
 -------------------
-- Update abi & contract address of `StorageNodeRegistry` - diamond
-- Update abi & contract address of `VDA-Reward-Contract`
-- UPdate abi & contracts for newly deployed on mainnet
+
+- Update RPC URL's to Polygon Foundation supported nodes
 
 2023-12-26 (v.3.0.0)
 -------------------
-- Added `StorageNodeRegistry` support
-
-2023-10-29 (v2.3.5)
 
 - Mainnet release
 - Feature: Add gas station config for all networks
