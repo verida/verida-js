@@ -1,3 +1,8 @@
+2024-03-15 (v3.0.1)
+-------------------
+
+- Update RPC URL's to Polygon Foundation supported nodes
+
 2023-12-26 (v.3.0.0)
 -------------------
 

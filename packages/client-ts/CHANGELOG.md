@@ -1,3 +1,8 @@
+2023-03-15 (v.3.0.3)
+-------------------
+
+- Fix: Signed data creation and verification didn't always match
+
 2023-12-26 (v.3.0.2)
 -------------------
 

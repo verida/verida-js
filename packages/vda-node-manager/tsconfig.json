@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    "outDir": "build",                                    /* Specify an output folder for all emitted files. */
+    // "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    // "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "sourceMap": true,
+    "strict": true,                                      /* Enable all strict type-checking options. */
+    "declaration": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
+    "plugins": [
+      {"transform": "ts-macros"}
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+  ],
+  "exclude": ["node_modules", "test", "build"],
+}

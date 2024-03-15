@@ -10,11 +10,6 @@
     },
     {
       "inputs": [],
-      "name": "InsufficientTokenAmount",
-      "type": "error"
-    },
-    {
-      "inputs": [],
       "name": "InvalidId",
       "type": "error"
     },
@@ -116,6 +111,31 @@
       "inputs": [
         {
           "indexed": false,
+          "internalType": "string",
+          "name": "typeId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "hash",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
+        }
+      ],
+      "name": "ClaimToStorage",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
           "internalType": "uint8",
           "name": "version",
           "type": "uint8"
@@ -193,6 +213,11 @@
         {
           "internalType": "contract IERC20Upgradeable",
           "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "contract IStorageNode",
+          "name": "nodeContract",
           "type": "address"
         }
       ],
@@ -276,6 +301,39 @@
           "internalType": "string",
           "name": "typeId",
           "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "hash",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "didAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "proof",
+          "type": "bytes"
+        }
+      ],
+      "name": "claimToStorage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "typeId",
+          "type": "string"
         }
       ],
       "name": "getClaimType",
@@ -289,6 +347,32 @@
           "internalType": "string",
           "name": "schema",
           "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getStorageNodeContractAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTokenAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",

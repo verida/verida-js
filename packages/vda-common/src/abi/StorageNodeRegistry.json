@@ -1,0 +1,1975 @@
+{
+  "contractName": "StorageNodeRegistry",
+  "abi": [
+    {
+      "type": "function",
+      "name": "diamondCut",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple[]",
+          "name": "_diamondCut",
+          "components": [
+            {
+              "type": "address",
+              "name": "facetAddress"
+            },
+            {
+              "type": "uint8",
+              "name": "action"
+            },
+            {
+              "type": "bytes4[]",
+              "name": "functionSelectors"
+            }
+          ]
+        },
+        {
+          "type": "address",
+          "name": "_init"
+        },
+        {
+          "type": "bytes",
+          "name": "_calldata"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "facetAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bytes4",
+          "name": "_functionSelector"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "address",
+          "name": "facetAddress_"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "facetAddresses",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address[]",
+          "name": "facetAddresses_"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "facetFunctionSelectors",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "_facet"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bytes4[]",
+          "name": "_facetFunctionSelectors"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "facets",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "facets_",
+          "components": [
+            {
+              "type": "address",
+              "name": "facetAddress"
+            },
+            {
+              "type": "bytes4[]",
+              "name": "functionSelectors"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "supportsInterface",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bytes4",
+          "name": "_interfaceId"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address",
+          "name": "owner_"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "_newOwner"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addTrustedSigner",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "isTrustedSigner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "removeTrustedSigner",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addDataCentre",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "data",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresByCountryCode",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "countryCode"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresByCountryCodeAndStatus",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "countryCode"
+        },
+        {
+          "type": "uint8",
+          "name": "status"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresById",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256[]",
+          "name": "ids"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresByName",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string[]",
+          "name": "names"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresByRegionCode",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "regionCode"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getDataCentresByRegionCodeAndStatus",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "regionCode"
+        },
+        {
+          "type": "uint8",
+          "name": "status"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "id"
+            },
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "nodeCount"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "isRegisteredDataCentreName",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "name"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "removeDataCentre",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "datacentreId"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "removeDataCentreByName",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "name"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "DECIMAL",
+      "constant": true,
+      "stateMutability": "pure",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint8",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "addReasonCode",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "reasonCode"
+        },
+        {
+          "type": "string",
+          "name": "description"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "depositToken",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "uint256",
+          "name": "tokenAmount"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "depositTokenFromProvider",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "address",
+          "name": "from"
+        },
+        {
+          "type": "uint256",
+          "name": "tokenAmount"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "disableReasonCode",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "reasonCode"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "excessTokenAmount",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "int256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getBalance",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getLogLimitPerDay",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodeIssueFee",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getReasonCodeDescription",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "reasonCode"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getReasonCodeList",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "uint256",
+              "name": "reasonCode"
+            },
+            {
+              "type": "string",
+              "name": "description"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getSameNodeLogDuration",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getSlotCountRange",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        },
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getStakePerSlot",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getTotalIssueFee",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getVDATokenAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "isStakingRequired",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "isWithdrawalEnabled",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "logNodeIssue",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "address",
+          "name": "nodeAddress"
+        },
+        {
+          "type": "uint256",
+          "name": "reasonCode"
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setStakingRequired",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bool",
+          "name": "isRequired"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "setWithdrawalEnabled",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "bool",
+          "name": "isEnabled"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "slash",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "nodeDID"
+        },
+        {
+          "type": "uint256",
+          "name": "reasonCode"
+        },
+        {
+          "type": "uint256",
+          "name": "amount"
+        },
+        {
+          "type": "string",
+          "name": "moreInfoUrl"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateLogLimitPerDay",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "value"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateMaxSlotCount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "maxSlots"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateMinSlotCount",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "minSlots"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateNodeIssueFee",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "value"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateReasonCodeDescription",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "reasonCode"
+        },
+        {
+          "type": "string",
+          "name": "description"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateSameNodeLogDuration",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "value"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "updateStakePerSlot",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint256",
+          "name": "newVal"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "withdraw",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "address",
+          "name": "to"
+        },
+        {
+          "type": "uint256",
+          "name": "amount"
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "withdrawIssueFee",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "to"
+        },
+        {
+          "type": "uint256",
+          "name": "amount"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "addNode",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "tuple",
+          "name": "nodeInfo",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            }
+          ]
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
+        },
+        {
+          "type": "bytes",
+          "name": "authSignature"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "getNodeByAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodeByEndpoint",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "endpointUri"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodeByName",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "name"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodesByCountryCode",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "countryCode"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodesByCountryCodeAndStatus",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "countryCode"
+        },
+        {
+          "type": "uint8",
+          "name": "status"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodesByRegionCode",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "regionCode"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodesByRegionCodeAndStatus",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "regionCode"
+        },
+        {
+          "type": "uint8",
+          "name": "status"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "getNodesByStatus",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "uint8",
+          "name": "status"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "address",
+              "name": "didAddress"
+            },
+            {
+              "type": "string",
+              "name": "endpointUri"
+            },
+            {
+              "type": "string",
+              "name": "countryCode"
+            },
+            {
+              "type": "string",
+              "name": "regionCode"
+            },
+            {
+              "type": "uint256",
+              "name": "datacentreId"
+            },
+            {
+              "type": "int256",
+              "name": "lat"
+            },
+            {
+              "type": "int256",
+              "name": "long"
+            },
+            {
+              "type": "uint256",
+              "name": "slotCount"
+            },
+            {
+              "type": "uint256",
+              "name": "establishmentDate"
+            },
+            {
+              "type": "bool",
+              "name": "acceptFallbackSlots"
+            },
+            {
+              "type": "uint8",
+              "name": "status"
+            },
+            {
+              "type": "uint256",
+              "name": "unregisterTime"
+            },
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "isRegisteredNodeAddress",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "isRegisteredNodeEndpoint",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "endpointUri"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "isRegisteredNodeName",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "string",
+          "name": "name"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "bool",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "nonce",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "did"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "removeNodeComplete",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "address",
+          "name": "fundReleasedTo"
+        },
+        {
+          "type": "bytes",
+          "name": "fallbackMigrationProof"
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "removeNodeStart",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "uint256",
+          "name": "unregisterDateTime"
+        },
+        {
+          "type": "tuple",
+          "name": "fallbackInfo",
+          "components": [
+            {
+              "type": "address",
+              "name": "fallbackNodeAddress"
+            },
+            {
+              "type": "uint256",
+              "name": "availableSlots"
+            },
+            {
+              "type": "uint256",
+              "name": "fallbackProofTime"
+            },
+            {
+              "type": "bytes",
+              "name": "availableSlotsProof"
+            }
+          ]
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}

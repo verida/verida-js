@@ -1,5 +1,14 @@
 2023-12-26 (v.3.0.0)
 -------------------
+- Fix bugs in `pure` type function call
+
+2023-10-29 (v2.4.1)
+-------------------
+
+- Update `callMethod()` function to return BigNumber as BigNumber itself
+
+2023-10-29 (v2.4.0)
+-------------------
 
 - Mainnet release
 - Fix bugs in `pure` type function call

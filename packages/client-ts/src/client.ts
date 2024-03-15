@@ -272,6 +272,11 @@ class Client implements IClient {
     delete _data["signatures"];
     delete _data["_rev"];
 
+    // Don't include versioned schema in signature verification data
+    if (_data['schema']) {
+      _data['schema'] = Schema.getVersionlessSchemaName(_data['schema'])
+    }
+
     let validSignatures = [];
     for (let sigIndex in data.signatures) {
       const signature = data.signatures[sigIndex]
@@ -292,10 +297,13 @@ class Client implements IClient {
           continue;
         }
 
+        // Support old signature format (simple string) and new signature format (object)
+        const matchSig = typeof(signature) == 'string' ? signature : signature['secp256k1']
+
         const validSig = didDocument.verifyContextSignature(
           _data,
           sContext,
-          signature['secp256k1'],
+          matchSig,
           true
         );
 
