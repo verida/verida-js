@@ -33,8 +33,9 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@verida/helpers": "^2.3.3",
-    "@verida/web3": "^2.3.6",
+    "@verida/helpers": "*",
+    "@verida/web3": "*",
+    "@verida/types": "*",
     "axios": "^1.6.0",
     "ethers": "5.7.2"
   }

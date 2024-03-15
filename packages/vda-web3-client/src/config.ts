@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { BigNumber } from '@ethersproject/bignumber'
-import { Contract } from '@ethersproject/contracts'
+import { Contract } from 'ethers'
 import { JsonRpcProvider, Provider } from '@ethersproject/providers'
 import { knownNetworks } from './constants'
-import { Web3ContractInfo, Web3ProviderConfiguration, Web3GasConfiguration } from '@verida/types'
+import { Web3ContractInfo, Web3ProviderConfiguration } from '@verida/types'
 
 export function isVeridaWeb3GasConfiguration(obj : Object) {
     return ('maxFeePerGas' in obj)
