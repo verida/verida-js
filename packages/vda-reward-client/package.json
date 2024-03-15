@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-reward-client",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Client to manage reward",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -26,12 +26,12 @@
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
     "@verida/encryption-utils": "*",
-    "@verida/helpers": "*",
-    "@verida/types": "*",
-    "@verida/web3": "*"
+    "@verida/helpers": "^3.0.2",
+    "@verida/types": "^3.0.1",
+    "@verida/web3": "^3.0.2"
   },
   "devDependencies": {
-    "@verida/vda-common-test": "*",
+    "@verida/vda-common-test": "^3.0.1",
     "dotenv": "^16.0.3",
     "ethers": "5.7.0",
     "gts": "^3.1.0",
