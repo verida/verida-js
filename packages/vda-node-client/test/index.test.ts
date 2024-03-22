@@ -220,14 +220,14 @@ describe("vda-node-client", () => {
             const countries = [...new Set(counrtryList)];
 
             for (let i = 0; i < countries.length; i++) {
-                const result = await blockchainApi.getNodesByCountryCode(countries[i]);
+                const result = await blockchainApi.getNodesByCountryCode(countries[i], 10, 1);
                 assert.ok(result.length > 0, "Return 1 or more nodes for registered country code");
             }
         })
 
         it('getNodesByCountryCodeAndStatus',async () => {
             const removingCountryCode = (DID_NODE_MAP.get(REMOVE_START_DIDS[0].address)).countryCode;
-            const result = await blockchainApi.getNodesByCountryCode(removingCountryCode, EnumStatus.removing);
+            const result = await blockchainApi.getNodesByCountryCode(removingCountryCode, 10, 1, EnumStatus.removing);
             assert.ok(result.length > 0, "Return 1 or more removing nodes for registered country code");
         })
 
@@ -239,25 +239,25 @@ describe("vda-node-client", () => {
             const regions = [...new Set(regionList)];
 
             for (let i = 0; i < regions.length; i++) {
-                const result = await blockchainApi.getNodesByRegionCode(regions[i]);
+                const result = await blockchainApi.getNodesByRegionCode(regions[i], 10, 1);
                 assert.ok(result.length > 0, "Return 1 or more nodes for registered region code");
             }
         })
 
         it('getNodesByRegionCodeAndStatus',async () => {
             const removingRegioinCode = (DID_NODE_MAP.get(REMOVE_START_DIDS[0].address)).regionCode;
-            const result = await blockchainApi.getNodesByRegionCode(removingRegioinCode, EnumStatus.removing);
+            const result = await blockchainApi.getNodesByRegionCode(removingRegioinCode, 10, 1, EnumStatus.removing);
             assert.ok(result.length > 0, "Return 1 or more removing nodes for registered country code");
         })
 
         it("getNodesByStatus", async () => {
-            let result = await blockchainApi.getNodesByStatus(EnumStatus.active);
+            let result = await blockchainApi.getNodesByStatus(EnumStatus.active, 10, 1);
             assert.ok(result.length > 0, "Return 1 or more active nodes");
 
-            result = await blockchainApi.getNodesByStatus(EnumStatus.removing);
+            result = await blockchainApi.getNodesByStatus(EnumStatus.removing, 10, 1);
             assert.ok(result.length > 0, "Return 1 or more pending removal nodes");
 
-            result = await blockchainApi.getNodesByStatus(EnumStatus.removed);
+            result = await blockchainApi.getNodesByStatus(EnumStatus.removed, 10, 1);
             assert.ok(result.length >= 0, "Return 0 or more active nodes");
         })
     })
