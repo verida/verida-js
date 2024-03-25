@@ -39,7 +39,6 @@ describe('vda-node-manager read and write tests', () => {
         registeredCentreIds = await addInitialData(configuration);
     })
 
-    /*
     describe('Data centres', () => {
         let blockchainApi : VeridaNodeManager;
 
@@ -202,7 +201,6 @@ describe('vda-node-manager read and write tests', () => {
             })
         })
     })
-    */
 
     describe('Storage Node', () => {
         
