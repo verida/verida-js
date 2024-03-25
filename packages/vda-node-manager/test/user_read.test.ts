@@ -308,6 +308,12 @@ describe('vda-node-manager read only tests', () => {
                     assert.ok(err.message.match('Failed to get nodes by country'), 'Invalid page number');
                 }
 
+                try {
+                    await blockchainApi.getNodesByCountryCode(countryCodes[0], 101, 1);
+                } catch(err) {
+                    assert.ok(err.message.match('Failed to get nodes by country'), 'Invalid page number');
+                }
+
                 // Success
                 const result = await blockchainApi.getNodesByCountryCode(countryCodes[0], 1, 2);
                 assert.ok(result.length === 1, "Get nodes by country code");
