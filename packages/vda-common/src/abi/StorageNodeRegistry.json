@@ -133,6 +133,22 @@
     },
     {
       "type": "function",
+      "name": "acceptOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "cancelTransferOwnership",
+      "constant": false,
+      "payable": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "type": "function",
       "name": "owner",
       "constant": true,
       "stateMutability": "view",
@@ -142,6 +158,20 @@
         {
           "type": "address",
           "name": "owner_"
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "pendingOwner",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "address",
+          "name": "pendingOwner_"
         }
       ]
     },
@@ -1436,6 +1466,14 @@
         {
           "type": "string",
           "name": "countryCode"
+        },
+        {
+          "type": "uint256",
+          "name": "pageSize"
+        },
+        {
+          "type": "uint256",
+          "name": "pageNumber"
         }
       ],
       "outputs": [
@@ -1517,6 +1555,14 @@
         {
           "type": "uint8",
           "name": "status"
+        },
+        {
+          "type": "uint256",
+          "name": "pageSize"
+        },
+        {
+          "type": "uint256",
+          "name": "pageNumber"
         }
       ],
       "outputs": [
@@ -1594,6 +1640,14 @@
         {
           "type": "string",
           "name": "regionCode"
+        },
+        {
+          "type": "uint256",
+          "name": "pageSize"
+        },
+        {
+          "type": "uint256",
+          "name": "pageNumber"
         }
       ],
       "outputs": [
@@ -1675,6 +1729,14 @@
         {
           "type": "uint8",
           "name": "status"
+        },
+        {
+          "type": "uint256",
+          "name": "pageSize"
+        },
+        {
+          "type": "uint256",
+          "name": "pageNumber"
         }
       ],
       "outputs": [
@@ -1752,6 +1814,14 @@
         {
           "type": "uint8",
           "name": "status"
+        },
+        {
+          "type": "uint256",
+          "name": "pageSize"
+        },
+        {
+          "type": "uint256",
+          "name": "pageNumber"
         }
       ],
       "outputs": [

@@ -288,10 +288,35 @@ describe('vda-node-manager read only tests', () => {
     
                 for (let i = 0; i < countryCodes.length; i++) {
                     const countryNodes = nodes.filter(item => item.countryCode === countryCodes[i]);
-                    const result = await blockchainApi.getNodesByCountryCode(countryCodes[i]);
+                    const result = await blockchainApi.getNodesByCountryCode(countryCodes[i], 100, 1);
     
                     assert.ok(countryNodes.length === result.length, "Get nodes by country code");
                 }
+
+                // Pagination check
+                // Failed for invalid page number
+                try {
+                    await blockchainApi.getNodesByCountryCode(countryCodes[0], 10, 0);
+                } catch(err) {
+                    assert.ok(err.message.match('Failed to get nodes by country'), 'Invalid page number');
+                }
+
+                // Failed for invalid page size
+                try {
+                    await blockchainApi.getNodesByCountryCode(countryCodes[0], 0, 1);
+                } catch(err) {
+                    assert.ok(err.message.match('Failed to get nodes by country'), 'Invalid page number');
+                }
+
+                try {
+                    await blockchainApi.getNodesByCountryCode(countryCodes[0], 101, 1);
+                } catch(err) {
+                    assert.ok(err.message.match('Failed to get nodes by country'), 'Invalid page number');
+                }
+
+                // Success
+                const result = await blockchainApi.getNodesByCountryCode(countryCodes[0], 1, 2);
+                assert.ok(result.length === 1, "Get nodes by country code");
             })
 
             it("Get nodes by country code and status",async () => {
@@ -300,7 +325,7 @@ describe('vda-node-manager read only tests', () => {
 
                 // Get `active` nodes
                 for (let i = 0; i < countryCodes.length; i++) {
-                    let result = await blockchainApi.getNodesByCountryCode(countryCodes[i], EnumStatus.active);
+                    let result = await blockchainApi.getNodesByCountryCode(countryCodes[i], 100, 1, EnumStatus.active);
                     assert.ok(result.length > 0, "Get 'active' nodes by country code");
                 }
                 
@@ -308,8 +333,12 @@ describe('vda-node-manager read only tests', () => {
                 const did = REMOVE_START_DIDS[0];
                 const removedNode = DID_NODE_MAP.get(did.address);
                 const removedCountryCode = removedNode.countryCode;
-                const result = await blockchainApi.getNodesByCountryCode(removedCountryCode, EnumStatus.removing);
+                let result = await blockchainApi.getNodesByCountryCode(removedCountryCode, 100, 1, EnumStatus.removing);
                 assert.ok(result.length > 0, "Get 'removing' nodes by country code");
+
+                // Pagination check
+                result = await blockchainApi.getNodesByCountryCode(countryCodes[0], 1, 2, EnumStatus.active);
+                assert.ok(result.length === 1, "Get 'active' nodes by country code");
             })
     
             it("Get nodes by region code", async () => {
@@ -318,10 +347,29 @@ describe('vda-node-manager read only tests', () => {
     
                 for (let i = 0; i < regionCodes.length; i++) {
                     const regionNodes = nodes.filter(item => item.regionCode === regionCodes[i]);
-                    const result = await blockchainApi.getNodesByRegionCode(regionCodes[i]);
+                    const result = await blockchainApi.getNodesByRegionCode(regionCodes[i], 100, 1);
     
                     assert.ok(regionNodes.length === result.length, "Get nodes by region code");
                 }
+
+                // Pagination check
+                // Failed for invalid page number
+                try {
+                    await blockchainApi.getNodesByRegionCode(regionCodes[0], 10, 0);
+                } catch(err) {
+                    assert.ok(err.message.match('Failed to get nodes by region'), 'Invalid page number');
+                }
+
+                // Failed for invalid page size
+                try {
+                    await blockchainApi.getNodesByRegionCode(regionCodes[0], 0, 1);
+                } catch(err) {
+                    assert.ok(err.message.match('Failed to get nodes by region'), 'Invalid page number');
+                }
+
+                // Success
+                const result = await blockchainApi.getNodesByRegionCode(regionCodes[0], 1, 2);
+                assert.ok(result.length === 1, "Get nodes by country code");
             })
 
             it("Get nodes by region code and status",async () => {
@@ -330,7 +378,7 @@ describe('vda-node-manager read only tests', () => {
                 const regionCodes = [...new Set(regionArr)]
     
                 for (let i = 0; i < regionCodes.length; i++) {
-                    const result = await blockchainApi.getNodesByRegionCode(regionCodes[i], EnumStatus.active);
+                    const result = await blockchainApi.getNodesByRegionCode(regionCodes[i], 100, 1, EnumStatus.active);
                     assert.ok(result.length > 0, "Get 'active' nodes by region code");
                 }
 
@@ -338,21 +386,25 @@ describe('vda-node-manager read only tests', () => {
                 const did = REMOVE_START_DIDS[0];
                 const removedNode = DID_NODE_MAP.get(did.address);
                 const removedregionCode = removedNode.regionCode;
-                const result = await blockchainApi.getNodesByRegionCode(removedregionCode, EnumStatus.removing);
+                let result = await blockchainApi.getNodesByRegionCode(removedregionCode, 100, 1, EnumStatus.removing);
                 assert.ok(result.length > 0, "Get 'removing' nodes by region code and status");
+
+                // Check pagination
+                result = await blockchainApi.getNodesByRegionCode(regionCodes[0], 1, 2, EnumStatus.active);
+                assert.ok(result.length === 1, "Get 'active' nodes by region code");
             })
 
             it("Get nodes by status", async () => {
                 // Get `active` nodes
-                let result = await blockchainApi.getNodesByStatus(EnumStatus.active);
+                let result = await blockchainApi.getNodesByStatus(EnumStatus.active, 100, 1);
                 assert.ok(result.length >= REGISTERED_DIDS.length, "Get active nodes");
 
                 // Get `pending removal` nodes
-                result = await blockchainApi.getNodesByStatus(EnumStatus.removing);
+                result = await blockchainApi.getNodesByStatus(EnumStatus.removing, 100, 1);
                 assert.ok(result.length > 0, "Get pending removal nodes");
 
                 // Get `removed` nodes
-                result = await blockchainApi.getNodesByStatus(EnumStatus.removed);
+                result = await blockchainApi.getNodesByStatus(EnumStatus.removed, 100, 1);
                 assert.ok(result.length >= 0, "Get removed nodes");                
             })
         })

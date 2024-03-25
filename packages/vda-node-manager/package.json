@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-node-manager",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Client to manage storage nodes from the blockchain",
   "main": "build/index.js",
   "types": "build/index.d.ts",
