@@ -13,6 +13,7 @@ export interface DefaultEnvironmentConfig {
 	defaultDatabaseServerUrl?: string
 	defaultMessageServerUrl?: string
 	schemaPaths?: Record<string,string>
+	readOnlyDataApiUri?: string
 }
 
 export interface DefaultClientConfig extends DefaultEnvironmentConfig {
@@ -49,6 +50,11 @@ export interface ClientConfig {
 	 * Specify custom schema paths (typically for local development).
 	 */
 	schemaPaths?: object;
+
+	/**
+	 * URL of the Data API for cached fetching of read only network data
+	 */
+	readOnlyDataApiUri?: string;
 }
 
 /**

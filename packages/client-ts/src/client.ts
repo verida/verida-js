@@ -9,6 +9,8 @@ import DEFAULT_CONFIG from "./config";
 import Axios from "axios";
 import { ServiceEndpoint } from "did-resolver";
 import { DIDDocument } from "@verida/did-document";
+import { ProfileDocument } from "@verida/types";
+import axios from "axios";
 const _ = require("lodash");
 
 /**
@@ -206,6 +208,39 @@ class Client implements IClient {
 
   public getConfig(): DefaultClientConfig {
     return this.config
+  }
+
+  public async getPublicProfile(did: string,
+    contextName: string,
+    profileName: string = "basicProfile",
+    fallbackContext: string | null = "Verida: Vault",
+    useCache: boolean = true): Promise<ProfileDocument> {
+    if (this.config.readOnlyDataApiUri) {
+      // Try to fetch the profile from our data API
+      const fetchUri = `${this.config.readOnlyDataApiUri}/${did}/${contextName}/profile_public/${profileName}?ignoreCache=true`
+
+      try {
+        const response = await axios.get(fetchUri)
+        return <ProfileDocument> response.data
+      } catch (err: any) {
+        if (err.response && err.response.data && err.response.data.status == 'fail') {
+          if (fallbackContext && fallbackContext != contextName) {
+            // try the fallback context
+            return this.getPublicProfile(did, fallbackContext, profileName, null, useCache)
+          }
+        }
+      }
+    }
+
+    // Profile not able to be fetched from the read only data API
+    // Try fetching from the network
+    const profile = await this.openPublicProfile(did, contextName, profileName, fallbackContext)
+
+    if (!profile) {
+      throw new Error('Profile not found')
+    }
+
+    return profile.getMany()
   }
 
   /**
