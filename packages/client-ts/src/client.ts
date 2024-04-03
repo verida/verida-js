@@ -217,7 +217,7 @@ class Client implements IClient {
     useCache: boolean = true): Promise<ProfileDocument> {
     if (this.config.readOnlyDataApiUri) {
       // Try to fetch the profile from our data API
-      const fetchUri = `${this.config.readOnlyDataApiUri}/${did}/${contextName}/profile_public/${profileName}?ignoreCache=true`
+      const fetchUri = `${this.config.readOnlyDataApiUri}/${did}/${contextName}/profile_public/${profileName}?ignoreCache=${!useCache}`
 
       try {
         const response = await axios.get(fetchUri)
