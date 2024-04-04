@@ -15,11 +15,6 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const rpcUrl = process.env.RPC_URL;
-if (!rpcUrl) {
-    throw new Error('No RPC_URL in the env file');
-}
-
 const PORT = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5021;
 const SERVER_URL = `http://localhost:${PORT}`;
 

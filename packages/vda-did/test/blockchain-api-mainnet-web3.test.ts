@@ -18,13 +18,10 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const rpcUrl = 'https://polygon-rpc.com/';
-
 const configuration = {
     callType: 'web3',
     web3Options: {
         privateKey,
-        rpcUrl,
         eip1559Mode: 'fast',
         eip1559gasStationUrl: 'https://gasstation.polygon.technology/v2'
     }

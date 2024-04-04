@@ -13,11 +13,6 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const rpcUrl = process.env.RPC_URL;
-if (!rpcUrl) {
-    throw new Error('No RPC_URL in the env file');
-}
-
 const createBlockchainAPI = (did: any, configuration:any) => {
     return new BlockchainApi(<VdaDidConfigurationOptions>{
         identifier: did.address,
@@ -59,7 +54,6 @@ const checkGlobalGasConfig = async (gasOption: Record<string, any>, isSuccess = 
         callType: 'web3',
         web3Options: {
             privateKey,
-            rpcUrl,
             ...gasOption
         }
     }
@@ -71,8 +65,6 @@ const checkMethodDefaultGasConfig = async (gasOption: Record<string, any>, isSuc
         callType: 'web3',
         web3Options: {
             privateKey,
-            rpcUrl,
-
             methodDefaults: {
                 "register": gasOption
             }
@@ -197,7 +189,6 @@ describe('vda-did blockchain api test for different gas configurations', functio
             callType: 'web3',
             web3Options: {
                 privateKey,
-                rpcUrl,
             }
         })
         describe('Gas configuration from gas station url', function() {

@@ -15,17 +15,10 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const rpcUrl = process.env.RPC_URL;
-if (!rpcUrl) {
-    throw new Error('No RPC_URL in the env file');
-}
-
-
 const configuration = {
     callType: 'web3',
     web3Options: {
         privateKey,
-        rpcUrl,
         eip1559Mode: 'fast',
         eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
     }
