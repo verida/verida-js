@@ -28,7 +28,7 @@ describe('Interpret identifier test', function() {
                 'network': BlockchainAnchor.MAINNET,
                 'address': '0xCDEdd96AfA6956f0299580225C2d9a52aca8487A'
             },
-            'did:vda:polamoy:0x158672345D2486a148313c6b107857A64ff6b477': {
+            'did:vda:mumbai:0x158672345D2486a148313c6b107857A64ff6b477': {
                 'network': BlockchainAnchor.TESTNET,
                 'address': '0x158672345D2486a148313c6b107857A64ff6b477'
             }

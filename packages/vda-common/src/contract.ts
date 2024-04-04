@@ -18,8 +18,8 @@ export interface CONTRACT_INFO {
     address: string
 }
 
-const MAINNET = EnvironmentType.MYRTLE
-const TESTNET = EnvironmentType.BANKSIA
+const MAINNET = EnvironmentType.MAINNET
+const TESTNET = EnvironmentType.TESTNET
 const DEVNET = EnvironmentType.DEVNET
 
 export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<EnvironmentType, string | null>> = {

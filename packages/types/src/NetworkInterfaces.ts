@@ -17,9 +17,11 @@ export enum EnvironmentType {
 export enum BlockchainAnchor {
 	POLAMOY = "polamoy",
 	POLPOS = "polpos",
+	MUMBAI = "mumbai"
 
 	MAINNET = "polpos",
-	TESTNET = "polamoy"
+	//TESTNET = "polamoy",
+	TESTNET = "mumbai"
 }
 
 export interface DefaultEnvironmentConfig {

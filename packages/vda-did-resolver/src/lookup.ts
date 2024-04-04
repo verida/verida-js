@@ -10,7 +10,6 @@ import { Contract } from 'ethers';
  */
 export async function lookup(didAddress: string, network: string, rpcUrl: string) : Promise<string[]> {
     // Simple read-only of the blockchain
-
     const contractABI = abiList["VeridaDIDRegistry"];
     const provider = new JsonRpcProvider(rpcUrl);
     const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][network];
