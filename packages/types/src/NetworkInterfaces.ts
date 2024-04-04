@@ -5,8 +5,21 @@ import { SecureContextConfig } from './StorageLinkInterfaces';
 export enum EnvironmentType {
     LOCAL = "local",
 	DEVNET = "devnet",
-    TESTNET = "testnet",
-    MAINNET = "mainnet"
+	BANKSIA = "banksia",
+	MYRTLE = "myrtle",
+
+	// For backwards compatibility
+	// Will be removed in the future
+	MAINNET = "myrtle",
+	TESTNET = "banksia"
+}
+
+export enum BlockchainAnchor {
+	POLAMOY = "polamoy",
+	POLPOS = "polpos",
+
+	MAINNET = "polpos",
+	TESTNET = "polamoy"
 }
 
 export interface DefaultEnvironmentConfig {

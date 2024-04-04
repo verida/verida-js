@@ -1,22 +1,40 @@
 import { BigNumberish, utils } from 'ethers'
 import EncryptionUtils from '@verida/encryption-utils'
+import { BlockchainAnchor } from '@verida/types';
 
 const { computeAddress, getAddress, solidityPack } = utils
 
 export function interpretIdentifier(identifier: string): {
   address: string;
   publicKey?: string;
-  network?: string;
+  network?: BlockchainAnchor;
 } {
   let id = identifier;
-  let network = undefined;
+  let networkString: string | undefined = undefined;
+
   if (id.startsWith("did:vda")) {
     id = id.split("?")[0];
     const components = id.split(":");
     id = components[components.length - 1];
     if (components.length >= 4) {
-      network = components.splice(2, components.length - 3).join(":");
+      networkString = components.splice(2, components.length - 3).join(":");
     }
+  }
+
+  if (!networkString) {
+    throw new Error('Unable to locate network')
+  }
+
+  let network: BlockchainAnchor | undefined
+
+  // Convert `network` to EnvironmentType
+  if (networkString?.toLowerCase() == 'mainnet') {
+    network = BlockchainAnchor.MAINNET;
+  } else if (networkString?.toLowerCase() == 'testnet') {
+    network = BlockchainAnchor.TESTNET;
+  } else {
+    network = Object.values(BlockchainAnchor)
+      .find((value) => value.toLowerCase() === networkString!.toLowerCase());
   }
   
   if (id.length > 42) {

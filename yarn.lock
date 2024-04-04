@@ -2250,44 +2250,15 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
-"@verida/encryption-utils@^2.2.3":
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/@verida/encryption-utils/-/encryption-utils-2.2.3.tgz#625dc5d49f63f031d41a63c6769307420363809d"
-  integrity sha512-jYxWEsLjaOWmjb7NiOFMtSg8g93HHkg5/24VdCSbnHYRAy//r2Bj08E6gWkqU8ot6P9g1s+VCF2DeWnhcmPHpA==
+"@verida/encryption-utils@*", "@verida/encryption-utils@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@verida/encryption-utils/-/encryption-utils-3.0.0.tgz#21434720e3c9d28a9df074e353d255959877a82d"
+  integrity sha512-qaCvVFeEV4QKJl5quN/XMFCKwsCHE5hzjUdQAutlp74ItnXe0YGwZzjqXUYynBKkldCyZQpRoeH16e4GFFSBSQ==
   dependencies:
     ethers "^5.5.1"
     json.sortify "^2.2.2"
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
-
-"@verida/helpers@^2.3.3":
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/@verida/helpers/-/helpers-2.3.3.tgz#4bb77143d59cdb12e85bf7e2de2268606231731c"
-  integrity sha512-k8AwOM3lg9+J20OSlF/PWNTFLfq1fmsu9wco0EYQcg81VAGkzYuCCHXN/+6bL7Wmf9YS2Wz+t1FeaJuCCG0kow==
-  dependencies:
-    "@verida/encryption-utils" "^2.2.3"
-    "@verida/types" "^2.3.1"
-    bs58 "^5.0.0"
-    url "^0.11.0"
-
-"@verida/vda-common@^2.3.6":
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/@verida/vda-common/-/vda-common-2.3.6.tgz#d2dee47c852b5f5a425aac02e9079916f3fa44e0"
-  integrity sha512-E439YHkafz58kjAvTHoZUUkSYOHg/zT5ItTXD8M9AdfQzR4IzInbEukn9LtX00b0Zupp1TtF16aMgWsRsuJRgQ==
-  dependencies:
-    "@verida/encryption-utils" "^2.2.3"
-    copyfiles "^2.4.1"
-    ethers "5.5.1"
-
-"@verida/web3@^2.3.6":
-  version "2.3.6"
-  resolved "https://registry.yarnpkg.com/@verida/web3/-/web3-2.3.6.tgz#fd7606284fcda28b9df164a080f2c6eefbe26ef0"
-  integrity sha512-KNs3MLEqd7r+fHyIR2OhnZqoDrL3I82fCGO4gwAxUmE5DHlmyaq2lExXN5teqAJIfiGTqcgASWzfqkEnix8/0Q==
-  dependencies:
-    "@verida/types" "^2.3.1"
-    "@verida/vda-common" "^2.3.6"
-    axios "^1.2.3"
-    ethers "^5.7.0"
 
 "@zkochan/cmd-shim@^3.1.0":
   version "3.1.0"
@@ -9476,13 +9447,6 @@ trim-off-newlines@^1.0.0:
   resolved "https://registry.yarnpkg.com/trim-off-newlines/-/trim-off-newlines-1.0.1.tgz#9f9ba9d9efa8764c387698bcbfeb2c848f11adb3"
   integrity sha1-n5up2e+odkw4dpi8v+sshI8RrbM=
 
-ts-macros@^2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/ts-macros/-/ts-macros-2.6.0.tgz#6f7d10ee56869af988d9ff37535c82a446271708"
-  integrity sha512-X7c4rHPTpBYY+MJUkIDIQMbTPAcv1y1sylrnDMsTvcbImleT4Wlheg3wNbORwnX8Zvq2ldZnttNXcZ1a0VE2Kg==
-  dependencies:
-    yargs-parser "^21.1.1"
-
 ts-mocha@^10.0.0:
   version "10.0.0"
   resolved "https://registry.yarnpkg.com/ts-mocha/-/ts-mocha-10.0.0.tgz#41a8d099ac90dbbc64b06976c5025ffaebc53cb9"
@@ -10198,11 +10162,6 @@ yargs-parser@^20.2.2, yargs-parser@^20.2.3:
   version "20.2.9"
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-20.2.9.tgz#2eb7dc3b0289718fc295f362753845c41a0c94ee"
   integrity sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==
-
-yargs-parser@^21.1.1:
-  version "21.1.1"
-  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-21.1.1.tgz#9096bceebf990d21bb31fa9516e0ede294a77d35"
-  integrity sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==
 
 yargs-unparser@1.6.0:
   version "1.6.0"

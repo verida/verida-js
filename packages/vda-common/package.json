@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@verida/encryption-utils": "^3.0.1-alpha.0",
+    "@verida/types": "*",
     "copyfiles": "^2.4.1",
     "ethers": "5.7.2"
   }
