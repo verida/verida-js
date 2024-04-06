@@ -57,7 +57,7 @@ Configurations are a bit different for both modes:
 ```
 
 ## Interacting with Contract
-Developers can call any contract functions using instace created above.
+Developers can call any contract functions using instance created above.
 ```
 const ret = instance.identityOwner('0x12...5f')
 ```
