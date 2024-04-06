@@ -129,7 +129,7 @@
 - Support a fallback context to search when opening a public profile (#203 #194)
 - Support auto-login from URL parameters to support URL redirection from the Vault (#199)
 - Return empty array if no results from database when calling `getMany()` (#193)
-- Add mocha types to resulve unit test errors
+- Add mocha types to resolve unit test errors
 - Fix incorrect typing of `DatabaseOpenConfig` encryptionKey
 
 2022-04-12 (v1.1.14)
