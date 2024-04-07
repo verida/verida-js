@@ -35,8 +35,8 @@ export interface NodeSelectorConfig {
 // @ts-ignore
 const STORAGE_NODE_URLS: Record<EnvironmentType, string> = {}
 STORAGE_NODE_URLS[EnvironmentType.DEVNET] = 'https://assets.verida.io/registry/storageNodes/devnet.json'
-STORAGE_NODE_URLS[EnvironmentType.TESTNET] = 'https://assets.verida.io/registry/storageNodes/testnet.json'
-STORAGE_NODE_URLS[EnvironmentType.MAINNET] = 'https://assets.verida.io/registry/storageNodes/mainnet.json'
+STORAGE_NODE_URLS[EnvironmentType.BANKSIA] = 'https://assets.verida.io/registry/storageNodes/banksia.json'
+STORAGE_NODE_URLS[EnvironmentType.MYRTLE] = 'https://assets.verida.io/registry/storageNodes/myrtle.json'
 
 export class NodeSelector {
 
