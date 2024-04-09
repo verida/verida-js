@@ -100,7 +100,6 @@ describe("VdaDid tests", function() {
                 assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS, 'Successfully published to all endpoints')
             } catch (err) {
                 const errors = veridaApi.getLastEndpointErrors()
-                console.log(errors)
                 assert.fail(`Failed: ${err.message}`)
             }
         })
@@ -127,16 +126,11 @@ describe("VdaDid tests", function() {
         this.timeout(200 * 1000)
         it("Success", async () => {
             try {
-                console.log('a')
                 const response = await didResolver.resolve(DID)
-                console.log('b')
-                console.log(response)
                 const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
-                console.log('c')
 
                 assert.deepEqual(didDocument!.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {
-                console.log(err)
                 assert.fail(`Failed: ${err.message}`)
             }
         })
