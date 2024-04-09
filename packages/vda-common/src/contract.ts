@@ -1,4 +1,4 @@
-import { BlockchainAnchor, EnvironmentType, Network } from "@verida/types";
+import { BlockchainAnchor, Network } from "@verida/types";
 import { mapDidNetworkToBlockchainAnchor } from "./utils";
 import { NetworkDefinition } from "@verida/types";
 
@@ -57,6 +57,30 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
     },
 }
 
+export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
+    [BlockchainAnchor.POLPOS]: '0x89',
+    [BlockchainAnchor.POLAMOY]: '0x13882',
+    [BlockchainAnchor.MUMBAI]: '0x13881',
+
+    /**
+     * @todo Deprecate
+     */
+    [BlockchainAnchor.MAINNET]: '0x89',
+
+    /**
+     * @todo Deprecate
+     */
+    [BlockchainAnchor.TESTNET]: '0x13881',
+
+    /**
+     * @todo Switch to `polamoy`
+     */
+    [BlockchainAnchor.DEVNET]: '0x13881'
+}
+
+const CHAINID_MAINNET = BLOCKCHAIN_CHAINIDS[BlockchainAnchor.MAINNET].toString()
+const CHAINID_TESTNET = BLOCKCHAIN_CHAINIDS[BlockchainAnchor.TESTNET].toString()
+
 export type CONTRACT_NAMES = 
     "VeridaDIDRegistry"     |
     "NameRegistry"          |
@@ -74,16 +98,16 @@ export type CONTRACT_NAMES =
 export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | null>> = {
     "VeridaDIDRegistry": {
         [MAINNET]: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
-        "0x89": "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
+        [CHAINID_MAINNET]: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
         [TESTNET]: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
-        "0x13881": "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
+        [CHAINID_TESTNET]: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
         [DEVNET]: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
     },
     "NameRegistry": {
         [MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].nameRegistryAddress,
-        "0x89": NETWORK_DEFINITIONS[Network.MYRTLE].nameRegistryAddress,
+        [CHAINID_MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].nameRegistryAddress,
         [TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].nameRegistryAddress,
-        "0x13881": NETWORK_DEFINITIONS[Network.BANKSIA].nameRegistryAddress,
+        [CHAINID_TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].nameRegistryAddress,
         [DEVNET]: NETWORK_DEFINITIONS[Network.BANKSIA].nameRegistryAddress,
     },
     /**
@@ -100,16 +124,16 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
     },
     "VeridaDIDLinkage" : {
         [MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].didLinkageAddress,
-        "0x89":  NETWORK_DEFINITIONS[Network.MYRTLE].didLinkageAddress,
+        [CHAINID_MAINNET]:  NETWORK_DEFINITIONS[Network.MYRTLE].didLinkageAddress,
         [TESTNET]:  NETWORK_DEFINITIONS[Network.BANKSIA].didLinkageAddress,
-        "0x13881":  NETWORK_DEFINITIONS[Network.BANKSIA].didLinkageAddress,
+        [CHAINID_TESTNET]:  NETWORK_DEFINITIONS[Network.BANKSIA].didLinkageAddress,
         [DEVNET]:  NETWORK_DEFINITIONS[Network.BANKSIA].didLinkageAddress,
     },
     "VeridaToken" : {
         [MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].tokenAddress,
-        "0x89": NETWORK_DEFINITIONS[Network.MYRTLE].tokenAddress,
+        [CHAINID_MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].tokenAddress,
         [TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].tokenAddress,
-        "0x13881": NETWORK_DEFINITIONS[Network.BANKSIA].tokenAddress,
+        [CHAINID_TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].tokenAddress,
         [DEVNET]: NETWORK_DEFINITIONS[Network.BANKSIA].tokenAddress,
     },
     /**
@@ -126,9 +150,9 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
     },
     "StorageNodeRegistry": {
         [MAINNET]: null,
-        "0x89": null,
+        [CHAINID_MAINNET]: null,
         [TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].storageNodeRegistryAddress,
-        "0x13881": NETWORK_DEFINITIONS[Network.BANKSIA].storageNodeRegistryAddress,
+        [CHAINID_TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].storageNodeRegistryAddress,
         [DEVNET]: NETWORK_DEFINITIONS[Network.BANKSIA].storageNodeRegistryAddress
     }
 };
