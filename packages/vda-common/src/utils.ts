@@ -25,6 +25,16 @@ export function interpretIdentifier(identifier: string): {
     throw new Error('Unable to locate network')
   }
 
+  const network = mapDidNetworkToBlockchainAnchor(networkString)
+  
+  if (id.length > 42) {
+    return { address: computeAddress(id), publicKey: id, network };
+  } else {
+    return { address: getAddress(id), network }; // checksum address
+  }
+}
+
+export function mapDidNetworkToBlockchainAnchor(networkString: string): BlockchainAnchor | undefined {
   let network: BlockchainAnchor | undefined
 
   // Convert `network` to EnvironmentType
@@ -36,12 +46,8 @@ export function interpretIdentifier(identifier: string): {
     network = Object.values(BlockchainAnchor)
       .find((value) => value.toLowerCase() === networkString!.toLowerCase());
   }
-  
-  if (id.length > 42) {
-    return { address: computeAddress(id), publicKey: id, network };
-  } else {
-    return { address: getAddress(id), network }; // checksum address
-  }
+
+  return network
 }
 
 export function getVeridaSignWithNonce(
