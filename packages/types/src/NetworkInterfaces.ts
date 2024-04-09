@@ -2,27 +2,78 @@ import { IAccount } from './IAccount';
 import { IStorageEngine } from './IStorageEngine';
 import { SecureContextConfig } from './StorageLinkInterfaces';
 
-export enum EnvironmentType {
-    LOCAL = "local",
+export enum Network {  
+	LOCAL = "local",  
 	DEVNET = "devnet",
-	BANKSIA = "banksia",
-	MYRTLE = "myrtle",
+	BANKSIA = "banksia",  
+	MYRTLE = "myrtle",  
+}
+  
+/**  
+ * @todo Deprecate in favour of `Network`
+ */
+export enum EnvironmentType {  
+	LOCAL = Network.LOCAL,  
+	DEVNET = Network.DEVNET,  
+	BANKSIA = Network.BANKSIA,  
+	MYRTLE = Network.MYRTLE,  
 
-	// For backwards compatibility
-	// Will be removed in the future
-	MAINNET = "myrtle",
-	TESTNET = "banksia"
+	/**  
+	 * @deprecated use MYRTLE instead  
+	 */
+	MAINNET = Network.MYRTLE,  
+	/**  
+	 * @deprecated use BANKSIA instead  
+	 */  
+	TESTNET = Network.BANKSIA,  
 }
 
 export enum BlockchainAnchor {
 	POLAMOY = "polamoy",
 	POLPOS = "polpos",
-	MUMBAI = "mumbai"
 
+	/**  
+	 * @todo Remove once Amoy is deployed
+	 */
+	MUMBAI = "mumbai",
+
+	/**  
+	 * @deprecated use POLPOS instead  
+	 */
 	MAINNET = "polpos",
+
+	/**  
+	 * @deprecated use MUMBAI instead  
+	 */
+	TESTNET = "mumbai",
 	//TESTNET = "polamoy",
-	TESTNET = "mumbai"
+	DEVNET = "mumbai"
 }
+
+export enum BlockchainNetworks {
+	// mainnet
+	//'mainnet' = "0x89",
+	'polpos' = "0x89",
+
+	// testnet
+	//'testnet' = "0x13881",
+	/**
+	 * @todo Remove once Amoy is deployed
+	 */
+	'mumbai' = "0x13881",
+	'devnet' = "0x13881"
+}
+
+export interface NetworkDefinition {  
+	id: string
+	label: string
+	isMainnet: boolean
+	anchoredBlockchain: BlockchainAnchor
+	tokenAddress: string | null
+	storageNodeRegistryAddress: string | null
+	nameRegistryAddress: string | null
+	didLinkageAddress: string | null
+} 
 
 export interface DefaultEnvironmentConfig {
 	defaultDatabaseServerUrl?: string
