@@ -10,10 +10,11 @@ import { VeridaDocInterface } from '@verida/types';
 
 const wallet = ethers.Wallet.createRandom()
 
-let DID_ADDRESS, DID, DID_PK, DID_PRIVATE_KEY
+let DID_ADDRESS, DID, DID_PK, DID_PRIVATE_KEY, DID_TESTNET
 
 DID_ADDRESS = wallet.address
-DID = `did:vda:testnet:${DID_ADDRESS}`
+DID = `did:vda:mumbai:${DID_ADDRESS}`
+DID_TESTNET = `did:vda:testnet:${DID_ADDRESS}`
 DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
 
@@ -74,9 +75,29 @@ describe("DID Resolver Tests", function() {
             }
         })
 
-        it("Fail - Invalid DID", async () => {
+        it("Success - Testnet", async () => {
+            try {
+                const response = await didResolver.resolve(DID_TESTNET)
+                const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
+
+                assert.deepEqual(didDocument.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
+            } catch (err) {
+                assert.fail(`Failed: ${err.message}`)
+            }
+        })
+
+        it("Fail - Invalid DID Network", async () => {
             try {
                 await didResolver.resolve(`did:vda:0xabcdefg`)
+                assert.fail(`Invalid DID was found`)
+            } catch (err) {
+                assert.equal(err.message, 'Unable to locate network', 'DID network not found')
+            }
+        })
+
+        it("Fail - Invalid DID", async () => {
+            try {
+                await didResolver.resolve(`did:vda:mumbai:0xabcdefg`)
                 assert.fail(`Invalid DID was found`)
             } catch (err) {
                 assert.ok(err.message.match('invalid address'), 'DID not found')

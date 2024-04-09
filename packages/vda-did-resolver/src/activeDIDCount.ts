@@ -1,4 +1,4 @@
-import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda-common";
+import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS, mapDidNetworkToBlockchainAnchor } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
@@ -18,13 +18,15 @@ export async function activeDIDCount(network: string): Promise<number> {
 
     const contractABI = abiList["VeridaDIDRegistry"];
     const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][network];
 
-    if (!address) {
+    const blockchainAnchor = mapDidNetworkToBlockchainAnchor(network)
+    if (!blockchainAnchor) {
         throw new Error(`Empty contract address for network-${network}`)
     }
 
-    const contract = new Contract(address, contractABI.abi, provider);
+    const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][blockchainAnchor];
+
+    const contract = new Contract(address!, contractABI.abi, provider);
     
     let data;
     try {

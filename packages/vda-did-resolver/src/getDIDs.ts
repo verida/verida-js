@@ -1,4 +1,4 @@
-import { CONTRACT_ADDRESS, RPC_URLS, CONTRACT_ABI as abiList } from "@verida/vda-common";
+import { CONTRACT_ADDRESS, RPC_URLS, CONTRACT_ABI as abiList, mapDidNetworkToBlockchainAnchor } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
@@ -17,17 +17,19 @@ export async function getDIDs(network: EnvironmentType, startIndex: number=0, co
         throw new Error(`Unable to locate RPC_URL for network: ${network}`)
     }
 
-    // Simple read-only of the blockchain
-    const contractABI = abiList["VeridaDIDRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][network];
-
-    if (!address) {
+    const blockchainAnchor = mapDidNetworkToBlockchainAnchor(network)
+    if (!blockchainAnchor) {
         throw new Error(`Empty contract address for network-${network}`)
     }
 
+    const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][blockchainAnchor];
+
+    // Simple read-only of the blockchain
+    const contractABI = abiList["VeridaDIDRegistry"];
+    const provider = new JsonRpcProvider(rpcUrl);
+
     try {
-        const contract = new Contract(address, contractABI.abi, provider);
+        const contract = new Contract(address!, contractABI.abi, provider);
 
         if (mostRecent) {
             // user wants most recent DIDs

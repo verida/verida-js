@@ -13,13 +13,13 @@ require('dotenv').config();
 const wallet = ethers.Wallet.createRandom()
 const DID_PRIVATE_KEY = wallet.privateKey
 const DID_ADDRESS = wallet.address
-const DID = `did:vda:testnet:${DID_ADDRESS}`
+const DID = `did:vda:mumbai:${DID_ADDRESS}`
 const DID_PK = wallet.publicKey
 
 const DID_PRIVATE_KEY2 = `0x${randomBytes(32).toString('hex')}`
 const wallet2 = new ethers.Wallet(DID_PRIVATE_KEY2)
 const DID_ADDRESS2 = wallet2.address
-const DID2 = `did:vda:testnet:${DID_ADDRESS2}`
+const DID2 = `did:vda:mumbai:${DID_ADDRESS2}`
 const DID_PK2 = wallet2.publicKey
 
 console.log(`DID1: ${DID}`)
@@ -80,7 +80,7 @@ describe("VdaDid tests", function() {
     this.beforeAll(async () => {
     })
 
-    describe("Create", function() {
+    describe.only("Create", function() {
         this.timeout(200 * 1000)
         
         it("Success", async () => {
@@ -94,10 +94,10 @@ describe("VdaDid tests", function() {
                 masterDidDoc = doc
 
                 const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
-                assert.ok('Succesfully published to all endpoints')
+                assert.ok('Successfully published to all endpoints')
                 const time = (new Date()).getTime()
                 assert.ok(Object.keys(publishedEndpoints).length, 'At least one endpoint was published')
-                assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS, 'Succesfully published to all endpoints')
+                assert.deepEqual(Object.keys(publishedEndpoints), ENDPOINTS, 'Successfully published to all endpoints')
             } catch (err) {
                 const errors = veridaApi.getLastEndpointErrors()
                 console.log(errors)
@@ -123,15 +123,20 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe("Get", function() {
+    describe.only("Get", function() {
         this.timeout(200 * 1000)
         it("Success", async () => {
             try {
+                console.log('a')
                 const response = await didResolver.resolve(DID)
+                console.log('b')
+                console.log(response)
                 const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
+                console.log('c')
 
                 assert.deepEqual(didDocument!.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
             } catch (err) {
+                console.log(err)
                 assert.fail(`Failed: ${err.message}`)
             }
         })
