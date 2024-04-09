@@ -1,35 +1,13 @@
-import { Keyring } from '@verida/keyring'
 import { ServiceEndpoint, Service } from 'did-resolver'
 import EncryptionUtils from '@verida/encryption-utils'
 import { VerificationMethod } from 'did-resolver'
-import { knownNetworks, strip0x } from './helpers'
-import { BigNumber } from '@ethersproject/bignumber'
-import { computeAddress } from "@ethersproject/transactions";
-import { getAddress } from "@ethersproject/address";
+import { strip0x } from './helpers'
 import { IDIDDocument, IKeyring, SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface, VerificationMethodTypes } from '@verida/types'
+import { interpretIdentifier } from '@verida/vda-common'
+import { mapDidNetworkToBlockchainAnchor } from '@verida/vda-common'
+import { BLOCKCHAIN_CHAINIDS } from '@verida/vda-common'
+import { BlockchainAnchor } from '@verida/types'
 const _ = require('lodash')
-
-function interpretIdentifier(identifier: string): {
-    address: string;
-    publicKey?: string;
-    network?: string;
-  } {
-    let id = identifier;
-    let network = undefined;
-    if (id.startsWith("did:vda")) {
-      id = id.split("?")[0];
-      const components = id.split(":");
-      id = components[components.length - 1];
-      if (components.length >= 4) {
-        network = components.splice(2, components.length - 3).join(":");
-      }
-    }
-    if (id.length > 42) {
-      return { address: computeAddress(id), publicKey: id, network };
-    } else {
-      return { address: getAddress(id), network }; // checksum address
-    }
-  }
 
 export default class DIDDocument implements IDIDDocument {
 
@@ -59,10 +37,9 @@ export default class DIDDocument implements IDIDDocument {
             }
 
 
-            const { address, publicKey, network } = interpretIdentifier(this.doc.id)
-
-            const hexChainId = network?.startsWith('0x') ? network : knownNetworks[network || 'mainnet']
-            const chainId = BigNumber.from(hexChainId).toNumber()
+            const { address, network } = interpretIdentifier(this.doc.id)
+            const blockchainAnchor = mapDidNetworkToBlockchainAnchor(network ? network.toString() : 'mainnet')
+            const chainId = blockchainAnchor ? BLOCKCHAIN_CHAINIDS[blockchainAnchor] : BLOCKCHAIN_CHAINIDS[BlockchainAnchor.MAINNET]
             
             // Add default signing key
             this.doc.assertionMethod = [

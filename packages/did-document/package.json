@@ -23,6 +23,7 @@
     "@verida/encryption-utils": "^3.0.0",
     "@verida/keyring": "^3.0.2",
     "@verida/types": "^3.0.1",
+    "@verida/vda-common": "*",
     "did-resolver": "^4.0.1",
     "lodash": "^4.17.21"
   },
