@@ -18,6 +18,8 @@ DID_TESTNET = `did:vda:testnet:${DID_ADDRESS}`
 DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
 
+const KNOWN_MAINNET_ADDRESS = `0xCDEdd96AfA6956f0299580225C2d9a52aca8487A`
+
 const ENDPOINTS = [
     `https://node1-euw6.gcp.devnet.verida.tech/did/${DID}`,
     `https://node2-euw6.gcp.devnet.verida.tech/did/${DID}`,
@@ -81,6 +83,30 @@ describe("DID Resolver Tests", function() {
                 const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
 
                 assert.deepEqual(didDocument.export(), masterDidDoc.export(), 'Returned DID Document matches created DID Document')
+            } catch (err) {
+                assert.fail(`Failed: ${err.message}`)
+            }
+        })
+
+        it("Success - Mainnet", async () => {
+            try {
+                const response = await didResolver.resolve(`did:vda:mainnet:${KNOWN_MAINNET_ADDRESS}`)
+                const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
+
+                assert.ok(didDocument.id.match(KNOWN_MAINNET_ADDRESS.toLowerCase()), 'DID document has correct ID')
+                assert.ok(didDocument.id.match('mainnet') || didDocument.id.match('polpos'), 'DID document has correct network')
+            } catch (err) {
+                assert.fail(`Failed: ${err.message}`)
+            }
+        })
+
+        it("Success - Myrtle", async () => {
+            try {
+                const response = await didResolver.resolve(`did:vda:polpos:${KNOWN_MAINNET_ADDRESS}`)
+                const didDocument = new DIDDocument(<VeridaDocInterface> response.didDocument)
+
+                assert.ok(didDocument.id.match(KNOWN_MAINNET_ADDRESS.toLowerCase()), 'DID document has correct ID')
+                assert.ok(didDocument.id.match('mainnet') || didDocument.id.match('polpos'), 'DID document has correct network')
             } catch (err) {
                 assert.fail(`Failed: ${err.message}`)
             }

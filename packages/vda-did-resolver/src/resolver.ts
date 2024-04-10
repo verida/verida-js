@@ -106,7 +106,6 @@ export class VdaDidResolver {
         // @todo: support consensus
         // @todo: support proof verification
         
-        
         // For now return the first doc
         return didDocuments[0]
     }
