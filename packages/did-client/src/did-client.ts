@@ -6,6 +6,7 @@ import { RPC_URLS, getWeb3ConfigDefaults } from "@verida/vda-common"
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
 import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
+import { DefaultEnvironmentBlockchainAnchors } from "@verida/vda-common"
 
 export class DIDClient implements IDIDClient {
 
@@ -38,7 +39,15 @@ export class DIDClient implements IDIDClient {
     }
 
     public getRpcUrl(): string {
-        const rpcUrl = this.config.rpcUrl ? this.config.rpcUrl : RPC_URLS[this.config.network]
+        /**
+         * Based on the selected Verida Environment, use the default blockchain anchor
+         * and then select the appropriate RPC URL
+         * 
+         * @todo Use `Network` instead of `EnvironmentType`
+         * @todo DIDClient should be configured with a BlockhainAnchor, not an `EnvironmentType`, however this complicates configuration for developers
+         */
+        const blockchainAnchor = DefaultEnvironmentBlockchainAnchors[this.config.network]
+        const rpcUrl = this.config.rpcUrl ? this.config.rpcUrl : RPC_URLS[blockchainAnchor.toString()]
         if (!rpcUrl) {
             throw new Error(`Unable to locate RPC_URL for network (${this.config.network})`)
         }

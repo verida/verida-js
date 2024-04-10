@@ -102,7 +102,7 @@ export default class AutoAccount extends Account {
         await this.ensureAuthenticated()
 
         const did = await this.did()
-        let storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true)
+        let storageConfig = await StorageLink.getLink(this.autoConfig.environment, this.didClient, did, contextName, true)
         
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
@@ -138,7 +138,7 @@ export default class AutoAccount extends Account {
      public async linkStorage(storageConfig: SecureContextConfig): Promise<boolean> {
         await this.ensureAuthenticated()
         const keyring = await this.keyring(storageConfig.id)
-        const result = await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
+        const result = await StorageLink.setLink(this.autoConfig.environment, this.didClient, storageConfig, keyring, this.wallet.privateKey)
 
         for (let i in result) {
             const response = result[i]
@@ -157,7 +157,7 @@ export default class AutoAccount extends Account {
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         await this.ensureAuthenticated()
-        let result = await StorageLink.unlink(this.didClient, contextName)
+        let result = await StorageLink.unlink(this.autoConfig.environment, this.didClient, contextName)
         if (!result) {
             return false
         }
@@ -179,7 +179,7 @@ export default class AutoAccount extends Account {
      */
     public async linkStorageContextService(contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
         await this.ensureAuthenticated()
-        const result = await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUris)
+        const result = await StorageLink.setContextService(this.autoConfig.environment, this.didClient, contextName, endpointType, serverType, endpointUris)
 
         for (let i in result) {
             const response = result[i]
