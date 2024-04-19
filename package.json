@@ -3,13 +3,13 @@
   "private": true,
   "license": "ISC",
   "devDependencies": {
-    "lerna": "^3.22.1",
+    "lerna": "^8.1.2",
     "typedoc": "^0.22.12",
     "typedoc-plugin-markdown": "^3.11.14",
     "typedoc-plugin-missing-exports": "^0.22.6"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "bootstrap": "yarn install",
     "build": "lerna run build",
     "doc": "typedoc --entryPointStrategy packages . --plugin typedoc-plugin-missing-exports --plugin typedoc-plugin-markdown --out api-docs src/index.ts"
   },
