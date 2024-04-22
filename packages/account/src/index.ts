@@ -4,6 +4,5 @@ import { AuthType } from "./auth-type"
 
 export {
     Account,
-    AuthType,
-    Config
+    AuthType
 }
