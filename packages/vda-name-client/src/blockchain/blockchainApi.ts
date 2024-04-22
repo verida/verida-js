@@ -2,16 +2,16 @@ import {
     getVeridaContract,
     VeridaContract
 } from "@verida/web3"
-import { Web3SelfTransactionConfig, VdaClientConfig } from '@verida/types'
+import { Web3SelfTransactionConfig, VdaClientConfig, Network } from '@verida/types'
 import { ethers, Contract } from "ethers";
-import { getContractInfoForNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
+import { getContractInfoForVeridaNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
 export class VeridaNameClient {
 
     private config: VdaClientConfig
-    private network: string
+    private network: Network
     private didAddress?: string
 
     private vdaWeb3Client? : VeridaContract
@@ -38,7 +38,7 @@ export class VeridaNameClient {
             (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
         }
 
-        const contractInfo = getContractInfoForNetwork("NameRegistry", this.network)
+        const contractInfo = getContractInfoForVeridaNetwork("NameRegistry", this.network)
 
         if (config.did) {
             this.readOnly = false
