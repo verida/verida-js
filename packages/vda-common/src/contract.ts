@@ -172,24 +172,35 @@ export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
     "StorageNodeRegistry": require('./abi/StorageNodeRegistry.json'),
 }
 
-export function getContractInfoForNetwork(name: CONTRACT_NAMES, chainNameOrId: string) : CONTRACT_INFO {
-    // const abiPath = `../abi/${name}.json`;
-    // console.log("File : ", abiPath)
-    // if (!fs.existsSync(abiPath)) {
-    //     throw new Error("Contract ABI file not exist")
-    // }
-    // const abi = require(abiPath);
-
+export function getContractInfoForBlockchain(name: CONTRACT_NAMES, blockchain: BlockchainAnchor) : CONTRACT_INFO {
     const abi = CONTRACT_ABI[name];
     if (!abi) {
         throw new Error("Contract ABI not exist")
     }
 
-    const network = mapDidNetworkToBlockchainAnchor(chainNameOrId)
-    const address = CONTRACT_ADDRESS[name][network ? network : chainNameOrId];
+    const address = CONTRACT_ADDRESS[name][blockchain.toString()];
 
     if (!address) {
-        throw new Error("Contract address not defined");
+        throw new Error(`Contract address not defined for blockchain: ${blockchain.toString()}`);
+    }
+
+    return {
+        abi: abi,
+        address: <string>address
+    }
+}
+
+export function getContractInfoForVeridaNetwork(name: CONTRACT_NAMES, network: Network) : CONTRACT_INFO {
+    const abi = CONTRACT_ABI[name];
+    if (!abi) {
+        throw new Error("Contract ABI not exist")
+    }
+
+    const networkDefinition = NETWORK_DEFINITIONS[network]
+    const address = CONTRACT_ADDRESS[name][networkDefinition.anchoredBlockchain.toString()];
+
+    if (!address) {
+        throw new Error(`Contract address not defined for blockchain: ${networkDefinition.id}`);
     }
 
     return {

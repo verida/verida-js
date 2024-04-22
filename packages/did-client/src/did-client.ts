@@ -1,12 +1,10 @@
 import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
-
 import { default as VeridaWallet } from "./wallet"
 import { getResolver } from '@verida/vda-did-resolver'
-import { RPC_URLS, getWeb3ConfigDefaults } from "@verida/vda-common"
+import { getWeb3ConfigDefaults, getDefaultRpcUrl } from "@verida/vda-common"
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
 import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
-import { DefaultEnvironmentBlockchainAnchors } from "@verida/vda-common"
 
 export class DIDClient implements IDIDClient {
 
@@ -43,13 +41,11 @@ export class DIDClient implements IDIDClient {
          * Based on the selected Verida Environment, use the default blockchain anchor
          * and then select the appropriate RPC URL
          * 
-         * @todo Use `Network` instead of `EnvironmentType`
          * @todo DIDClient should be configured with a BlockhainAnchor, not an `EnvironmentType`, however this complicates configuration for developers
          */
-        const blockchainAnchor = DefaultEnvironmentBlockchainAnchors[this.config.network]
-        const rpcUrl = this.config.rpcUrl ? this.config.rpcUrl : RPC_URLS[blockchainAnchor.toString()]
+        const rpcUrl = this.config.rpcUrl ? this.config.rpcUrl : getDefaultRpcUrl(this.config.blockchain.toString())
         if (!rpcUrl) {
-            throw new Error(`Unable to locate RPC_URL for network (${this.config.network})`)
+            throw new Error(`Unable to locate RPC_URL for blockchain (${this.config.blockchain})`)
         }
 
         return rpcUrl
@@ -70,7 +66,7 @@ export class DIDClient implements IDIDClient {
     ) {
         this.defaultEndpoints = defaultEndpoints
 
-        this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.network)
+        this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.blockchain.toString())
 
         // @ts-ignore
         if (callType == 'gasless' && !web3Config.endpointUrl) {
@@ -83,7 +79,7 @@ export class DIDClient implements IDIDClient {
         }
 
         web3Config = {
-            ...getWeb3ConfigDefaults(this.config.network),
+            ...getWeb3ConfigDefaults(this.config.blockchain),
             ...web3Config
         }
 
@@ -103,7 +99,7 @@ export class DIDClient implements IDIDClient {
         this.vdaDid = new VdaDid({
             identifier: this.veridaWallet.did,
             signKey: this.veridaWallet.privateKey,
-            chainNameOrId: this.config.network,
+            blockchain: this.config.blockchain,
             callType: callType,
             web3Options: _web3Config
         })
@@ -120,7 +116,7 @@ export class DIDClient implements IDIDClient {
         }
         
         if (this.veridaWallet.did.substring(0,10) == 'did:vda:0x') {
-            return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.config.network}:`)
+            return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.config.blockchain.toString()}:`)
         }
 
         return this.veridaWallet.did

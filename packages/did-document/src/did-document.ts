@@ -2,7 +2,7 @@ import { ServiceEndpoint, Service } from 'did-resolver'
 import EncryptionUtils from '@verida/encryption-utils'
 import { VerificationMethod } from 'did-resolver'
 import { strip0x } from './helpers'
-import { EnvironmentType, IDIDDocument, IKeyring, SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface, VerificationMethodTypes } from '@verida/types'
+import { IDIDDocument, IKeyring, Network, SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface, VerificationMethodTypes } from '@verida/types'
 import { interpretIdentifier } from '@verida/vda-common'
 import { mapDidNetworkToBlockchainAnchor } from '@verida/vda-common'
 import { BLOCKCHAIN_CHAINIDS } from '@verida/vda-common'
@@ -90,23 +90,23 @@ export default class DIDDocument implements IDIDDocument {
      * @param privateKey Private key of the DID that controls this DID Document 
      * @param endpoints Endpoints
      */
-    public async addContext(environment: EnvironmentType, contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints) {
+    public async addContext(network: Network, contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints) {
         // Remove this context if it already exists
-        this.removeContext(contextName, environment)
+        this.removeContext(contextName, network)
 
         // Build context hash in the correct format
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         // Add services
-        this.addContextService(environment, contextHash, SecureContextEndpointType.DATABASE, endpoints.database.type, endpoints.database.endpointUri)
-        this.addContextService(environment, contextHash, SecureContextEndpointType.MESSAGING, endpoints.messaging.type, endpoints.messaging.endpointUri)
+        this.addContextService(network, contextHash, SecureContextEndpointType.DATABASE, endpoints.database.type, endpoints.database.endpointUri)
+        this.addContextService(network, contextHash, SecureContextEndpointType.MESSAGING, endpoints.messaging.type, endpoints.messaging.endpointUri)
 
         if (endpoints.storage) {
-            this.addContextService(environment, contextHash, SecureContextEndpointType.STORAGE, endpoints.storage.type, endpoints.storage.endpointUri)
+            this.addContextService(network, contextHash, SecureContextEndpointType.STORAGE, endpoints.storage.type, endpoints.storage.endpointUri)
         }
 
         if (endpoints.notification) {
-            this.addContextService(environment, contextHash, SecureContextEndpointType.NOTIFICATION, endpoints.notification.type, endpoints.notification.endpointUri)
+            this.addContextService(network, contextHash, SecureContextEndpointType.NOTIFICATION, endpoints.notification.type, endpoints.notification.endpointUri)
         }
 
         // Get keyring keys so public keys and ownership proof can be saved to the DID document
@@ -124,24 +124,24 @@ export default class DIDDocument implements IDIDDocument {
         const proof = EncryptionUtils.signData(proofString, privateKeyArray)
 
         // Add keys to DID document
-        this.addContextSignKey(environment, contextHash, keys.signPublicKeyHex, proof)
-        this.addContextAsymKey(environment, contextHash, keys.asymPublicKeyHex)
+        this.addContextSignKey(network, contextHash, keys.signPublicKeyHex, proof)
+        this.addContextAsymKey(network, contextHash, keys.asymPublicKeyHex)
     }
 
-    public removeContext(contextName: string, environment?: EnvironmentType): boolean {
+    public removeContext(contextName: string, network?: Network): boolean {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
         if (!this.doc.verificationMethod) {
             return false
         }
 
-        const networkString = environment ? `network=${environment.toString()}&` : ''
+        const networkString = network ? `network=${network.toString()}&` : ''
 
         const contextSignId = `${this.doc.id}\\?${networkString}context=${contextHash}&type=sign`
         const contextAsymId = `${this.doc.id}\\?${networkString}context=${contextHash}&type=asym`
 
         if (!this.doc.verificationMethod!.find((entry: VerificationMethod) => entry.id.match(contextSignId))) {
-            if (networkString && environment == EnvironmentType.MYRTLE) {
+            if (networkString && network == Network.MYRTLE) {
                 // Old Myrtle DID's don't specify the network, so if we have Myrtle
                 // network, attempt to find context config that has no network specified
                 return this.removeContext(contextName)
@@ -188,26 +188,26 @@ export default class DIDDocument implements IDIDDocument {
         return this.doc
     }
 
-    public addContextService(environment: EnvironmentType, contextHash: string, endpointType: SecureContextEndpointType, serviceType: string, endpointUris: ServiceEndpoint[]) {
+    public addContextService(network: Network, contextHash: string, endpointType: SecureContextEndpointType, serviceType: string, endpointUris: ServiceEndpoint[]) {
         if (!this.doc.service) {
             this.doc.service = []
         }
 
         this.doc.service.push({
-            id: `${this.doc.id}?network=${environment.toString()}&context=${contextHash}&type=${endpointType}`,
+            id: `${this.doc.id}?network=${network.toString()}&context=${contextHash}&type=${endpointType}`,
             type: serviceType,
             // @ts-ignore
             serviceEndpoint: endpointUris
         })
     }
 
-    public addContextSignKey(environment: EnvironmentType, contextHash: string, publicKeyHex: string, proof: string) {
+    public addContextSignKey(network: Network, contextHash: string, publicKeyHex: string, proof: string) {
         // Add verification method
         if (!this.doc.verificationMethod) {
             this.doc.verificationMethod = []
         }
 
-        const id = `${this.doc.id}?network=${environment.toString()}&context=${contextHash}&type=sign`
+        const id = `${this.doc.id}?network=${network.toString()}&context=${contextHash}&type=sign`
         this.doc.verificationMethod.push({
             id: id,
             type: "EcdsaSecp256k1VerificationKey2019",
@@ -225,13 +225,13 @@ export default class DIDDocument implements IDIDDocument {
         this.doc.assertionMethod.push(id)
     }
 
-    public addContextAsymKey(environment: EnvironmentType, contextHash: string, publicKeyHex: string) {
+    public addContextAsymKey(network: Network, contextHash: string, publicKeyHex: string) {
         // Add verification method
         if (!this.doc.verificationMethod) {
             this.doc.verificationMethod = []
         }
 
-        const id = `${this.doc.id}?network=${environment.toString()}&context=${contextHash}&type=asym`
+        const id = `${this.doc.id}?network=${network.toString()}&context=${contextHash}&type=asym`
         this.doc.verificationMethod.push({
             id: id,
             // type: "Curve25519EncryptionPublicKey",
@@ -267,19 +267,19 @@ export default class DIDDocument implements IDIDDocument {
         return EncryptionUtils.verifySig(data, signature, `0x${verificationMethod.publicKeyHex!}`)
     }
 
-    public verifyContextSignature(data: any, environment: EnvironmentType, contextName: string, signature: string, contextIsHash: boolean = false) {
+    public verifyContextSignature(data: any, network: Network, contextName: string, signature: string, contextIsHash: boolean = false) {
         let contextHash = contextName
         if (!contextIsHash) {
             contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
         }
 
-        const networkString = environment ? `network=${environment.toString()}&` : ''
+        const networkString = network ? `network=${network.toString()}&` : ''
 
         const publicKeyLookup = `${this.doc.id}?${networkString}context=${contextHash}&type=sign`
         const verificationMethod = this.doc.verificationMethod!.find((entry: any) => entry.id == publicKeyLookup)
 
         if (!verificationMethod) {
-            if (networkString && environment == EnvironmentType.MYRTLE) {
+            if (networkString && network == Network.MYRTLE) {
                 // Old Myrtle DID's don't specify the network, so if we have Myrtle
                 // network, attempt to find context config that has no network specified
                 return this.removeContext(contextName)
@@ -297,15 +297,15 @@ export default class DIDDocument implements IDIDDocument {
         return EncryptionUtils.hash(`${did}/${contextName}`)
     }
 
-    public locateServiceEndpoint(contextName: string, endpointType: SecureContextEndpointType, environment?: EnvironmentType): Service | undefined {
+    public locateServiceEndpoint(contextName: string, endpointType: SecureContextEndpointType, network?: Network): Service | undefined {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
-        const networkString = environment ? `network=${environment.toString()}&` : ''
+        const networkString = network ? `network=${network.toString()}&` : ''
         const expectedEndpointId = `${this.doc.id}?${networkString}context=${contextHash}&type=${endpointType}`
 
         const result = this.doc.service!.find((entry: any) => entry.id == expectedEndpointId)
 
-        if (!result && networkString && environment == EnvironmentType.MYRTLE) {
+        if (!result && networkString && network == Network.MYRTLE) {
             // Old Myrtle DID's don't specify the network, so if we have Myrtle
             // network, attempt to find context config that has no network specified
             return this.locateServiceEndpoint(contextName, endpointType)
@@ -314,16 +314,16 @@ export default class DIDDocument implements IDIDDocument {
         return result
     }
 
-    public locateContextProof(contextName: string, environment?: EnvironmentType): string | undefined {
+    public locateContextProof(contextName: string, network?: Network): string | undefined {
         const did = this.doc.id
         const contextHash = DIDDocument.generateContextHash(did, contextName)
 
-        const networkString = environment ? `network=${environment.toString()}&` : ''
+        const networkString = network ? `network=${network.toString()}&` : ''
         const verificationMethod = this.doc.verificationMethod?.find((item: any) => {
             return item.id.match(`${did}\\?${networkString}context=${contextHash}&type=sign`)
         })
 
-        if (!verificationMethod && networkString && environment == EnvironmentType.MYRTLE) {
+        if (!verificationMethod && networkString && network == Network.MYRTLE) {
             // Old Myrtle DID's don't specify the network, so if we have Myrtle
             // network, attempt to find context config that has no network specified
             return this.locateContextProof(contextName)

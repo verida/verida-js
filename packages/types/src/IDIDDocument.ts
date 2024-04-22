@@ -1,16 +1,16 @@
 import { ServiceEndpoint, Service } from 'did-resolver'
 import { SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface } from "./DocumentInterfaces"
 import { IKeyring } from './IKeyring'
-import { EnvironmentType } from './NetworkInterfaces'
+import { Network } from './NetworkInterfaces'
 
 export interface IDIDDocument {
     get id(): string
 
     getErrors(): string[] 
 
-    addContext(environment: EnvironmentType, contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints): Promise<void>
+    addContext(network: Network, contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints): Promise<void>
 
-    removeContext(contextName: string, environment?: EnvironmentType): boolean 
+    removeContext(contextName: string, network?: Network): boolean 
 
     setAttributes(attributes: Record<string, any>): void
 
@@ -18,19 +18,19 @@ export interface IDIDDocument {
 
     export(): VeridaDocInterface 
 
-    addContextService(environment: EnvironmentType, contextHash: string, endpointType: SecureContextEndpointType, serviceType: string, endpointUris: ServiceEndpoint[]): void
+    addContextService(network: Network, contextHash: string, endpointType: SecureContextEndpointType, serviceType: string, endpointUris: ServiceEndpoint[]): void
 
-    addContextSignKey(environment: EnvironmentType, contextHash: string, publicKeyHex: string, proof: string): void
+    addContextSignKey(network: Network, contextHash: string, publicKeyHex: string, proof: string): void
 
-    addContextAsymKey(environment: EnvironmentType, contextHash: string, publicKeyHex: string): void
+    addContextAsymKey(network: Network, contextHash: string, publicKeyHex: string): void
 
     verifySig(data: any, signature: string): boolean 
 
-    verifyContextSignature(data: any, environment: EnvironmentType, contextName: string, signature: string, contextIsHash: boolean): boolean
+    verifyContextSignature(data: any, network: Network, contextName: string, signature: string, contextIsHash: boolean): boolean
 
-    locateServiceEndpoint(contextName: string, endpointType: SecureContextEndpointType, environment?: EnvironmentType): Service | undefined
+    locateServiceEndpoint(contextName: string, endpointType: SecureContextEndpointType, network?: Network): Service | undefined
 
-    locateContextProof(contextName: string, environment: EnvironmentType): string | undefined
+    locateContextProof(contextName: string, network: Network): string | undefined
 
     signProof(privateKey: Uint8Array | string): void
 

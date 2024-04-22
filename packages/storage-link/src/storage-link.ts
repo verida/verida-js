@@ -1,7 +1,7 @@
 import { DIDClient } from "@verida/did-client"
 import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 import { DIDDocument as DocInterface, ServiceEndpoint } from 'did-resolver'
-import { EnvironmentType, IKeyring, SecureContextConfig, SecureContextEndpoints, SecureContextEndpointType, VdaDidEndpointResponses } from "@verida/types"
+import { Network, IKeyring, SecureContextConfig, SecureContextEndpoints, SecureContextEndpointType, VdaDidEndpointResponses } from "@verida/types"
 const Url = require('url-parse')
 
 /**
@@ -10,14 +10,14 @@ const Url = require('url-parse')
 export default class StorageLink {
 
     // @todo: cache
-    static async getLinks(environment: EnvironmentType, didClient: DIDClient, did: string): Promise<SecureContextConfig[]> {
+    static async getLinks(network: Network, didClient: DIDClient, did: string): Promise<SecureContextConfig[]> {
         if (!did) {
             return []
         }
 
         try {
             const didDocument = await didClient.get(did)
-            return StorageLink.buildSecureContexts(didDocument, )
+            return StorageLink.buildSecureContexts(didDocument, network)
         } catch (err) {
             // DID not found
             return []
@@ -31,13 +31,13 @@ export default class StorageLink {
      * @param contextName 
      * @returns SecureStorageContextConfig | undefined (if not found)
      */
-    static async getLink(environment: EnvironmentType, didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
+    static async getLink(network: Network, didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
         let contextHash = context
         if (contextIsName) {
             contextHash = VeridaDIDDocument.generateContextHash(did, context)
         }
 
-        const secureContexts =  await StorageLink.getLinks(environment, didClient, did)
+        const secureContexts =  await StorageLink.getLinks(network, didClient, did)
         const secureContext = StorageLink._findHash(secureContexts, contextHash)
 
         return secureContext
@@ -48,7 +48,7 @@ export default class StorageLink {
      * @param didClient
      * @param storageConfig (Must have .id as the contextName)
      */
-    static async setLink(environment: EnvironmentType, didClient: DIDClient, storageConfig: SecureContextConfig, keyring: IKeyring, privateKey: string) {
+    static async setLink(network: Network, didClient: DIDClient, storageConfig: SecureContextConfig, keyring: IKeyring, privateKey: string) {
         const did = didClient.getDid()
 
         if (!did) {
@@ -60,9 +60,9 @@ export default class StorageLink {
             didDocument = await didClient.get(did)
 
             // Remove existing context if it exists
-            const existing = await StorageLink.getLink(environment, didClient, did, storageConfig.id)
+            const existing = await StorageLink.getLink(network, didClient, did, storageConfig.id)
             if (existing) {
-                await StorageLink.unlink(environment, didClient, storageConfig.id)
+                await StorageLink.unlink(network, didClient, storageConfig.id)
             }
         } catch (err) {
             // DID document not found
@@ -82,11 +82,11 @@ export default class StorageLink {
             endpoints.notification = storageConfig.services.notificationServer
         }
 
-        await didDocument.addContext(environment, storageConfig.id, keyring, privateKey, endpoints)
+        await didDocument.addContext(network, storageConfig.id, keyring, privateKey, endpoints)
         return await didClient.save(didDocument)
     }
 
-    static async setContextService(environment: EnvironmentType, didClient: DIDClient, contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<VdaDidEndpointResponses> {
+    static async setContextService(network: Network, didClient: DIDClient, contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<VdaDidEndpointResponses> {
         const did = didClient.getDid()
         if (!did) {
             throw new Error("DID client is not authenticated")
@@ -105,12 +105,12 @@ export default class StorageLink {
         const contextHash = VeridaDIDDocument.generateContextHash(did, contextName)
 
         // Add the context service
-        await didDocument.addContextService(environment, contextHash, endpointType, serverType, StorageLink.standardizeUrls(endpointUris))
+        await didDocument.addContextService(network, contextHash, endpointType, serverType, StorageLink.standardizeUrls(endpointUris))
 
         return didClient.save(didDocument)
     }
 
-    static async unlink(environment: EnvironmentType, didClient: DIDClient, contextName: string): Promise<VdaDidEndpointResponses | boolean> {
+    static async unlink(network: Network, didClient: DIDClient, contextName: string): Promise<VdaDidEndpointResponses | boolean> {
         const did = didClient.getDid()
         if (!did) {
             throw  new Error("DID Client is not authenticated")
@@ -124,7 +124,7 @@ export default class StorageLink {
             return false
         }
 
-        const success = await didDocument!.removeContext(contextName, environment)
+        const success = await didDocument!.removeContext(contextName, network)
         if (!success) {
             return false
         }
@@ -140,10 +140,10 @@ export default class StorageLink {
         }
     }
 
-    static buildSecureContexts(didDocument: VeridaDIDDocument, environment?: EnvironmentType): SecureContextConfig[] {
+    static buildSecureContexts(didDocument: VeridaDIDDocument, network?: Network): SecureContextConfig[] {
         const doc: DocInterface = didDocument.export()
         const did = doc.id
-        const networkString = environment ? `network=${environment.toString()}&` : ''
+        const networkString = network ? `network=${network.toString()}&` : ''
 
         // strategy: loop through all signing keys as our way of looping through all contexts
         const contexts: SecureContextConfig[] = []
@@ -158,7 +158,7 @@ export default class StorageLink {
             // Get signing key
             const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=sign`)
             if (!signKeyVerificationMethod) {
-                if (networkString && environment == EnvironmentType.MYRTLE) {
+                if (networkString && network == Network.MYRTLE) {
                     // Old Myrtle DID's don't specify the network, so if we have Myrtle
                     // network, attempt to find context config that has no network specified
                     return StorageLink.buildSecureContexts(didDocument)

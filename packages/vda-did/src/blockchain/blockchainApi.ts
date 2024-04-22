@@ -1,6 +1,6 @@
-import { interpretIdentifier, getContractInfoForNetwork } from "@verida/vda-common"
+import { interpretIdentifier, getContractInfoForBlockchain } from "@verida/vda-common"
 import { getVeridaSignWithNonce } from "./helpers"
-import { VdaDidConfigurationOptions, Web3GasConfiguration } from "@verida/types"
+import { VdaDidConfigurationOptions, Web3GasConfiguration, BlockchainAnchor } from "@verida/types"
 import { getVeridaContract, VeridaContract } from "@verida/web3"
 import { ethers } from "ethers"
 import EncryptionUtils from "@verida/encryption-utils"
@@ -13,7 +13,7 @@ export interface LookupResponse {
 export default class BlockchainApi {
 
     private options: VdaDidConfigurationOptions
-    private network: string
+    private blockchain: BlockchainAnchor
     private didAddress : string
 
     private vdaWeb3Client : VeridaContract;
@@ -34,12 +34,12 @@ export default class BlockchainApi {
             }
         }
 
-        const { address, publicKey, network } = interpretIdentifier(options.identifier)
+        const { address } = interpretIdentifier(options.identifier)
         
         this.didAddress = address.toLowerCase();
         // @ts-ignore
-        this.network = network || options.chainNameOrId
-        const contractInfo = getContractInfoForNetwork( "VeridaDIDRegistry", this.network);
+        this.blockchain = options.blockchain
+        const contractInfo = getContractInfoForBlockchain("VeridaDIDRegistry", this.blockchain);
 
         // @ts-ignore
         if (options.callType == 'web3' && !options.web3Options.rpcUrl) {

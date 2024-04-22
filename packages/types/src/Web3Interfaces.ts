@@ -1,6 +1,7 @@
 import { Signer } from '@ethersproject/abstract-signer'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Provider } from '@ethersproject/providers'
+import { BlockchainAnchor } from './NetworkInterfaces'
 
 
 /** Web3 SDK running mode */
@@ -121,7 +122,8 @@ export interface VdaDidConfigurationOptions {
     identifier: string;
     signKey?: string;
     signer?: (data: any) => Promise<string>;
-    chainNameOrId?: string | number;
+    //chainNameOrId?: string | number;
+    blockchain: BlockchainAnchor
 
     callType: Web3CallType;
     web3Options: VeridaWeb3ConfigurationOptions;

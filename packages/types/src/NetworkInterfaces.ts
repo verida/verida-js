@@ -42,26 +42,16 @@ export enum BlockchainAnchor {
 	 */
 	MAINNET = "polpos",
 
-	/**  
-	 * @deprecated use MUMBAI instead  
-	 */
-	TESTNET = "mumbai",
-	//TESTNET = "polamoy",
-	DEVNET = "mumbai"
+	TESTNET = "polamoy",
+	DEVNET = "polamoy"
 }
 
 export enum BlockchainNetworks {
 	// mainnet
 	//'mainnet' = "0x89",
 	'polpos' = "0x89",
-
-	// testnet
-	//'testnet' = "0x13881",
-	/**
-	 * @todo Remove once Amoy is deployed
-	 */
-	'mumbai' = "0x13881",
-	'devnet' = "0x13881"
+	'devnet' = "0x13882"
+	'polamoy' = '0x13882'
 }
 
 export interface NetworkDefinition {  
@@ -90,8 +80,8 @@ export interface DefaultClientConfig extends DefaultEnvironmentConfig {
 }
 
 export interface DIDClientConfig {
-    network: EnvironmentType              // `testnet` OR `mainnet`
-    rpcUrl?: string                              // blockchain RPC URI to use
+    blockchain: BlockchainAnchor
+    rpcUrl?: string					// blockchain RPC URI to use
     timeout?: number
 }
 
