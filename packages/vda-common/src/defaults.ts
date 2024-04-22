@@ -11,18 +11,15 @@ export const DefaultEnvironmentBlockchainAnchors: Record<EnvironmentType, Blockc
 export function getWeb3ConfigDefaults(chainName: string) {
     switch (chainName) {
         case 'devnet':
-            return {
-                rpcUrl: RPC_URLS[chainName],
-                eip1559Mode: 'fast',
-                eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
-            }
+        case 'polamoy':
         case 'testnet':
             return {
                 rpcUrl: RPC_URLS[chainName],
                 eip1559Mode: 'fast',
-                eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+                eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/amoy'
             }
         case 'mainnet':
+        case 'polpos':
             return {
                 rpcUrl: RPC_URLS[chainName],
                 eip1559Mode: 'fast',
