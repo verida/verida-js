@@ -7,19 +7,20 @@ import { randomBytes } from 'crypto'
 import { getBlockchainAPIConfiguration } from "@verida/vda-common-test"
 
 import VdaDid from '../src/vdaDid'
-import { VeridaDocInterface } from '@verida/types'
+import { BlockchainAnchor, VeridaDocInterface } from '@verida/types'
 require('dotenv').config();
 
 const wallet = ethers.Wallet.createRandom()
 const DID_PRIVATE_KEY = wallet.privateKey
 const DID_ADDRESS = wallet.address
-const DID = `did:vda:mumbai:${DID_ADDRESS}`
+const DID = `did:vda:polamoy:${DID_ADDRESS}`
+const DID_WRONG = `did:vda:mumbai:${DID_ADDRESS}`
 const DID_PK = wallet.publicKey
 
 const DID_PRIVATE_KEY2 = `0x${randomBytes(32).toString('hex')}`
 const wallet2 = new ethers.Wallet(DID_PRIVATE_KEY2)
 const DID_ADDRESS2 = wallet2.address
-const DID2 = `did:vda:mumbai:${DID_ADDRESS2}`
+const DID2 = `did:vda:polamoy:${DID_ADDRESS2}`
 const DID_PK2 = wallet2.publicKey
 
 console.log(`DID1: ${DID}`)
@@ -42,6 +43,7 @@ const VDA_DID_CONFIG = {
     identifier: DID,
     signKey: DID_PRIVATE_KEY,
     callType: baseConfig.callType,
+    blockchain: BlockchainAnchor.POLAMOY,
     web3Options: baseConfig.web3Options
 }
 
@@ -49,6 +51,7 @@ const VDA_DID_CONFIG2 = {
     identifier: DID2,
     signKey: DID_PRIVATE_KEY2,
     callType: baseConfig.callType,
+    blockchain: BlockchainAnchor.POLAMOY,
     web3Options: baseConfig.web3Options
 }
 
@@ -57,16 +60,6 @@ const ENDPOINTS = [
     `https://node2-euw6.gcp.devnet.verida.tech/did/${DID}`,
     `https://node3-euw6.gcp.devnet.verida.tech/did/${DID}`
 ]
-
-/*
-const ENDPOINTS = [
-    `http://192.168.68.113:5000/did/${DID}`,
-    `http://192.168.68.127:5000/did/${DID}`,
-    `http://192.168.68.135:5000/did/${DID}`
-]*/
-
-// Create a list of endpoints where one is always going to fail (port 7000 is invalid endpoint)
-const ENDPOINTS_FAIL = [ENDPOINTS[0], `http://localhost:7000/did/${DID2}`]
 
 const veridaApi = new VdaDid(VDA_DID_CONFIG)
 const veridaApi2 = new VdaDid(VDA_DID_CONFIG2)
@@ -80,8 +73,25 @@ describe("VdaDid tests", function() {
     this.beforeAll(async () => {
     })
 
-    describe.only("Create", function() {
+    describe("Create", function() {
         this.timeout(200 * 1000)
+
+        it("Fail - Try to create a DID with incorrect blockchain reference", async () => {
+            try {
+                const doc = new DIDDocument(DID_WRONG, DID_PK)
+                doc.setAttributes({
+                    created: doc.buildTimestamp(NOW),
+                    updated: doc.buildTimestamp(NOW)
+                })
+                doc.signProof(wallet.privateKey)
+
+                await veridaApi.create(doc, ENDPOINTS)
+
+                assert.fail(`Document created, when it shouldn't`)
+            } catch (err) {
+                assert.equal(err.message, `Unable to create DID: Blockchain in address doesn't match config`)
+            }
+        })
         
         it("Success", async () => {
             try {
@@ -112,7 +122,6 @@ describe("VdaDid tests", function() {
                     updated: doc.buildTimestamp(NOW)
                 })
                 doc.signProof(wallet.privateKey)
-
                 await veridaApi.create(doc, ENDPOINTS)
 
                 assert.fail(`Document created, when it shouldn't`)
@@ -122,7 +131,7 @@ describe("VdaDid tests", function() {
         })
     })
 
-    describe.only("Get", function() {
+    describe("Get", function() {
         this.timeout(200 * 1000)
         it("Success", async () => {
             try {
