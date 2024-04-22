@@ -32,7 +32,6 @@ describe('Test storage links for a DID', () => {
 
         it('can fetch known storage link', async function() {
             const storageLink = await StorageLink.getLink(NETWORK, didClient, DID, CONTEXT_NAME)
-            console.log(storageLink)
 
             assert.ok(storageLink, 'Got storage link for the vault')
         })
