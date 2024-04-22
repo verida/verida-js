@@ -21,6 +21,7 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         isMainnet: true,
         anchoredBlockchain: BlockchainAnchor.POLPOS,
         tokenAddress: "0x683565196C3EAb450003C964D4bad1fd3068D4cC",
+        didRegistry: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
         storageNodeRegistryAddress: null,
         nameRegistryAddress: "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
         didLinkageAddress: "0x5916F97e31B77884d81bdA875b7686A988E0d517"
@@ -30,10 +31,11 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         label: "Banksia",
         isMainnet: false,
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
-        tokenAddress: "0x745Db51351015d61573db37bC16C49B8506B93c8",
+        tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
+        didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
         storageNodeRegistryAddress: "0x044B2D754923e529A780eFcc085B03ee022e3364",
-        nameRegistryAddress: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
-        didLinkageAddress: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A"
+        nameRegistryAddress: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
+        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B"
     },
     [Network.DEVNET]: {
         id: Network.DEVNET,
@@ -41,6 +43,7 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         isMainnet: false,
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
         tokenAddress: "0x745Db51351015d61573db37bC16C49B8506B93c8",
+        didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
         storageNodeRegistryAddress: "0x044B2D754923e529A780eFcc085B03ee022e3364",
         nameRegistryAddress: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
         didLinkageAddress: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A"
@@ -51,6 +54,7 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         isMainnet: false,
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
         tokenAddress: "0x745Db51351015d61573db37bC16C49B8506B93c8",
+        didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
         storageNodeRegistryAddress: "0x044B2D754923e529A780eFcc085B03ee022e3364",
         nameRegistryAddress: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
         didLinkageAddress: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A"
@@ -97,11 +101,11 @@ export type CONTRACT_NAMES =
  */
 export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | null>> = {
     "VeridaDIDRegistry": {
-        [MAINNET]: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
-        [CHAINID_MAINNET]: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
-        [TESTNET]: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
-        [CHAINID_TESTNET]: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
-        [DEVNET]: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
+        [MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].didRegistry,
+        [CHAINID_MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].didRegistry,
+        [TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].didRegistry,
+        [CHAINID_TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].didRegistry,
+        [DEVNET]: NETWORK_DEFINITIONS[Network.BANKSIA].didRegistry,
     },
     "NameRegistry": {
         [MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].nameRegistryAddress,
@@ -118,9 +122,9 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
     "SoulboundNFT" : {
         [MAINNET]: "0xB500418b5F47758903Ae02bfB3605cBd19062889",
         "0x89": "0xB500418b5F47758903Ae02bfB3605cBd19062889",
-        [TESTNET]: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
-        "0x13881": "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
-        [DEVNET]: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
+        [TESTNET]: "0xa7D552ccc8E561164d26711516033bcdeD975ca3",
+        "0x13881": "0xa7D552ccc8E561164d26711516033bcdeD975ca3",
+        [DEVNET]: "0xa7D552ccc8E561164d26711516033bcdeD975ca3",
     },
     "VeridaDIDLinkage" : {
         [MAINNET]: NETWORK_DEFINITIONS[Network.MYRTLE].didLinkageAddress,
@@ -144,9 +148,9 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
     "VDARewardContract": {
         [MAINNET]: "",
         "0x89": "",
-        [TESTNET]: "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
-        "0x13881": "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
-        [DEVNET]: "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
+        [TESTNET]: "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB",
+        "0x13881": "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB",
+        [DEVNET]: "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB",
     },
     "StorageNodeRegistry": {
         [MAINNET]: null,

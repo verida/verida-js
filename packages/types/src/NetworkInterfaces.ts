@@ -70,6 +70,7 @@ export interface NetworkDefinition {
 	isMainnet: boolean
 	anchoredBlockchain: BlockchainAnchor
 	tokenAddress: string | null
+	didRegistry: string | null
 	storageNodeRegistryAddress: string | null
 	nameRegistryAddress: string | null
 	didLinkageAddress: string | null
