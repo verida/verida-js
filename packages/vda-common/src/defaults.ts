@@ -1,11 +1,11 @@
-import { BlockchainAnchor, EnvironmentType, Network } from "@verida/types"
+import { BlockchainAnchor, Network } from "@verida/types"
 import { RPC_URLS } from "./rpc"
 
 export const DefaultNetworkBlockchainAnchors: Record<Network, BlockchainAnchor> = {
-    [EnvironmentType.LOCAL]: BlockchainAnchor.POLAMOY,
-    [EnvironmentType.DEVNET]: BlockchainAnchor.POLAMOY,
-    [EnvironmentType.BANKSIA]: BlockchainAnchor.POLAMOY,
-    [EnvironmentType.MYRTLE]: BlockchainAnchor.POLPOS
+    [Network.LOCAL]: BlockchainAnchor.POLAMOY,
+    [Network.DEVNET]: BlockchainAnchor.POLAMOY,
+    [Network.BANKSIA]: BlockchainAnchor.POLAMOY,
+    [Network.MYRTLE]: BlockchainAnchor.POLPOS
 }
 
 export function getWeb3ConfigDefaults(chainName: string) {
