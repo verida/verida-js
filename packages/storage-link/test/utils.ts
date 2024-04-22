@@ -2,7 +2,7 @@ import { DIDClient } from '@verida/did-client'
 
 import { Wallet } from "ethers"
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { DIDClientConfig, EnvironmentType } from '@verida/types'
+import { DIDClientConfig, BlockchainAnchor } from '@verida/types'
 
 require('dotenv').config()
 
@@ -22,7 +22,7 @@ const txSigner = new Wallet(privateKey, provider)
 
 export async function getDIDClient(veridaAccount: Wallet) {
     const config: DIDClientConfig = {
-        network: EnvironmentType.TESTNET,
+        blockchain: BlockchainAnchor.POLAMOY,
         rpcUrl
     }
 
