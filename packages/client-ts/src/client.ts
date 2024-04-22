@@ -1,4 +1,4 @@
-import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig, SecureContextEndpointType } from "@verida/types";
+import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig, SecureContextEndpointType, Network } from "@verida/types";
 import { DIDClient } from "@verida/did-client";
 import { VeridaNameClient } from '@verida/vda-name-client'
 
@@ -11,6 +11,7 @@ import { ServiceEndpoint } from "did-resolver";
 import { DIDDocument } from "@verida/did-document";
 import { ProfileDocument } from "@verida/types";
 import axios from "axios";
+import { DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
 const _ = require("lodash");
 
 /**
@@ -39,9 +40,9 @@ class Client implements IClient {
   private did?: string;
 
   /**
-   * Currently selected environment
+   * Verida network this client is connected to
    */
-  private environment: EnvironmentType;
+  private network: Network;
 
   private nameClient: VeridaNameClient;
 
@@ -56,33 +57,39 @@ class Client implements IClient {
    * @param userConfig ClientConfig Configuration for establishing a connection to the Verida network
    */
   constructor(userConfig: ClientConfig) {
-    this.environment = userConfig.environment
-      ? <EnvironmentType> userConfig.environment
-      : DEFAULT_CONFIG.environment;
+    this.network = userConfig.network
+      ? <Network> userConfig.network
+      : DEFAULT_CONFIG.network;
 
-    const defaultConfig = DEFAULT_CONFIG.environments[this.environment]
-      ? DEFAULT_CONFIG.environments[this.environment]
+    const defaultConfig = DEFAULT_CONFIG.environments[this.network]
+      ? DEFAULT_CONFIG.environments[this.network]
       : {};
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
+    /**
+     * Auto-determine the did client based on the Verida Network
+     * 
+     * @todo Consider deprecating this and injecting a did client object as part of the config
+     */
+    const blockchain = DefaultNetworkBlockchainAnchors[this.network]
     userConfig.didClientConfig = userConfig.didClientConfig ? userConfig.didClientConfig : {
-      network: this.environment
+      blockchain
     }
 
     this.didClient = new DIDClient({
       ...userConfig.didClientConfig,
-      network: this.environment
+      blockchain
     });
 
     const rpcUrl = this.didClient.getRpcUrl()
     this.nameClient = new VeridaNameClient({
-      network: this.environment,
+      network: this.network,
       web3Options: {
         rpcUrl
       }
   })
 
-    this.didContextManager = new DIDContextManager(this.didClient);
+    this.didContextManager = new DIDContextManager(this.network, this.didClient);
     Schema.setSchemaPaths(this.config.schemaPaths!);
   }
 
@@ -226,7 +233,7 @@ class Client implements IClient {
         if (err.response && err.response.data && err.response.data.status == 'fail') {
           if (fallbackContext && fallbackContext != contextName) {
             // try the fallback context
-            return this.getPublicProfile(did, fallbackContext, profileName, null, useCache)
+            return this.getPublicProfile(did, fallbackContext, profileName, null, ignoreCache)
           }
         }
       }
@@ -240,7 +247,7 @@ class Client implements IClient {
       throw new Error('Profile not found')
     }
 
-    return profile.getMany()
+    return profile.getMany({}, {})
   }
 
   /**
@@ -337,6 +344,7 @@ class Client implements IClient {
 
         const validSig = didDocument.verifyContextSignature(
           _data,
+          this.network,
           sContext,
           matchSig,
           true
@@ -398,7 +406,7 @@ class Client implements IClient {
     // Logout the account
     this.account = undefined
     this.did = undefined
-    this.didContextManager = new DIDContextManager(this.didClient);
+    this.didContextManager = new DIDContextManager(this.network, this.didClient);
   }
 
   public async destroyContext(contextName: string) {
@@ -471,7 +479,7 @@ class Client implements IClient {
     const services = didDocument.export().service!
 
     // Locate the endpoints for the given context hash
-    const service = services.find((item) => item.id.match(contextHash) && item.type == 'VeridaDatabase')
+    const service = services.find((item: any) => item.id.match(contextHash) && item.type == 'VeridaDatabase')
     if (!service) {
       throw new Error(`Unable to locate service associated with context hash ${contextHash}`)
     }

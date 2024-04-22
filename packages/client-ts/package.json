@@ -25,6 +25,7 @@
     "@verida/storage-link": "^3.0.2",
     "@verida/types": "^3.0.1",
     "@verida/vda-name-client": "^3.0.2",
+    "@verida/vda-common": "*",
     "ajv": "^8.6.3",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.2",

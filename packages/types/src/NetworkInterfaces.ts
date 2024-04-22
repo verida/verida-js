@@ -50,7 +50,7 @@ export enum BlockchainNetworks {
 	// mainnet
 	//'mainnet' = "0x89",
 	'polpos' = "0x89",
-	'devnet' = "0x13882"
+	'devnet' = "0x13882",
 	'polamoy' = '0x13882'
 }
 
@@ -66,16 +66,16 @@ export interface NetworkDefinition {
 	didLinkageAddress: string | null
 } 
 
-export interface DefaultEnvironmentConfig {
+export interface DefaultNetworkConfig {
 	defaultDatabaseServerUrl?: string
 	defaultMessageServerUrl?: string
 	schemaPaths?: Record<string,string>
 	readOnlyDataApiUri?: string
 }
 
-export interface DefaultClientConfig extends DefaultEnvironmentConfig {
-	environment: EnvironmentType
-	environments: Record<string, DefaultEnvironmentConfig>
+export interface DefaultClientConfig extends DefaultNetworkConfig {
+	network: Network
+	environments: Record<string, DefaultNetworkConfig>
 	vaultAppName: string
 }
 
@@ -95,11 +95,11 @@ export interface ClientConfig {
 	vaultAppName?: string;
 	
 	/**
-	 * Environment to load by default.
+	 * Verida network to load by default.
 	 *
-	 * Environment configuration can still be overridden by config items.
+	 * Verida network can still be overridden by config items.
 	 */
-	environment?: EnvironmentType;
+	network?: Network;
 
 	didClientConfig?: DIDClientConfig
 

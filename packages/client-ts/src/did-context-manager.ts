@@ -2,6 +2,7 @@ import { StorageLink } from "@verida/storage-link";
 import { DIDClient } from "@verida/did-client";
 import { IAccount, DIDContextConfigs, SecureContextEndpoint, SecureContextConfig } from "@verida/types";
 import { DIDDocument } from "@verida/did-document";
+import { Network } from "@verida/types";
 
 /**
  * Manage all the available storage contexts for all the DIDs being requested,
@@ -17,9 +18,11 @@ class DIDContextManager {
   private didContexts: DIDContextConfigs = {};
 
   private didClient: DIDClient;
+  private network: Network
   private account?: IAccount;
 
-  public constructor(didClient: DIDClient) {
+  public constructor(network: Network, didClient: DIDClient) {
+    this.network = network
     this.didClient = didClient;
   }
 
@@ -76,6 +79,7 @@ class DIDContextManager {
     }
 
     let storageConfig = await StorageLink.getLink(
+      this.network,
       this.didClient,
       did,
       contextHash,
@@ -130,6 +134,7 @@ class DIDContextManager {
 
     if (!storageConfig) {
       storageConfig = await StorageLink.getLink(
+        this.network,
         this.didClient,
         did,
         contextName,

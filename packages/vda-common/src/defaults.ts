@@ -1,10 +1,10 @@
-import { BlockchainAnchor, EnvironmentType } from "@verida/types"
+import { BlockchainAnchor, EnvironmentType, Network } from "@verida/types"
 import { RPC_URLS } from "./rpc"
 
-export const DefaultEnvironmentBlockchainAnchors: Record<EnvironmentType, BlockchainAnchor> = {
-    [EnvironmentType.LOCAL]: BlockchainAnchor.MUMBAI,
-    [EnvironmentType.DEVNET]: BlockchainAnchor.MUMBAI,
-    [EnvironmentType.BANKSIA]: BlockchainAnchor.MUMBAI,
+export const DefaultNetworkBlockchainAnchors: Record<Network, BlockchainAnchor> = {
+    [EnvironmentType.LOCAL]: BlockchainAnchor.POLAMOY,
+    [EnvironmentType.DEVNET]: BlockchainAnchor.POLAMOY,
+    [EnvironmentType.BANKSIA]: BlockchainAnchor.POLAMOY,
     [EnvironmentType.MYRTLE]: BlockchainAnchor.POLPOS
 }
 
