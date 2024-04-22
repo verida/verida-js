@@ -42,6 +42,10 @@ export default class VdaDid {
             throw new Error(`Unable to create DID: No endpoints provided.`)
         }
 
+        if (!didDocument.id.match(`did:vda:${this.options.blockchain.toString()}`)) {
+            throw new Error(`Unable to create DID: Blockchain in address doesn't match config`)
+        }
+
         // Sign the DID Document
         didDocument.signProof(this.options.signKey!)
 
