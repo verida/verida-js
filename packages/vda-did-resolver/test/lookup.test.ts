@@ -2,9 +2,10 @@ const assert = require('assert');
 require('dotenv').config();
 import { Wallet } from 'ethers';
 import { lookup } from '../src/lookup';
+import { BlockchainAnchor } from '@verida/types';
 
 const did = {
-    address: "0xb362351168D370b174E0fD3Feec93C4E6d2938e2",
+    address: "0xB0BF030a742233448428590bf6A590C1E1582b4C",
 }
 
 const NETWORK = 'testnet'
@@ -23,7 +24,7 @@ describe('Lookup test', function() {
 
     it('Success', async () => {
         // Need to register this did before
-        const result = await lookup(did.address, NETWORK, rpcUrl);
+        const result = await lookup(did.address, BlockchainAnchor.POLAMOY, rpcUrl);
 
         assert.equal(typeof(result), 'object', 'DID Controller is a string')
         assert.ok(result.length > 0, 'Three endpoints returned')
