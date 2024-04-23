@@ -2,8 +2,8 @@ import {
     getVeridaContract,
     VeridaContract
 } from "@verida/web3"
-import { Web3SelfTransactionConfig, VdaClientConfig } from '@verida/types'
-import { getContractInfoForNetwork, RPC_URLS } from "@verida/vda-common";
+import { Web3SelfTransactionConfig, VdaClientConfig, Network } from '@verida/types'
+import { DefaultNetworkBlockchainAnchors, getContractInfoForVeridaNetwork, getDefaultRpcUrl } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
@@ -14,7 +14,7 @@ import EncryptionUtils from "@verida/encryption-utils";
 export class VeridaSBTClient {
 
     private config: VdaClientConfig
-    private network: string
+    private network: Network
     private didAddress?: string
 
     private readOnly: boolean
@@ -34,11 +34,13 @@ export class VeridaSBTClient {
 
         this.network = config.network
 
+        const contractInfo = getContractInfoForVeridaNetwork("SoulboundNFT", this.network)
+        const blockchain = DefaultNetworkBlockchainAnchors[this.network]
+
         if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
+            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = getDefaultRpcUrl(blockchain)!
         }
 
-        const contractInfo = getContractInfoForNetwork("SoulboundNFT", this.network)
         if (config.did) {
             this.readOnly = false
             const { address } = explodeDID(config.did)
@@ -51,7 +53,7 @@ export class VeridaSBTClient {
         } else {
             let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
             if (!rpcUrl) {
-                rpcUrl = <string> RPC_URLS[this.network]
+                rpcUrl = getDefaultRpcUrl(blockchain)!
             }
 
             const provider = new JsonRpcProvider(rpcUrl)

@@ -2,9 +2,9 @@ import {
     getVeridaContract,
     VeridaContract
 } from "@verida/web3";
-import { VdaClientConfig, Web3SelfTransactionConfig, EnumStatus } from '@verida/types'
+import { VdaClientConfig, Web3SelfTransactionConfig, EnumStatus, Network } from '@verida/types'
 import { ethers, Contract, BigNumberish, BytesLike } from "ethers";
-import { getContractInfoForNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
+import { getContractInfoForVeridaNetwork, DefaultNetworkBlockchainAnchors, getDefaultRpcUrl } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers';
 import EncryptionUtils from "@verida/encryption-utils";
@@ -37,7 +37,7 @@ export interface IFallbackNodeInfo {
 export class VeridaNodeManager {
 
     protected config: VdaClientConfig
-    protected network: string
+    protected network: Network
     protected didAddress?: string
 
     protected vdaWeb3Client? : VeridaContract
@@ -60,11 +60,12 @@ export class VeridaNodeManager {
 
         this.network = config.network
 
-        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
-        }
+        const contractInfo = getContractInfoForVeridaNetwork("StorageNodeRegistry", this.network)
+        const blockchain = DefaultNetworkBlockchainAnchors[this.network]
 
-        const contractInfo = getContractInfoForNetwork("StorageNodeRegistry", this.network)
+        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
+            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = getDefaultRpcUrl(blockchain)!
+        }
 
         if (config.did) {
             this.readOnly = false
@@ -78,7 +79,7 @@ export class VeridaNodeManager {
         } else {
             let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
             if (!rpcUrl) {
-                rpcUrl = <string> RPC_URLS[this.network]
+                rpcUrl = getDefaultRpcUrl(blockchain)!
             }
 
             const provider = new JsonRpcProvider(rpcUrl)

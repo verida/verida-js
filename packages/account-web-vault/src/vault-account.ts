@@ -2,7 +2,7 @@ import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
 import Axios from "axios";
 import { Account } from '@verida/account';
-import { EnvironmentType, AccountVaultConfig, AccountConfig, VeridaDatabaseAuthContext, SecureContextConfig, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError} from '@verida/types';
+import { AccountVaultConfig, AccountConfig, VeridaDatabaseAuthContext, SecureContextConfig, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, Network} from '@verida/types';
 
 const jwt = require('jsonwebtoken');
 const querystring = require('querystring')
@@ -11,20 +11,20 @@ const store = require('store')
 const VERIDA_AUTH_CONTEXT = '_verida_auth_context'
 const VERIDA_AUTH_TOKEN_QUERY_KEY = '_verida_auth'
 
-const CONFIG_DEFAULTS: Record<EnvironmentType, AccountVaultConfig> = {
-    devnet: {
+const CONFIG_DEFAULTS: Record<Network, AccountVaultConfig> = {
+    [Network.DEVNET]: {
         loginUri: 'https://vault.verida.io/request',
         serverUri: `wss://auth.testnet.verida.io`
     },
-    local: {
+    [Network.LOCAL]: {
         loginUri: 'https://vault.verida.io/request',
         serverUri: `wss://auth.testnet.verida.io`
     },
-    mainnet: {
+    [Network.MYRTLE]: {
         loginUri: 'https://vault.verida.io/request',
         serverUri: `wss://auth.testnet.verida.io`
     },
-    testnet: {
+    [Network.BANKSIA]: {
         loginUri: 'https://vault.verida.io/request',
         serverUri: `wss://auth.testnet.verida.io`
     }
@@ -87,11 +87,11 @@ export class VaultAccount extends Account {
         this.config.request = this.config.request ? this.config.request : {}
         this.config.request.userAgent = navigator.userAgent
 
-        if (!this.config.environment) {
-            this.config.environment = EnvironmentType.MAINNET
+        if (!this.config.network) {
+            this.config.network = Network.MYRTLE
         }
 
-        this.config = _.merge(CONFIG_DEFAULTS[this.config.environment], this.config)
+        this.config = _.merge(CONFIG_DEFAULTS[this.config.network], this.config)
     }
 
     public async connectContext(contextName: string, ignoreSession: boolean = false) {
@@ -104,7 +104,7 @@ export class VaultAccount extends Account {
             }
         }
 
-        const CONFIG = CONFIG_DEFAULTS[this.config.environment!]
+        const CONFIG = CONFIG_DEFAULTS[this.config.network!]
 
         const promise = new Promise<boolean>((resolve, reject) => {
             const cb = async (response: any, saveSession: boolean) => {

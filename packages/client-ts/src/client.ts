@@ -1,4 +1,4 @@
-import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, EnvironmentType, SecureContextConfig, SecureContextEndpointType, Network } from "@verida/types";
+import { IProfile, IClient, ClientConfig, DefaultClientConfig, IAccount, IContext, SecureContextConfig, SecureContextEndpointType, Network } from "@verida/types";
 import { DIDClient } from "@verida/did-client";
 import { VeridaNameClient } from '@verida/vda-name-client'
 
