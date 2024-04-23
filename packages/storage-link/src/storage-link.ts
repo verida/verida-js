@@ -225,6 +225,7 @@ export default class StorageLink {
                     type: notificationService!.type,
                     endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> notificationService!.serviceEndpoint)
                 }
+
             }
 
             contexts.push(config)

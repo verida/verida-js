@@ -10,7 +10,6 @@ import { EnvironmentType, IDatabase } from '@verida/types'
 const CONTEXT_NAME = 'Verida Storage Node Test: Test Application 1'
 
 const PRIVATE_KEY = ''
-const ENVIRONMENT = EnvironmentType.TESTNET
 
 let client, account, did
 
@@ -21,15 +20,15 @@ describe('Storage context hash tests', function() {
 
     this.beforeAll(async function() {
         client = new Client({
-            environment: ENVIRONMENT,
+            network: CONFIG.NETWORK,
             didClientConfig: {
-                network: ENVIRONMENT,
+                network: CONFIG.NETWORK,
             }
         })
         
         account = new AutoAccount({
             privateKey: PRIVATE_KEY,
-            environment: ENVIRONMENT,
+            network: CONFIG.NETWORK,
             didClientConfig: CONFIG.DID_CLIENT_CONFIG
         })
 

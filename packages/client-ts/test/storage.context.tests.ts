@@ -6,7 +6,6 @@ import { AutoAccount } from '@verida/account-node'
 import { StorageLink } from '@verida/storage-link'
 import { DIDDocument } from '@verida/did-document'
 import CONFIG from './config'
-import { EnvironmentType } from '@verida/types'
 
 const TEST_DB_NAME = 'TestDb_1'
 const TEST_DB_NAME_2 = 'TestDb_2'
@@ -19,9 +18,9 @@ describe('Storage context tests', () => {
     let didClient, context
 
     const client = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
-            network: EnvironmentType.TESTNET,
+            network: CONFIG.NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
@@ -32,7 +31,7 @@ describe('Storage context tests', () => {
         it(`can open a user storage context when authenticated`, async function() {
             const account = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             await client.connect(account)
@@ -40,12 +39,12 @@ describe('Storage context tests', () => {
             didClient = await account.getDidClient()
             const did = await account.did()
 
-            await StorageLink.unlink(didClient, CONFIG.CONTEXT_NAME)
+            await StorageLink.unlink(CONFIG.NETWORK, didClient, CONFIG.CONTEXT_NAME)
 
             context = await client.openContext(CONFIG.CONTEXT_NAME, true)
             assert.ok(context, 'Account context opened')
 
-            const fetchedStorageConfig = await StorageLink.getLink(didClient, did, CONFIG.CONTEXT_NAME)
+            const fetchedStorageConfig = await StorageLink.getLink(CONFIG.NETWORK, didClient, did, CONFIG.CONTEXT_NAME)
             const contextConfig = await context.getContextConfig()
 
             const existing = contextConfig.services
