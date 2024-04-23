@@ -4,7 +4,7 @@ import {
 } from "@verida/web3"
 import { Web3SelfTransactionConfig, VdaClientConfig, Network } from '@verida/types'
 import { ethers, Contract } from "ethers";
-import { getContractInfoForVeridaNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
+import { getContractInfoForVeridaNetwork, RPC_URLS, getVeridaSignWithNonce, DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
@@ -217,7 +217,8 @@ export class VeridaNameClient {
                 }
             }
 
-            const did = `did:vda:${this.network}:${response}`
+            const blockchain = DefaultNetworkBlockchainAnchors[this.network]
+            const did = `did:vda:${blockchain.toString()}:${response}`
             this.usernameCache[username] = did
             return did
         } catch (err:any ) {
