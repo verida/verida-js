@@ -27,9 +27,10 @@ export default class AutoAccount extends Account {
         super()
         this.accountConfig = accountConfig
         this.autoConfig = autoConfig
-        this.wallet = new Wallet(autoConfig.privateKey, <string> autoConfig.network)
 
         const blockchain = DefaultNetworkBlockchainAnchors[autoConfig.network]
+        this.wallet = new Wallet(autoConfig.privateKey, blockchain.toString())
+
         this.didClient = new DIDClient({
             ...autoConfig.didClientConfig,
             blockchain

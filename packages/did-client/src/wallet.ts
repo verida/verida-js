@@ -16,7 +16,7 @@ export default class Wallet {
         this.load(privateKey)
     }
 
-    public static createRandom(network: string = 'testnet') {
+    public static createRandom(network: string = 'polpos') {
         const wallet = EthersWallet.createRandom()
         return new Wallet(wallet.privateKey, network)
     }

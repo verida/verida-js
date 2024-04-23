@@ -64,7 +64,6 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
 export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
     [BlockchainAnchor.POLPOS]: '0x89',
     [BlockchainAnchor.POLAMOY]: '0x13882',
-    [BlockchainAnchor.MUMBAI]: '0x13881',
 
     /**
      * @todo Deprecate
