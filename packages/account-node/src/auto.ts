@@ -80,7 +80,7 @@ export default class AutoAccount extends Account {
             },
             defaultNotificationServer:  {
                 type: 'VeridaNotification',
-                endpointUri: config.notificationEndpoints!
+                endpointUri: config.notificationEndpoints! ? config.notificationEndpoints! : []
             }
         }
     }
