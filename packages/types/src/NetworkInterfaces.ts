@@ -8,34 +8,10 @@ export enum Network {
 	BANKSIA = "banksia",  
 	MYRTLE = "myrtle",  
 }
-  
-/**  
- * @todo Deprecate in favour of `Network`
- *
-export enum EnvironmentType {  
-	LOCAL = Network.LOCAL,  
-	DEVNET = Network.DEVNET,  
-	BANKSIA = Network.BANKSIA,  
-	MYRTLE = Network.MYRTLE,  
-
-	 
-	 * @deprecated use MYRTLE instead  
-	 
-	MAINNET = Network.MYRTLE,  
-	
-	 @deprecated use BANKSIA instead  
-	
-	TESTNET = Network.BANKSIA,  
-}*/
 
 export enum BlockchainAnchor {
 	POLAMOY = "polamoy",
 	POLPOS = "polpos",
-
-	/**  
-	 * @todo Remove once Amoy is deployed
-	 */
-	MUMBAI = "mumbai",
 
 	/**  
 	 * @deprecated use POLPOS instead  

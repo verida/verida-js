@@ -12,6 +12,5 @@ describe('getDIDs test', function() {
 
         assert.ok(result, 'Have a result')
         assert.ok(result.length, 'Have at least one result returned')
-        console.log(result)
     });
 })
