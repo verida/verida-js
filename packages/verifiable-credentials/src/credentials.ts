@@ -64,21 +64,18 @@ export default class Credentials {
 		summary?: string,
 		icon?: string
 	): Promise<VeridaCredentialRecord> {
-		const didJwtVc = await this.createCredentialJWT(createCredentialData)
-
-		const { data, schema } = createCredentialData
-
-		const {
-			vc,
-			issuer
-		} = await this.buildVerifiableCredential(createCredentialData)
+		const {  
+			vc,  
+			issuer  
+		} = await this.buildVerifiableCredential(createCredentialData)  		
+		const didJwtVc = await this.createVerifiableCredential(vc, issuer) 
 
 		return {
 			name,
 			summary,
 			schema: VERIDA_CREDENTIAL_SCHEMA,
 			credentialData: vc,
-			credentialSchema: schema,
+			credentialSchema: createCredentialData.schema,
 			icon,
 			didJwtVc
 		}
