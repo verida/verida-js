@@ -7,15 +7,12 @@ export interface CONTRACT_INFO {
     address: string
 }
 
-const MYRTLE = Network.MYRTLE
-const BANKSIA = Network.BANKSIA
-
-const MAINNET = BlockchainAnchor.MAINNET.toString()
-const TESTNET = BlockchainAnchor.TESTNET.toString()
-const DEVNET = BlockchainAnchor.DEVNET.toString()
+const MAINNET = BlockchainAnchor.POLPOS.toString()
+const TESTNET = BlockchainAnchor.POLAMOY.toString()
+const DEVNET = BlockchainAnchor.POLAMOY.toString()
 
 export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
-    [MYRTLE]: {
+    [Network.MYRTLE]: {
         id: Network.MYRTLE,
         label: "Myrtle",
         isMainnet: true,
@@ -26,7 +23,7 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         nameRegistryAddress: "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
         didLinkageAddress: "0x5916F97e31B77884d81bdA875b7686A988E0d517"
     },
-    [BANKSIA]: {
+    [Network.BANKSIA]: {
         id: Network.BANKSIA,
         label: "Banksia",
         isMainnet: false,
@@ -63,26 +60,11 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
 
 export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
     [BlockchainAnchor.POLPOS]: '0x89',
-    [BlockchainAnchor.POLAMOY]: '0x13882',
-
-    /**
-     * @todo Deprecate
-     */
-    [BlockchainAnchor.MAINNET]: '0x89',
-
-    /**
-     * @todo Deprecate
-     */
-    [BlockchainAnchor.TESTNET]: '0x13881',
-
-    /**
-     * @todo Switch to `polamoy`
-     */
-    [BlockchainAnchor.DEVNET]: '0x13881'
+    [BlockchainAnchor.POLAMOY]: '0x13882'
 }
 
-const CHAINID_MAINNET = BLOCKCHAIN_CHAINIDS[BlockchainAnchor.MAINNET].toString()
-const CHAINID_TESTNET = BLOCKCHAIN_CHAINIDS[BlockchainAnchor.TESTNET].toString()
+const CHAINID_MAINNET = BLOCKCHAIN_CHAINIDS[BlockchainAnchor.POLPOS].toString()
+const CHAINID_TESTNET = BLOCKCHAIN_CHAINIDS[BlockchainAnchor.POLAMOY].toString()
 
 export type CONTRACT_NAMES = 
     "VeridaDIDRegistry"     |

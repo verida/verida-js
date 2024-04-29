@@ -12,13 +12,6 @@ export enum Network {
 export enum BlockchainAnchor {
 	POLAMOY = "polamoy",
 	POLPOS = "polpos",
-
-	/**  
-	 * @deprecated use POLPOS instead  
-	 */
-	MAINNET = "polpos",
-
-	TESTNET = "polamoy",
 	DEVNET = "polamoy"
 }
 
