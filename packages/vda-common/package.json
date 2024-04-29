@@ -14,7 +14,7 @@
     "tests": "ts-mocha './test/**/*.ts'",
     "copy-files": "copyfiles -u 1 src/**/*.json dist/",
     "test": "ts-mocha --timeout 100000",
-    "build": "rm -rf dist && tsc && yarn copy-files"
+    "build": "rm -rf dist; tsc; yarn copy-files"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",

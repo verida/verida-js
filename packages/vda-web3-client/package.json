@@ -18,8 +18,8 @@
     "lint": "gts lint",
     "clean": "gts clean",
     "copy": "cd src/contract && find . -name \"*.json\" | xargs cp --parents -t ../../build/src/contract && cd ../../",
-    "compile": "rm -rf build && tsc",
-    "build": "rm -rf build && tsc",
+    "compile": "rm -rf build; tsc",
+    "build": "rm -rf build; tsc",
     "fix": "gts fix",
     "prepare": "npm run compile"
   },

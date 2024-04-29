@@ -9,7 +9,7 @@
   },
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
-    "build": "rm -rf dist/ && tsc && mkdir -p ./dist/assets && cp -r ./src/assets/* ./dist/assets/"
+    "build": "rm -rf dist; tsc; mkdir ./dist; mkdir ./dist/assets; cp -r ./src/assets/* ./dist/assets/"
   },
   "engines": {
     "node": ">=18.0.0"

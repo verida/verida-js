@@ -11,7 +11,7 @@
   "scripts": {
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha --timeout 100000",
-    "build": "rm -rf dist && tsc"
+    "build": "rm -rf dist; tsc"
   },
   "engines": {
     "node": ">=18.0.0"

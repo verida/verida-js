@@ -9,7 +9,7 @@
   },
   "repository": "https://github.com/verida/verida-js.git",
   "scripts": {
-    "build": "rm -rf dist/ && tsc",
+    "build": "rm -rf dist; tsc",
     "tests": "ts-mocha './test/**/*.ts'",
     "test": "ts-mocha"
   },

@@ -20,7 +20,7 @@
   },
   "repository": "https://github.com/verida/verida-js",
   "scripts": {
-    "build": "rm -rf dist && tsc"
+    "build": "rm -rf dist; tsc"
   },
   "dependencies": {
     "@ethersproject/abstract-signer": "^5.7.0",
