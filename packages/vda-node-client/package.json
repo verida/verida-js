@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-node-client",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Client library that read nodat & datacentre information.",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
