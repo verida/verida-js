@@ -2260,6 +2260,15 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
+"@verida/vda-common@*":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@verida/vda-common/-/vda-common-3.0.1.tgz#1acc8223e440fb64eb60dabbe2b90a404209eb20"
+  integrity sha512-l6fxtSiOYlTWF1ya9Iy2HothVMAdGiD1AbZ+pfq5K4QrxNzUoijeR+24CBA/8q6XkF+OMSdR0V4sPZ/azgQg8g==
+  dependencies:
+    "@verida/encryption-utils" "^3.0.0"
+    copyfiles "^2.4.1"
+    ethers "5.7.2"
+
 "@zkochan/cmd-shim@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@zkochan/cmd-shim/-/cmd-shim-3.1.0.tgz#2ab8ed81f5bb5452a85f25758eb9b8681982fd2e"

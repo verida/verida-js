@@ -9,7 +9,7 @@ export const RPC_URLS: Record<string, string | null> = {
     devnet: "https://rpc.ankr.com/polygon_mumbai",
     mumbai: "https://rpc.ankr.com/polygon_mumbai",
     polpos: "https://rpc.ankr.com/polygon",
-    polamoy: ""
+    polamoy: "https://rpc.ankr.com/polygon_amoy"
 };
 
 export function getDefaultRpcUrl(chainNameOrId: any) {

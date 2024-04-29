@@ -42,6 +42,10 @@ export default class VdaDid {
             throw new Error(`Unable to create DID: No endpoints provided.`)
         }
 
+        if (!didDocument.id.match(`did:vda:${this.options.blockchain.toString()}`)) {
+            throw new Error(`Unable to create DID: Blockchain in address doesn't match config`)
+        }
+
         // Sign the DID Document
         didDocument.signProof(this.options.signKey!)
 
@@ -138,7 +142,7 @@ export default class VdaDid {
 
             // Ensure new controller in the DID Document matches the private key
             const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey)
-            if ((<string> didDocument.export().controller!).toLowerCase() !== `did:vda:${this.options.chainNameOrId}:${controllerAddress}`) {
+            if ((<string> didDocument.export().controller!).toLowerCase() !== `did:vda:${this.options.blockchain.toString()}:${controllerAddress}`) {
                 //console.log((<string> didDocument.export().controller!).toLowerCase(), `did:vda:${this.options.chainNameOrId}:${controllerAddress}`)
                 throw new Error(`Unable to update DID Document. Changing controller, but private key doens't match controller in DID Document`)
             }

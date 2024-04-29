@@ -39,9 +39,9 @@ export function mapDidNetworkToBlockchainAnchor(networkString: string): Blockcha
 
   // Convert `network` to EnvironmentType
   if (networkString?.toLowerCase() == 'mainnet') {
-    network = BlockchainAnchor.MAINNET;
+    network = BlockchainAnchor.POLPOS;
   } else if (networkString?.toLowerCase() == 'testnet') {
-    network = BlockchainAnchor.TESTNET;
+    network = BlockchainAnchor.POLAMOY;
   } else {
     network = Object.values(BlockchainAnchor)
       .find((value) => value.toLowerCase() === networkString!.toLowerCase());

@@ -6,14 +6,14 @@ import { getResolver } from '../src/resolver'
 import { Resolver } from 'did-resolver'
 import { VdaDid } from '@verida/vda-did'
 import { getBlockchainAPIConfiguration } from "@verida/vda-common-test"
-import { VeridaDocInterface } from '@verida/types';
+import { BlockchainAnchor, VeridaDocInterface } from '@verida/types';
 
 const wallet = ethers.Wallet.createRandom()
 
 let DID_ADDRESS, DID, DID_PK, DID_PRIVATE_KEY, DID_TESTNET
 
 DID_ADDRESS = wallet.address
-DID = `did:vda:mumbai:${DID_ADDRESS}`
+DID = `did:vda:polamoy:${DID_ADDRESS}`
 DID_TESTNET = `did:vda:testnet:${DID_ADDRESS}`
 DID_PK = wallet.publicKey
 DID_PRIVATE_KEY = wallet.privateKey
@@ -34,6 +34,7 @@ const baseConfig = getBlockchainAPIConfiguration(privateKey)
 
 const VDA_DID_CONFIG = {
     identifier: DID,
+    blockchain: BlockchainAnchor.POLAMOY,
     signKey: DID_PRIVATE_KEY,
     callType: baseConfig.callType,
     web3Options: baseConfig.web3Options

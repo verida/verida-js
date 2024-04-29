@@ -1,3 +1,12 @@
+
+-------------------
+
+Breaking changes:
+
+- `Network.getRecord()` now requires the `network` parameter
+- `ClientConfig` configures the Verida Network using `network` instead of `environment`
+
+
 2023-03-15 (v.3.0.3)
 -------------------
 

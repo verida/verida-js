@@ -1,4 +1,5 @@
 const assert = require('assert')
+import { BlockchainAnchor } from '@verida/types';
 import { activeDIDCount } from '../src/activeDIDCount';
 
 
@@ -9,7 +10,7 @@ describe('activeDIDCount test', function() {
     
     it('Success', async () => {
         // Need to register this did before
-        const result = await activeDIDCount(NETWORK);
+        const result = await activeDIDCount(BlockchainAnchor.POLAMOY);
 
         assert.equal(typeof(result), 'number', 'activeDIDCount number')
         console.log("Current count = ", result)

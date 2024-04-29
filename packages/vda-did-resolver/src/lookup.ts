@@ -1,4 +1,4 @@
-import { CONTRACT_ADDRESS, RPC_URLS, CONTRACT_ABI as abiList, mapDidNetworkToBlockchainAnchor } from "@verida/vda-common";
+import { CONTRACT_ADDRESS, RPC_URLS, getContractInfoForBlockchain, getDefaultRpcUrl, mapDidNetworkToBlockchainAnchor } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
@@ -9,21 +9,21 @@ import { Contract } from 'ethers';
  * @param rpcUrl URL
  */
 export async function lookup(didAddress: string, network: string, rpcUrl?: string) : Promise<string[]> { 
-    // Simple read-only of the blockchain
-    const contractABI = abiList["VeridaDIDRegistry"];
-    const provider = new JsonRpcProvider(rpcUrl);
-
-    const blockchainAnchor = mapDidNetworkToBlockchainAnchor(network)
-    if (!blockchainAnchor) {
+    const blockchain = mapDidNetworkToBlockchainAnchor(network)
+    if (!blockchain) {
         throw new Error(`Empty contract address for network-${network}`)
     }
 
     if (!rpcUrl) {
-        rpcUrl = RPC_URLS[blockchainAnchor.toString()]!
+        getDefaultRpcUrl(network)
+        if (!rpcUrl) {
+            throw new Error(`Unable to locate RPC_URL for network: ${blockchain.toString()}`)
+        }
     }
 
-    const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][blockchainAnchor];
-    const contract = new Contract(address!, contractABI.abi, provider);
+    const contractInfo = getContractInfoForBlockchain("VeridaDIDRegistry", blockchain);
+    const provider = new JsonRpcProvider(rpcUrl);
+    const contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider);
     
     let data = [];
     try {

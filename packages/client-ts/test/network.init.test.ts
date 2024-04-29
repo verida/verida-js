@@ -11,7 +11,7 @@ describe('Network initialization tests', () => {
 
         it('can create a network instance', async function() {
             const network = new Client({
-                environment: CONFIG.ENVIRONMENT
+                network: CONFIG.NETWORK
             })
             assert.ok(network, 'Have a network instance')
         })

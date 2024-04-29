@@ -2,9 +2,9 @@ import {
     getVeridaContract,
     VeridaContract
 } from "@verida/web3"
-import { Web3SelfTransactionConfig, VdaClientConfig } from '@verida/types'
+import { Web3SelfTransactionConfig, VdaClientConfig, Network } from '@verida/types'
 import { ethers, Contract } from "ethers";
-import { getContractInfoForNetwork, RPC_URLS, getVeridaSign } from "@verida/vda-common";
+import { getContractInfoForVeridaNetwork, RPC_URLS, getVeridaSign, getDefaultRpcUrl, DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { explodeDID } from '@verida/helpers'
 
@@ -16,7 +16,7 @@ export interface ClaimType {
 export class VeridaRewardClient {
 
     protected config: VdaClientConfig
-    protected network: string
+    protected network: Network
     protected didAddress?: string
 
     protected vdaWeb3Client? : VeridaContract
@@ -43,7 +43,8 @@ export class VeridaRewardClient {
             (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
         }
 
-        const contractInfo = getContractInfoForNetwork("VDARewardContract", this.network)
+        const contractInfo = getContractInfoForVeridaNetwork("VDARewardContract", this.network)
+        const blockchain = DefaultNetworkBlockchainAnchors[this.network]
 
         if (config.did) {
             this.readOnly = false
@@ -57,7 +58,7 @@ export class VeridaRewardClient {
         } else {
             let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
             if (!rpcUrl) {
-                rpcUrl = <string> RPC_URLS[this.network]
+                rpcUrl = getDefaultRpcUrl(blockchain)!
             }
 
             const provider = new JsonRpcProvider(rpcUrl)

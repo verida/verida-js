@@ -8,60 +8,19 @@ export enum Network {
 	BANKSIA = "banksia",  
 	MYRTLE = "myrtle",  
 }
-  
-/**  
- * @todo Deprecate in favour of `Network`
- */
-export enum EnvironmentType {  
-	LOCAL = Network.LOCAL,  
-	DEVNET = Network.DEVNET,  
-	BANKSIA = Network.BANKSIA,  
-	MYRTLE = Network.MYRTLE,  
-
-	/**  
-	 * @deprecated use MYRTLE instead  
-	 */
-	MAINNET = Network.MYRTLE,  
-	/**  
-	 * @deprecated use BANKSIA instead  
-	 */  
-	TESTNET = Network.BANKSIA,  
-}
 
 export enum BlockchainAnchor {
 	POLAMOY = "polamoy",
 	POLPOS = "polpos",
-
-	/**  
-	 * @todo Remove once Amoy is deployed
-	 */
-	MUMBAI = "mumbai",
-
-	/**  
-	 * @deprecated use POLPOS instead  
-	 */
-	MAINNET = "polpos",
-
-	/**  
-	 * @deprecated use MUMBAI instead  
-	 */
-	TESTNET = "mumbai",
-	//TESTNET = "polamoy",
-	DEVNET = "mumbai"
+	DEVNET = "polamoy"
 }
 
 export enum BlockchainNetworks {
 	// mainnet
 	//'mainnet' = "0x89",
 	'polpos' = "0x89",
-
-	// testnet
-	//'testnet' = "0x13881",
-	/**
-	 * @todo Remove once Amoy is deployed
-	 */
-	'mumbai' = "0x13881",
-	'devnet' = "0x13881"
+	'devnet' = "0x13882",
+	'polamoy' = '0x13882'
 }
 
 export interface NetworkDefinition {  
@@ -70,27 +29,28 @@ export interface NetworkDefinition {
 	isMainnet: boolean
 	anchoredBlockchain: BlockchainAnchor
 	tokenAddress: string | null
+	didRegistry: string | null
 	storageNodeRegistryAddress: string | null
 	nameRegistryAddress: string | null
 	didLinkageAddress: string | null
 } 
 
-export interface DefaultEnvironmentConfig {
+export interface DefaultNetworkConfig {
 	defaultDatabaseServerUrl?: string
 	defaultMessageServerUrl?: string
 	schemaPaths?: Record<string,string>
 	readOnlyDataApiUri?: string
 }
 
-export interface DefaultClientConfig extends DefaultEnvironmentConfig {
-	environment: EnvironmentType
-	environments: Record<string, DefaultEnvironmentConfig>
+export interface DefaultClientConfig extends DefaultNetworkConfig {
+	network: Network
+	environments: Record<string, DefaultNetworkConfig>
 	vaultAppName: string
 }
 
 export interface DIDClientConfig {
-    network: EnvironmentType              // `testnet` OR `mainnet`
-    rpcUrl?: string                              // blockchain RPC URI to use
+    blockchain: BlockchainAnchor
+    rpcUrl?: string					// blockchain RPC URI to use
     timeout?: number
 }
 
@@ -104,11 +64,11 @@ export interface ClientConfig {
 	vaultAppName?: string;
 	
 	/**
-	 * Environment to load by default.
+	 * Verida network to load by default.
 	 *
-	 * Environment configuration can still be overridden by config items.
+	 * Verida network can still be overridden by config items.
 	 */
-	environment?: EnvironmentType;
+	network?: Network;
 
 	didClientConfig?: DIDClientConfig
 

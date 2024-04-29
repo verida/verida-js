@@ -1,4 +1,4 @@
-import { EnvironmentType } from "./NetworkInterfaces";
+import { Network } from "./NetworkInterfaces";
 import { Web3CallType, Web3SelfTransactionConfig, Web3MetaTransactionConfig } from "./Web3Interfaces";
 /**
  * Interface for vda-xxx-client instance creation.
@@ -9,7 +9,7 @@ import { Web3CallType, Web3SelfTransactionConfig, Web3MetaTransactionConfig } fr
  * @param web3Options: Web3 configuration depending on call type. Values from vda-did-resolver
  */
 export interface VdaClientConfig {
-    network: EnvironmentType
+    network: Network
     did?: string
     signKey?: string
     callType?: Web3CallType
