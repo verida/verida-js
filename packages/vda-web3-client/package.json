@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "keywords": [],
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "tests": "ts-mocha './test/**/*.test.ts'",

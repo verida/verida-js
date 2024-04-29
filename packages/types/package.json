@@ -16,7 +16,7 @@
     "test": "tests"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "repository": "https://github.com/verida/verida-js",
   "scripts": {

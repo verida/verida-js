@@ -668,16 +668,19 @@ export class VeridaNodeManager {
     /**
      * Return an array of `Storagenode` structs for country code
      * @param countryCode Unique two-character string code
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Index starts from 1
+     * @param status Status of nodes to be returned
      * @returns An array of `Storagenode` structs
      */
-    public async getNodesByCountryCode(countryCode: string, status?: EnumStatus) {
+    public async getNodesByCountryCode(countryCode: string, pageSize: BigNumberish, pageNumber: BigNumberish, status?: EnumStatus) {
         let response;
         try {
             if (this.vdaWeb3Client) {
                 if (status === undefined) {
-                    response = await this.vdaWeb3Client.getNodesByCountryCode(countryCode);
+                    response = await this.vdaWeb3Client.getNodesByCountryCode(countryCode, pageSize, pageNumber);
                 } else {
-                    response = await this.vdaWeb3Client.getNodesByCountryCodeAndStatus(countryCode, status);
+                    response = await this.vdaWeb3Client.getNodesByCountryCodeAndStatus(countryCode, status, pageSize, pageNumber);
                 }
                 
                 if (response.success !== true) {
@@ -689,9 +692,9 @@ export class VeridaNodeManager {
                 );
             } else {
                 if (status === undefined) {
-                    response = await this.contract!.callStatic.getNodesByCountryCode(countryCode);
+                    response = await this.contract!.callStatic.getNodesByCountryCode(countryCode, pageSize, pageNumber);
                 } else {
-                    response = await this.contract!.callStatic.getNodesByCountryCodeAndStatus(countryCode, status);
+                    response = await this.contract!.callStatic.getNodesByCountryCodeAndStatus(countryCode, status, pageSize, pageNumber);
                 }
                 
                 return await Promise.all(
@@ -707,16 +710,19 @@ export class VeridaNodeManager {
     /**
      * Return an array of `Storagenode` structs for region code
      * @param regionCode Unique region string code
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Index starts from 1
+     * @param status Status of nodes to be returned
      * @returns An array of `Storagenode` structs
      */
-    public async getNodesByRegionCode(regionCode: string, status?: EnumStatus) {
+    public async getNodesByRegionCode(regionCode: string, pageSize: BigNumberish, pageNumber: BigNumberish, status?: EnumStatus) {
         let response;
         try {
             if (this.vdaWeb3Client) {
                 if (status === undefined) {
-                    response = await this.vdaWeb3Client.getNodesByRegionCode(regionCode);
+                    response = await this.vdaWeb3Client.getNodesByRegionCode(regionCode, pageSize, pageNumber);
                 } else {
-                    response = await this.vdaWeb3Client.getNodesByRegionCodeAndStatus(regionCode, status);
+                    response = await this.vdaWeb3Client.getNodesByRegionCodeAndStatus(regionCode, status, pageSize, pageNumber);
                 }
                 
                 if (response.success !== true) {
@@ -728,9 +734,9 @@ export class VeridaNodeManager {
                 );
             } else {
                 if (status === undefined) {
-                    response = await this.contract!.callStatic.getNodesByRegionCode(regionCode);
+                    response = await this.contract!.callStatic.getNodesByRegionCode(regionCode, pageSize, pageNumber);
                 } else {
-                    response = await this.contract!.callStatic.getNodesByRegionCodeAndStatus(regionCode, status);
+                    response = await this.contract!.callStatic.getNodesByRegionCodeAndStatus(regionCode, status, pageSize, pageNumber);
                 }
 
                 return await Promise.all(
@@ -746,13 +752,15 @@ export class VeridaNodeManager {
     /**
      * Return an array of `Storagenode` structs for specified status
      * @param status Status of targeting storage nodes
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Index starts from 1
      * @returns An array of `Storagenode` structs
      */
-    public async getNodesByStatus(status: EnumStatus) {
+    public async getNodesByStatus(status: EnumStatus, pageSize: BigNumberish, pageNumber: BigNumberish) {
         let response;
         try {
             if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.getNodesByStatus(status);
+                response = await this.vdaWeb3Client.getNodesByStatus(status, pageSize, pageNumber);
                 
                 if (response.success !== true) {
                     throw new Error(response.reason);
@@ -762,7 +770,7 @@ export class VeridaNodeManager {
                     response.data.map(async (item: any) => await this.standardizeNode(item))
                 );
             } else {
-                response = await this.contract!.callStatic.getNodesByStatus(status);
+                response = await this.contract!.callStatic.getNodesByStatus(status, pageSize, pageNumber);
 
                 return await Promise.all(
                     response.map(async (item: any) => await this.standardizeNode(item))
@@ -1198,6 +1206,21 @@ export class VeridaNodeManager {
         } catch (err:any ) {
             const message = err.reason ? err.reason : err.message;
             throw new Error(`Failed to check withdrawal enabled (${message})`);
+        }
+    }
+
+    /**
+     * Accept 2-step ownership transfer
+     */
+    public async acceptOwnership() {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.acceptOwnership();
+
+        if (response.success !== true) {
+            throw new Error(`Failed to accept the ownership: ${response.reason}`);
         }
     }
 }
