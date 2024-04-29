@@ -30,7 +30,7 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
         tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
         didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
-        storageNodeRegistryAddress: "0xDfe326357A4078A3ea8A192084255F25Ab73c712",
+        storageNodeRegistryAddress: "0x0b59cD9A966f379b70075211ffd68B605B265987",
         nameRegistryAddress: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
         didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B"
     },
@@ -39,22 +39,22 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         label: "Banksia",
         isMainnet: false,
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
-        tokenAddress: "0x745Db51351015d61573db37bC16C49B8506B93c8",
+        tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
         didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
-        storageNodeRegistryAddress: "0xDfe326357A4078A3ea8A192084255F25Ab73c712",
-        nameRegistryAddress: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
-        didLinkageAddress: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A"
+        storageNodeRegistryAddress: "0x0b59cD9A966f379b70075211ffd68B605B265987",
+        nameRegistryAddress: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
+        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B"
     },
     [Network.LOCAL]: {
         id: Network.LOCAL,
         label: "Local",
         isMainnet: false,
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
-        tokenAddress: "0x745Db51351015d61573db37bC16C49B8506B93c8",
+        tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
         didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
-        storageNodeRegistryAddress: "0xDfe326357A4078A3ea8A192084255F25Ab73c712",
-        nameRegistryAddress: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
-        didLinkageAddress: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A"
+        storageNodeRegistryAddress: "0x0b59cD9A966f379b70075211ffd68B605B265987",
+        nameRegistryAddress: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
+        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B"
     },
 }
 
