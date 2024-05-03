@@ -18,10 +18,9 @@
   },
   "dependencies": {
     "@verida/did-document": "^4.0.0-alpha.0",
-    "@verida/encryption-utils": "^3.0.0",
     "@verida/types": "^4.0.0-alpha.0",
+    "@verida/vda-common": "^4.0.0-alpha.0",
     "@verida/web3": "^4.0.0-alpha.0",
-    "@verida/vda-common": "*",
     "axios": "1.2.0-alpha.1",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21"

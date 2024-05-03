@@ -3,9 +3,7 @@ import EncryptionUtils from '@verida/encryption-utils'
 import { VerificationMethod } from 'did-resolver'
 import { strip0x } from './helpers'
 import { IDIDDocument, IKeyring, Network, SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface, VerificationMethodTypes } from '@verida/types'
-import { interpretIdentifier } from '@verida/vda-common'
-import { mapDidNetworkToBlockchainAnchor } from '@verida/vda-common'
-import { BLOCKCHAIN_CHAINIDS } from '@verida/vda-common'
+import { BLOCKCHAIN_CHAINIDS, mapDidNetworkToBlockchainAnchor, interpretIdentifier } from '@verida/vda-common'
 import { BlockchainAnchor } from '@verida/types'
 const _ = require('lodash')
 
@@ -39,7 +37,7 @@ export default class DIDDocument implements IDIDDocument {
 
             const { address, network } = interpretIdentifier(this.doc.id)
             const blockchainAnchor = mapDidNetworkToBlockchainAnchor(network ? network.toString() : 'mainnet')
-            const chainId = blockchainAnchor ? BLOCKCHAIN_CHAINIDS[blockchainAnchor] : BLOCKCHAIN_CHAINIDS[BlockchainAnchor.MAINNET]
+            const chainId = blockchainAnchor ? BLOCKCHAIN_CHAINIDS[blockchainAnchor] : BLOCKCHAIN_CHAINIDS[BlockchainAnchor.POLPOS]
             
             // Add default signing key
             this.doc.assertionMethod = [
