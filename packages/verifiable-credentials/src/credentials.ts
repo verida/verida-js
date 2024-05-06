@@ -9,7 +9,7 @@ import {
 	JwtCredentialPayload,
 	Issuer,
 } from 'did-jwt-vc';
-import { CreateCredentialJWT, VERIDA_CREDENTIAL_SCHEMA, VeridaCredentialRecord, VeridaCredentialSchema } from './interfaces';
+import { CreateCredentialJWT, VERIDA_CREDENTIAL_SCHEMA, VeridaCredentialRecord, VeridaCredentialSchema, VerifiableCredentialResponse } from './interfaces';
 import { IContext, Web3ResolverConfigurationOptions } from '@verida/types';
 import EncryptionUtils from '@verida/encryption-utils';
 import Axios from 'axios'
@@ -64,16 +64,18 @@ export default class Credentials {
 		summary?: string,
 		icon?: string
 	): Promise<VeridaCredentialRecord> {
-		const didJwtVc = await this.createCredentialJWT(createCredentialData)
-
-		const { data, schema } = createCredentialData
+		const {  
+			vc,  
+			issuer  
+		} = await this.buildVerifiableCredential(createCredentialData)  		
+		const didJwtVc = await this.createVerifiableCredential(vc, issuer) 
 
 		return {
 			name,
 			summary,
 			schema: VERIDA_CREDENTIAL_SCHEMA,
-			credentialData: data,
-			credentialSchema: schema,
+			credentialData: vc,
+			credentialSchema: createCredentialData.schema,
 			icon,
 			didJwtVc
 		}
@@ -192,15 +194,14 @@ export default class Credentials {
 		}
 	}
 
+
 	/**
-	 * Create a new credential DID-JWT for a given object.
-	 * 
-	 * A new property `didJwtVc` is added to the data and included in the response
+	 * Build a new Verifiable Credential object
 	 * 
 	 * @param data 
-	 * @returns A string DID-JWT representation
+	 * @returns Verifiable Credential
 	 */
-	public async createCredentialJWT({ subjectId, data, schema, context, payload, options }: CreateCredentialJWT): Promise<string> {
+	public async buildVerifiableCredential({ subjectId, data, schema, context, payload, options }: CreateCredentialJWT): Promise<VerifiableCredentialResponse> {
 		// Ensure a credential schema has been specified
 		if (!schema) {
 			throw new Error('No schema specified')
@@ -281,9 +282,19 @@ export default class Credentials {
 			vcPayload.issuanceDate = dateFormat.$d
 		}
 
-		const didJwtVc = await this.createVerifiableCredential(vcPayload, issuer);
+		return {
+			vc: vcPayload,
+			issuer
+		}
+	}
 
-		return didJwtVc
+	public async createCredentialJWT({ subjectId, data, schema, context, payload, options }: CreateCredentialJWT): Promise<string> {
+		const {
+			vc,
+			issuer
+		} = await this.buildVerifiableCredential({ subjectId, data, schema, context, payload, options })
+
+		return await this.createVerifiableCredential(vc, issuer)
 	}
 
 	private static getResolver(resolverConfig?: Web3ResolverConfigurationOptions): any {
