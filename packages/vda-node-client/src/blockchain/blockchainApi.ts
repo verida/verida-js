@@ -293,23 +293,31 @@ export class VeridaNodeClient {
     /**
      * Get nodes by country and status
      * @param countryCode Country code of nodes
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Index starts from 1
      * @param status Status of nodes
      */
     public async getNodesByCountryCode(
-        countryCode: string, 
+        countryCode: string,
+        pageSize: BigNumberish, 
+        pageNumber: BigNumberish,
         status?: EnumStatus) {
         if (status === undefined) {
             return await this.executeFunction(
                 'getNodesByCountryCode',
                 'Failed to get nodes by country',
-                countryCode
+                countryCode,
+                pageSize,
+                pageNumber
             );
         } else {
             return await this.executeFunction(
                 'getNodesByCountryCodeAndStatus',
                 'Failed to get nodes by country and status',
                 countryCode,
-                status
+                status,
+                pageSize,
+                pageNumber,
             );
         }
     }
@@ -317,23 +325,31 @@ export class VeridaNodeClient {
     /**
      * Get nodes by region and status
      * @param regionCode Region code of nodes
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Index starts from 1
      * @param status Status of nodes
      */
     public async getNodesByRegionCode(
         regionCode: string, 
+        pageSize: BigNumberish, 
+        pageNumber: BigNumberish,
         status?: EnumStatus) {
         if (status === undefined) {
             return await this.executeFunction(
                 'getNodesByRegionCode',
                 'Failed to get nodes by region',
-                regionCode
+                regionCode,
+                pageSize,
+                pageNumber
             );
         } else {
             return await this.executeFunction(
                 'getNodesByRegionCodeAndStatus',
                 'Failed to get nodes by region and status',
                 regionCode,
-                status
+                status,
+                pageSize,
+                pageNumber
             );
         }
     }
@@ -341,13 +357,19 @@ export class VeridaNodeClient {
     /**
      * Get nodes by status
      * @param status Status of nodes
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Index starts from 1
      */
     public async getNodesByStatus(
-        status: EnumStatus) {
+        status: EnumStatus,
+        pageSize: BigNumberish, 
+        pageNumber: BigNumberish) {
         return await this.executeFunction(
             'getNodesByStatus',
             'Failed to get nodes by status',
-            status
+            status,
+            pageSize,
+            pageNumber
         );
     }
 

@@ -24,11 +24,11 @@ These are helper packages that typically aren't used directly:
 
 ### Node Version
 
-This requires **node v14.17.1** to build. We use [nvm](https://github.com/nvm-sh/nvm) to manage this:
+This requires **node v18 (lts/hydrogen)** to build. We use [nvm](https://github.com/nvm-sh/nvm) to manage this:
 
 ```
-nvm install v14.17.1
-nvm use v14.17.1
+nvm install lts/hydrogen
+nvm use # this uses the .nvmrc file
 ```
 
 
@@ -39,7 +39,7 @@ It's not possible to add dependencies between monorepo packages using yarn (ie: 
 Unpublished dependencies between monorepo packages can be linked by:
 
 - Manually adding the expected dependency to `package.json` (ie: `@verida/encryption-utils`)
-- Run `npx lerna bootstrap` in the root directory of this project
+- Run `yarn install` in the root directory of this project
 
 
 ### Building
@@ -49,7 +49,7 @@ Build everything:
 In the root directory:
 
 ```
-npx lerna bootstrap
+yarn install
 npx lerna run build
 ```
 

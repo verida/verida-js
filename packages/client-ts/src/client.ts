@@ -226,7 +226,7 @@ class Client implements IClient {
         if (err.response && err.response.data && err.response.data.status == 'fail') {
           if (fallbackContext && fallbackContext != contextName) {
             // try the fallback context
-            return this.getPublicProfile(did, fallbackContext, profileName, null, useCache)
+            return this.getPublicProfile(did, fallbackContext, profileName, null, ignoreCache)
           }
         }
       }
@@ -240,7 +240,7 @@ class Client implements IClient {
       throw new Error('Profile not found')
     }
 
-    return profile.getMany()
+    return profile.getMany({}, {})
   }
 
   /**

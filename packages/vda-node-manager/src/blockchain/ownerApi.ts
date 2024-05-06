@@ -326,4 +326,20 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
         }
 
     }
+
+    /**
+     * Start 2-step ownership transfer
+     * @param to New owenr address
+     */
+    public async transferOwnership(to: string) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const response = await this.vdaWeb3Client!.transferOwnership(to);
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to transfer ownership: ${response.reason}`);
+        }
+    }
 }
