@@ -38,3 +38,8 @@ export interface VeridaCredentialRecord {
 export interface VeridaCredentialSchema {
     veridaProofs?: Record<string, string[]>
 }
+
+export interface VerifiableCredentialResponse {
+    vc: any,
+    issuer: any
+}
