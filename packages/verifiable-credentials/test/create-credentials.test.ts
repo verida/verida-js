@@ -1,9 +1,10 @@
 const assert = require('assert');
 require('dotenv').config();
 import Credentials from '../src/credentials';
+import { VeridaCredentialRecord } from '../src/interfaces';
 import config from './config';
 import { connectAccount } from './utils';
-import { EnvironmentType } from '@verida/types';
+import { Network } from '@verida/types';
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 dayjs.extend(utc)
@@ -16,7 +17,7 @@ describe('Credential tests', function () {
         let credentialSdk: Credentials;
 
         before(async function () {
-            appContext = await connectAccount(config.VDA_PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, EnvironmentType.TESTNET);
+            appContext = await connectAccount(config.VDA_PRIVATE_KEY_1, config.VERIDA_CONTEXT_NAME, Network.BANKSIA);
             credentialSdk = new Credentials();
         });
 
@@ -34,6 +35,7 @@ describe('Credential tests', function () {
             })
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
+            console.log(decodedCredential)
             const payload = decodedCredential.payload
             const vc = payload.vc
 
@@ -46,10 +48,22 @@ describe('Credential tests', function () {
             const isValid = await schema.validate(config.CREDENTIAL_DATA)
             assert.equal(true, isValid, 'Credential subject successfully validates against the schema');
 
-            assert.deepEqual(vc.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is valid');
+            assert.ok(decodedCredential.verifiableCredential.proof, 'Credential has a proof')
+            assert.deepEqual(decodedCredential.verifiableCredential.credentialSubject, config.CREDENTIAL_DATA, 'Credential data is valid');
             assert.deepEqual(issuer.did, vc.issuer, 'Issuer matches expected DID');
             assert.equal(vc.credentialSchema.id, config.SCHEMA_SBT, 'Credential schema is correct')
             assert.equal(vc.sub, config.SUBJECT_DID, 'Credential subject matches expected DID')
+            
+        });
+        it('Verify createVerifiableCredentialRecord generates a proof', async function() {
+            const data: VeridaCredentialRecord = await credentialSdk.createVerifiableCredentialRecord({
+                subjectId: config.SUBJECT_DID,
+                schema: config.SCHEMA_SBT,
+                data: config.CREDENTIAL_DATA,
+                context: appContext
+            }, 'Test');
+
+            assert.ok(data.credentialData.proof, 'Credential data has a proof')
         });
         it('Unable to create credential with invalid schema data', async function () {
             const promise = new Promise((resolve, rejects) => {

@@ -1,4 +1,4 @@
-import { AccountNodeDIDClientConfig, EnvironmentType } from '@verida/types'
+import { AccountNodeDIDClientConfig, Network } from '@verida/types'
 require('dotenv').config();
 
 const ENDPOINTS = ['https://node1-apse2.devnet.verida.tech:443/', 'https://node2-apse2.devnet.verida.tech:443/', 'https://node3-apse2.devnet.verida.tech:443/']
@@ -36,12 +36,10 @@ export default {
     },
     DID_CLIENT_CONFIG: <AccountNodeDIDClientConfig> {
         callType: 'web3',
-        network: EnvironmentType.TESTNET,
+        network: Network.BANKSIA,
         web3Config: {
-            privateKey: process.env.PRIVATE_KEY,
-            rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
-        },
-        didEndpoints: DID_ENDPOINTS
+            privateKey: process.env.PRIVATE_KEY
+        }
     },
     INVALID_CREDENTIAL_DATA: {
         email: 'me',
