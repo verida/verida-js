@@ -68,13 +68,14 @@ export default class Credentials {
 			vc,  
 			issuer  
 		} = await this.buildVerifiableCredential(createCredentialData)  		
-		const didJwtVc = await this.createVerifiableCredential(vc, issuer) 
+		const didJwtVc = await this.createVerifiableCredential(vc, issuer)
+		const decodedCredential = await this.verifyCredential(didJwtVc)
 
 		return {
 			name,
 			summary,
 			schema: VERIDA_CREDENTIAL_SCHEMA,
-			credentialData: vc,
+			credentialData: decodedCredential.verifiableCredential,
 			credentialSchema: createCredentialData.schema,
 			icon,
 			didJwtVc
