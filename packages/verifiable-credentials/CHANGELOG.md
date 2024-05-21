@@ -1,3 +1,8 @@
+@next
+-------------------
+
+- Fix: `credentialData` was raw JSON, not a VC meeting the W3C spec as expected
+
 2023-12-26 (v.3.0.0)
 -------------------
 

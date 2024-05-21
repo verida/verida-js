@@ -21,7 +21,7 @@ describe('Credential tests', function () {
             credentialSdk = new Credentials();
         });
 
-        it('Verify Credential JWT was created correctly', async function () {
+        it.only('Verify Credential JWT was created correctly', async function () {
             const didJwtVc: any = await credentialSdk.createCredentialJWT({
                 subjectId: config.SUBJECT_DID,
                 schema: config.SCHEMA_SBT,
