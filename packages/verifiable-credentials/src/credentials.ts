@@ -8,6 +8,7 @@ import {
 	verifyCredential,
 	JwtCredentialPayload,
 	Issuer,
+	CreateCredentialOptions,
 } from 'did-jwt-vc';
 import { CreateCredentialJWT, VERIDA_CREDENTIAL_SCHEMA, VeridaCredentialRecord, VeridaCredentialSchema } from './interfaces';
 import { IContext, Web3ResolverConfigurationOptions } from '@verida/types';
@@ -37,18 +38,20 @@ export default class Credentials {
 	 *
 	 * @param {object} vc JSON representing a verifiable credential
 	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
+	 * @param {object} options - Use these options to tweak the creation of the JWT Credential. These are forwarded to did-jwt.
 	 * @return {string} DID-JWT representation of the Verifiable Credential
 	 */
 	public async createVerifiableCredential(
 		vc: any,
-		issuer: any
+		issuer: any,
+		options: CreateCredentialOptions = {}
 	): Promise<string> {
 		// Create the payload
 		const vcPayload: JwtCredentialPayload = {
 			vc,
 		};
 		// Create the verifiable credential
-		return await createVerifiableCredentialJwt(vcPayload, issuer);
+		return await createVerifiableCredentialJwt(vcPayload, issuer, options);
 	}
 
 	/**
