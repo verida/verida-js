@@ -8,6 +8,10 @@ import {
 	verifyCredential,
 	JwtCredentialPayload,
 	Issuer,
+	CreateCredentialOptions,
+	CreatePresentationOptions,
+	VerifyPresentationOptions,
+	VerifyCredentialOptions,
 } from 'did-jwt-vc';
 import { CreateCredentialJWT, VERIDA_CREDENTIAL_SCHEMA, VeridaCredentialRecord, VeridaCredentialSchema, VerifiableCredentialResponse } from './interfaces';
 import { IContext, Web3ResolverConfigurationOptions } from '@verida/types';
@@ -37,39 +41,44 @@ export default class Credentials {
 	 *
 	 * @param {object} vc JSON representing a verifiable credential
 	 * @param {object} issuer A credential issuer object obtained by calling `createIssuer(user)`
+	 * @param {CreateCredentialOptions} options - Use these options to tweak the creation of the JWT Credential. These are forwarded to did-jwt.
 	 * @return {string} DID-JWT representation of the Verifiable Credential
 	 */
 	public async createVerifiableCredential(
 		vc: any,
-		issuer: any
+		issuer: any,
+		options: CreateCredentialOptions = { removeOriginalFields: false }
 	): Promise<string> {
 		// Create the payload
 		const vcPayload: JwtCredentialPayload = {
 			vc,
 		};
 		// Create the verifiable credential
-		return await createVerifiableCredentialJwt(vcPayload, issuer);
+		return await createVerifiableCredentialJwt(vcPayload, issuer, options);
 	}
 
 	/**
 	 * Create a Verifiable Credential record that can be saved into the 
 	 * credential datastore.
 	 * 
-	 * @param vc 
-	 * @param issuer 
+	 * @param createCredentialData 
+	 * @param options
 	 */
 	public async createVerifiableCredentialRecord(
 		createCredentialData: CreateCredentialJWT,
 		name: string,
 		summary?: string,
-		icon?: string
+		icon?: string,
+		options: CreateCredentialOptions = { removeOriginalFields: false }
 	): Promise<VeridaCredentialRecord> {
 		const {  
 			vc,  
 			issuer  
 		} = await this.buildVerifiableCredential(createCredentialData)  		
-		const didJwtVc = await this.createVerifiableCredential(vc, issuer)
-		const decodedCredential = await this.verifyCredential(didJwtVc)
+		const didJwtVc = await this.createVerifiableCredential(vc, issuer, options)
+		const decodedCredential = await this.verifyCredential(didJwtVc, {
+			removeOriginalFields: options.removeOriginalFields
+		});
 
 		return {
 			name,
@@ -92,6 +101,7 @@ export default class Credentials {
 	public async createVerifiablePresentation(
 		vcJwts: string[],
 		context: IContext,
+		options: CreatePresentationOptions = { removeOriginalFields: false },
 		issuer?: any,
 	): Promise<string> {
 		if (!issuer) {
@@ -106,7 +116,7 @@ export default class Credentials {
 			},
 		};
 
-		return createVerifiablePresentationJwt(vpPayload, issuer);
+		return createVerifiablePresentationJwt(vpPayload, issuer, options);
 	}
 
 	/**
@@ -114,10 +124,15 @@ export default class Credentials {
 	 *
 	 * @param {string} vpJwt
 	 * @param {string} didRegistryEndpoint
+  	 * @param {object} options
 	 */
-	public static async verifyPresentation(vpJwt: string, resolverConfig: Web3ResolverConfigurationOptions): Promise<any> {
+	public static async verifyPresentation(
+		vpJwt: string,
+		resolverConfig: Web3ResolverConfigurationOptions,
+		options: VerifyPresentationOptions = {removeOriginalFields: false}
+	): Promise<any> {
 		const resolver = Credentials.getResolver(resolverConfig);
-		return verifyPresentation(vpJwt, resolver);
+		return verifyPresentation(vpJwt, resolver, options);
 	}
 
 	/**
@@ -127,10 +142,15 @@ export default class Credentials {
 	 * @param {string} didRegistryEndpoint
 	 * @param {string} currentDateTime to allow the client to migrate cases where the datetime is incorrect on the local computer
 	 */
-	public async verifyCredential(vcJwt: string, resolverConfig?: Web3ResolverConfigurationOptions, currentDateTime?: string): Promise<any> {
+	public async verifyCredential(
+		vcJwt: string,
+		options: VerifyCredentialOptions = {removeOriginalFields: false},
+		resolverConfig?: Web3ResolverConfigurationOptions,
+		currentDateTime?: string,
+	): Promise<any> {
 		this.errors = []
 		const resolver = Credentials.getResolver(resolverConfig);
-		const decodedCredential = await verifyCredential(vcJwt, resolver);
+		const decodedCredential = await verifyCredential(vcJwt, resolver, options);
 
 		if (decodedCredential) {
 			const payload = decodedCredential.payload
@@ -289,13 +309,16 @@ export default class Credentials {
 		}
 	}
 
-	public async createCredentialJWT({ subjectId, data, schema, context, payload, options }: CreateCredentialJWT): Promise<string> {
+	public async createCredentialJWT(
+		{ subjectId, data, schema, context, payload, options }: CreateCredentialJWT,
+		credentialOptions: CreateCredentialOptions = { removeOriginalFields: false } 
+	): Promise<string> {
 		const {
 			vc,
 			issuer
 		} = await this.buildVerifiableCredential({ subjectId, data, schema, context, payload, options })
 
-		return await this.createVerifiableCredential(vc, issuer)
+		return await this.createVerifiableCredential(vc, issuer, credentialOptions)
 	}
 
 	private static getResolver(resolverConfig?: Web3ResolverConfigurationOptions): any {
