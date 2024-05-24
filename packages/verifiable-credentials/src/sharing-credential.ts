@@ -56,7 +56,7 @@ export default class SharingCredential {
 		didJwtVc: any,
 		contextName: string,
 		options: any,
-		createPresentationOptions: CreatePresentationOptions = {removeOriginalFields: false}
+		createPresentationOptions?: CreatePresentationOptions
 	): Promise<VCResult | unknown> {
 		const defaults = {
 			encrypt: true,
@@ -90,7 +90,7 @@ export default class SharingCredential {
 
 		// Generate verifiable presentation
 		const credentials = new Credentials()
-		const presentation = await credentials.createVerifiablePresentation([didJwtVc], this.context, createPresentationOptions)
+		const presentation = await credentials.createVerifiablePresentation([didJwtVc], this.context, undefined, createPresentationOptions)
 
 		let item
 

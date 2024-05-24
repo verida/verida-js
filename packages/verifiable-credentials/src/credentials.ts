@@ -76,7 +76,7 @@ export default class Credentials {
 			issuer  
 		} = await this.buildVerifiableCredential(createCredentialData)  		
 		const didJwtVc = await this.createVerifiableCredential(vc, issuer, options)
-		const decodedCredential = await this.verifyCredential(didJwtVc, {
+		const decodedCredential = await this.verifyCredential(didJwtVc, undefined, undefined, {
 			removeOriginalFields: options.removeOriginalFields
 		});
 
@@ -101,8 +101,8 @@ export default class Credentials {
 	public async createVerifiablePresentation(
 		vcJwts: string[],
 		context: IContext,
-		options: CreatePresentationOptions = { removeOriginalFields: false },
 		issuer?: any,
+		options: CreatePresentationOptions = { removeOriginalFields: false },
 	): Promise<string> {
 		if (!issuer) {
 			issuer = await this.createIssuer(context)
@@ -144,9 +144,9 @@ export default class Credentials {
 	 */
 	public async verifyCredential(
 		vcJwt: string,
-		options: VerifyCredentialOptions = {removeOriginalFields: false},
 		resolverConfig?: Web3ResolverConfigurationOptions,
 		currentDateTime?: string,
+		options: VerifyCredentialOptions = {removeOriginalFields: false},
 	): Promise<any> {
 		this.errors = []
 		const resolver = Credentials.getResolver(resolverConfig);
@@ -311,7 +311,7 @@ export default class Credentials {
 
 	public async createCredentialJWT(
 		{ subjectId, data, schema, context, payload, options }: CreateCredentialJWT,
-		credentialOptions: CreateCredentialOptions = { removeOriginalFields: false } 
+		credentialOptions?: CreateCredentialOptions 
 	): Promise<string> {
 		const {
 			vc,
