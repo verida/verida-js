@@ -29,7 +29,7 @@ export default class SharingCredential {
 	 * @returns
 	 */
 
-	async issueEncryptedPresentation(didJwtVc: any, options: CreatePresentationOptions = {removeOriginalFields: false}): Promise<any> {
+	async issueEncryptedPresentation(didJwtVc: any, options?: CreatePresentationOptions): Promise<any> {
 		const account = this.context.getAccount();
 		const did = await account.did();
 		const encryptionKey = new Uint8Array(EncryptionUtils.randomKey(22));
@@ -56,7 +56,7 @@ export default class SharingCredential {
 		didJwtVc: any,
 		contextName: string,
 		options: any,
-		createPresentationOptions?: CreatePresentationOptions
+		createPresentationOptions: CreatePresentationOptions = {removeOriginalFields: false}
 	): Promise<VCResult | unknown> {
 		const defaults = {
 			encrypt: true,
