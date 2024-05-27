@@ -1,8 +1,8 @@
 import { runCli } from 'command-line-interface'
-//import { SendInboxMessage } from './commands/send-inbox-message'
+import { SendInboxMessage } from './commands/send-inbox-message'
 import { GetDIDDocument } from './commands/get-did-document'
 
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async (): Promise<void> => {
     try {
 
@@ -17,8 +17,15 @@ import { GetDIDDocument } from './commands/get-did-document'
             ));
         },
         subcommands: {
-          //SendInboxMessage,
-          GetDIDDocument
+          GetDIDDocument,
+          SendInboxMessage,
+        },
+        handlers: {
+          // @ts-ignore
+          commandUnknown ({ unknownCommandName, recommendedCommandName, ancestors }) {
+            console.log('!!')
+            console.log(unknownCommandName, recommendedCommandName, ancestors)
+          },
         }
       }
 
