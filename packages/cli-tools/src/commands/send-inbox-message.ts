@@ -3,6 +3,7 @@ import { SendInboxMessageOptions } from './interfaces';
 import { Client } from '@verida/client-ts';
 import { AutoAccount } from '@verida/account-node';
 import { EnvironmentType } from '@verida/types';
+require('dotenv').config()
 
 export const SendInboxMessage: Command<SendInboxMessageOptions> = {
     name: 'SendInboxMessage',
@@ -19,7 +20,7 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
         name: 'privateKey',
         description: 'Verida network private key (or seed phrase) of the sender',
         type: 'string',
-        isRequired: true,
+        defaultValue: process.env.privateVeridaKey,
         alias: 'k'
       },
       {
@@ -89,7 +90,7 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
           web3Config: {
             // Set a dummy private key as we shouldn't need to create a DID automatically
             // The sending DID should already exist
-            privateKey: '0xabcdefE67746cCfb1C82AF75f648389b6eabcdef'
+            privateKey: process.env.privateBlockchainKey
           }
         }
       })
@@ -100,15 +101,20 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
 
       const sendingDID = await account.did()
       await client.connect(account)
-      const context = await client.openContext(options.receiveContext, false)
+      const context = await client.openContext(options.sendContext, true)
       const messaging = await context!.getMessaging({})
-      const response = await messaging.send(options.did, 'inbox/type/message', {
+      await messaging.send(options.did, 'inbox/type/message', {
         subject: options.subject,
         message: options.message
       }, options.subject, {
         did: options.did,
-        recipientContextName: options.sendContext
+        recipientContextName: options.receiveContext
       })
-      console.log(response)
+
+      console.log(`Inbox message successfully sent from ${sendingDID} to ${options.did}`)
+
+      await context!.close({
+        clearLocal: true
+    })
     }
   };
