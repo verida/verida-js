@@ -1,3 +1,8 @@
+Next
+-------------------
+
+- Feature: Support creating a limited account that has specific access to a storage node (`LockedEndpointAccount`)
+
 2023-12-26 (v.3.0.0)
 -------------------
 

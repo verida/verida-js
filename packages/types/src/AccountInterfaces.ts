@@ -1,6 +1,6 @@
 import { ServiceEndpoint } from 'did-resolver'
 import { SecureContextEndpoint } from './DocumentInterfaces'
-import { SecureContextPublicKey } from './StorageLinkInterfaces'
+import { SecureContextConfig, SecureContextPublicKey } from './StorageLinkInterfaces'
 import { DIDClientConfig, EnvironmentType } from './NetworkInterfaces'
 import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from './Web3Interfaces'
 
@@ -102,4 +102,12 @@ export interface AuthResponse {
     type: string,
     success: boolean,
     message: string
+}
+
+export interface LockedEndpointAccountConfig {
+    did: string,
+    contextName: string,
+    contextConfig: SecureContextConfig
+    signature: string
+    contextAuths: VeridaDatabaseAuthContext[]
 }
