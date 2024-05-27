@@ -1,3 +1,8 @@
+Upcoming
+-------------------
+
+- Fix: Sending inbox message to a full storage node was failing
+
 2023-03-15 (v.3.0.3)
 -------------------
 
