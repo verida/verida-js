@@ -3,7 +3,7 @@
 
 ## Config
 
-See `.env.example` for example configuration that specifies private keys.
+See `sample.env` for example configuration that specifies private keys and other defaults.
 
 These are only required for some of the commands and private a more secure way of specifying keys instead of via the CLI.
 

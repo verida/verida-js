@@ -34,7 +34,7 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
         name: 'sendContext',
         description: 'Name of the application context to send the inbox message from',
         type: 'string',
-        defaultValue: 'Verida: CLI',
+        defaultValue: process.env.defaultContextName ? process.env.defaultContextName : 'Verida: Command Line Interface',
       },
       {
         name: 'receiveContext',
@@ -79,7 +79,7 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
       },*/
     ],
     async handle ({ options }) {
-      console.log(`Sending message to ${options.did}! ${options.message} ${options.network}`);
+      console.log(`Sending message to ${options.did} on network ${options.network}.\n\nSubject: ${options.subject}\n${options.message}`);
 
       // Initialize Account
       const account = new AutoAccount({
@@ -102,19 +102,25 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
       const sendingDID = await account.did()
       await client.connect(account)
       const context = await client.openContext(options.sendContext, true)
-      const messaging = await context!.getMessaging({})
-      await messaging.send(options.did, 'inbox/type/message', {
-        subject: options.subject,
-        message: options.message
-      }, options.subject, {
-        did: options.did,
-        recipientContextName: options.receiveContext
-      })
 
-      console.log(`Inbox message successfully sent from ${sendingDID} to ${options.did}`)
+      try {
+        const messaging = await context!.getMessaging({})
+        await messaging.send(options.did, 'inbox/type/message', {
+          data: [{
+          subject: options.subject,
+          message: options.message
+        }]}, options.subject, {
+          did: options.did,
+          recipientContextName: options.receiveContext
+        })
+
+        console.log(`Inbox message successfully sent from ${sendingDID} to ${options.did}`)
+      } catch (err: any) {
+        console.error(err.message)
+      }
 
       await context!.close({
         clearLocal: true
-    })
+      })
     }
   };
