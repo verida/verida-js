@@ -1,0 +1,43 @@
+{
+  "name": "@verida/vda-xp-reward-client",
+  "version": "0.1.0",
+  "description": "Client to manage xp-reward",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build/"
+  ],
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "license": "Apache-2.0",
+  "keywords": [],
+  "scripts": {
+    "tests": "ts-mocha './test/**/*.tests.ts'",
+    "test": "ts-mocha --timeout 200000",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "rm -rf build && tsc",
+    "build": "rm -rf build && tsc",
+    "fix": "gts fix",
+    "prepare": "npm run compile"
+  },
+  "dependencies": {
+    "@ethersproject/providers": "^5.7.2",
+    "@verida/encryption-utils": "*",
+    "@verida/helpers": "^3.0.3",
+    "@verida/types": "^3.0.2",
+    "@verida/web3": "^3.0.3"
+  },
+  "devDependencies": {
+    "@verida/vda-common-test": "^3.0.2",
+    "dotenv": "^16.0.3",
+    "ethers": "5.7.0",
+    "gts": "^3.1.0",
+    "mocha": "^10.1.0",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  }
+}
