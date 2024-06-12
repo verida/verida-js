@@ -3,8 +3,8 @@ import { Keyring } from '@verida/keyring'
 import { VeridaDatabaseAuthTypeConfig, AuthContext, AuthTypeConfig, AccountConfig, AccountNodeConfig, SecureContextConfig, VeridaDatabaseAuthContext, LockedEndpointAccountConfig } from '@verida/types'
 
 /**
- * An Account object that is locked to a specific endpoint with supplied
- * access token.
+ * An Account object that is locked to a specific endpoint with a
+ * supplied access token.
  */
 export default class LockedEndpointAccount extends AutoAccount {
 
@@ -16,7 +16,7 @@ export default class LockedEndpointAccount extends AutoAccount {
         this.contextCache[contextConfig.contextName] = contextConfig
         this.accountDid = contextConfig.did
 
-        this.addContext(contextConfig.contextName, contextConfig.contextConfig, new Keyring(contextConfig.signature), contextConfig.contextAuths)
+        this.addContext(contextConfig.contextName, contextConfig.contextConfig, contextConfig.contextAuths)
     }
 
     public setAccountConfig(accountConfig: AccountConfig) {
@@ -31,9 +31,8 @@ export default class LockedEndpointAccount extends AutoAccount {
         return this.contextCache[contextName].keyring
     }
 
-    public addContext(contextName: string, contextConfig: SecureContextConfig, keyring: Keyring, contextAuths: VeridaDatabaseAuthContext[]) {
+    public addContext(contextName: string, contextConfig: SecureContextConfig, contextAuths: VeridaDatabaseAuthContext[]) {
         this.contextCache[contextName] = {
-            keyring,
             contextConfig,
             contextAuths
         }

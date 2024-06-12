@@ -159,7 +159,9 @@ class Context extends EventEmitter implements IContext {
       return this.databaseEngines[did];
     }
 
+    console.log('getDatabaseEngine()')
     const contextConfig = await this.getContextConfig(did, createContext);
+    console.log(contextConfig)
     const engineType = contextConfig.services.databaseServer.type;
 
     if (!DATABASE_ENGINES[engineType]) {
@@ -179,9 +181,11 @@ class Context extends EventEmitter implements IContext {
      * Connect the current user if we have one
      */
     if (this.account) {
+      console.log('connect account')
       await databaseEngine.connectAccount(this.account);
     }
 
+    console.log('done')
     // Listen and re-emit endpoint warnings and errors
     const context = this
     databaseEngine.on('EndpointUnavailable', (endpointUri: string) => {
@@ -374,6 +378,7 @@ class Context extends EventEmitter implements IContext {
     did: string,
     config: DatabaseOpenConfig = {}
   ): Promise<IDatabase> {
+    console.log('openExternalDatabase()')
     did = await this.getClient().parseDid(did)
     did = did.toLowerCase()
     const cacheKey = `${did}/${databaseName}/external`
@@ -383,6 +388,7 @@ class Context extends EventEmitter implements IContext {
 
     let contextConfig;
     if (!config.endpoints) {
+      console.log('openExternalDatabase() - 1')
       contextConfig = await this.getContextConfig(
         did,
         false,
@@ -391,6 +397,8 @@ class Context extends EventEmitter implements IContext {
 
       config.endpoints = <string[]> contextConfig.services.databaseServer.endpointUri
     }
+    console.log('openExternalDatabase() - 2')
+    console.log(config.endpoints)
 
     config = _.merge(
       {
@@ -408,6 +416,7 @@ class Context extends EventEmitter implements IContext {
 
     config.saveDatabase = false;
     if (config.contextName && config.contextName != this.contextName) {
+      console.log('openExternalDatabase() - 3')
       // We are opening a database for a different context.
       // Open the new context
       const client = this.getClient();
@@ -417,10 +426,13 @@ class Context extends EventEmitter implements IContext {
       );
       config.signingContext = this;
 
+      console.log('openExternalDatabase() - 4')
       return await context!.openDatabase(databaseName, config);
     }
 
+    console.log('openExternalDatabase() - 5')
     const databaseEngine = await this.getDatabaseEngine(did);
+    console.log('openExternalDatabase() - 6')
     const database = await databaseEngine.openDatabase(databaseName, config);
 
     // Add to cache of databases

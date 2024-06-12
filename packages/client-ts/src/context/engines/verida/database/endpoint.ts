@@ -225,6 +225,10 @@ export default class Endpoint extends EventEmitter {
         return this.auth!.accessToken!
     }
 
+    public async getAuth(): Promise<VeridaDatabaseAuthContext> {
+        return this.auth!
+    }
+
     public async setAuthContext(authContext: VeridaDatabaseAuthContext): Promise<void> {
         this.client.setAuthContext(authContext)
     }

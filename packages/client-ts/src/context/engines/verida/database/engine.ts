@@ -115,7 +115,9 @@ class StorageEngineVerida extends BaseStorageEngine {
 
   public async connectAccount(account: Account) {
     try {
+      console.log('connectAccount() - 1')
       await super.connectAccount(account);
+      console.log('connectAccount() - 2')
 
       // Authenticate with all endpoints owned by this user in this context
       // Do async for increased speed
@@ -137,21 +139,30 @@ class StorageEngineVerida extends BaseStorageEngine {
         if (result.status == 'fulfilled') {
           finalEndpoints[i] = endpoint
         } else {
+          console.log('unavailable', result)
           this.emit('EndpointUnavailable', i)
         }
       }
 
+      console.log('connectAccount() - 3')
+      console.log(this.endpoints)
+      console.log(finalEndpoints)
       this.endpoints = finalEndpoints
       // Select an active endpoint. No need to check status as invalid endpoints already removed above.
       this.activeEndpoint = await this.getActiveEndpoint(false)
       this.accountDid = (await this.account!.did()).toLowerCase();
       //console.log(`connectAccount(${this.accountDid}): ${(new Date()).getTime()-now}`)
 
+      console.log('connectAccount() - 4')
+
       // call checkReplication() to ensure replication is working correctly on all
       // the endpoints and perform any necessary auto-repair actions
       // no need to async?
       this.checkReplication()
+      console.log('connectAccount() - 5')
     } catch (err: any) {
+      console.log('connectAccount() - 6')
+      console.log(err)
       if (err.name == "ContextNotFoundError") {
         return
       }

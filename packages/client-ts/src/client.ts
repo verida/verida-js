@@ -172,6 +172,7 @@ class Client implements IClient {
    * @returns 
    */
   public async openExternalContext(contextName: string, did: string): Promise<IContext> {
+    console.log('openExternalContext()')
     did = await this.parseDid(did)
     const contextConfig = await this.didContextManager.getDIDContextConfig(
       did,
@@ -184,6 +185,8 @@ class Client implements IClient {
         "Unable to locate requested storage context for requested DID."
       );
     }
+
+    console.log(contextConfig)
 
     // @todo cache the storage contexts
     return new Context(this, contextName, this.didContextManager, this.account!);

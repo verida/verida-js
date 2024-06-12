@@ -14,6 +14,7 @@ export const GetDIDDocument: Command<GetDIDDocumentOptions> = {
         description: 'DID that should receive the inbox message',
         type: 'string',
         alias: 'd',
+        isRequired: true
       },
     ],
 

@@ -14,7 +14,7 @@ class PublicDatabase extends BaseDb {
       type: "VeridaDatabase",
       privacy: "public",
       did: this.did,
-      endpoint: this.endpoint.toString(),
+      endpoint: this.endpoint,
       permissions: this.permissions!,
       storageContext: this.storageContext,
       databaseName: this.databaseName,

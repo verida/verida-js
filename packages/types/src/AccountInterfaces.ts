@@ -108,6 +108,5 @@ export interface LockedEndpointAccountConfig {
     did: string,
     contextName: string,
     contextConfig: SecureContextConfig
-    signature: string
     contextAuths: VeridaDatabaseAuthContext[]
 }
