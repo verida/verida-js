@@ -1,6 +1,14 @@
 
 # Verida Command Line Interface
 
+## Initialization
+
+```
+nvm use
+yarn
+yarn run build
+```
+
 ## Config
 
 See `sample.env` for example configuration that specifies private keys and other defaults.
