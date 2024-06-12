@@ -5,13 +5,11 @@ import { Keyring } from "@verida/keyring";
 export default class ContextAccount extends LimitedAccount {
 
     private contextDid: string
-    private contextSeed: string
 
-    constructor(autoConfig: AccountNodeConfig, did: string, contextName: string, contextSeed: string, accountConfig?: AccountConfig) {
+    constructor(autoConfig: AccountNodeConfig, did: string, contextName: string, accountConfig?: AccountConfig) {
         super(autoConfig, accountConfig)
         this.contextDid = did.toLowerCase()
         this.signingContexts = [contextName]
-        this.contextSeed = contextSeed
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
@@ -19,7 +17,7 @@ export default class ContextAccount extends LimitedAccount {
             throw new Error(`Account does not support context: ${contextName}`)
         }
 
-        return new Keyring(this.contextSeed)
+        return new Keyring(this.autoConfig.privateKey)
     }
 
     public async did(): Promise<string> {
