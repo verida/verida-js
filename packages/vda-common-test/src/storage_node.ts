@@ -1,6 +1,8 @@
 import { DID_LIST } from "./const";
 
-// Data centres added to the contract
+/**
+ * Data centres to be added for test
+ */
 export const REGISTERED_DATACENTRES = [
   {
     name: "centre-1",
@@ -32,6 +34,9 @@ export const REGISTERED_DATACENTRES = [
   },
 ];
 
+/**
+ * Data centres to be removed for test
+ */
 export const REMOVED_DATACENTRES = [
   {
     name: "centre-removed",
@@ -42,28 +47,45 @@ export const REMOVED_DATACENTRES = [
   },
 ]
 
-// DIDs that are registered in the contract
+/**
+ * DIDs to be registered for test
+ */
 export const REGISTERED_DIDS  = [
   DID_LIST[0],
   DID_LIST[1],
   DID_LIST[2], // Fallback did
   DID_LIST[3], // Remove start did
   DID_LIST[4], // Remove complete did
+
+  DID_LIST[5], // For locking test
 ];
 
+/**
+ * Fall back node DIDs for removing node operation
+ */
 export const FALLBACK_DIDS = [
   DID_LIST[2],
 ]
 
+/**
+ * DID that is in the remove started state for test
+ */
 export const REMOVE_START_DIDS = [
   DID_LIST[3], // Remove node started did
 ]
 
-// Not able to test till the removed time reached
+/**
+ * DID for remove completed operation test
+ * Not able to complete this operation because of delay between `remove start` and `remove complete` operations
+ * Only reserved
+ */
 export const REMOVE_COMPLETE_DIDS = [
   DID_LIST[4], // Remove node completed did
 ]
-// Map of DID address and its storage node
+
+/**
+ * Map of DID and it's storage node
+ */
 export const DID_NODE_MAP : Map<string, any> = new Map([
   [REGISTERED_DIDS[0].address, {
     name: "node-1",
@@ -119,5 +141,35 @@ export const DID_NODE_MAP : Map<string, any> = new Map([
     long: 10.436,
     slotCount: 20000,
     acceptFallbackSlots: true
+  }],
+  [REGISTERED_DIDS[5].address, {
+    name: "node-lock-test",
+    endpointUri: 'https://lock-1',
+    countryCode: 'us',
+    regionCode: 'north america',
+    datacentreId: 1,
+    lat: -89,
+    long: -178.5,
+    slotCount: 20000,
+    acceptFallbackSlots: false
   }]
 ]);
+
+/**
+ * Registered DID for locking test
+ */
+export  const REGISTERED_LOCK_NODE = DID_LIST[5];
+
+/**
+ * Locked information list
+ */
+export const LOCK_LIST = [
+  {
+    purpose: "Purpose-1",
+    amount: 100,
+  },
+  {
+    purpose: "Purpose-2",
+    amount: 200,
+  },
+];
