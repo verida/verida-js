@@ -7,9 +7,11 @@ import { StorageLink } from '@verida/storage-link'
 import { DIDDocument } from '@verida/did-document'
 import CONFIG from './config'
 
-const TEST_DB_NAME = 'TestDb_1'
-const TEST_DB_NAME_2 = 'TestDb_2'
-const TEST_DB_NAME_3 = 'TestDb_3'
+const TEST_DB_NAME = 'TestDb_1a'
+const TEST_DB_NAME_2 = 'TestDb_2a'
+const TEST_DB_NAME_3 = 'TestDb_3a'
+
+const LOAD_DEFAULT_STORAGE_NODES = true
 
 /**
  * 
@@ -35,10 +37,13 @@ describe('Storage context tests', () => {
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             await client.connect(account)
-            //await account.loadDefaultStorageNodes('AU')
+
+            if (LOAD_DEFAULT_STORAGE_NODES) {
+                await account.loadDefaultStorageNodes('AU')
+            }
+
             didClient = await account.getDidClient()
             const did = await account.did()
-
             await StorageLink.unlink(CONFIG.NETWORK, didClient, CONFIG.CONTEXT_NAME)
 
             context = await client.openContext(CONFIG.CONTEXT_NAME, true)
@@ -71,8 +76,10 @@ describe('Storage context tests', () => {
             const database1 = context.openDatabase(TEST_DB_NAME_2)
             const database2 = context.openDatabase(TEST_DB_NAME_2)
 
-            await Promise.all([database1, database2]).then(([db1, db2]) => {
-                assert.ok(db1 === db2, 'Returned databases are the same')
+            await Promise.all([database1, database2]).then(async ([db1, db2]) => {
+                const info1 = await db1.info()
+                const info2 = await db2.info()
+                assert.deepEqual(info1, info2, 'Returned databases are the same')
             })
         })
 
