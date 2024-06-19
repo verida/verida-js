@@ -33,7 +33,7 @@ const TEST_DB_NAME_2 = 'Test Db2'
  */
 describe.skip('Performance tests', () => {
     const client1 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
@@ -42,12 +42,12 @@ describe.skip('Performance tests', () => {
 
     const account1 = new AutoAccount({
         privateKey: PRIVATE_KEY,
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
 
     const client2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
@@ -56,7 +56,7 @@ describe.skip('Performance tests', () => {
 
     const account2 = new AutoAccount({
         privateKey: PRIVATE_KEY,
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
 

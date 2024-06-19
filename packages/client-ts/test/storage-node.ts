@@ -3,10 +3,7 @@ const assert = require('assert')
 
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
-import { DIDDocument } from '@verida/did-document'
 import CONFIG from './config'
-import { EnvironmentType } from '@verida/types'
 
 const TEST_DB_NAME = 'TestDb_1'
 const TEST_DB_NAME_2 = 'TestDb_2'
@@ -24,7 +21,7 @@ for (let e in ENDPOINTS) {
 }
 
 const PRIVATE_KEY = '0x000efd2e44f0d2cbbb71506a02a2043ba45f222f04b501f139f29a0d3b21f001'
-const ENVIRONMENT = EnvironmentType.TESTNET
+const NETWORK = CONFIG.NETWORK
 
 /**
  * Test a single (or collection) of storage nodes
@@ -33,9 +30,9 @@ describe('Storage node tests', () => {
     let didClient, context
 
     const client = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: NETWORK,
         didClientConfig: {
-            network: EnvironmentType.TESTNET,
+            network: NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl,
         }
     })
@@ -46,7 +43,7 @@ describe('Storage node tests', () => {
         it(`can connect to storage nodes`, async function() {
             const account = new AutoAccount({
                 privateKey: PRIVATE_KEY,
-                environment: ENVIRONMENT,
+                network: NETWORK,
                 didClientConfig: {
                     ...CONFIG.DID_CLIENT_CONFIG,
                     didEndpoints: DID_ENDPOINTS

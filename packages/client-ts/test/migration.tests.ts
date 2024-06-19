@@ -4,7 +4,6 @@ const assert = require('assert')
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from './config'
-import { EnvironmentType } from '@verida/types'
 import { migrateContext } from '../src/utils/migration'
 
 const TEST_DBS = ['db1-test', 'db2-test', 'db3-test']
@@ -19,17 +18,17 @@ describe('Storage context tests', () => {
     let sourceContext, destinationContext
 
     const client1 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
-            network: EnvironmentType.TESTNET,
+            network: CONFIG.NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const client2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
-            network: EnvironmentType.TESTNET,
+            network: CONFIG.NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
@@ -40,12 +39,12 @@ describe('Storage context tests', () => {
         it(`can open the source and destination application contexts`, async function() {
             const account1 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             const account2 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
 

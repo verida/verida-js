@@ -24,21 +24,21 @@ describe('Verida database tests', () => {
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const network2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const network3 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
@@ -51,7 +51,7 @@ describe('Verida database tests', () => {
             // Initialize account 1
             const account1 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
@@ -61,7 +61,7 @@ describe('Verida database tests', () => {
             // Initialize account 2
             const account2 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did2 = await account2.did()
@@ -71,7 +71,7 @@ describe('Verida database tests', () => {
             // Initialize account 3
             const account3 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_3,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did3 = await account3.did()

@@ -1,17 +1,10 @@
-
-
 'use strict'
 const assert = require('assert')
 
 import { Client } from '../src/index'
-import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
-import { DIDDocument } from '@verida/did-document'
-import CONFIG from './config'
-import { EnvironmentType, IDatabase } from '@verida/types'
-import { isAssertionExpression } from 'typescript'
+import { Network, IDatabase } from '@verida/types'
 
-const ENVIRONMENT = EnvironmentType.TESTNET
+const NETWORK = Network.DEVNET
 
 /**
  * Test a single (or collection) of storage nodes
@@ -20,9 +13,9 @@ describe('Storage context hash tests', () => {
     let didClient, contextByName, contextByHash
 
     const client = new Client({
-        environment: ENVIRONMENT,
+        network: NETWORK,
         didClientConfig: {
-            network: ENVIRONMENT,
+            network: NETWORK
         },
         //readOnlyDataApiUri: 'https://data.verida.network'
         //readOnlyDataApiUri: 'http://localhost:8182'
@@ -31,7 +24,7 @@ describe('Storage context hash tests', () => {
     describe('Test get profile', function() {
         this.timeout(200 * 1000)
 
-        const did = 'did:vda:testnet:0xb362351168D370b174E0fD3Feec93C4E6d2938e2'
+        const did = 'did:vda:polamoy:0x1e39bA5BEbc5D1921A33F05Cde917901e9B06504'
         const contextName = 'Verida: Vault'
         const profileName = 'basicProfile'
 
@@ -60,9 +53,9 @@ describe('Storage context hash tests', () => {
 
         it(`can handle an invalid server URI`, async function() {
             const client2 = new Client({
-                environment: ENVIRONMENT,
+                network: NETWORK,
                 didClientConfig: {
-                    network: ENVIRONMENT,
+                    network: NETWORK,
                 },
                 readOnlyDataApiUri: 'https://www.google.com'
             })

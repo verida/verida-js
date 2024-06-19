@@ -32,21 +32,21 @@ describe('Verida messaging tests', () => {
     let newContext
 
     const client1 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const client2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const client3 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
@@ -59,7 +59,7 @@ describe('Verida messaging tests', () => {
             // Initialize account 1
             const account1 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_1])
             did1 = await account1.did()
@@ -69,7 +69,7 @@ describe('Verida messaging tests', () => {
             // Initialize account 2 (different private key, same application context)
             const account2 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_1])
             did2 = await account2.did()
@@ -154,7 +154,7 @@ describe('Verida messaging tests', () => {
             // Initialize account 3 (different private key, different application context)
             const account3 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.ENVIRONMENT,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_2])
             did3 = await account3.did()

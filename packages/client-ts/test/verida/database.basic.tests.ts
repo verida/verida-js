@@ -15,9 +15,9 @@ describe('Verida basic database tests', () => {
     let context1, did1, account1
 
     const network = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
-            network: CONFIG.ENVIRONMENT,
+            network: CONFIG.NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
@@ -29,7 +29,7 @@ describe('Verida basic database tests', () => {
             // Initialize account 1
             account1 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did1 = await account1.did()

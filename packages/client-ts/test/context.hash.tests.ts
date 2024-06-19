@@ -1,20 +1,17 @@
-
-
 'use strict'
 const assert = require('assert')
 
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import { DIDDocument } from '@verida/did-document'
 import CONFIG from './config'
-import { EnvironmentType, IDatabase } from '@verida/types'
+import { Network } from '@verida/types'
 
 const TEST_DB_NAME = 'TestDb_1'
 const CONTEXT_NAME = 'Verida Test: Context Hash'
 
 const PRIVATE_KEY = '0x002efd2e44f0d2cbbb71506a02a2043ba45f222f04b501f139f29a0d3b21f003'
-const ENVIRONMENT = EnvironmentType.DEVNET
+const NETWORK = Network.DEVNET
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -47,9 +44,9 @@ describe('Storage context hash tests', () => {
     let didClient, contextByName, contextByHash
 
     const client = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: NETWORK,
         didClientConfig: {
-            network: ENVIRONMENT,
+            network: NETWORK,
         }
     })
 
@@ -59,7 +56,7 @@ describe('Storage context hash tests', () => {
         it(`can open same context with either name or hash`, async function() {
             const account = new AutoAccount({
                 privateKey: PRIVATE_KEY,
-                environment: ENVIRONMENT,
+                network: NETWORK,
                 didClientConfig: {
                     ...CONFIG.DID_CLIENT_CONFIG,
                 }

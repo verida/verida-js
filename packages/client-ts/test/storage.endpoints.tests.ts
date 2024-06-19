@@ -41,16 +41,16 @@ describe.skip('Storage endpoint tests', () => {
     let didClient, context
 
     const client = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
-            network: EnvironmentType.TESTNET,
+            network: CONFIG.NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const account = new AutoAccount({
         privateKey: PRIVATE_KEY,
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
 
