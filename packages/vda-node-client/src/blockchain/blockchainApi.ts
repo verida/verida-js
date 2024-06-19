@@ -427,4 +427,25 @@ export class VeridaNodeClient {
         );
     }
 
+    /**
+     * Call locked() function of `StorageNodeRegistry` contract
+     * @param didAddress DID address
+     * @param purpose Purpose of locking
+     * @return Locked amount
+     */
+    public async locked(didAddress: string, purpose: string) {
+        return await this.executeFunction('locked', 'Failed to get locked amount of purpose', didAddress, purpose);
+    }
+
+    /**
+     * Call getLocks() function of `StorageNodeRegistry` contract
+     * @param didAddress DID address
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Starts from 1
+     * @return Array of locked information list 
+     */
+    public async getLocks(didAddress: string, pageSize: BigNumberish, pageNumber: BigNumberish) {
+        return await this.executeFunction('getLocks', 'Failed to get locked information list', didAddress, pageSize, pageNumber);
+    }
+
 }

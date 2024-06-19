@@ -1,6 +1,13 @@
 2024-03-22 (v3.0.2)
 -------------------
 
+- Update the abi & address of `StorageNodeRegistry` contract (locking feature added)
+- Replaced the testenet RPC_URL from `Mumbai` to `Amoy`
+
+
+2024-03-22 (v3.0.2)
+-------------------
+
 - Update the abi & address of `StorageNodeRegistry` contract
 
 2024-03-15 (v3.0.1)
