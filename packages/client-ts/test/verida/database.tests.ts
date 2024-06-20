@@ -6,13 +6,13 @@ import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
 import { assertIsValidDbResponse, assertIsValidSignature } from '../utils'
 
-const DB_NAME_OWNER = 'OwnerTestDb_1'
-const DB_NAME_USER = 'UserTestDb_1'
-const DB_NAME_USER_2 = 'UserTestDb_2'
-const DB_NAME_USER_3 = 'UserTestDb_3'
-const DB_NAME_PUBLIC = 'PublicTestDb_1'
-const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb_1'
-const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb_1'
+const DB_NAME_OWNER = 'OwnerTestDb-'
+const DB_NAME_USER = 'UserTestDb-'
+const DB_NAME_USER_2 = 'UserTestDb_2-'
+const DB_NAME_USER_3 = 'UserTestDb_3-'
+const DB_NAME_PUBLIC = 'PublicTestDb-'
+const DB_NAME_PUBLIC_WRITE = 'PublicWriteTestDb-'
+const DB_NAME_USER_WRITE_PUBLIC_READ = 'UserWritePublicReadTestDb-'
 
 /**
  * 
@@ -71,7 +71,7 @@ describe('Verida database tests', () => {
             // Initialize account 3
             const account3 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_3,
-                network: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did3 = await account3.did()
@@ -331,6 +331,36 @@ describe('Verida database tests', () => {
               6, 246, 237,  80,  12, 100, 211, 149
           ])
 
+        it(`can't open an external users database without an encryption key`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context3.openExternalDatabase(DB_NAME_USER, did1, {
+                    permissions: {
+                        read: 'users',
+                        write: 'users'
+                    }
+                }).then(rejects, resolve)
+            })
+
+            const result: any = await promise
+            assert.ok(result.message.match('Unable to open external database'))
+        })
+
+        // this one is breaking things
+        it(`can't open an external users database with the wrong encryption key`, async function() {
+            const promise = new Promise((resolve, rejects) => {
+                context3.openExternalDatabase(DB_NAME_USER, did1, {
+                    permissions: {
+                        read: 'users',
+                        write: 'users'
+                    },
+                    encryptionKey: ENCRYPTION_KEY_WRONG
+                }).then(rejects, resolve)
+            })
+
+            const result: any = await promise
+            assert.ok(result.message.match('Invalid encryption key supplied'))
+        })
+
         it(`can read and write from an external database with read=users where current user CAN read`, async function() {
             const database = await context3.openExternalDatabase(DB_NAME_USER, did1, {
                 permissions: {
@@ -380,36 +410,6 @@ describe('Verida database tests', () => {
 
             const result: any = await promise
             assert.ok(result.message.match('Unable to open database'))
-        })
-
-        it(`can't open an external users database without an encryption key`, async function() {
-            const promise = new Promise((resolve, rejects) => {
-                context3.openExternalDatabase(DB_NAME_USER, did1, {
-                    permissions: {
-                        read: 'users',
-                        write: 'users'
-                    }
-                }).then(rejects, resolve)
-            })
-
-            const result: any = await promise
-            assert.ok(result.message.match('Unable to open external database'))
-        })
-
-        // this one is breaking things
-        it(`can't open an external users database with the wrong encryption key`, async function() {
-            const promise = new Promise((resolve, rejects) => {
-                context3.openExternalDatabase(DB_NAME_USER, did1, {
-                    permissions: {
-                        read: 'users',
-                        write: 'users'
-                    },
-                    encryptionKey: ENCRYPTION_KEY_WRONG
-                }).then(rejects, resolve)
-            })
-
-            const result: any = await promise
-            assert.ok(result.message.match('Invalid encryption key supplied'))
         })
 
         // @todo: For some reason this test causes an issue where the test never fully completes
