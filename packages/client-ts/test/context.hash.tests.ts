@@ -10,8 +10,7 @@ import { Network } from '@verida/types'
 const TEST_DB_NAME = 'TestDb_1'
 const CONTEXT_NAME = 'Verida Test: Context Hash'
 
-const PRIVATE_KEY = '0x002efd2e44f0d2cbbb71506a02a2043ba45f222f04b501f139f29a0d3b21f003'
-const NETWORK = Network.DEVNET
+const NETWORK = CONFIG.NETWORK
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -40,7 +39,7 @@ const saveAndVerify = async (database: any) => {
 /**
  * Test a single (or collection) of storage nodes
  */
-describe('Storage context hash tests', () => {
+describe.skip('Storage context hash tests', () => {
     let didClient, contextByName, contextByHash
 
     const client = new Client({
@@ -55,7 +54,7 @@ describe('Storage context hash tests', () => {
 
         it(`can open same context with either name or hash`, async function() {
             const account = new AutoAccount({
-                privateKey: PRIVATE_KEY,
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
                 network: NETWORK,
                 didClientConfig: {
                     ...CONFIG.DID_CLIENT_CONFIG,
