@@ -1,8 +1,10 @@
 'use strict'
 const assert = require('assert')
 
+import { AutoAccount } from '@verida/account-node'
 import { Client } from '../src/index'
-import { Network, IDatabase } from '@verida/types'
+import { Network } from '@verida/types'
+import CONFIG from './config'
 
 const NETWORK = Network.DEVNET
 
@@ -24,9 +26,28 @@ describe('Storage context hash tests', () => {
     describe('Test get profile', function() {
         this.timeout(200 * 1000)
 
-        const did = 'did:vda:polamoy:0x1e39bA5BEbc5D1921A33F05Cde917901e9B06504'
+        let did
         const contextName = 'Verida: Vault'
         const profileName = 'basicProfile'
+
+        it(`can create a profile`, async () => {
+            const account = new AutoAccount({
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                network: CONFIG.NETWORK,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
+            })
+            did = await account.did()
+            await client.connect(account)
+            const context = await client.openContext('Verida: Vault', true)
+
+            const profile = await context!.openProfile()
+            await profile!.set("name", 'Test name')
+            await profile!.set("country", 'Australia')
+
+            await context.close({
+                clearLocal: true
+            })
+        })
 
         it(`can get a known profile`, async function() {
             const profile = await client.getPublicProfile(did, contextName, profileName)
