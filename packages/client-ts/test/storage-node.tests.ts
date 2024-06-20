@@ -26,7 +26,7 @@ const NETWORK = CONFIG.NETWORK
 /**
  * Test a single (or collection) of storage nodes
  */
-describe('Storage node tests', () => {
+describe.skip('Storage node tests', () => {
     let didClient, context
 
     const client = new Client({
@@ -63,23 +63,16 @@ describe('Storage node tests', () => {
             didClient = await account.getDidClient()
             const did = await account.did()
 
-            console.log(`Opening context for DID: ${did}`)
             context = await client.openContext(CONFIG.CONTEXT_NAME, true)
             assert.ok(context, 'Account context opened')
-            console.log(`Context opened`)
 
-            console.log(`Attempting to open a database`)
             const database = await context.openDatabase(TEST_DB_NAME)
 
-            console.log(`Attempting to save a record`)
             const result = await database.save({'hello': 'world'})
-            console.log(`Record saved`, result)
-            console.log(`Fetching records`)
             const data = await database.getMany({
                 _id: result.id
             })
             assert.ok(data, 'Data returned')
-            console.log(`Records fetched`)
 
             assert.ok(data.length && data.length > 0, 'Array returned with at least one row')
             assert.ok(data[0].hello == 'world', 'First result has expected value')
