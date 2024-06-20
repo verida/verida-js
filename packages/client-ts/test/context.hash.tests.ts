@@ -66,22 +66,16 @@ describe('Storage context hash tests', () => {
             didClient = await account.getDidClient()
             const did = await account.did()
 
-            console.log(`Opening context (by name) for DID: ${did}`)
             contextByName = await client.openContext(CONTEXT_NAME, true)
             assert.ok(context, 'Account context (by name) opened')
-            console.log(`Context (by name) opened`)
 
             // Open database
-            console.log(`Attempting to open a database`)
             const database = await contextByName.openDatabase(TEST_DB_NAME)
             
             // Get database info
             const dbInfo = await database.info()
-            console.log(`Database info`)
-            console.log(dbInfo)
 
             // Save and verify a record
-            console.log(`Saving a record to context (by name)`)
             const result = await database.save({'context': 'by name'})
             const contextNameData = await database.getMany({
                 _id: result.id
@@ -89,22 +83,17 @@ describe('Storage context hash tests', () => {
             assert.ok(contextNameData, 'Data returned')
             assert.ok(contextNameData.length && contextNameData.length > 0, 'Array returned with at least one row')
             assert.ok(contextNameData[0].context == 'by name', 'First result has expected value')
-            console.log('Save complete')
 
             // Close context by name
             await contextByName.close()
-            console.log(`Closed context by name`)
 
             // Open hash context
             const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME);
 
-            console.log(`Opening context (by name) for DID: ${did}`)
             contextByName = await client.openContext(contextHash, false)
             assert.ok(context, 'Account context (by hash) opened')
-            console.log(`Context (by hash) opened`)
 
             // Open database
-            console.log(`Attempting to open a database`)
             const database2 = await contextByName.openDatabase(TEST_DB_NAME)
 
             // Confirm the context name record exists
@@ -118,11 +107,8 @@ describe('Storage context hash tests', () => {
             
             // Get database info
             const dbInfo2 = await database2.info()
-            console.log(`Database info`)
-            console.log(dbInfo2)
 
             // Save and verify a record
-            console.log(`Saving a record to context (by name)`)
             const result2 = await database2.save({'context': 'by hash'})
             const contextHashData = await database2.getMany({
                 _id: result2.id
@@ -130,11 +116,9 @@ describe('Storage context hash tests', () => {
             assert.ok(contextHashData, 'Data returned')
             assert.ok(contextHashData.length && contextHashData.length > 0, 'Array returned with at least one row')
             assert.ok(contextHashData[0].context == 'by hash', 'First result has expected value')
-            console.log('Save complete')
 
             // Delete database
             await contextByHash.deleteDatabase(TEST_DB_NAME)
-            console.log(`${TEST_DB_NAME} database deleted`)
 
             await contextByHash.close({
                 clearLocal: true
