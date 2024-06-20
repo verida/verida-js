@@ -14,7 +14,7 @@ const DESTINATION_CONTEXT_NAME = 'Verida Test: Migration - Destination Context'
 /**
  * 
  */
-describe('Storage context tests', () => {
+describe('Context migration tests', () => {
     let sourceContext, destinationContext
 
     const client1 = new Client({
@@ -75,18 +75,18 @@ describe('Storage context tests', () => {
             const events = migrateContext(sourceContext, destinationContext)
 
             events.on('start', (databases: object) => {
-                console.log('Migration starting with databases:')
-                console.log(databases)
+                //console.log('Migration starting with databases:')
+                //console.log(databases)
             })
 
             events.on('migrated', (dbInfo, dbIndex, totalDbs) => {
                 const percentComplete = (dbIndex) / totalDbs * 100
-                console.log(`Migrated database ${dbInfo.databaseName} (${dbIndex}/${totalDbs}) (${percentComplete}%)`)
+                //console.log(`Migrated database ${dbInfo.databaseName} (${dbIndex}/${totalDbs}) (${percentComplete}%)`)
             })
 
             const promise = new Promise((resolve, rejects) => {
                 events.on('complete', () => {
-                    console.log('Migration complete!')
+                    //console.log('Migration complete!')
                     resolve(true)
                 })
 
