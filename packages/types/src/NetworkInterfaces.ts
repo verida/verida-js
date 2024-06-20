@@ -33,6 +33,7 @@ export interface NetworkDefinition {
 	storageNodeRegistryAddress: string | null
 	nameRegistryAddress: string | null
 	didLinkageAddress: string | null
+	vdaRewardContract: string | null;
 } 
 
 export interface DefaultNetworkConfig {

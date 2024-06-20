@@ -1223,4 +1223,176 @@ export class VeridaNodeManager {
             throw new Error(`Failed to accept the ownership: ${response.reason}`);
         }
     }
+
+    /**
+     * Lock the tokens for a purpose
+     * @param purpose Purpose of locking
+     * @param amount Token amount to be locked
+     * @param withDeposit If true, tokens will be deposited from transaction sender(=config.signKey)
+     */
+    public async lock(
+        purpose: string,
+        amount: BigNumberish,
+        withDeposit = false
+    ) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(this.config.signKey.slice(2), "hex")
+        );
+
+        // Sign the blockchain request as this DID
+        const nonce = await this.nonceFN();
+        const requestMsg = ethers.utils.solidityPack(
+            ["address", "string", "uint", "bool", "uint"],
+            [this.didAddress, purpose, amount, withDeposit, nonce]
+        );
+        const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
+
+        const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase();
+        const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray);
+
+        const response = await this.vdaWeb3Client!.lock(
+            this.didAddress,
+            purpose,
+            amount,
+            withDeposit,
+            requestSignature,
+            requestProof
+        );
+
+        if (response.success !== true) {
+            throw new Error(`Failed to lock: ${response.reason}`);
+        }
+    }
+
+
+    /**
+     * Return the locked amount for the given purpose
+     * @param purpose Purpose of locking
+     * @param didAddress DID address
+     */
+    public async locked(purpose: string, didAddress = this.didAddress) {
+        if (this.readOnly && !didAddress) {
+            throw new Error(`Need didAddress in read only mode`)
+        }
+
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.locked(didAddress, purpose);
+
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.locked(didAddress, purpose);
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get locked amount (${message})`);
+        }
+    }
+
+    /**
+     * 
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Starts from 1
+     * @param didAddress DIDAddress
+     */
+    public async getLocks(
+        pageSize: BigNumberish,
+        pageNumber: BigNumberish,
+        didAddress = this.didAddress
+    ) {
+        if (this.readOnly && !didAddress) {
+            throw new Error(`Need didAddress in read only mode`)
+        }
+
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getLocks(didAddress, pageSize, pageNumber);
+
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getLocks(didAddress, pageSize, pageNumber);
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get locked information list (${message})`);
+        }
+    }
+
+    /**
+     * Unlock the token for specified purpose. 
+     * @param purpose Purpose of locked
+     * @param withdrawWallet Withdraw wallet address. If not set, token will be deposited as credit
+     */
+    public async unlock(
+        purpose: string,
+        withdrawWallet?: string
+    ) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(this.config.signKey.slice(2), "hex")
+        );
+
+        // Sign the blockchain request as this DID
+        const nonce = await this.nonceFN();
+        let requestMsg: string;
+        if (!withdrawWallet) {
+            requestMsg = ethers.utils.solidityPack(
+                ["address", "string", "uint"],
+                [this.didAddress, purpose, nonce]
+            );
+        } else {
+            requestMsg = ethers.utils.solidityPack(
+                ["address", "string", "address", "uint"],
+                [this.didAddress, purpose, withdrawWallet!, nonce]
+            );
+        }
+        
+        const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
+
+        const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase();
+        const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray);
+
+        let response;
+        if (!withdrawWallet) {
+            response = await this.vdaWeb3Client!.unlock(
+                this.didAddress,
+                purpose,
+                requestSignature,
+                requestProof
+            );
+        } else {
+            response = await this.vdaWeb3Client!.unlockAndWithdraw(
+                this.didAddress,
+                purpose,
+                withdrawWallet,
+                requestSignature,
+                requestProof
+            );
+        }
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to unlock: ${response.reason}`);
+        }
+    }
 }

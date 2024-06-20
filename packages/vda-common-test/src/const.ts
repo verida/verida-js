@@ -32,6 +32,12 @@ export const DID_LIST : DidInterface[] = [
       privateKey: '0xe7c0985b8fe575350dba0763486a173456d41221f50ed936a20448249ae53ca7',
       publicKey : '0x04acd5fd52aaa3f9d6867e524bdc0b1716f98fc6300a87cef2a0b8054103acb33530948388e85f8280cda33deda45aae8a416fbaf3651981575710b401e1ee94c6',
     },
+
+    {
+      address: 'did:vda:testnet:0x8d27e2f49ab2f02F7F326A652Dcefa63c7da3913',
+      privateKey: '0x637f5a054ee80dec48554c6cb5ec21f01eeff1a1e28049241716b9d2846f5e9c',
+      publicKey : '0x040d7593f5412ffcbe7a3b77392a6328b17baf31ce3621baf5580fecfe4bcc1fc59000b9ba579a1fb74771a45d222083eb7de1bed36ed1e59e8f4e635d949ad54a',
+    },
 ]
 
 export const TRUSTED_SIGNER : DidInterface =  {

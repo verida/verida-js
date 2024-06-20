@@ -21,7 +21,8 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         didRegistry: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
         storageNodeRegistryAddress: null,
         nameRegistryAddress: "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
-        didLinkageAddress: "0x5916F97e31B77884d81bdA875b7686A988E0d517"
+        didLinkageAddress: "0x5916F97e31B77884d81bdA875b7686A988E0d517",
+        vdaRewardContract: ""
     },
     [Network.BANKSIA]: {
         id: Network.BANKSIA,
@@ -30,9 +31,10 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
         tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
         didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
-        storageNodeRegistryAddress: "0x0b59cD9A966f379b70075211ffd68B605B265987",
+        storageNodeRegistryAddress: "0x4Fa02CA7fD115b4cCA7F80Cb3047550648c360e1",
         nameRegistryAddress: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
-        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B"
+        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B",
+        vdaRewardContract: "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB"
     },
     [Network.DEVNET]: {
         id: Network.DEVNET,
@@ -41,9 +43,10 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
         tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
         didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
-        storageNodeRegistryAddress: "0x0b59cD9A966f379b70075211ffd68B605B265987",
+        storageNodeRegistryAddress: "0x4Fa02CA7fD115b4cCA7F80Cb3047550648c360e1",
         nameRegistryAddress: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
-        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B"
+        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B",
+        vdaRewardContract: "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB"
     },
     [Network.LOCAL]: {
         id: Network.LOCAL,
@@ -52,9 +55,10 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
         tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
         didRegistry: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
-        storageNodeRegistryAddress: "0x0b59cD9A966f379b70075211ffd68B605B265987",
+        storageNodeRegistryAddress: "0x4Fa02CA7fD115b4cCA7F80Cb3047550648c360e1",
         nameRegistryAddress: "0x7f0c4feE1553323668d3d597270D9b525D20d719",
-        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B"
+        didLinkageAddress: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B",
+        vdaRewardContract: "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB"
     },
 }
 
@@ -127,11 +131,11 @@ export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | n
      * Not really part of the protocol, so not a defined in NETWORK_DEFINITIONS and should be removed
      */
     "VDARewardContract": {
-        [MAINNET]: "",
-        "0x89": "",
-        [TESTNET]: "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB",
-        "0x13881": "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB",
-        [DEVNET]: "0x08Dbf7A77A46Feac30AAf834Bf078722949fE9FB",
+        [MAINNET]: null,
+        [CHAINID_MAINNET]: null,
+        [TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].vdaRewardContract,
+        [CHAINID_TESTNET]: NETWORK_DEFINITIONS[Network.BANKSIA].vdaRewardContract,
+        [DEVNET]: NETWORK_DEFINITIONS[Network.BANKSIA].vdaRewardContract
     },
     "StorageNodeRegistry": {
         [MAINNET]: null,
@@ -146,7 +150,6 @@ export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
     "VeridaDIDRegistry": require('./abi/VeridaDIDRegistry.json'),
     "NameRegistry": require('./abi/NameRegistry.json'),
     "SoulboundNFT": require('./abi/SoulboundNFT.json'),
-
     "VeridaDIDLinkage": require('./abi/VeridaDIDLinkage.json'),
     "VeridaToken": require('./abi/VeridaToken.json'),
     "VDARewardContract": require('./abi/VDARewardContract.json'),

@@ -1,3 +1,8 @@
+2024-06-13 (v)
+-------------------
+- Added `locking` feature
+- Updated test files
+
 2024-03-15 (v3.0.2)
 -------------------
 - Added pagination for `getNodesBy...()` functions

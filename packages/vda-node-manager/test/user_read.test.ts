@@ -3,7 +3,7 @@ import { VeridaNodeManager } from "../src/index"
 import { EnvironmentType, EnumStatus } from "@verida/types";
 import { BigNumber, Wallet } from 'ethers';
 import { addInitialData, compareNodeData } from "./helpers";
-import { REGISTERED_DIDS, DID_NODE_MAP, getBlockchainAPIConfiguration, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS } from "@verida/vda-common-test";
+import { REGISTERED_DIDS, DID_NODE_MAP, getBlockchainAPIConfiguration, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS, LOCK_LIST, REGISTERED_LOCK_NODE } from "@verida/vda-common-test";
 
 const assert = require('assert')
 
@@ -397,7 +397,7 @@ describe('vda-node-manager read only tests', () => {
             it("Get nodes by status", async () => {
                 // Get `active` nodes
                 let result = await blockchainApi.getNodesByStatus(EnumStatus.active, 100, 1);
-                assert.ok(result.length >= REGISTERED_DIDS.length, "Get active nodes");
+                assert.ok(result.length >= REGISTERED_DIDS.length - REMOVE_START_DIDS.length, "Get active nodes");
 
                 // Get `pending removal` nodes
                 result = await blockchainApi.getNodesByStatus(EnumStatus.removing, 100, 1);
@@ -406,6 +406,30 @@ describe('vda-node-manager read only tests', () => {
                 // Get `removed` nodes
                 result = await blockchainApi.getNodesByStatus(EnumStatus.removed, 100, 1);
                 assert.ok(result.length >= 0, "Get removed nodes");                
+            })
+        })
+
+        describe('Get locked amount for specified purpose', () => {
+            it('Failed: DIDAddress not specified in read-only mode', async () => {
+                try {
+                    await blockchainApi.locked('Random-purpose');
+                } catch (e) {
+                    // console.log("F - ", e);
+                    assert.ok(true, "Rejected for invalid reason code");
+                }
+            })
+
+            it('Return 0 for unlocked address and purpose', async () => {
+                const result = await blockchainApi.locked('random-purpose', Wallet.createRandom().address);
+                assert.ok(Number(result) === 0, 'Return 0 for unknown purpose and addresses');
+            })
+
+            it('Success', async () => {
+                const lockNodeDIDAddress = new Wallet(REGISTERED_LOCK_NODE.privateKey).address;
+                for (var lockInfo of LOCK_LIST) {
+                    const result = await blockchainApi.locked(lockInfo.purpose, lockNodeDIDAddress);
+                    assert.ok(result >= BigInt(lockInfo.amount));
+                }
             })
         })
     })

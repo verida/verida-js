@@ -4,9 +4,9 @@ export const RPC_URLS: Record<string, string | null> = {
     // https://rpc.ankr.com/polygon is the same as https://polygon-rpc.com as also provided by Ankr
     mainnet: "https://rpc.ankr.com/polygon",
     "0x89": "https://rpc.ankr.com/polygon",
-    testnet: "https://rpc.ankr.com/polygon_mumbai",
-    "0x13881": "https://rpc.ankr.com/polygon_mumbai",
-    devnet: "https://rpc.ankr.com/polygon_mumbai",
+    testnet: "https://rpc-amoy.polygon.technology",
+    "0x13881": "https://rpc-amoy.polygon.technology",
+    devnet: "https://rpc-amoy.polygon.technology",
     mumbai: "https://rpc.ankr.com/polygon_mumbai",
     polpos: "https://rpc.ankr.com/polygon",
     polamoy: "https://rpc.ankr.com/polygon_amoy"

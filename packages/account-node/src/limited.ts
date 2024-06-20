@@ -9,7 +9,7 @@ import { AccountConfig, AccountNodeConfig, SecureContextConfig } from '@verida/t
  */
 export default class LimitedAccount extends AutoAccount {
 
-    private signingContexts: string[]
+    protected signingContexts: string[]
 
     constructor(autoConfig: AccountNodeConfig, accountConfig?: AccountConfig, signingContexts: string[] = []) {
         super(autoConfig, accountConfig)

@@ -1,16 +1,18 @@
 import { ethers, BigNumber, Wallet, BigNumberish, BytesLike } from 'ethers';
 import { VeridaNodeOwnerApi, VeridaNodeManager } from '../src';
 import { EnvironmentType, EnumStatus } from "@verida/types";
-import { TRUSTED_SIGNER, REGISTERED_DATACENTRES, DID_NODE_MAP, REGISTERED_DIDS, REMOVED_DATACENTRES, FALLBACK_DIDS, REMOVE_START_DIDS } from "@verida/vda-common-test"
+import { TRUSTED_SIGNER, REGISTERED_DATACENTRES, DID_NODE_MAP, REGISTERED_DIDS, REMOVED_DATACENTRES, FALLBACK_DIDS, REMOVE_START_DIDS, ERC20Manager, LOCK_LIST, REGISTERED_LOCK_NODE } from "@verida/vda-common-test"
 import EncryptionUtils from "@verida/encryption-utils";
+import { getContractInfoForNetwork } from '@verida/vda-common';
 
 const CONTRACT_DECIMAL = 9;
+const TARGET_NETWORK = EnvironmentType.TESTNET;
 
 const createNodeManager = (did: any, configuration: any) => {
     return new VeridaNodeManager({
         did: did.address,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
+        network: TARGET_NETWORK,
         ...configuration
     })
 }
@@ -164,6 +166,51 @@ async function CheckAndRemoveNodes(configuration : Record<string, any>, dids: an
     }
 }
 
+async function CheckAndLock(configuration : Record<string, any>, registeredLockNode: any) {
+    const lockNodeApi = createNodeManager(registeredLockNode, configuration);
+
+    const isRegistered = await lockNodeApi.isRegisteredNodeAddress();
+    if (!isRegistered) {
+        throw new Error("Node for locking test is not registered");
+    }
+
+    // Create Token manager for locking test
+    const privateKey = process.env.PRIVATE_KEY;
+    if (!privateKey) {
+        throw new Error('No PRIVATE_KEY in the env file');
+    }
+    const transactionSender = new Wallet(privateKey);
+
+    const TOKEN_ADDRESS = await lockNodeApi.getVDATokenAddress();
+    const tokenAPI = new ERC20Manager(
+        TOKEN_ADDRESS,
+        <string>process.env.RPC_URL,
+        privateKey,
+    );
+
+    // Mint token for locking
+    const lockTotalAmount = LOCK_LIST.reduce((acc, curInfo) => acc + curInfo.amount, 0);
+    await tokenAPI.mint(transactionSender.address, lockTotalAmount);
+
+    // Approve token for locking
+    const nodeContractInfo = getContractInfoForNetwork("StorageNodeRegistry", TARGET_NETWORK);
+    await tokenAPI.approve(nodeContractInfo.address, lockTotalAmount);
+
+    // Lock tokens with token transfer to the registered DID
+    for (var lockInfo of LOCK_LIST) {
+        const curLockedAmount = await lockNodeApi.locked(lockInfo.purpose);
+        if (curLockedAmount < BigInt(lockInfo.amount))  {
+            await lockNodeApi.lock(lockInfo.purpose, lockInfo.amount, true);
+        }
+    }
+}
+
+/**
+ * Add test data to the `StorageNodeRegistry` contract
+ * @param configuration Configuration to create `VeridaNodeOwnerApi`
+ * @param ownerApi `VeridaNodeOwnerApi` instance
+ * @returns 
+ */
 export async function addInitialData (
     configuration : Record<string, any>,
     ownerApi : VeridaNodeOwnerApi | undefined = undefined,
@@ -173,7 +220,7 @@ export async function addInitialData (
         ownerApi = new VeridaNodeOwnerApi({
             did: `did:vda:testnet:${userDID.address}`, // Not used during owner function call
             signKey: userDID.privateKey, // Not used during owner function call
-            network: EnvironmentType.TESTNET,
+            network: TARGET_NETWORK,
             ...configuration
         })
     }
@@ -226,9 +273,18 @@ export async function addInitialData (
     await CheckAndRemoveNodes(configuration, REMOVE_START_DIDS, unregisterTime, fallbackInfo);
     console.log("### Nodes are added");
 
+    await CheckAndLock(configuration, REGISTERED_LOCK_NODE);
+    console.log("### Locking tokens done")
+
     return DATA_CENTRE_IDS;
 }
 
+/**
+ * Compare node datas
+ * @param org Former node data
+ * @param result Latter node data
+ * @returns true if equals, false otherwise
+ */
 export const compareNodeData = (org: any, result: any) => {
     let ret = false;
     

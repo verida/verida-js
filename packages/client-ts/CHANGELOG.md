@@ -1,4 +1,4 @@
-
+xxx (vx)
 -------------------
 
 Breaking changes:
@@ -6,8 +6,11 @@ Breaking changes:
 - `Network.getRecord()` now requires the `network` parameter
 - `ClientConfig` configures the Verida Network using `network` instead of `environment`
 
+Other changes:
 
-2023-03-15 (v.3.0.3)
+- Fix: Sending inbox message to a full storage node was failing
+
+2024-03-15 (v.3.0.3)
 -------------------
 
 - Fix: Signed data creation and verification didn't always match
