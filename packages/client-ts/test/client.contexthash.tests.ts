@@ -16,7 +16,7 @@ let client, account, did
 /**
  * Test a single (or collection) of storage nodes
  */
-describe('Storage context hash tests', function() {
+describe.skip('Storage context hash tests', function() {
 
     this.beforeAll(async function() {
         client = new Client({
@@ -36,8 +36,7 @@ describe('Storage context hash tests', function() {
         did = await account.did()
     })
 
-    describe.skip('Perform tests', () =>{
-
+    describe('Perform tests', () =>{
         it('can fetch correct context name', async function () {
             const contextHash = DIDDocument.generateContextHash(did, CONTEXT_NAME);
             const contextName = await client.getContextNameFromHash(contextHash)
