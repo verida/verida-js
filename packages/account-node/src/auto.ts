@@ -49,6 +49,10 @@ export default class AutoAccount extends Account {
         return this.accountConfig
     }
 
+    public getAutoConfig(): AccountNodeConfig {
+        return this.autoConfig
+    }
+
     public async keyring(contextName: string): Promise<Keyring> {
         let did = await this.did()
         did = did.toLowerCase()
@@ -192,11 +196,6 @@ export default class AutoAccount extends Account {
         }
 
         return true
-    }
-
-    public async getDidClient(): Promise<DIDClient> {
-        await this.ensureAuthenticated()
-        return this.didClient
     }
 
     public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig, authType: string = "database"): Promise<AuthContext> {
