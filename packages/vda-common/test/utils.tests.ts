@@ -6,11 +6,11 @@ describe('Interpret identifier test', function() {
     it('Handles old DID formats', async () => {
         const dids = {
             'did:vda:mainnet:0xCDEdd96AfA6956f0299580225C2d9a52aca8487A': {
-                'network': BlockchainAnchor.MAINNET,
+                'network': BlockchainAnchor.POLPOS,
                 'address': '0xCDEdd96AfA6956f0299580225C2d9a52aca8487A'
             },
             'did:vda:testnet:0x158672345D2486a148313c6b107857A64ff6b477': {
-                'network': BlockchainAnchor.TESTNET,
+                'network': BlockchainAnchor.POLAMOY,
                 'address': '0x158672345D2486a148313c6b107857A64ff6b477'
             }
         };
@@ -25,11 +25,11 @@ describe('Interpret identifier test', function() {
     it('Handles new DID formats', async () => {
         const dids = {
             'did:vda:polpos:0xCDEdd96AfA6956f0299580225C2d9a52aca8487A': {
-                'network': BlockchainAnchor.MAINNET,
+                'network': BlockchainAnchor.POLPOS,
                 'address': '0xCDEdd96AfA6956f0299580225C2d9a52aca8487A'
             },
-            'did:vda:mumbai:0x158672345D2486a148313c6b107857A64ff6b477': {
-                'network': BlockchainAnchor.TESTNET,
+            'did:vda:polamoy:0x158672345D2486a148313c6b107857A64ff6b477': {
+                'network': BlockchainAnchor.POLAMOY,
                 'address': '0x158672345D2486a148313c6b107857A64ff6b477'
             }
         };
