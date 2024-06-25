@@ -1,5 +1,4 @@
 import { BlockchainAnchor, Network } from "@verida/types";
-import { mapDidNetworkToBlockchainAnchor } from "./utils";
 import { NetworkDefinition } from "@verida/types";
 
 export interface CONTRACT_INFO {
@@ -38,7 +37,7 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
     },
     [Network.DEVNET]: {
         id: Network.DEVNET,
-        label: "Banksia",
+        label: "Devnet",
         isMainnet: false,
         anchoredBlockchain: BlockchainAnchor.POLAMOY,
         tokenAddress: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
