@@ -1,64 +1,15 @@
-import {
-    getVeridaContract,
-    VeridaContract
-} from "@verida/web3"
-import { Web3SelfTransactionConfig, VdaClientConfig, Network } from '@verida/types'
-import { ethers, Contract } from "ethers";
-import { getContractInfoForVeridaNetwork, RPC_URLS, getVeridaSignWithNonce, DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
-import { JsonRpcProvider } from '@ethersproject/providers';
+import { VdaClientConfig } from '@verida/types'
+import { ethers } from "ethers";
+import { getVeridaSignWithNonce, DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
 import { explodeDID } from '@verida/helpers'
+import { VeridaClientBase } from '@verida/vda-client-base'
 
-export class VeridaNameClient {
+export class VeridaNameClient extends VeridaClientBase {
 
-    private config: VdaClientConfig
-    private network: Network
-    private didAddress?: string
-
-    private vdaWeb3Client? : VeridaContract
-
-    private readOnly: boolean
-    private contract?: ethers.Contract
-    // Key = username, Value = DID
-    private usernameCache: Record<string, string> = {}
+    protected usernameCache: Record<string, string> = {}
 
     public constructor(config: VdaClientConfig) {
-        if (!config.callType) {
-            config.callType = 'web3'
-        }
-
-        this.config = config
-        this.readOnly = true
-        if (!config.web3Options) {
-            config.web3Options = {}
-        }
-
-        this.network = config.network
-
-        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
-        }
-
-        const contractInfo = getContractInfoForVeridaNetwork("NameRegistry", this.network)
-
-        if (config.did) {
-            this.readOnly = false
-            const { address } = explodeDID(config.did)
-            this.didAddress = address.toLowerCase()
-            
-            this.vdaWeb3Client = getVeridaContract(
-                config.callType, 
-                {...contractInfo,
-                ...config.web3Options})
-        } else {
-            let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
-            if (!rpcUrl) {
-                rpcUrl = <string> RPC_URLS[this.network]
-            }
-
-            const provider = new JsonRpcProvider(rpcUrl)
-
-            this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider)
-        }
+        super(config, "nameRegistry");
     }
 
     /**
@@ -115,7 +66,8 @@ export class VeridaNameClient {
             throw new Error(`Failed to register: ${response.reason}`)
         }
 
-        this.usernameCache[username] = `did:vda:${this.network}:${this.didAddress}`
+        const blockchain = DefaultNetworkBlockchainAnchors[this.network]
+        this.usernameCache[username] = `did:vda:${blockchain}:${this.didAddress}`
     }
 
     /**
@@ -223,6 +175,34 @@ export class VeridaNameClient {
             return did
         } catch (err:any ) {
             throw new Error(`Failed to locate the DID for username: ${username} (${err.message})`)
+        }
+    }
+
+    /**
+     * Return limit of names per DID
+     * @returns Limit of names
+     */
+    public async getNameLimitPerDID(): Promise<string> {
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.maxNamesPerDID()
+
+                if (response.success !== true) {
+                    throw new Error(`Failed to get limit of names per DID`)
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.maxNamesPerDID()
+
+                if (!response) {
+                    throw new Error(`Failed to get limit of names per DID`)
+                }
+            }
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to get limit of names: (${err.message})`)
         }
     }
 

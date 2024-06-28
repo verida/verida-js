@@ -1,4 +1,10 @@
-2023-12-26 (v.3.0.0)
+2024-06-28 (v)
+-------------------
+
+- Make `VeridaNameClient` extendes `VeridaClientBase`
+- Update the test code
+
+2023-12-26 (v3.0.0)
 -------------------
 
 - Mainnet release

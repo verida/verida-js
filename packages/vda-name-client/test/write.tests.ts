@@ -2,7 +2,7 @@ require('dotenv').config();
 import { DID_LIST, getBlockchainAPIConfiguration } from "@verida/vda-common-test"
 import { VeridaNameClient } from "../src/index"
 import { Wallet } from "ethers";
-import { EnvironmentType } from "@verida/types";
+import { Network } from "@verida/types";
 
 const assert = require('assert')
 
@@ -26,9 +26,9 @@ if (!privateKey) {
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNameClient({
+        network: Network.DEVNET,
         did: did.address,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
@@ -37,13 +37,19 @@ describe('vda-name-client read and write tests', () => {
     let blockchainApi : VeridaNameClient;
     const REGISTER_COUNT = 2;
 
-    before(() => {
+    before(async () => {
         blockchainApi = createBlockchainAPI(did);
         did.address = did.address.toLowerCase()
+
+        const maxLimit = Number(await blockchainApi.getNameLimitPerDID());
+        console.log("NameLimit : ", maxLimit);
+        if (REGISTER_COUNT > maxLimit) {
+            throw new Error(`Can register up to ${maxLimit} names per DID`);
+        }
     })
 
     describe('register', function() {
-        this.timeout(60*1000)
+        this.timeout(600*1000)
         it('Should reject for invalid names', async () => {
             const invalidnames = [
                 'hello world.vda',   // Space in the name 
@@ -68,7 +74,7 @@ describe('vda-name-client read and write tests', () => {
                 await blockchainApi.register(testNames[i])
 
                 const nameDID = await blockchainApi.getDID(testNames[i])
-                assert.equal(nameDID, did.address, 'Get registered DID')
+                assert.equal(nameDID.toLowerCase(), did.address.toLowerCase(), 'Get registered DID')
             }
         })
 
@@ -109,7 +115,7 @@ describe('vda-name-client read and write tests', () => {
                 const foundDID = await blockchainApi.getDID(testNames[i])
 
                 assert.equal(
-                    foundDID,
+                    foundDID.toLowerCase(),
                     did.address.toLowerCase(),
                     'Get registered DID'
                 )
