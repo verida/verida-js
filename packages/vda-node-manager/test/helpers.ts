@@ -1,18 +1,18 @@
 import { ethers, BigNumber, Wallet, BigNumberish, BytesLike } from 'ethers';
 import { VeridaNodeOwnerApi, VeridaNodeManager } from '../src';
-import { EnvironmentType, EnumStatus } from "@verida/types";
+import { EnumStatus, Network } from "@verida/types";
 import { TRUSTED_SIGNER, REGISTERED_DATACENTRES, DID_NODE_MAP, REGISTERED_DIDS, REMOVED_DATACENTRES, FALLBACK_DIDS, REMOVE_START_DIDS, ERC20Manager, LOCK_LIST, REGISTERED_LOCK_NODE } from "@verida/vda-common-test"
 import EncryptionUtils from "@verida/encryption-utils";
-import { getContractInfoForNetwork } from '@verida/vda-common';
+import { getContractInfoForVeridaNetwork } from '@verida/vda-common';
 
 const CONTRACT_DECIMAL = 9;
-const TARGET_NETWORK = EnvironmentType.TESTNET;
+const TARGET_NETWORK = Network.DEVNET;
 
 const createNodeManager = (did: any, configuration: any) => {
     return new VeridaNodeManager({
+        network: TARGET_NETWORK,
         did: did.address,
         signKey: did.privateKey,
-        network: TARGET_NETWORK,
         ...configuration
     })
 }
@@ -193,7 +193,7 @@ async function CheckAndLock(configuration : Record<string, any>, registeredLockN
     await tokenAPI.mint(transactionSender.address, lockTotalAmount);
 
     // Approve token for locking
-    const nodeContractInfo = getContractInfoForNetwork("StorageNodeRegistry", TARGET_NETWORK);
+    const nodeContractInfo = getContractInfoForVeridaNetwork("storageNodeRegistry", TARGET_NETWORK);
     await tokenAPI.approve(nodeContractInfo.address, lockTotalAmount);
 
     // Lock tokens with token transfer to the registered DID

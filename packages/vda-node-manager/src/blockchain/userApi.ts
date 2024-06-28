@@ -1,13 +1,7 @@
-import {
-    getVeridaContract,
-    VeridaContract
-} from "@verida/web3";
-import { VdaClientConfig, Web3SelfTransactionConfig, EnumStatus, Network } from '@verida/types'
-import { ethers, Contract, BigNumberish, BytesLike } from "ethers";
-import { getContractInfoForVeridaNetwork, DefaultNetworkBlockchainAnchors, getDefaultRpcUrl } from "@verida/vda-common";
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { explodeDID } from '@verida/helpers';
+import { VdaClientConfig, EnumStatus } from '@verida/types'
+import { ethers, BigNumberish, BytesLike } from "ethers";
 import EncryptionUtils from "@verida/encryption-utils";
+import { VeridaClientBase } from "@verida/vda-client-base";
 
 export interface IStorageNode {
     name: string;
@@ -34,58 +28,12 @@ export interface IFallbackNodeInfo {
 }
 
 
-export class VeridaNodeManager {
-
-    protected config: VdaClientConfig
-    protected network: Network
-    protected didAddress?: string
-
-    protected vdaWeb3Client? : VeridaContract
-
-    protected readOnly: boolean
-    protected contract?: ethers.Contract
+export class VeridaNodeManager extends VeridaClientBase {
 
     protected CONTRACT_DECIMAL?: number
     
     public constructor(config: VdaClientConfig) {
-        if (!config.callType) {
-            config.callType = 'web3'
-        }
-
-        this.config = config
-        this.readOnly = true
-        if (!config.web3Options) {
-            config.web3Options = {}
-        }
-
-        this.network = config.network
-
-        const contractInfo = getContractInfoForVeridaNetwork("StorageNodeRegistry", this.network)
-        const blockchain = DefaultNetworkBlockchainAnchors[this.network]
-
-        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = getDefaultRpcUrl(blockchain)!
-        }
-
-        if (config.did) {
-            this.readOnly = false
-            const { address } = explodeDID(config.did)
-            this.didAddress = address.toLowerCase()
-
-            this.vdaWeb3Client = getVeridaContract(
-                config.callType, 
-                {...contractInfo,
-                ...config.web3Options})
-        } else {
-            let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
-            if (!rpcUrl) {
-                rpcUrl = getDefaultRpcUrl(blockchain)!
-            }
-
-            const provider = new JsonRpcProvider(rpcUrl)
-
-            this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider)
-        }
+        super(config, "storageNodeRegistry");
     }
 
     /**

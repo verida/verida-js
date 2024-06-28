@@ -1,6 +1,6 @@
 require('dotenv').config();
 import { VeridaNodeManager } from "../src/index"
-import { EnvironmentType, EnumStatus } from "@verida/types";
+import { EnumStatus, Network } from "@verida/types";
 import { BigNumber, Wallet } from 'ethers';
 import { addInitialData, compareNodeData } from "./helpers";
 import { REGISTERED_DIDS, DID_NODE_MAP, getBlockchainAPIConfiguration, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS, LOCK_LIST, REGISTERED_LOCK_NODE } from "@verida/vda-common-test";
@@ -17,7 +17,7 @@ const configuration = getBlockchainAPIConfiguration(privateKey);
 
 const createBlockchainAPI = () => {
     return new VeridaNodeManager({
-        network: EnvironmentType.TESTNET
+        network: Network.DEVNET
     })
 }
 
