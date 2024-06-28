@@ -1,32 +1,30 @@
 import { Contract } from "ethers";
-import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda-common";
+import { DefaultNetworkBlockchainAnchors, getContractInfoForVeridaNetwork, getDefaultRpcUrl } from "@verida/vda-common";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { BigNumberish } from "ethers";
-import { EnumStatus } from "@verida/types";
+import { EnumStatus, Network } from "@verida/types";
 
 export class VeridaNodeClient {
     private contract: Contract;
 
     /**
      * Constructor
-     * @param network Network name to test. Should be one of the Verida supported network names
+     * @param network Verida Network
      * @param RPC_URL Optional parameter. RPC_URL to be used
      */
-    public constructor(network:string, RPC_URL?: string) {
-        const rpcUrl = RPC_URL?? RPC_URLS[network];
+    public constructor(network:Network, RPC_URL?: string) {
+        const blockchainAnchor = DefaultNetworkBlockchainAnchors[network];
+        const rpcUrl = RPC_URL?? getDefaultRpcUrl(blockchainAnchor);
         if (!rpcUrl) {
             throw new Error(`Unable to locate RPC_URL for network: ${network}`)
         }
 
-        const contractABI = abiList["StorageNodeRegistry"];
+        const contractInfo = getContractInfoForVeridaNetwork("storageNodeRegistry", network);
         const provider = new JsonRpcProvider(rpcUrl);
-        const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
 
-        if (!address) {
-            throw new Error(`Empty contract address for network-${network}`)
-        }
+        console.log("Info : ", contractInfo);
 
-        this.contract = new Contract(address, contractABI.abi, provider);
+        this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider);
     }
 
     /**
