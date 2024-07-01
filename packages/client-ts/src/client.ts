@@ -66,19 +66,8 @@ class Client implements IClient {
       : {};
     this.config = _.merge(defaultConfig, userConfig) as DefaultClientConfig;
 
-    /**
-     * Auto-determine the did client based on the Verida Network
-     * 
-     * @todo Consider deprecating this and injecting a did client object as part of the config
-     */
-    const blockchain = DefaultNetworkBlockchainAnchors[this.network]
-    userConfig.didClientConfig = userConfig.didClientConfig ? userConfig.didClientConfig : {
-      blockchain
-    }
-
-    this.didClient = new DIDClient({
-      ...userConfig.didClientConfig,
-      blockchain
+    this.didClient = new DIDClient(userConfig.didClientConfig ? userConfig.didClientConfig : {
+      network: this.network
     });
 
     const rpcUrl = this.didClient.getRpcUrl()

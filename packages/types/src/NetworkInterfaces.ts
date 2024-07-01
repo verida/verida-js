@@ -50,7 +50,8 @@ export interface DefaultClientConfig extends DefaultNetworkConfig {
 }
 
 export interface DIDClientConfig {
-    blockchain: BlockchainAnchor
+	network?: Network
+	blockchain?: BlockchainAnchor
     rpcUrl?: string					// blockchain RPC URI to use
     timeout?: number
 }
