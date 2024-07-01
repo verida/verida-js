@@ -61,6 +61,10 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
     },
 }
 
+export function getNetworkFromString(networkName: string): Network {
+    return Network[networkName.toUpperCase() as keyof typeof Network];
+}
+
 export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
     [BlockchainAnchor.POLPOS]: '0x89',
     [BlockchainAnchor.POLAMOY]: '0x13882'
@@ -158,13 +162,13 @@ export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
 export function getContractInfoForBlockchain(name: CONTRACT_NAMES, blockchain: BlockchainAnchor) : CONTRACT_INFO {
     const abi = CONTRACT_ABI[name];
     if (!abi) {
-        throw new Error("Contract ABI not exist")
+        throw new Error(`Contract ABI does not exist (${name} / ${blockchain})`)
     }
 
     const address = CONTRACT_ADDRESS[name][blockchain.toString()];
 
     if (!address) {
-        throw new Error(`Contract address not defined for blockchain: ${blockchain.toString()}`);
+        throw new Error(`Contract address (${name}) not defined for blockchain: ${blockchain.toString()}`);
     }
 
     return {
@@ -176,14 +180,14 @@ export function getContractInfoForBlockchain(name: CONTRACT_NAMES, blockchain: B
 export function getContractInfoForVeridaNetwork(name: CONTRACT_NAMES, network: Network) : CONTRACT_INFO {
     const abi = CONTRACT_ABI[name];
     if (!abi) {
-        throw new Error("Contract ABI not exist")
+        throw new Error(`Contract ABI does not exist (${name} / ${network})`)
     }
 
     const networkDefinition = NETWORK_DEFINITIONS[network]
     const address = CONTRACT_ADDRESS[name][networkDefinition.anchoredBlockchain.toString()];
 
     if (!address) {
-        throw new Error(`Contract address not defined for blockchain: ${networkDefinition.id}`);
+        throw new Error(`Contract address (${name}) is not defined for blockchain: ${networkDefinition.id}`);
     }
 
     return {
