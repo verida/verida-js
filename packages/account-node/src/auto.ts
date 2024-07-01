@@ -32,7 +32,8 @@ export default class AutoAccount extends Account {
         this.wallet = new Wallet(autoConfig.privateKey, blockchain.toString())
 
         this.didClient = new DIDClient({
-            ...autoConfig.didClientConfig
+            ...autoConfig.didClientConfig,
+            network: autoConfig.network
         })
     }
 
