@@ -105,6 +105,10 @@ export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
     },
 }
 
+export function getNetworkFromString(networkName: string): Network {
+    return Network[networkName.toUpperCase() as keyof typeof Network];
+}
+
 export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
     [BlockchainAnchor.POLPOS]: '0x89',
     [BlockchainAnchor.POLAMOY]: '0x13882'
@@ -205,12 +209,20 @@ export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
 //     if (!abi) {
 //         throw new Error("Contract ABI not exist")
 //     }
+// export function getContractInfoForBlockchain(name: CONTRACT_NAMES, blockchain: BlockchainAnchor) : CONTRACT_INFO {
+//     const abi = CONTRACT_ABI[name];
+//     if (!abi) {
+//         throw new Error(`Contract ABI does not exist (${name} / ${blockchain})`)
+//     }
 
 //     const address = CONTRACT_ADDRESS[name][blockchain.toString()];
 
 //     if (!address) {
 //         throw new Error(`Contract address not defined for blockchain: ${blockchain.toString()}`);
 //     }
+    // if (!address) {
+    //     throw new Error(`Contract address (${name}) not defined for blockchain: ${blockchain.toString()}`);
+    // }
 
 //     return {
 //         abi: abi,
@@ -220,16 +232,17 @@ export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
 
 /*
 export function getContractInfoForVeridaNetwork(name: TContractNames, network: Network) : IContractInfo {
+
     const abi = CONTRACT_ABI[name];
     if (!abi) {
-        throw new Error("Contract ABI not exist")
+        throw new Error(`Contract ABI does not exist (${name} / ${network})`)
     }
 
     const networkDefinition = NETWORK_DEFINITIONS[network]
     const info = networkDefinition[name];
 
-    if (!info || !info.address) {
-        throw new Error(`Contract address not defined for blockchain: ${networkDefinition.id}`);
+    if (!address) {
+        throw new Error(`Contract address (${name}) is not defined for blockchain: ${networkDefinition.id}`);
     }
 
     return info;

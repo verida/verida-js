@@ -1,14 +1,16 @@
 import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 import { default as VeridaWallet } from "./wallet"
 import { getResolver } from '@verida/vda-did-resolver'
-import { getWeb3ConfigDefaults, getDefaultRpcUrl } from "@verida/vda-common"
+import { getWeb3ConfigDefaults, getDefaultRpcUrl, DefaultNetworkBlockchainAnchors } from "@verida/vda-common"
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
-import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3TransactionOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
+import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3TransactionOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface, BlockchainAnchor, Network } from "@verida/types"
 
 export class DIDClient implements IDIDClient {
 
     private config: DIDClientConfig
+
+    private blockchainAnchor: BlockchainAnchor
 
     // vda-did resolver
     private didResolver: Resolver
@@ -22,8 +24,15 @@ export class DIDClient implements IDIDClient {
 
     private endpointErrors?: VdaDidEndpointResponses
 
-    constructor(config: DIDClientConfig) {
+    constructor(config: DIDClientConfig = {}) {
         this.config = config
+
+        if (!this.config.blockchain && !this.config.network) {
+            throw new Error('Blockchain or Verida network must be specified in DIDClient configuration')
+        }
+
+        // If no blockchain anchor specified, load default for the specified Verida Network
+        this.blockchainAnchor = this.config.blockchain ? this.config.blockchain : DefaultNetworkBlockchainAnchors[this.config.network!]
 
         const resolverConfig: Web3ResolverConfigurationOptions = {
             timeout: config.timeout ? config.timeout : 10000
@@ -37,15 +46,9 @@ export class DIDClient implements IDIDClient {
     }
 
     public getRpcUrl(): string {
-        /**
-         * Based on the selected Verida Environment, use the default blockchain anchor
-         * and then select the appropriate RPC URL
-         * 
-         * @todo DIDClient should be configured with a BlockhainAnchor, not an `EnvironmentType`, however this complicates configuration for developers
-         */
-        const rpcUrl = this.config.rpcUrl ? this.config.rpcUrl : getDefaultRpcUrl(this.config.blockchain.toString())
+        const rpcUrl = this.config.rpcUrl ? this.config.rpcUrl : getDefaultRpcUrl(this.blockchainAnchor.toString())
         if (!rpcUrl) {
-            throw new Error(`Unable to locate RPC_URL for blockchain (${this.config.blockchain})`)
+            throw new Error(`Unable to locate RPC_URL for blockchain (${this.blockchainAnchor})`)
         }
 
         return rpcUrl
@@ -66,7 +69,7 @@ export class DIDClient implements IDIDClient {
     ) {
         this.defaultEndpoints = defaultEndpoints
 
-        this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.config.blockchain.toString())
+        this.veridaWallet = new VeridaWallet(veridaPrivateKey, this.blockchainAnchor.toString())
 
         // @ts-ignore
         if (callType == 'gasless' && !web3Config.endpointUrl) {
@@ -79,7 +82,7 @@ export class DIDClient implements IDIDClient {
         }
 
         web3Config = {
-            ...getWeb3ConfigDefaults(this.config.blockchain),
+            ...getWeb3ConfigDefaults(this.blockchainAnchor),
             ...web3Config
         }
 
@@ -99,7 +102,7 @@ export class DIDClient implements IDIDClient {
         this.vdaDid = new VdaDid({
             identifier: this.veridaWallet.did,
             signKey: this.veridaWallet.privateKey,
-            blockchain: this.config.blockchain,
+            blockchain: this.blockchainAnchor,
             callType: callType,
             web3Options: _web3Config
         })
@@ -116,7 +119,7 @@ export class DIDClient implements IDIDClient {
         }
         
         if (this.veridaWallet.did.substring(0,10) == 'did:vda:0x') {
-            return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.config.blockchain.toString()}:`)
+            return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.blockchainAnchor.toString()}:`)
         }
 
         return this.veridaWallet.did

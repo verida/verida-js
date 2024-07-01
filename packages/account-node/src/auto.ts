@@ -5,7 +5,7 @@ import { Account } from '@verida/account'
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
-import { AccountConfig, AccountNodeConfig, AuthContext, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { AccountConfig, AccountNodeConfig, AuthContext, BlockchainAnchor, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 import { NodeSelector, NodeSelectorConfig, NodeSelectorParams } from './nodeSelector'
 import { ServiceEndpoint } from 'did-resolver'
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common'
@@ -32,8 +32,7 @@ export default class AutoAccount extends Account {
         this.wallet = new Wallet(autoConfig.privateKey, blockchain.toString())
 
         this.didClient = new DIDClient({
-            ...autoConfig.didClientConfig,
-            blockchain
+            ...autoConfig.didClientConfig
         })
     }
 

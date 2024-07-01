@@ -1601,6 +1601,26 @@
     did-resolver "^4.0.1"
     lodash "^4.17.21"
 
+"@verida/encryption-utils@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@verida/encryption-utils/-/encryption-utils-3.0.0.tgz#21434720e3c9d28a9df074e353d255959877a82d"
+  integrity sha512-qaCvVFeEV4QKJl5quN/XMFCKwsCHE5hzjUdQAutlp74ItnXe0YGwZzjqXUYynBKkldCyZQpRoeH16e4GFFSBSQ==
+  dependencies:
+    ethers "^5.5.1"
+    json.sortify "^2.2.2"
+    tweetnacl "^1.0.3"
+    tweetnacl-util "^0.15.1"
+
+"@verida/encryption-utils@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@verida/encryption-utils/-/encryption-utils-3.0.1.tgz#471719a5717488116a83abbf66dac44dec00f017"
+  integrity sha512-LN4LY/NWoBNzppgHuHtxrpL7rEIU7nRvQ+HVJiZak5av4a9GkuQbOzN0AfSAlOTAIKeB35i4/i6nl8BxH8MiVQ==
+  dependencies:
+    ethers "^5.5.1"
+    json.sortify "^2.2.2"
+    tweetnacl "^1.0.3"
+    tweetnacl-util "^0.15.1"
+
 "@verida/helpers@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@verida/helpers/-/helpers-3.0.2.tgz#24946e592793f8c6ea4281d34ee559ca781534dd"
