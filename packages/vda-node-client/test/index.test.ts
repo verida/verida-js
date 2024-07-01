@@ -1,6 +1,6 @@
 const assert = require("assert");
 import { Wallet } from 'ethers';
-import { EnumStatus, Network } from '@verida/types';
+import { BlockchainAnchor, EnumStatus } from '@verida/types';
 import { DID_NODE_MAP, LOCK_LIST, REGISTERED_DATACENTRES, REGISTERED_DIDS, REGISTERED_LOCK_NODE, REMOVED_DATACENTRES, REMOVE_START_DIDS } from '@verida/vda-common-test';
 
 import { VeridaNodeClient } from '../src/index';
@@ -11,7 +11,7 @@ describe("vda-node-client", () => {
     const wallet = Wallet.createRandom();
 
     before(() => {
-        blockchainApi = new VeridaNodeClient(Network.DEVNET);
+        blockchainApi = new VeridaNodeClient(BlockchainAnchor.DEVNET);
     })
 
     describe("Contract information", () => {

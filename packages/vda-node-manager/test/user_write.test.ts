@@ -2,9 +2,9 @@ require('dotenv').config();
 import { getBlockchainAPIConfiguration, TRUSTED_SIGNER, ERC20Manager, REGISTERED_DIDS, DID_NODE_MAP, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS, FALLBACK_DIDS, REGISTERED_LOCK_NODE } from "@verida/vda-common-test"
 import { IStorageNode, VeridaNodeManager } from "../src/index"
 import { Wallet, BigNumber } from "ethers";
-import { EnumStatus, Network } from "@verida/types";
+import { BlockchainAnchor, EnumStatus } from "@verida/types";
 import { addInitialData, generateAuthSignature, compareNodeData, getFallbackNodeInfo, FallbackNodeInfoStruct, getFallbackMigrationProof } from "./helpers";
-import { getContractInfoForVeridaNetwork } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
 
 
 const assert = require('assert')
@@ -13,14 +13,14 @@ const privateKey = process.env.PRIVATE_KEY
 if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
-const network = Network.DEVNET;
+const target_chain = BlockchainAnchor.DEVNET;
 
-const nodeContractAddress = getContractInfoForVeridaNetwork("storageNodeRegistry", network).address;
+const nodeContractAddress = getContractInfoForBlockchainAnchor(target_chain, "storageNodeRegistry").address;
 
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNodeManager({
-        network,
+        blockchainAnchor: target_chain,
         did: did.address,
         signKey: did.privateKey,
         ...configuration

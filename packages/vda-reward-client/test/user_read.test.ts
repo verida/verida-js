@@ -1,8 +1,7 @@
 require('dotenv').config();
-import { DID_LIST, getBlockchainAPIConfiguration, ERC20Manager } from "@verida/vda-common-test"
-import { EnvironmentType } from "@verida/types";
+import { getBlockchainAPIConfiguration } from "@verida/vda-common-test"
+import { BlockchainAnchor } from "@verida/types";
 import { addInitialData } from "./helpers";
-import { Wallet } from 'ethers';
 import { CLAIM_TYPES } from "./const";
 import { VeridaRewardClient } from "../src/blockchain/userApi";
 
@@ -17,7 +16,7 @@ const configuration = getBlockchainAPIConfiguration(privateKey);
 
 const createRewardClientAPI = () => {
     return new VeridaRewardClient({
-        network: EnvironmentType.TESTNET,
+        blockchainAnchor: BlockchainAnchor.DEVNET,
     })
 }
 

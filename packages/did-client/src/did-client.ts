@@ -4,7 +4,7 @@ import { getResolver } from '@verida/vda-did-resolver'
 import { getWeb3ConfigDefaults, getDefaultRpcUrl } from "@verida/vda-common"
 import { VdaDid } from '@verida/vda-did'
 import { Resolver } from 'did-resolver'
-import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3ConfigurationOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
+import { Web3CallType, DIDClientConfig, VdaDidEndpointResponses, Web3ResolverConfigurationOptions, Web3SelfTransactionConfig, Web3MetaTransactionConfig, VeridaWeb3TransactionOptions, Web3SelfTransactionConfigPart, IDIDClient, VeridaDocInterface } from "@verida/types"
 
 export class DIDClient implements IDIDClient {
 
@@ -89,7 +89,7 @@ export class DIDClient implements IDIDClient {
             throw new Error('Web3 transactions must specify `web3config.rpcUrl`')
         }
 
-        const _web3Config: VeridaWeb3ConfigurationOptions = callType === 'gasless' ?
+        const _web3Config: VeridaWeb3TransactionOptions = callType === 'gasless' ?
             <Web3MetaTransactionConfig>web3Config :
             <Web3SelfTransactionConfig>{
                 ...<Web3SelfTransactionConfigPart>web3Config,

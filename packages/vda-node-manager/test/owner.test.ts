@@ -2,10 +2,10 @@ require('dotenv').config();
 import { DID_LIST, getBlockchainAPIConfiguration, ERC20Manager, TRUSTED_SIGNER, REGISTERED_DIDS } from "@verida/vda-common-test"
 import { VeridaNodeOwnerApi, VeridaNodeManager, IStorageNode } from "../src/index"
 import { BigNumber, BigNumberish, Wallet } from "ethers";
-import { Network } from "@verida/types";
 import { expect } from "chai";
-import { getContractInfoForVeridaNetwork } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
 import { addInitialData, generateAuthSignature, compareNodeData } from "./helpers";
+import { BlockchainAnchor } from "@verida/types";
 
 
 const assert = require('assert')
@@ -18,11 +18,11 @@ if (!privateKey) {
 const ownerDID = DID_LIST[0];
 const configuration = getBlockchainAPIConfiguration(privateKey);
 
-const network = Network.DEVNET;
+const target_chain = BlockchainAnchor.DEVNET;
 
 const createOwnerAPI = (did: any) => {
     return new VeridaNodeOwnerApi({
-        network,
+        blockchainAnchor: target_chain,
         did: did.address,
         signKey: did.privateKey,
         ...configuration
@@ -30,7 +30,7 @@ const createOwnerAPI = (did: any) => {
 }
 const createNodeManagerAPI = (did: any) => {
     return new VeridaNodeManager({
-        network,
+        blockchainAnchor: target_chain,
         did: did.address,
         signKey: did.privateKey,
         ...configuration
@@ -226,7 +226,7 @@ describe("Verida NodeOwnerApi Test", () => {
             const targetNode = new Wallet(REGISTERED_DIDS[0].privateKey);
 
             // `StorageNodeRegistry` contract address. Used to approve tokens
-            const contractAddress = getContractInfoForVeridaNetwork("storageNodeRegistry", network).address;
+            const contractAddress = getContractInfoForBlockchainAnchor(target_chain, "storageNodeRegistry").address;
 
             const newNode = {
                 name: 'node-' + user.address.toLowerCase(),

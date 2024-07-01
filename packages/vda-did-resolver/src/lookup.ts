@@ -1,4 +1,4 @@
-import { CONTRACT_ADDRESS, RPC_URLS, getContractInfoForBlockchain, getDefaultRpcUrl, mapDidNetworkToBlockchainAnchor } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor, getDefaultRpcUrl, mapDidNetworkToBlockchainAnchor } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
@@ -21,7 +21,7 @@ export async function lookup(didAddress: string, network: string, rpcUrl?: strin
         }
     }
 
-    const contractInfo = getContractInfoForBlockchain("VeridaDIDRegistry", blockchain);
+    const contractInfo = getContractInfoForBlockchainAnchor(blockchain, "didRegistry");
     const provider = new JsonRpcProvider(rpcUrl);
     const contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider);
     

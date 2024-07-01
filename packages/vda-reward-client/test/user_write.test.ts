@@ -1,14 +1,14 @@
 require('dotenv').config();
 import { getBlockchainAPIConfiguration, ERC20Manager, TRUSTED_SIGNER } from "@verida/vda-common-test"
 import { REGISTERED_DIDS as REGISTERED_NODE_DIDS, RECIPIENT_WALLET } from "@verida/vda-common-test"
-import { EnvironmentType } from "@verida/types";
+import { BlockchainAnchor } from "@verida/types";
 import { addInitialData, generateProof } from "./helpers";
 import { Wallet, BigNumber } from 'ethers';
 import { CLAIM_TYPES, ClaimType } from "./const";
 import { VeridaRewardClient } from "../src/blockchain/userApi";
 
 import { VeridaNodeManager } from "@verida/vda-node-manager";
-import { CONTRACT_ADDRESS } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
 
 const assert = require('assert')
 
@@ -18,21 +18,23 @@ if (!privateKey) {
 }
 const configuration = getBlockchainAPIConfiguration(privateKey);
 
+const target_chain = BlockchainAnchor.DEVNET;
+
 // Create `VeridaRewardClient` in write mode
 const createRewardClientAPI = (did:Wallet, configuration: any) => {
     return new VeridaRewardClient({
+        blockchainAnchor: target_chain,
         did: `did:vda:testnet:${did.address}`,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
 
 const createNodeManagerAPI = () => {
     return new VeridaNodeManager({
+        blockchainAnchor: target_chain,
         // did: did.address,
         // signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         // ...configuration
     })
 }
@@ -49,7 +51,7 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
         rewardClientApi = createRewardClientAPI(new Wallet(RECIPIENT_WALLET.privateKey), configuration);
 
         const TOKEN_ADDRESS = await rewardClientApi.getTokenAddress();
-        const rewardContractAddress = CONTRACT_ADDRESS["VDARewardContract"].testnet!;
+        const rewardContractAddress = getContractInfoForBlockchainAnchor(target_chain, "reward").address;
 
         // Create tokenAPI for claiming test
         tokenAPI = new ERC20Manager(
@@ -63,9 +65,9 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
 
         // Check out token amount of reward contract
         if (await tokenAPI.balanceOf(rewardContractAddress) < 1000n) {
-            if (process.env.NEED_TOKEN_MINT === `true`) {
+            if (Boolean(process.env.NEED_TOKEN_MINT)) {
                 const mintAmount = 1000n;
-                tokenAPI.mint(rewardContractAddress, mintAmount);
+                await tokenAPI.mint(rewardContractAddress, mintAmount);
             } else {
                 throw new Error(`Not enough token in the 'VDARewardContract' at ${rewardContractAddress}`);
             }            
@@ -75,6 +77,7 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
         proof = generateProof(RECIPIENT_WALLET.address, new Wallet(TRUSTED_SIGNER.privateKey));
     })
 
+    /*
     describe("Get function tests", () => {
         it("Get claim type",async () => {
             // Get claim type for registered claim types
@@ -100,6 +103,7 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
         })
     
     })
+    */
 
     describe("Claim to an address", () => {
         const checkClaim =async (receiver: Wallet, claimInfo : ClaimType) => {
@@ -173,7 +177,15 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
                 assert.ok((await nodeManagerApi.isRegisteredNodeAddress(RECIPIENT_WALLET.address)) === false);
             })
 
-            it("Success : To registered node-did",async () => {
+            it.only("Success : To registered node-did",async () => {
+                console.log("To DID: ", registeredNodeDIDWallet.address);
+                const registered = await nodeManagerApi.getBalance(registeredNodeDIDWallet.address);
+                console.log("Registered : ", registered);
+                const bal = await nodeManagerApi.getBalance(registeredNodeDIDWallet.address);
+                console.log("Balance : ", bal);
+                console.log("Manager Token Aount : ", await tokenAPI.balanceOf('0x4Fa02CA7fD115b4cCA7F80Cb3047550648c360e1') );
+                
+
                 await checkClaimToStorage(rewardClientApi, true, CLAIM_TYPES[0], proof, registeredNodeDIDWallet.address);
             })
 

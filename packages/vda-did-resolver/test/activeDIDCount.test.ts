@@ -2,9 +2,6 @@ const assert = require('assert')
 import { BlockchainAnchor } from '@verida/types';
 import { activeDIDCount } from '../src/activeDIDCount';
 
-
-const NETWORK = 'testnet'
-
 describe('activeDIDCount test', function() {
     this.timeout(20000)
     

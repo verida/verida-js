@@ -1,10 +1,12 @@
 const assert = require('assert')
 import BlockchainApi from "../src/blockchain/blockchainApi"
 import { Wallet } from "ethers";
-import { VdaDidConfigurationOptions } from '@verida/types';
+import { BlockchainAnchor, VdaDidConfigurationOptions } from '@verida/types';
 require('dotenv').config();
 
-const did = Wallet.createRandom();
+const didWallet = Wallet.createRandom();
+const testChain = BlockchainAnchor.POLAMOY;
+const did = `did:vda:${testChain}:${didWallet.address}`;
 
 const endPoints_A = ['https://A_1', 'https://A_2', 'https://A_3'];
 const endPoints_B = ['https://B_1', 'https://B_2'];
@@ -20,15 +22,15 @@ const configuration = {
     web3Options: {
         privateKey,
         eip1559Mode: 'fast',
-        eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+        eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
     }
   }
 
-const createBlockchainAPI = (did: any) => {
+const createBlockchainAPI = (did: any, blockchain: BlockchainAnchor = testChain) => {
     return new BlockchainApi(<VdaDidConfigurationOptions>{
-        identifier: did.address,
+        identifier: `did:vda:${blockchain}:${did.address}`,
         signKey: did.privateKey,
-        chainNameOrId: "testnet",
+        blockchain,
         ...configuration
     })
 }
@@ -36,7 +38,7 @@ const createBlockchainAPI = (did: any) => {
 describe('vda-did blockchain api', () => {
     let blockchainApi : BlockchainApi
     before(() => {
-        blockchainApi = createBlockchainAPI(did);
+        blockchainApi = createBlockchainAPI(didWallet, testChain);
     })
 
     describe('register', function() {
@@ -45,26 +47,26 @@ describe('vda-did blockchain api', () => {
         it.only('Register successfully', async () => {
             await blockchainApi.register(endPoints_A);
 
-            const lookupResult = await blockchainApi.lookup(did.address);
+            const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
                 lookupResult, 
-                {didController: did.address, endpoints: endPoints_A},
+                {didController: didWallet.address, endpoints: endPoints_A},
                 'Get same endpoints');
         })
 
         it('Should update for registered DID', async () => {
             await blockchainApi.register(endPoints_B);
 
-            const lookupResult = await blockchainApi.lookup(did.address);
+            const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
                 lookupResult, 
-                {didController: did.address, endpoints: endPoints_B}, 
+                {didController: didWallet.address, endpoints: endPoints_B}, 
                 'Get updated endpoints');
         })
 
         it('Should reject for revoked did', async () => {
             const tempDID = Wallet.createRandom();
-            const testAPI = createBlockchainAPI(tempDID)
+            const testAPI = createBlockchainAPI(tempDID, testChain)
 
             await testAPI.register(endPoints_Empty);
             await testAPI.revoke();
@@ -79,10 +81,10 @@ describe('vda-did blockchain api', () => {
     describe('Lookup', function() {
         this.timeout(100 * 1000)
         it('Get endpoints successfully', async () => {
-            const lookupResult = await blockchainApi.lookup(did.address);
+            const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
                 lookupResult, 
-                {didController:did.address, endpoints:endPoints_B}, 
+                {didController:didWallet.address, endpoints:endPoints_B}, 
                 'Get updated endpoints');
         })
 

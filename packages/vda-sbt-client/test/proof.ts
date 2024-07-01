@@ -1,11 +1,10 @@
-import { EnvironmentType } from "@verida/types";
+import { Network } from "@verida/types";
 import { Client, Context } from '@verida/client-ts'
 import { AutoAccount } from '@verida/account-node'
 import { Keyring } from "@verida/keyring";
 
 require('dotenv').config();
 
-const VERIDA_ENVIRONMENT = EnvironmentType.TESTNET
 // const DEFAULT_CONTEXT_NAME = 'Verida Testing : Default Context'
 const DEFAULT_ENDPOINTS = {
     "defaultDatabaseServer": {
@@ -19,7 +18,7 @@ const DEFAULT_ENDPOINTS = {
 }
 const DID_CLIENT_CONFIG = {
     callType: "web3",
-    network: EnvironmentType.TESTNET,
+    network: Network.DEVNET,
     web3Config: {
       privateKey: process.env.PRIVATE_KEY
     },
@@ -34,11 +33,11 @@ export async function getNetwork(privateKey: string, contextName: string): Promi
     keyring: Keyring
   }> {
     const network = new Client({
-        environment: VERIDA_ENVIRONMENT
+        network: Network.DEVNET
     })
     const account = new AutoAccount({
         privateKey,
-        environment: VERIDA_ENVIRONMENT,
+        network: Network.DEVNET,
         // @ts-ignore
         didClientConfig: DID_CLIENT_CONFIG
     })

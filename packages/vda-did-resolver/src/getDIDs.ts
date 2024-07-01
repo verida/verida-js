@@ -1,4 +1,4 @@
-import { RPC_URLS, getContractInfoForBlockchain, getDefaultRpcUrl } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor, getDefaultRpcUrl } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
@@ -17,7 +17,7 @@ export async function getDIDs(blockchain: BlockchainAnchor, startIndex: number=0
         throw new Error(`Unable to locate RPC_URL for network: ${blockchain.toString()}`)
     }
 
-    const contractInfo = getContractInfoForBlockchain("VeridaDIDRegistry", blockchain);
+    const contractInfo = getContractInfoForBlockchainAnchor(blockchain, "didRegistry");
 
     // Simple read-only of the blockchain
     const provider = new JsonRpcProvider(rpcUrl);

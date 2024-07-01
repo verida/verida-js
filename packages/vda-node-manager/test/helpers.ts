@@ -1,16 +1,16 @@
 import { ethers, BigNumber, Wallet, BigNumberish, BytesLike } from 'ethers';
 import { VeridaNodeOwnerApi, VeridaNodeManager } from '../src';
-import { EnumStatus, Network } from "@verida/types";
+import { BlockchainAnchor, EnumStatus } from "@verida/types";
 import { TRUSTED_SIGNER, REGISTERED_DATACENTRES, DID_NODE_MAP, REGISTERED_DIDS, REMOVED_DATACENTRES, FALLBACK_DIDS, REMOVE_START_DIDS, ERC20Manager, LOCK_LIST, REGISTERED_LOCK_NODE } from "@verida/vda-common-test"
 import EncryptionUtils from "@verida/encryption-utils";
-import { getContractInfoForVeridaNetwork } from '@verida/vda-common';
+import { getContractInfoForBlockchainAnchor } from '@verida/vda-common';
 
 const CONTRACT_DECIMAL = 9;
-const TARGET_NETWORK = Network.DEVNET;
+const TARGET_CHAIN = BlockchainAnchor.DEVNET;
 
 const createNodeManager = (did: any, configuration: any) => {
     return new VeridaNodeManager({
-        network: TARGET_NETWORK,
+        blockchainAnchor: TARGET_CHAIN,
         did: did.address,
         signKey: did.privateKey,
         ...configuration
@@ -193,7 +193,7 @@ async function CheckAndLock(configuration : Record<string, any>, registeredLockN
     await tokenAPI.mint(transactionSender.address, lockTotalAmount);
 
     // Approve token for locking
-    const nodeContractInfo = getContractInfoForVeridaNetwork("storageNodeRegistry", TARGET_NETWORK);
+    const nodeContractInfo = getContractInfoForBlockchainAnchor(TARGET_CHAIN, "storageNodeRegistry");
     await tokenAPI.approve(nodeContractInfo.address, lockTotalAmount);
 
     // Lock tokens with token transfer to the registered DID
@@ -218,9 +218,9 @@ export async function addInitialData (
     if (ownerApi === undefined) {
         const userDID = Wallet.createRandom();
         ownerApi = new VeridaNodeOwnerApi({
+            blockchainAnchor: TARGET_CHAIN,
             did: `did:vda:testnet:${userDID.address}`, // Not used during owner function call
             signKey: userDID.privateKey, // Not used during owner function call
-            network: TARGET_NETWORK,
             ...configuration
         })
     }

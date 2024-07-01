@@ -1,8 +1,8 @@
 import { Contract } from "ethers";
-import { DefaultNetworkBlockchainAnchors, getContractInfoForVeridaNetwork, getDefaultRpcUrl } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor, getDefaultRpcUrl } from "@verida/vda-common";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { BigNumberish } from "ethers";
-import { EnumStatus, Network } from "@verida/types";
+import { BlockchainAnchor, EnumStatus } from "@verida/types";
 
 export class VeridaNodeClient {
     private contract: Contract;
@@ -12,17 +12,14 @@ export class VeridaNodeClient {
      * @param network Verida Network
      * @param RPC_URL Optional parameter. RPC_URL to be used
      */
-    public constructor(network:Network, RPC_URL?: string) {
-        const blockchainAnchor = DefaultNetworkBlockchainAnchors[network];
+    public constructor(blockchainAnchor:BlockchainAnchor, RPC_URL?: string) {
         const rpcUrl = RPC_URL?? getDefaultRpcUrl(blockchainAnchor);
         if (!rpcUrl) {
-            throw new Error(`Unable to locate RPC_URL for network: ${network}`)
+            throw new Error(`Unable to locate RPC_URL for chain: ${blockchainAnchor}`)
         }
 
-        const contractInfo = getContractInfoForVeridaNetwork("storageNodeRegistry", network);
+        const contractInfo = getContractInfoForBlockchainAnchor(blockchainAnchor, "storageNodeRegistry");
         const provider = new JsonRpcProvider(rpcUrl);
-
-        console.log("Info : ", contractInfo);
 
         this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider);
     }

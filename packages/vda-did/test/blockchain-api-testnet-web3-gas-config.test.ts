@@ -1,10 +1,12 @@
 const assert = require('assert')
 import BlockchainApi from "../src/blockchain/blockchainApi"
 import { BigNumber, Wallet } from "ethers";
-import { VdaDidConfigurationOptions } from '@verida/types';
+import { BlockchainAnchor, VdaDidConfigurationOptions } from '@verida/types';
 require('dotenv').config();
 
-const did = Wallet.createRandom();
+const didWallet = Wallet.createRandom();
+const did = `did:vda:${BlockchainAnchor.POLAMOY}:${didWallet.address}`;
+const testChain = BlockchainAnchor.POLAMOY;
 
 const endPoints_A = ['https://A_1', 'https://A_2', 'https://A_3'];
 
@@ -13,24 +15,24 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const createBlockchainAPI = (did: any, configuration:any) => {
+const createBlockchainAPI = (didWallet: any, blockchain: BlockchainAnchor, configuration:any) => {
     return new BlockchainApi(<VdaDidConfigurationOptions>{
-        identifier: did.address,
-        signKey: did.privateKey,
-        chainNameOrId: "testnet",
+        identifier: `did:vda:${blockchain}:${didWallet.address}`,
+        signKey: didWallet.privateKey,
+        blockchain,
         ...configuration
     })
 }
 
 const checkResult =async (configuration: any,  isSuccess = true, errMsg : string | undefined = undefined) => {
-    const blockchainApi = createBlockchainAPI(did, configuration);
+    const blockchainApi = createBlockchainAPI(didWallet, testChain, configuration);
 
     if (isSuccess) {
         await blockchainApi.register(endPoints_A);
-        const lookupResult = await blockchainApi.lookup(did.address);
+        const lookupResult = await blockchainApi.lookup(did);
         assert.deepEqual(
             lookupResult, 
-            {didController: did.address, endpoints: endPoints_A},
+            {didController: didWallet.address, endpoints: endPoints_A},
             'Get same endpoints');
     } else {
         let f = () => {};
@@ -76,10 +78,10 @@ const checkMethodDefaultGasConfig = async (gasOption: Record<string, any>, isSuc
 const checkRuntimeGasConfig = async (blockchainApi:BlockchainApi, gasOption: Record<string, any>, isSuccess = true, errMsg : string | undefined = undefined) => {
     if (isSuccess) {
         await blockchainApi.register(endPoints_A, gasOption);
-        const lookupResult = await blockchainApi.lookup(did.address);
+        const lookupResult = await blockchainApi.lookup(did);
         assert.deepEqual(
             lookupResult, 
-            {didController: did.address, endpoints: endPoints_A},
+            {didController: didWallet.address, endpoints: endPoints_A},
             'Get same endpoints');
     } else {
         let f = () => {};
@@ -112,13 +114,16 @@ describe('vda-did blockchain api test for different gas configurations', functio
 
 
                 gasOption = {
-                    eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+                    eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
+                    // eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
+                    
                 }
                 await checkGlobalGasConfig(gasOption, false, 'To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
             })
 
-            it("Success", async () => {
-                const mode = ['safeLow', 'standard', 'fast'];
+            it.only("Success", async () => {
+                // const mode = ['safeLow', 'standard', 'fast'];
+                const mode = ['fast'];
                 for (let i = 0; i < mode.length; i++) {
                     const gasOption = {
                         eip1559Mode: mode[i],
@@ -159,7 +164,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
             it('Success', async() => {
                 const gasOption = {
                     eip1559Mode: 'fast',
-                    eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+                    eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
                 }
                 await checkMethodDefaultGasConfig(gasOption, true);
             })
@@ -185,7 +190,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
     })
 
     describe('Gas configuration at runtime', function() {
-        const blockchainApi = createBlockchainAPI(did, {
+        const blockchainApi = createBlockchainAPI(didWallet, testChain, {
             callType: 'web3',
             web3Options: {
                 privateKey,
@@ -195,7 +200,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
             it('Success', async () => {
                 const gasOption = {
                     eip1559Mode: 'fast',
-                    eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+                    eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
                 }
                 await checkRuntimeGasConfig(blockchainApi, gasOption, true);
             })

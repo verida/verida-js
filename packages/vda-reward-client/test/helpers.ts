@@ -1,6 +1,6 @@
 import { DID_LIST, TRUSTED_SIGNER } from "@verida/vda-common-test";
 import { VeridaRewardOwnerApi } from "../src/blockchain/ownerApi";
-import { EnvironmentType } from "@verida/types";
+import { BlockchainAnchor } from "@verida/types";
 import { Wallet } from 'ethers';
 import EncryptionUtils from `@verida/encryption-utils`;
 
@@ -20,8 +20,8 @@ export async function addInitialData(
         const owenrDID = DID_LIST[0];
 
         ownerApi = new VeridaRewardOwnerApi({
+            blockchainAnchor: BlockchainAnchor.DEVNET,
             did: owenrDID.address,
-            network: EnvironmentType.TESTNET,
             ...configuration
         });
     }
