@@ -77,7 +77,6 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
         proof = generateProof(RECIPIENT_WALLET.address, new Wallet(TRUSTED_SIGNER.privateKey));
     })
 
-    /*
     describe("Get function tests", () => {
         it("Get claim type",async () => {
             // Get claim type for registered claim types
@@ -103,7 +102,6 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
         })
     
     })
-    */
 
     describe("Claim to an address", () => {
         const checkClaim =async (receiver: Wallet, claimInfo : ClaimType) => {
@@ -177,15 +175,7 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
                 assert.ok((await nodeManagerApi.isRegisteredNodeAddress(RECIPIENT_WALLET.address)) === false);
             })
 
-            it.only("Success : To registered node-did",async () => {
-                console.log("To DID: ", registeredNodeDIDWallet.address);
-                const registered = await nodeManagerApi.getBalance(registeredNodeDIDWallet.address);
-                console.log("Registered : ", registered);
-                const bal = await nodeManagerApi.getBalance(registeredNodeDIDWallet.address);
-                console.log("Balance : ", bal);
-                console.log("Manager Token Aount : ", await tokenAPI.balanceOf('0x4Fa02CA7fD115b4cCA7F80Cb3047550648c360e1') );
-                
-
+            it("Success : To registered node-did",async () => {
                 await checkClaimToStorage(rewardClientApi, true, CLAIM_TYPES[0], proof, registeredNodeDIDWallet.address);
             })
 

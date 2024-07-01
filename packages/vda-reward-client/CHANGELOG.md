@@ -1,5 +1,5 @@
 
-2024-06-28 (v)
+2024-07-02 (v)
 -------------------
 
 - Add a dependency to the `@verida/vda-client-base`

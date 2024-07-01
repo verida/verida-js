@@ -161,7 +161,6 @@ export class VeridaRewardClient extends VeridaClientBase {
         }
 
         let didAddress = did!//.toLowerCase()
-        console.log("claim to storage : ",did, " : ", didAddress);
         if (didAddress.match('did')) {
             const { address } = explodeDID(did!)
             didAddress = address
