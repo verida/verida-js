@@ -1,6 +1,6 @@
 import { VdaClientConfig } from '@verida/types'
 import { ethers } from "ethers";
-import { getVeridaSignWithNonce, DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
+import { getVeridaSignWithNonce } from "@verida/vda-common";
 import { explodeDID } from '@verida/helpers'
 import { VeridaClientBase } from '@verida/vda-client-base'
 
@@ -66,8 +66,7 @@ export class VeridaNameClient extends VeridaClientBase {
             throw new Error(`Failed to register: ${response.reason}`)
         }
 
-        const blockchain = DefaultNetworkBlockchainAnchors[this.network]
-        this.usernameCache[username] = `did:vda:${blockchain}:${this.didAddress}`
+        this.usernameCache[username] = `did:vda:${this.blockchainAnchor}:${this.didAddress}`
     }
 
     /**
@@ -169,8 +168,7 @@ export class VeridaNameClient extends VeridaClientBase {
                 }
             }
 
-            const blockchain = DefaultNetworkBlockchainAnchors[this.network]
-            const did = `did:vda:${blockchain.toString()}:${response}`
+            const did = `did:vda:${this.blockchainAnchor}:${response}`
             this.usernameCache[username] = did
             return did
         } catch (err:any ) {

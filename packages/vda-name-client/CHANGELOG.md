@@ -1,4 +1,4 @@
-2024-06-28 (v)
+2024-07-01 (v)
 -------------------
 
 - Make `VeridaNameClient` extendes `VeridaClientBase`

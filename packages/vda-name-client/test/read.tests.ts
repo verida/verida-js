@@ -1,7 +1,7 @@
 require('dotenv').config();
 import { getBlockchainAPIConfiguration } from "@verida/vda-common-test";
 import { VeridaNameClient } from "../src/index"
-import { BlockchainAnchor, Network } from "@verida/types";
+import { BlockchainAnchor } from "@verida/types";
 
 const assert = require('assert')
 
@@ -22,7 +22,7 @@ const did = `did:vda:${BlockchainAnchor.POLAMOY}:0xcD3EbA1884878c8a859D0452d45a8
  */
 const createBlockchainAPI = () => {
     return new VeridaNameClient({
-        network: Network.DEVNET
+        blockchainAnchor: BlockchainAnchor.DEVNET
     })
 }
 
@@ -37,7 +37,7 @@ describe('vda-name-client read only tests', () => {
 
         const configuration = getBlockchainAPIConfiguration(privateKey);
         const blockchainApiWrite = new VeridaNameClient({
-            network: Network.DEVNET,
+            blockchainAnchor: BlockchainAnchor.DEVNET,
             did: did,
             signKey: didWallet.privateKey,
             ...configuration
