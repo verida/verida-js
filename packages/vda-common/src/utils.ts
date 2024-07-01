@@ -34,6 +34,14 @@ export function interpretIdentifier(identifier: string): {
   }
 }
 
+/**
+ * Map the network part of the DID to the BlockchanAnchor.
+ * @dev Get the `BlockchainAnchor` type from the `BlockchainAnchor` string or chain strings created in the previous version.
+ * This function is back-ward compatiblity.
+ * There are DIDs such as `did:vda:mainnet:0x....` and `did:vda:testnet:0x...` that were created in the previous version
+ * @param networkString 
+ * @returns 
+ */
 export function mapDidNetworkToBlockchainAnchor(networkString: string): BlockchainAnchor | undefined {
   let network: BlockchainAnchor | undefined
 
