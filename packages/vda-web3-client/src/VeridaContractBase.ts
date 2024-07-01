@@ -2,7 +2,7 @@
 import Axios from 'axios';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { isVeridaContract, getMaticFee } from './utils'
-import { getContractForNetwork, isVeridaWeb3GasConfiguration } from './config'
+import { getContractInstance, isVeridaWeb3GasConfiguration } from './config'
 import { Wallet, BigNumber, Contract, Signer, utils } from 'ethers';
 import { VdaTransactionResult, VeridaWeb3Config, Web3CallType, Web3GasConfiguration, Web3GaslessPostConfig, Web3GaslessRequestConfig, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from '@verida/types';
 
@@ -68,15 +68,19 @@ export class VeridaContract {
             const web3Config = <Web3SelfTransactionConfig>config;
             if (web3Config.provider || web3Config.signer?.provider || web3Config.rpcUrl) {
 
-                // console.log("VeridaContractBase : ", config.abi.abi)
+                // console.log("VeridaContractBase : ", config);
+                const provider = web3Config.provider ?? web3Config.signer?.provider;
 
-                this.contract = getContractForNetwork({
+                this.contract = getContractInstance({
+                    provider,
+                    web3: web3Config.web3,
+
+                    blockchainAnchor: web3Config.blockchainAnchor,
+                    rpcUrl: web3Config.rpcUrl,
+                    chainId: web3Config.chainId,
+
                     abi: config.abi,
                     address: config.address,
-                    provider: web3Config.provider,
-                    registry: config.address,
-                    rpcUrl: web3Config.rpcUrl,
-                    web3: web3Config.web3
                 })
             } else {
                 throw new Error('either provider or rpcUrl is required to initialize')
@@ -142,8 +146,10 @@ export class VeridaContract {
                                 }
                             }
                         } else { // Need to pull the gas configuration from the station
+                            // console.log("Getting gas config....");
                             if ('eip1559Mode' in gasConfig && 'eip1559gasStationUrl' in gasConfig) {
                                 gasConfig = await getMaticFee(gasConfig['eip1559gasStationUrl'], gasConfig['eip1559Mode']);
+                                // console.log("gas config : ", gasConfig);
                             } else {
                                 throw new Error('To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
                             }
@@ -249,6 +255,8 @@ export class VeridaContract {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
                     let transaction: any
+
+                    // console.log("params : ", params);
 
                     if (gasConfig === undefined || Object.keys(gasConfig).length === 0) { //No gas configuration
                         transaction = await contract.functions[methodName](...params);
