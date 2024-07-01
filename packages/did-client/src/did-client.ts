@@ -27,12 +27,12 @@ export class DIDClient implements IDIDClient {
     constructor(config: DIDClientConfig = {}) {
         this.config = config
 
-        if (!this.config.blockchain || !this.config.network) {
+        if (!this.config.blockchain && !this.config.network) {
             throw new Error('Blockchain or Verida network must be specified in DIDClient configuration')
         }
 
         // If no blockchain anchor specified, load default for the specified Verida Network
-        this.blockchainAnchor = this.config.blockchain ? this.config.blockchain : DefaultNetworkBlockchainAnchors[this.config.network]
+        this.blockchainAnchor = this.config.blockchain ? this.config.blockchain : DefaultNetworkBlockchainAnchors[this.config.network!]
 
         const resolverConfig: Web3ResolverConfigurationOptions = {
             timeout: config.timeout ? config.timeout : 10000
