@@ -2,6 +2,9 @@ import { IAccount } from './IAccount';
 import { IStorageEngine } from './IStorageEngine';
 import { SecureContextConfig } from './StorageLinkInterfaces';
 
+/**
+ * Kind of Verida Networks
+ */
 export enum Network {  
 	LOCAL = "local",  
 	DEVNET = "devnet",
@@ -9,31 +12,43 @@ export enum Network {
 	MYRTLE = "myrtle",  
 }
 
+/**
+ * DID anchored chain for the {@link Network}
+ */
 export enum BlockchainAnchor {
 	POLAMOY = "polamoy",
 	POLPOS = "polpos",
 	DEVNET = "polamoy"
 }
 
-export enum BlockchainNetworks {
-	// mainnet
-	//'mainnet' = "0x89",
-	'polpos' = "0x89",
-	'devnet' = "0x13882",
-	'polamoy' = '0x13882'
+export interface IContractInfo {
+	address: string
+	abi: any
 }
 
-export interface NetworkDefinition {  
+/**
+ * Interface for contract addresses of the Verida Network
+ */
+export interface INetworkContracts {
+	token: IContractInfo | null
+	didRegistry: IContractInfo | null
+	storageNodeRegistry: IContractInfo | null
+	nameRegistry: IContractInfo | null
+	didLinkage: IContractInfo | null
+	reward: IContractInfo | null
+	solboundNFT: IContractInfo | null
+}
+
+export type TContractNames = keyof INetworkContracts;
+
+/**
+ * Include Verida network information including {@link NetworkContracts}
+ */
+export interface NetworkDefinition extends INetworkContracts {
 	id: string
 	label: string
 	isMainnet: boolean
-	anchoredBlockchain: BlockchainAnchor
-	tokenAddress: string | null
-	didRegistry: string | null
-	storageNodeRegistryAddress: string | null
-	nameRegistryAddress: string | null
-	didLinkageAddress: string | null
-	vdaRewardContract: string | null;
+	anchoredBlockchain: BlockchainAnchor	
 } 
 
 export interface DefaultNetworkConfig {

@@ -1,7 +1,7 @@
 import { Signer } from '@ethersproject/abstract-signer'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Provider } from '@ethersproject/providers'
-import { BlockchainAnchor } from './NetworkInterfaces'
+import { BlockchainAnchor, Network } from './NetworkInterfaces'
 
 
 /** Web3 SDK running mode */
@@ -42,14 +42,18 @@ export interface Web3GasConfiguration {
  * provider - optional - a web3 provider. At least one of `signer`,`provider`, or `rpcUrl` is required
  * rpcUrl - optinal - a JSON-RPC URL that can be used to connect to an ethereum network. At least one of `signer`, `provider`, or `rpcUrl` is required
  * web3 - optional - Can use provider or web.currentProvider as a provider.
+ * 
  */
 export interface Web3SelfTransactionConfig extends Web3GasConfiguration {
+    blockchainAnchor?: BlockchainAnchor
     signer?: Signer
     privateKey?: string
     provider?: Provider
     rpcUrl?: string
     web3?: any
+    chainId?: string | number
 
+    /** Function list with default gas configuration  */
     methodDefaults?: Record<string, Web3GasConfiguration>
 }
 
@@ -60,7 +64,9 @@ export interface Web3MetaTransactionConfig {
     endpointUrl: string
 }
 
-export type VeridaWeb3Config = Web3ContractInfo & (Web3SelfTransactionConfig | Web3MetaTransactionConfig)
+export type VeridaWeb3TransactionOptions = Web3MetaTransactionConfig | Web3SelfTransactionConfig;
+
+export type VeridaWeb3Config = Web3ContractInfo & VeridaWeb3TransactionOptions;
 
 /** Configuration type for gasless request */
 export interface Web3GaslessRequestConfig {
@@ -79,32 +85,6 @@ export interface Web3GaslessPostConfig {
     }
     [key: string] : any
 }
-
-/**
- * A configuration entry for an ethereum network
- * It should contain at least one of `name` or `chainId` AND one of `provider`, `web3`, or `rpcUrl`
- *
- * @example ```js
- * { name: 'development', registry: '0x9af37603e98e0dc2b855be647c39abe984fc2445', rpcUrl: 'http://127.0.0.1:8545/' }
- * { name: 'goerli', chainId: 5, provider: new InfuraProvider('goerli') }
- * { name: 'rinkeby', provider: new AlchemyProvider('rinkeby') }
- * { name: 'rsk:testnet', chainId: '0x1f', rpcUrl: 'https://public-node.testnet.rsk.co' }
- * ```
- */
- export interface Web3ProviderConfiguration {
-    // name?: string
-    provider?: Provider
-    rpcUrl?: string
-    chainId?: string | number
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    web3?: any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [index: string]: any
-}
-
-export type VeridaWeb3ConfigurationOptions =
-| Web3MetaTransactionConfig
-| Web3SelfTransactionConfig;
 
 /**
  * Interface for VDA-DID instance creation.
@@ -126,7 +106,7 @@ export interface VdaDidConfigurationOptions {
     blockchain: BlockchainAnchor
 
     callType: Web3CallType;
-    web3Options: VeridaWeb3ConfigurationOptions;
+    web3Options: VeridaWeb3TransactionOptions;
 }
 
 export interface VdaDidEndpointResponse {
