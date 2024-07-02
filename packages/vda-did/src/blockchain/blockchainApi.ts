@@ -153,6 +153,12 @@ export default class BlockchainApi {
         const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase();
 
         const signature = await this.getControllerSignature(controllerAddress);
+
+        if (this.didAddress == controllerAddress) {
+            // Controller hasn't changed, so don't update on chain
+            return
+        }
+
         let response: any;
         if (gasConfig !== undefined) {
             response = await this.vdaWeb3Client.setController(this.didAddress, controllerAddress, signature, gasConfig);
