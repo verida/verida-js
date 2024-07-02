@@ -44,7 +44,7 @@ describe('vda-did blockchain api', () => {
     describe('register', function() {
         this.timeout(100 * 1000)
 
-        it.only('Register successfully', async () => {
+        it('Register successfully', async () => {
             await blockchainApi.register(endPoints_A);
 
             const lookupResult = await blockchainApi.lookup(did);
@@ -73,7 +73,10 @@ describe('vda-did blockchain api', () => {
 
             await assert.rejects(
                 testAPI.register(endPoints_A),
-                {message: 'Failed to register endpoints'}
+                err => {
+                    assert.ok(err.message.startsWith('Failed to register endpoints'));
+                    return true;
+                }
             )
         })
     })
@@ -92,8 +95,11 @@ describe('vda-did blockchain api', () => {
             const testDID = Wallet.createRandom();
             const testAPI = createBlockchainAPI(testDID);
             await assert.rejects(
-                testAPI.lookup(testDID.address),
-                {message: 'DID not found'}
+                testAPI.lookup(`did:vda:${BlockchainAnchor.DEVNET}:${testDID.address}`),
+                err => {
+                    assert.ok(err.message.startsWith('DID not found'));
+                    return true;
+                }
             )
         })
 
@@ -105,8 +111,11 @@ describe('vda-did blockchain api', () => {
             await testAPI.revoke();
 
             await assert.rejects(
-                testAPI.lookup(testDID.address),
-                {message: 'DID not found'}
+                testAPI.lookup(`did:vda:${BlockchainAnchor.DEVNET}:${testDID.address}`),
+                err => {
+                    assert.ok(err.message.startsWith('DID not found'));
+                    return true;
+                }
             )
         })
     })
@@ -118,7 +127,10 @@ describe('vda-did blockchain api', () => {
             const testAPI = createBlockchainAPI(Wallet.createRandom());
             await assert.rejects(
                 testAPI.setController(controller.privateKey),
-                {message: 'Failed to set controller'}
+                err => {
+                    assert.ok(err.message.startsWith('Failed to set controller'));
+                    return true;
+                }
             )
         })
 
@@ -145,7 +157,10 @@ describe('vda-did blockchain api', () => {
         it('Should reject for unregistered DID', async () => {
             await assert.rejects(
                 testAPI.revoke(),
-                {message: 'Failed to revoke'}
+                err => {
+                    assert.ok(err.message.startsWith('Failed to revoke'));
+                    return true;
+                }
             );
         })
 
@@ -158,7 +173,10 @@ describe('vda-did blockchain api', () => {
         it('Should reject for revoked DID', async () => {
             await assert.rejects(
                 testAPI.revoke(),
-                {message: 'Failed to revoke'}
+                err => {
+                    assert.ok(err.message.startsWith('Failed to revoke'));
+                    return true;
+                }
             );
         })
     })

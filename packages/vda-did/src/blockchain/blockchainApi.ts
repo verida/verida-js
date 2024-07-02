@@ -36,7 +36,7 @@ export default class BlockchainApi {
         }
 
         const { address } = interpretIdentifier(options.identifier)
-        
+
         this.didAddress = address.toLowerCase();
         // @ts-ignore
         this.blockchain = options.blockchain
@@ -51,12 +51,11 @@ export default class BlockchainApi {
             (<Web3SelfTransactionConfig>options.web3Options).rpcUrl = defaultRPCUrl;
         }
 
-        console.log("vda-did : Contract info :", contractInfo);
-
         this.vdaWeb3Client = getVeridaContract(
             options.callType, 
             {...contractInfo,
-            ...options.web3Options});
+            ...options.web3Options,
+            blockchainAnchor: this.blockchain});
     }
 
     /**

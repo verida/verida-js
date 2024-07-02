@@ -1,4 +1,10 @@
-2023-12-26 (v.3.0.0)
+2024-07-03 (v)
+-------------------
+
+- Minor updates for changes in `vda-web3-client`
+- Test code updated
+
+2023-12-26 (v3.0.0)
 -------------------
 
 - Mainnet release

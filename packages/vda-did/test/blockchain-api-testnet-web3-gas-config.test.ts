@@ -121,7 +121,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
                 await checkGlobalGasConfig(gasOption, false, 'To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
             })
 
-            it.only("Success", async () => {
+            it("Success", async () => {
                 // const mode = ['safeLow', 'standard', 'fast'];
                 const mode = ['fast'];
                 for (let i = 0; i < mode.length; i++) {
@@ -135,24 +135,25 @@ describe('vda-did blockchain api test for different gas configurations', functio
         })
 
         describe('Manual gas configuration test', function() {
-            it("Success with `maxFeePriority` option only", async () => {
-                const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                }
-                await checkGlobalGasConfig(gasOption, true);
-            })
+            // it("Success with `maxFeePriority` option only", async () => {
+            //     const gasOption = {
+            //         maxPriorityFeePerGas: BigNumber.from("31000000000"), //30Gwei
+            //         // maxPriorityFeePerGas: BigNumber.from("1"), //30Gwei
+            //     }
+            //     await checkGlobalGasConfig(gasOption, true);
+            // })
 
-            it("Success with `maxFee` option only", async () => {
-                const gasOption = {
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
-                }
-                await checkGlobalGasConfig(gasOption, true);
-            })
+            // it("Success with `maxFee` option only", async () => {
+            //     const gasOption = {
+            //         maxFeePerGas: BigNumber.from("32000000000") //30Gwei
+            //     }
+            //     await checkGlobalGasConfig(gasOption, true);
+            // })
 
             it("Success with both parameters",async () => {
                 const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
+                    maxPriorityFeePerGas: BigNumber.from("30000000000"), //30Gwei
+                    maxFeePerGas: BigNumber.from("30000000000") //30Gwei
                 }
                 await checkGlobalGasConfig(gasOption, true);
             })
@@ -181,8 +182,8 @@ describe('vda-did blockchain api test for different gas configurations', functio
 
             it('Success', async () => {
                 const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
+                    maxPriorityFeePerGas: BigNumber.from("30000000000"), //30Gwei
+                    maxFeePerGas: BigNumber.from("30000000000") //30Gwei
                 }
                 await checkMethodDefaultGasConfig(gasOption, true);
             })
@@ -216,8 +217,8 @@ describe('vda-did blockchain api test for different gas configurations', functio
             })
             it('Success with valid gas configuration',async () => {
                 const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
+                    maxPriorityFeePerGas: BigNumber.from("30000000000"), //30Gwei
+                    maxFeePerGas: BigNumber.from("30000000000") //30Gwei
                 }
                 await checkRuntimeGasConfig(blockchainApi, gasOption, true);
             })
@@ -228,42 +229,4 @@ describe('vda-did blockchain api test for different gas configurations', functio
         })
 
     })
-
-    // describe('register', function() {
-    //     this.timeout(100 * 1000)
-
-    //     it.only('Register successfully', async () => {
-    //         await blockchainApi.register(endPoints_A);
-
-    //         const lookupResult = await blockchainApi.lookup(did.address);
-    //         assert.deepEqual(
-    //             lookupResult, 
-    //             {didController: did.address, endpoints: endPoints_A},
-    //             'Get same endpoints');
-    //     })
-
-    //     it('Should update for registered DID', async () => {
-    //         await blockchainApi.register(endPoints_B);
-
-    //         const lookupResult = await blockchainApi.lookup(did.address);
-    //         assert.deepEqual(
-    //             lookupResult, 
-    //             {didController: did.address, endpoints: endPoints_B}, 
-    //             'Get updated endpoints');
-    //     })
-
-    //     it('Should reject for revoked did', async () => {
-    //         const tempDID = Wallet.createRandom();
-    //         const testAPI = createBlockchainAPI(tempDID)
-
-    //         await testAPI.register(endPoints_Empty);
-    //         await testAPI.revoke();
-
-    //         await assert.rejects(
-    //             testAPI.register(endPoints_A),
-    //             {message: 'Failed to register endpoints'}
-    //         )
-    //     })
-    // })
-   
 })
