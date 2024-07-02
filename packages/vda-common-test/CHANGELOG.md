@@ -1,3 +1,8 @@
+2024-07-03 (v)
+-------------------
+- Updated DID constants following the DID format changed in `vda-common`
+
+
 2024-03-15 (v3.0.1)
 -------------------
 - Added variables for locking test in the `StorageNodeRegistry` contract
