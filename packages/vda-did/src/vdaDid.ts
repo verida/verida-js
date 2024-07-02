@@ -141,10 +141,13 @@ export default class VdaDid {
             }
 
             // Ensure new controller in the DID Document matches the private key
-            const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey)
-            if ((<string> didDocument.export().controller!).toLowerCase() !== `did:vda:${this.options.blockchain.toString()}:${controllerAddress}`) {
-                //console.log((<string> didDocument.export().controller!).toLowerCase(), `did:vda:${this.options.chainNameOrId}:${controllerAddress}`)
-                throw new Error(`Unable to update DID Document. Changing controller, but private key doens't match controller in DID Document`)
+            const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase()
+
+            const pattern = /0x[a-fA-F0-9]{40}/
+            const match = (<string> didDocument.export().controller!).toLowerCase().match(pattern)
+
+            if (!match || !match.length || controllerAddress != match[0]) {
+                throw new Error(`Unable to update DID Document. Changing controller, but private key doesn't match controller in DID Document`)
             }
 
             updateController = true
