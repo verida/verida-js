@@ -1,3 +1,8 @@
+2024-07-03 (v)
+-------------------
+- Update Verida network & contract management
+
+
 2024-03-22 (v3.0.2)
 -------------------
 
