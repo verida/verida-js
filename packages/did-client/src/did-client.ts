@@ -199,7 +199,7 @@ export class DIDClient implements IDIDClient {
             })
 
             try {
-                endpointResponse = await this.vdaDid!.update(document)
+                endpointResponse = await this.vdaDid!.update(document, this.veridaWallet!.privateKey)
             } catch (err: any) {
                 if (err.message == 'Unable to update DID: All endpoints failed to accept the DID Document') {
                     this.endpointErrors = this.vdaDid!.getLastEndpointErrors()
