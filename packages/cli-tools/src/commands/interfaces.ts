@@ -13,3 +13,8 @@ export interface SendInboxMessageOptions {
 export interface GetDIDDocumentOptions {
     did: string
 }
+
+export interface GetAccountInfoOptions {
+    network: string
+    privateKey: string
+}
