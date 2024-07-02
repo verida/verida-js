@@ -9,7 +9,7 @@ export class VeridaNameClient extends VeridaClientBase {
     protected usernameCache: Record<string, string> = {}
 
     public constructor(config: VdaClientConfig) {
-        super(config, "NameRegistry");
+        super(config, "nameRegistry");
     }
 
     /**
