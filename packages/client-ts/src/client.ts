@@ -11,7 +11,7 @@ import { ServiceEndpoint } from "did-resolver";
 import { DIDDocument } from "@verida/did-document";
 import { ProfileDocument } from "@verida/types";
 import axios from "axios";
-import { DefaultNetworkBlockchainAnchors, mapDidNetworkToBlockchainAnchor } from "@verida/vda-common";
+import { DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
 const _ = require("lodash");
 
 /**
@@ -71,7 +71,7 @@ class Client implements IClient {
     });
 
     const rpcUrl = this.didClient.getRpcUrl()
-    const blockchainAnchor = mapDidNetworkToBlockchainAnchor(this.network)!;
+    const blockchainAnchor = DefaultNetworkBlockchainAnchors[this.network];
     this.nameClient = new VeridaNameClient({
       blockchainAnchor,
       web3Options: {
