@@ -350,6 +350,85 @@ export default class DIDDocument implements IDIDDocument {
         }
     }
 
+    /**
+     * Update the DID for this DID Document.
+     * 
+     * This is used to migrate `did:vda:mainnet:0x...` to `did:vda:myrtle:0x...`
+     * 
+     * @param did 
+     */
+    public updateDid(did: string) {
+        const oldAddress = this.doc.id.replace(/did\:vda\:/,'')
+        const newAddress = did.replace(/did\:vda\:/,'')
+
+        this.doc.id = this.doc.id.replace(oldAddress, newAddress)
+
+        const migrateContexts = ['Verida: Vault', 'Verida Missions', 'Verida: Proof Connector', 'Verida: One', 'Verida Tutorial', 'Verida: Markdown Notes Demo']
+        const hashLookup: Record<string, string> = migrateContexts.reduce((acc: Record<string, string>, item) => {
+            const oldHash = DIDDocument.generateContextHash(`did:vda:${oldAddress}`, item)
+            const newHash = DIDDocument.generateContextHash(`did:vda:${newAddress}`, item)
+
+            acc[oldHash] = newHash
+            return acc
+        }, {})
+
+        if (this.doc.controller && typeof(this.doc.controller) == 'string') {
+            this.doc.controller = this.doc.controller.replace(oldAddress, newAddress)
+        }
+
+        for (let a in this.doc.assertionMethod) {
+            this.doc.assertionMethod[parseInt(a)] = (<string> this.doc.assertionMethod[parseInt(a)]).replace(oldAddress, newAddress)
+
+            // Update known context hashes
+            for (let oldHash in hashLookup) {
+                if (this.doc.assertionMethod[parseInt(a)]) {
+                    this.doc.assertionMethod[parseInt(a)] = (<string> this.doc.assertionMethod[parseInt(a)]).replace(oldHash, hashLookup[oldHash])
+                }
+            }
+        }
+
+        for (let a in this.doc.authentication) {
+            this.doc.authentication[parseInt(a)] = (<string> this.doc.authentication[parseInt(a)]).replace(oldAddress, newAddress)
+        }
+
+        for (let k in this.doc.keyAgreement) {
+            this.doc.keyAgreement[parseInt(k)] = (<string> this.doc.keyAgreement[parseInt(k)]).replace(oldAddress, newAddress)
+            
+            // Update known context hashes
+            for (let oldHash in hashLookup) {
+                if (this.doc.keyAgreement[parseInt(k)]) {
+                    this.doc.keyAgreement[parseInt(k)] = (<string> this.doc.keyAgreement[parseInt(k)]).replace(oldHash, hashLookup[oldHash])
+                }
+            }
+        }
+
+        for (let s in this.doc.service) {
+            this.doc.service[parseInt(s)].id = this.doc.service[parseInt(s)].id.replace(oldAddress, newAddress)
+
+            // Update known context hashes
+            for (let oldHash in hashLookup) {
+                if (this.doc.service[parseInt(s)]) {
+                    this.doc.service[parseInt(s)].id = this.doc.service[parseInt(s)].id.replace(oldHash, hashLookup[oldHash])
+                }
+            }
+        }
+
+        for (let v in this.doc.verificationMethod) {
+            this.doc.verificationMethod[parseInt(v)].id = this.doc.verificationMethod[parseInt(v)].id.replace(oldAddress, newAddress)
+            this.doc.verificationMethod[parseInt(v)].controller = this.doc.verificationMethod[parseInt(v)].controller.replace(oldAddress, newAddress)
+
+            // Update known context hashes
+            for (let oldHash in hashLookup) {
+                if (this.doc.verificationMethod[parseInt(v)]) {
+                    this.doc.verificationMethod[parseInt(v)].id = this.doc.verificationMethod[parseInt(v)].id.replace(oldHash, hashLookup[oldHash])
+                }
+            }
+        }
+
+        // Delete the proof as it is no longer valud
+        delete this.doc['proof']
+    }
+
     public verifyProof() {
         if (!this.doc.proof) {
             return false
