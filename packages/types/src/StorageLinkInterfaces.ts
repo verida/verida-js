@@ -21,4 +21,5 @@ export interface SecureContextConfig {
     id: string,
     publicKeys: SecureStorageContextPublicKeys,
     services: SecureContextServices
+    isLegacyDid: boolean
 }

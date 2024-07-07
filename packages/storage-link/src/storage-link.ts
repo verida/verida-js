@@ -17,7 +17,8 @@ export default class StorageLink {
 
         try {
             const didDocument = await didClient.get(did)
-            return StorageLink.buildSecureContexts(didDocument, network)
+            const isLegacyDid = (didDocument.export().id != did)
+            return StorageLink.buildSecureContexts(didDocument, network, isLegacyDid)
         } catch (err) {
             // DID not found
             return []
@@ -32,14 +33,18 @@ export default class StorageLink {
      * @returns SecureStorageContextConfig | undefined (if not found)
      */
     static async getLink(network: Network, didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
+        const secureContexts =  await StorageLink.getLinks(network, didClient, did)
+
         let contextHash = context
         if (contextIsName) {
+            if (secureContexts.length && secureContexts[0].isLegacyDid) {
+                did = did.replace('polpos', 'mainnet')
+            }
+
             contextHash = VeridaDIDDocument.generateContextHash(did, context)
         }
 
-        const secureContexts =  await StorageLink.getLinks(network, didClient, did)
         const secureContext = StorageLink._findHash(secureContexts, contextHash)
-
         return secureContext
     }
 
@@ -49,7 +54,7 @@ export default class StorageLink {
      * @param storageConfig (Must have .id as the contextName)
      */
     static async setLink(network: Network, didClient: DIDClient, storageConfig: SecureContextConfig, keyring: IKeyring, privateKey: string) {
-        const did = didClient.getDid()
+        let did = didClient.getDid()
 
         if (!did) {
             throw new Error("DID client is not authenticated")
@@ -67,6 +72,11 @@ export default class StorageLink {
         } catch (err) {
             // DID document not found
             didDocument = new VeridaDIDDocument(did, didClient.getPublicKey())
+        }
+
+        const isLegacyDid = (didDocument.export().id != did)
+        if (isLegacyDid) {
+            did.replace('polpos', 'mainnet')
         }
 
         const endpoints: SecureContextEndpoints = {
@@ -140,10 +150,12 @@ export default class StorageLink {
         }
     }
 
-    static buildSecureContexts(didDocument: VeridaDIDDocument, network?: Network): SecureContextConfig[] {
+    static buildSecureContexts(didDocument: VeridaDIDDocument, network?: Network, isLegacyDid?: boolean): SecureContextConfig[] {
         const doc: DocInterface = didDocument.export()
         const did = doc.id
         const networkString = network ? `network=${network.toString()}&` : ''
+
+        let returnLegacyContexts = false
 
         // strategy: loop through all signing keys as our way of looping through all contexts
         const contexts: SecureContextConfig[] = []
@@ -158,12 +170,6 @@ export default class StorageLink {
             // Get signing key
             const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=sign`)
             if (!signKeyVerificationMethod) {
-                if (networkString && network == Network.MYRTLE) {
-                    // Old Myrtle DID's don't specify the network, so if we have Myrtle
-                    // network, attempt to find context config that has no network specified
-                    return StorageLink.buildSecureContexts(didDocument)
-                }
-
                 return
             }
 
@@ -210,7 +216,8 @@ export default class StorageLink {
                         type: messageService!.type,
                         endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> messageService!.serviceEndpoint)
                     }
-                }
+                },
+                isLegacyDid: isLegacyDid ? true : false
             }
 
             if (storageService) {
@@ -230,6 +237,13 @@ export default class StorageLink {
 
             contexts.push(config)
         })
+
+        if (networkString && network == Network.MYRTLE) {
+            // Old Myrtle DID's don't specify the network, so if we have Myrtle
+            // network, attempt to find context config that has no network specified
+            const legacyContexts = StorageLink.buildSecureContexts(didDocument, undefined, isLegacyDid)
+            contexts.push(...legacyContexts)
+        }
 
         return contexts
     }

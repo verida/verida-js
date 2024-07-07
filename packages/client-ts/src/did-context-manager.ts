@@ -123,9 +123,19 @@ class DIDContextManager {
             contextName,
             forceCreate!
           );
+
+          // If we have a legacy DID then we need to update the context hash
+          // to use `did:vda:mainnet`
+          if (storageConfig?.isLegacyDid) {
+            did = await this.account.did()
+
+            if (contextName.substring(0, 2) != '0x') {
+              contextHash = DIDDocument.generateContextHash(did, contextName);
+            }
+          }
           //console.log(`getDIDContextConfig(${did}, ${contextName}): ${(new Date()).getTime()-now}`)
-        } catch (err) {
-          console.log(err)
+        } catch (err: any) {
+          throw new Error(`Unable to locate requested storage context (${contextName}) for this DID (${did}): ${err.message}`)
           // account may not support context
           // @todo: create error instance for this specific type of error
         }

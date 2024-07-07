@@ -18,6 +18,7 @@ export default class AutoAccount extends Account {
     private didClient: DIDClient
 
     private wallet: Wallet
+    private _did: string
     protected accountConfig?: AccountConfig
     protected autoConfig: AccountNodeConfig
     protected contextAuths: Record<string, Record<string, VeridaDatabaseAuthType>> = {}
@@ -30,6 +31,7 @@ export default class AutoAccount extends Account {
 
         const blockchain = DefaultNetworkBlockchainAnchors[autoConfig.network]
         this.wallet = new Wallet(autoConfig.privateKey, blockchain.toString())
+        this._did = this.wallet.did
 
         this.didClient = new DIDClient({
             ...autoConfig.didClientConfig,
@@ -67,7 +69,7 @@ export default class AutoAccount extends Account {
     }
 
     public async did(): Promise<string> {
-        return this.wallet.did
+        return this._did
     }
 
     public async loadDefaultStorageNodes(countryCode?: string, numNodes: number = 3, config: NodeSelectorParams = {}): Promise<void> {
@@ -108,8 +110,13 @@ export default class AutoAccount extends Account {
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
         await this.ensureAuthenticated()
 
-        const did = await this.did()
+        let did = await this.did()
         let storageConfig = await StorageLink.getLink(this.autoConfig.network, this.didClient, did, contextName, true)
+
+        if (storageConfig && storageConfig.isLegacyDid) {
+            this._did = this._did.replace('polpos', 'mainnet')
+            did = this._did
+        }
         
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {

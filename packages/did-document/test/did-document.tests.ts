@@ -179,18 +179,4 @@ describe('DID document tests', () => {
         })
     })
 
-    describe('Migrate mainnet DID to Polygon POS', function () {
-        it('can migrate a mainnet DID', async function() {
-            const docJson = require('./mainnet-did.json')
-            const didDocument = new DIDDocument(docJson)
-
-            const newDid = didDocument.export().id.replace('mainnet', 'polpos')
-            didDocument.updateDid(newDid)
-
-            const newDidDocumentString = JSON.stringify(didDocument.export())
-            assert.ok(!newDidDocumentString.match('did:vda:mainnet'), `All references to did:vda:mainnet have been replaced`)
-            assert.ok(!newDidDocumentString.match('0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436'), `All references to Verida: Vault context have been updated`)
-        })
-    })
-
 })

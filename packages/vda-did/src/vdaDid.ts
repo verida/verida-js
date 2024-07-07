@@ -131,22 +131,22 @@ export default class VdaDid {
         const didInfo = interpretIdentifier(didDocument.id)
 
         let updateController = false
-        const currentController = `did:vda:${didInfo.network}:${response.didController}`.toLowerCase()
+
+        const pattern = /0x[a-fA-F0-9]{40}/
+        const currentController = response.didController.toLowerCase()
+        const match = (<string> didDocument.export().controller!).toLowerCase().match(pattern)
+        const didDocumentController = match![0].toLowerCase()
 
         // @ts-ignore
-        if (currentController != didDocument.export().controller) {
+        if (currentController !== didDocumentController) {
             // Controller has changed, ensure we have a private key
             if (!controllerPrivateKey) {
                 throw new Error(`Unable to update DID Document. Changing controller, but "controllerPrivateKey" not specified.`)
             }
 
             // Ensure new controller in the DID Document matches the private key
-            const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase()
-
-            const pattern = /0x[a-fA-F0-9]{40}/
-            const match = (<string> didDocument.export().controller!).toLowerCase().match(pattern)
-
-            if (!match || !match.length || controllerAddress != match[0]) {
+            const privateKeyAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase()
+            if (privateKeyAddress !== didDocumentController) {
                 throw new Error(`Unable to update DID Document. Changing controller, but private key doesn't match controller in DID Document`)
             }
 
