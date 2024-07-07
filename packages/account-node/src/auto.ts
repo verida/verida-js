@@ -140,11 +140,19 @@ export default class AutoAccount extends Account {
             storageConfig = await DIDStorageConfig.generate(this, contextName, endpoints)
             
             // Need to determine if this is a legacy DID
-            const didDocument = await this.didClient.get(did)
-            storageConfig.isLegacyDid = didDocument.id.match('mainnet') ? true : false
+            try {
+                const didDocument = await this.didClient.get(did)
+                storageConfig.isLegacyDid = didDocument.id.match('mainnet') ? true : false
 
-            if (storageConfig.isLegacyDid) {
-                this._did = this._did.replace('polpos', 'mainnet')
+                if (storageConfig.isLegacyDid) {
+                    this._did = this._did.replace('polpos', 'mainnet')
+                }
+            }  catch (err: any) {
+                // DID may not exist, which means it's not a legacy DID, so no action required
+                if (!err.message.match('notFound')) {
+                    // Unknown error, so rethrow
+                    throw err
+                }
             }
 
             await this.linkStorage(storageConfig)
