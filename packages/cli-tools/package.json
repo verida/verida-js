@@ -28,7 +28,8 @@
     "@verida/vda-name-client": "^4.0.0-alpha-1",
     "command-line-interface": "^5.0.0",
     "did-resolver": "^4.1.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.1"
   },
   "devDependencies": {
     "@types/crypto-pouch": "^4.0.1",

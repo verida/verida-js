@@ -1,10 +1,10 @@
 import { Command } from 'command-line-interface';
 import { GetAccountInfoOptions } from './interfaces';
-import { Client } from '@verida/client-ts';
 import { AutoAccount } from '@verida/account-node';
 import { Network } from '@verida/types';
 import { Wallet } from '@verida/did-client';
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common';
+import { NETWORK_STRINGS } from '../constants';
 require('dotenv').config()
 
 export const GetAccountInfo: Command<GetAccountInfoOptions> = {
@@ -25,8 +25,7 @@ export const GetAccountInfo: Command<GetAccountInfoOptions> = {
         alias: 'n',
         defaultValue: 'myrtle',
         validate(val: string) {
-          const valid = ['banksia', 'myrtle', 'devnet']
-          if (valid.indexOf(val) === -1) {
+          if (NETWORK_STRINGS.indexOf(val) === -1) {
             return false
           }
         }

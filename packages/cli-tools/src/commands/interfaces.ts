@@ -18,3 +18,8 @@ export interface GetAccountInfoOptions {
     network: string
     privateKey: string
 }
+
+export interface CreateAccountOptions {
+    network: string
+    saveDID: boolean
+}

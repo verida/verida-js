@@ -3,6 +3,7 @@ import { SendInboxMessageOptions } from './interfaces';
 import { Client } from '@verida/client-ts';
 import { AutoAccount } from '@verida/account-node';
 import { Network } from '@verida/types';
+import { NETWORK_STRINGS } from '../constants';
 require('dotenv').config()
 
 export const SendInboxMessage: Command<SendInboxMessageOptions> = {
@@ -57,8 +58,7 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
         alias: 'n',
         defaultValue: 'myrtle',
         validate(val: string) {
-          const valid = ['banksia', 'myrtle', 'devnet']
-          if (valid.indexOf(val) === -1) {
+          if (NETWORK_STRINGS.indexOf(val) === -1) {
             return false
           }
         }

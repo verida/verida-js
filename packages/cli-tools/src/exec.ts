@@ -2,6 +2,7 @@ import { runCli } from 'command-line-interface'
 import { SendInboxMessage } from './commands/send-inbox-message'
 import { GetDIDDocument } from './commands/get-did-document'
 import { GetAccountInfo } from './commands/get-account-info'
+import { CreateAccount } from './commands/create-account'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async (): Promise<void> => {
@@ -21,6 +22,7 @@ import { GetAccountInfo } from './commands/get-account-info'
           GetDIDDocument,
           SendInboxMessage,
           GetAccountInfo,
+          CreateAccount
         },
         handlers: {
           // @ts-ignore
