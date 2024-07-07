@@ -138,6 +138,15 @@ export default class AutoAccount extends Account {
             }
 
             storageConfig = await DIDStorageConfig.generate(this, contextName, endpoints)
+            
+            // Need to determine if this is a legacy DID
+            const didDocument = await this.didClient.get(did)
+            storageConfig.isLegacyDid = didDocument.id.match('mainnet') ? true : false
+
+            if (storageConfig.isLegacyDid) {
+                this._did = this._did.replace('polpos', 'mainnet')
+            }
+
             await this.linkStorage(storageConfig)
         }
 
