@@ -17,7 +17,7 @@ const configuration = getBlockchainAPIConfiguration(privateKey);
 
 const createBlockchainAPI = () => {
     return new VeridaNodeManager({
-        blockchainAnchor: BlockchainAnchor.DEVNET
+        blockchainAnchor: BlockchainAnchor.POLAMOY
     })
 }
 
