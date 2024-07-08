@@ -28,7 +28,8 @@
     "@verida/encryption-utils": "^4.0.0-alpha-1",
     "@verida/helpers": "^4.0.0-alpha-1",
     "@verida/types": "^4.0.0-alpha-1",
-    "@verida/web3": "^4.0.0-alpha-1"
+    "@verida/web3": "^4.0.0-alpha-1",
+    "@verida/vda-client-base": "4.0.0-alpha-1"
   },
   "devDependencies": {
     "@verida/vda-common-test": "^4.0.0-alpha-1",

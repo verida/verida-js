@@ -33,6 +33,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@verida/vda-client-base": "4.0.0-alpha-1",
     "@verida/helpers": "^4.0.0-alpha-1",
     "@verida/types": "^4.0.0-alpha-1",
     "@verida/web3": "^4.0.0-alpha-1",
