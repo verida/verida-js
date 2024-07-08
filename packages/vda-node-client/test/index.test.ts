@@ -6,9 +6,11 @@ import { DID_NODE_MAP, LOCK_LIST, REGISTERED_DATACENTRES, REGISTERED_DIDS, REGIS
 import { VeridaNodeClient } from '../src/index';
 import { BigNumber } from 'ethers';
 
-describe("vda-node-client", () => {
+describe("vda-node-client", function() {
     let blockchainApi: VeridaNodeClient;
     const wallet = Wallet.createRandom();
+
+    this.timeout(100*1000)
 
     before(() => {
         blockchainApi = new VeridaNodeClient(BlockchainAnchor.POLAMOY);
