@@ -11,7 +11,7 @@ describe("vda-node-client", () => {
     const wallet = Wallet.createRandom();
 
     before(() => {
-        blockchainApi = new VeridaNodeClient(BlockchainAnchor.DEVNET);
+        blockchainApi = new VeridaNodeClient(BlockchainAnchor.POLAMOY);
     })
 
     describe("Contract information", () => {
