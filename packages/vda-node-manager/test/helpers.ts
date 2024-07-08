@@ -6,7 +6,7 @@ import EncryptionUtils from "@verida/encryption-utils";
 import { getContractInfoForBlockchainAnchor } from '@verida/vda-common';
 
 const CONTRACT_DECIMAL = 9;
-const TARGET_CHAIN = BlockchainAnchor.DEVNET;
+const TARGET_CHAIN = BlockchainAnchor.POLAMOY;
 
 const createNodeManager = (did: any, configuration: any) => {
     return new VeridaNodeManager({

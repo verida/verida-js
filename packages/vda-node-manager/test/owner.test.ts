@@ -18,7 +18,7 @@ if (!privateKey) {
 const ownerDID = DID_LIST[0];
 const configuration = getBlockchainAPIConfiguration(privateKey);
 
-const target_chain = BlockchainAnchor.DEVNET;
+const target_chain = BlockchainAnchor.POLAMOY;
 
 const createOwnerAPI = (did: any) => {
     return new VeridaNodeOwnerApi({

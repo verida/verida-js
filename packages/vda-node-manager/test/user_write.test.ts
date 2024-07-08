@@ -13,7 +13,7 @@ const privateKey = process.env.PRIVATE_KEY
 if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
-const target_chain = BlockchainAnchor.DEVNET;
+const target_chain = BlockchainAnchor.POLAMOY;
 
 const nodeContractAddress = getContractInfoForBlockchainAnchor(target_chain, "storageNodeRegistry").address;
 
