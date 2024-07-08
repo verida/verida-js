@@ -26,7 +26,7 @@ if (!privateKey) {
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNameClient({
-        blockchainAnchor: BlockchainAnchor.DEVNET,
+        blockchainAnchor: BlockchainAnchor.POLAMOY,
         did: did.address,
         signKey: did.privateKey,
         ...configuration

@@ -22,7 +22,7 @@ const did = `did:vda:${BlockchainAnchor.POLAMOY}:0xcD3EbA1884878c8a859D0452d45a8
  */
 const createBlockchainAPI = () => {
     return new VeridaNameClient({
-        blockchainAnchor: BlockchainAnchor.DEVNET
+        blockchainAnchor: BlockchainAnchor.POLAMOY
     })
 }
 
@@ -37,7 +37,7 @@ describe('vda-name-client read only tests', () => {
 
         const configuration = getBlockchainAPIConfiguration(privateKey);
         const blockchainApiWrite = new VeridaNameClient({
-            blockchainAnchor: BlockchainAnchor.DEVNET,
+            blockchainAnchor: BlockchainAnchor.POLAMOY,
             did: did,
             signKey: didWallet.privateKey,
             ...configuration
