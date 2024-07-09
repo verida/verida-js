@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did-resolver",
-  "version": "4.0.0-alpha-2",
+  "version": "4.0.0-alpha-3",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -22,7 +22,7 @@
     "@verida/encryption-utils": "^4.0.0-alpha-2",
     "@verida/types": "^4.0.0-alpha-2",
     "@verida/vda-common": "^4.0.0-alpha-2",
-    "@verida/vda-did": "^4.0.0-alpha-2",
+    "@verida/vda-did": "^4.0.0-alpha-3",
     "axios": "1.2.0-alpha.1",
     "lodash": "^4.17.21"
   },
