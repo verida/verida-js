@@ -3,6 +3,7 @@ import { SendInboxMessage } from './commands/send-inbox-message'
 import { GetDIDDocument } from './commands/get-did-document'
 import { GetAccountInfo } from './commands/get-account-info'
 import { CreateAccount } from './commands/create-account'
+import { GetProfile } from './commands/get-profile'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async (): Promise<void> => {
@@ -22,7 +23,8 @@ import { CreateAccount } from './commands/create-account'
           GetDIDDocument,
           SendInboxMessage,
           GetAccountInfo,
-          CreateAccount
+          CreateAccount,
+          GetProfile
         },
         handlers: {
           // @ts-ignore

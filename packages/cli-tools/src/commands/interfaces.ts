@@ -23,3 +23,11 @@ export interface CreateAccountOptions {
     network: string
     saveDID: boolean
 }
+
+export interface GetProfileOptions {
+    did: string
+    contextName: string
+    profileName: string
+    fallbackContext: string
+    ignoreCache: boolean
+}
