@@ -1,8 +1,9 @@
-2024-07-03 (v)
+2024-07-09 (v)
 -------------------
 
 - Minor updates for changes in `vda-web3-client`
 - Test code updated
+- Updated `.env.example` file
 
 2023-12-26 (v3.0.0)
 -------------------
