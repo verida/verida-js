@@ -273,7 +273,7 @@ export default class AutoAccount extends Account {
         return success
     }
 
-    private async ensureAuthenticated() {
+    public async ensureAuthenticated() {
         if (!this.didClient.authenticated()) {
             if (!this.autoConfig.didClientConfig.didEndpoints) {
                 const nodeUris = await this.getDefaultNodes(this.autoConfig.countryCode)
