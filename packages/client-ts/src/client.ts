@@ -211,7 +211,9 @@ class Client implements IClient {
     contextName: string,
     profileName: string = "basicProfile",
     fallbackContext: string | null = "Verida: Vault",
-    ignoreCache: boolean = false): Promise<ProfileDocument> {
+    ignoreCache: boolean = false,
+    networkFallback: boolean = true
+  ): Promise<ProfileDocument> {
     if (this.config.readOnlyDataApiUri) {
       // Try to fetch the profile from our data API
       const fetchUri = `${this.config.readOnlyDataApiUri}/${did}/${contextName}/profile_public/${profileName}?ignoreCache=${ignoreCache}`
@@ -231,13 +233,15 @@ class Client implements IClient {
 
     // Profile not able to be fetched from the read only data API
     // Try fetching from the network
-    const profile = await this.openPublicProfile(did, contextName, profileName, fallbackContext)
-
-    if (!profile) {
-      throw new Error('Profile not found')
+    if (networkFallback) {
+      const profile = await this.openPublicProfile(did, contextName, profileName, fallbackContext)
+  
+      if (profile) {
+        return profile.getMany({}, {})
+      }
     }
 
-    return profile.getMany({}, {})
+    throw new Error('Profile not found')
   }
 
   /**
