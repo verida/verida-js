@@ -1,8 +1,10 @@
-2024-06-28 (v)
+2024-07-09 (v)
 -------------------
 
 - Add a dependency to the `@verida/vda-client-base`
 - Update test codes for refactoring DIDs
+- Added `Test.md` file
+- Updated .env.example file
 
 2024-03-22 (v3.0.2)
 -------------------
