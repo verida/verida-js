@@ -57,10 +57,11 @@ export const CreateAccount: Command<CreateAccountOptions> = {
         console.log(`DID: ${did}`)
 
         if (options.saveDID) {
-            const didClient = await account.getDIDClient()
-            const didDocument = new DIDDocument(did)
-            await didClient.save(didDocument)
-            console.log('Saved DID')
+          await account.ensureAuthenticated()
+          const didClient = await account.getDIDClient()
+          const didDocument = new DIDDocument(did, didClient.getPublicKey())
+          await didClient.save(didDocument)
+          console.log('Saved DID')
         }
 
         const blockchain = DefaultNetworkBlockchainAnchors[network]

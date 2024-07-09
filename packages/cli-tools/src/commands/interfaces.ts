@@ -32,3 +32,12 @@ export interface GetProfileOptions {
     ignoreCache: boolean
     networkFallback: boolean
 }
+
+export interface SetProfileOptions {
+    privateKey: string
+    contextName: string
+    network: string
+    name: string
+    description: string
+    country: string
+}
