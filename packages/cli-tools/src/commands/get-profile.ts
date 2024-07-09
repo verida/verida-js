@@ -34,8 +34,14 @@ export const GetProfile: Command<GetProfileOptions> = {
       {
         name: 'ignoreCache',
         type: 'boolean',
-        defaultValue: true,
+        defaultValue: false,
         alias: 'i'
+      },
+      {
+        name: 'networkFallback',
+        type: 'boolean',
+        defaultValue: false,
+        alias: 'n'
       }
     ],
     async handle ({ options }) {
@@ -53,7 +59,14 @@ export const GetProfile: Command<GetProfileOptions> = {
             },
         })
 
-        const profile = await client.getPublicProfile(options.did, options.contextName, options.profileName, options.fallbackContext, options.ignoreCache)
+        const profile = await client.getPublicProfile(
+          options.did,
+          options.contextName,
+          options.profileName,
+          options.fallbackContext,
+          options.ignoreCache,
+          options.networkFallback
+        )
         console.log(`Profile located:`)
         console.log(profile)
     }

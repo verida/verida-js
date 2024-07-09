@@ -30,4 +30,5 @@ export interface GetProfileOptions {
     profileName: string
     fallbackContext: string
     ignoreCache: boolean
+    networkFallback: boolean
 }
