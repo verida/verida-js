@@ -10,9 +10,6 @@ import { BlockchainAnchor } from "@verida/types";
 import { explodeDID } from "@verida/helpers"
 const assert = require('assert')
 
-export const mintedTokenIds = [1, 3]
-export const burntTokenIds =  [2, 4]
-
 export const createBlockchainAPI = (did: DidInterface, isWallet = false) => {
   const target_chain = BlockchainAnchor.DEVNET;
   const configuration = getBlockchainAPIConfiguration(did.privateKey);

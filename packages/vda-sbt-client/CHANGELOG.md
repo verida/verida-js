@@ -1,4 +1,11 @@
-2023-12-26 (v.3.0.0)
+2024-07-09 (v)
+-------------------
+
+- Updated `proof` releated test code
+- Added `Test.md`
+- Updated test script
+
+2023-12-26 (v3.0.0)
 -------------------
 
 - Mainnet release
