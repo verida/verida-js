@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did-resolver",
-  "version": "4.0.0-alpha-1",
+  "version": "4.0.0-alpha-2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,18 +18,18 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@verida/did-document": "^4.0.0-alpha-1",
-    "@verida/encryption-utils": "^4.0.0-alpha-1",
-    "@verida/types": "^4.0.0-alpha-1",
-    "@verida/vda-common": "^4.0.0-alpha-1",
-    "@verida/vda-did": "^4.0.0-alpha-1",
+    "@verida/did-document": "^4.0.0-alpha-2",
+    "@verida/encryption-utils": "^4.0.0-alpha-2",
+    "@verida/types": "^4.0.0-alpha-2",
+    "@verida/vda-common": "^4.0.0-alpha-2",
+    "@verida/vda-did": "^4.0.0-alpha-2",
     "axios": "1.2.0-alpha.1",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.0",
-    "@verida/vda-common-test": "^4.0.0-alpha-1",
+    "@verida/vda-common-test": "^4.0.0-alpha-2",
     "did-resolver": "^4.0.1",
     "ethers": "^5.7.2",
     "mocha": "^10.1.0",

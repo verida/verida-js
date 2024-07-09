@@ -1,6 +1,6 @@
 {
   "name": "@verida/cli-tools",
-  "version": "4.0.0-alpha-1",
+  "version": "4.0.0-alpha-2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -18,14 +18,14 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@verida/account": "^4.0.0-alpha-1",
-    "@verida/account-node": "^4.0.0-alpha-1",
-    "@verida/client-ts": "^4.0.0-alpha-1",
-    "@verida/did-client": "^4.0.0-alpha-1",
-    "@verida/did-document": "^4.0.0-alpha-1",
-    "@verida/types": "^4.0.0-alpha-1",
-    "@verida/vda-did-resolver": "^4.0.0-alpha-1",
-    "@verida/vda-name-client": "^4.0.0-alpha-1",
+    "@verida/account": "^4.0.0-alpha-2",
+    "@verida/account-node": "^4.0.0-alpha-2",
+    "@verida/client-ts": "^4.0.0-alpha-2",
+    "@verida/did-client": "^4.0.0-alpha-2",
+    "@verida/did-document": "^4.0.0-alpha-2",
+    "@verida/types": "^4.0.0-alpha-2",
+    "@verida/vda-did-resolver": "^4.0.0-alpha-2",
+    "@verida/vda-name-client": "^4.0.0-alpha-2",
     "command-line-interface": "^5.0.0",
     "did-resolver": "^4.1.0",
     "dotenv": "^16.4.5",
