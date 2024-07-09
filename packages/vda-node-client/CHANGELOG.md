@@ -1,8 +1,9 @@
-2024-06-28 (v)
+2024-07-09 (v)
 -------------------
 
 - Updated for refactoring DIDs
 - Updated test files
+- Updated .env.example file
 
 2024-06-13 (v)
 -------------------
