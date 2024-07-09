@@ -1,8 +1,10 @@
-2024-07-01 (v)
+2024-07-09 (v)
 -------------------
 
 - Make `VeridaNameClient` extendes `VeridaClientBase`
 - Update the test code
+- Updated .env.example file
+- Added `Test.md` file
 
 2023-12-26 (v3.0.0)
 -------------------
