@@ -140,6 +140,7 @@ export interface DatabaseEngines {
 
 export interface FetchUriParams {
 	did: string;
+	network: Network;
 	contextName: string;
 	dbName: string;
 	recordId: string;

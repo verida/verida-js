@@ -1,5 +1,5 @@
 import EncryptionUtils from '@verida/encryption-utils';
-import { DatabasePermissionOptionsEnum, FetchUriParams, IClient } from '@verida/types';
+import { DatabasePermissionOptionsEnum, FetchUriParams, IClient, Network } from '@verida/types';
 const url = require('url')
 const bs58 = require('bs58');
 
@@ -14,6 +14,7 @@ const bs58 = require('bs58');
  * @returns
  */
 export function buildVeridaUri(
+	network: Network,
 	did: string,
 	contextName: string,
 	databaseName: string,
@@ -21,7 +22,7 @@ export function buildVeridaUri(
 	deepAttributes?: string[],
 	params?: { key?: string }
 ): string {
-	let uri = `verida://${did}/${encodeURI(contextName)}`;
+	let uri = `verida://${did}/${network}/${encodeURI(contextName)}`;
 
 	if (databaseName) {
 		uri += `/${databaseName}`;
@@ -52,7 +53,7 @@ export function buildVeridaUri(
  * @returns
  */
 export function explodeVeridaUri(uri: string): FetchUriParams {
-	const regex = /^verida:\/\/(did\:[^\/]*)\/([^\/]*)\/([^\/]*)\/([^?]*)(\/([^?]*))?/i;
+	const regex = /^verida:\/\/(did\:[^\/]*)\/([^\/]*)\/([^\/]*)\/([^\/]*)\/([^?]*)(\/([^?]*))?/i;
 	const matches = uri.match(regex)
 
 	if (!matches) {
@@ -60,9 +61,10 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 	}
 
 	const did = matches[1] as string
-	const contextName = decodeURI(matches[2])
-	const dbName = matches[3]
-	const recordString = matches[4]
+	const network = matches[2] as string
+	const contextName = decodeURI(matches[3])
+	const dbName = matches[4]
+	const recordString = matches[5]
 	const recordParts = recordString.split('/')
 	const recordId = recordParts[0]
 
@@ -72,6 +74,7 @@ export function explodeVeridaUri(uri: string): FetchUriParams {
 
 	return {
 		did,
+		network: <Network> network,
 		contextName,
 		dbName,
 		recordId,
