@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-node-manager",
-  "version": "4.0.0-alpha-3",
+  "version": "4.0.0-alpha-4",
   "description": "Client to manage storage nodes from the blockchain",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -33,10 +33,10 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@verida/helpers": "^4.0.0-alpha-2",
-    "@verida/types": "^4.0.0-alpha-2",
-    "@verida/vda-client-base": "^4.0.0-alpha-2",
-    "@verida/web3": "^4.0.0-alpha-2",
+    "@verida/helpers": "^4.0.0-alpha-4",
+    "@verida/types": "^4.0.0-alpha-4",
+    "@verida/vda-client-base": "^4.0.0-alpha-4",
+    "@verida/web3": "^4.0.0-alpha-4",
     "axios": "^1.6.0",
     "ethers": "5.7.2"
   }
