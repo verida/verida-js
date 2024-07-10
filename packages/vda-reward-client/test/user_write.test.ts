@@ -65,7 +65,9 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
 
         // Check out token amount of reward contract
         if (await tokenAPI.balanceOf(rewardContractAddress) < 1000n) {
-            if (Boolean(process.env.NEED_TOKEN_MINT)) {
+            const tokenOwner = await tokenAPI.owner();
+            const userWallet = new Wallet(privateKey);
+            if (tokenOwner.toLowerCase() === userWallet.address.toLowerCase()) {
                 const mintAmount = 1000n;
                 await tokenAPI.mint(rewardContractAddress, mintAmount);
             } else {

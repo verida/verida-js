@@ -26,17 +26,32 @@ export async function addInitialData(
         });
     }
 
-    console.log("Check and add trusted signer...");
-    if ((await ownerApi.isTrustedSigner(TRUSTED_SIGNER.address)) !== true) {
-        await ownerApi.addTrustedSigner(TRUSTED_SIGNER.address);
-    }
+    const contractOwner = await ownerApi.owner();
+    
+    const userPrivateKey = configuration["web3Options"].privateKey;
+    const userWallet = new Wallet(userPrivateKey);
 
-    console.log("Check and add claim types...");
-    for (let i = 0; i < CLAIM_TYPES.length; i++) {
-        const response = await ownerApi?.getClaimType(CLAIM_TYPES[i].id);
-        if (!response) {
-            await ownerApi?.addClaimType(CLAIM_TYPES[i].id, CLAIM_TYPES[i].reward, CLAIM_TYPES[i].schema)
+    const isOwner = contractOwner.toLowerCase() === userWallet.address.toLowerCase();
+
+    if (isOwner) {
+        if ((await ownerApi.isTrustedSigner(TRUSTED_SIGNER.address)) !== true) {
+            await ownerApi.addTrustedSigner(TRUSTED_SIGNER.address);
         }
+        console.log("Trusted signer : Ok");
+
+        for (let i = 0; i < CLAIM_TYPES.length; i++) {
+            const response = await ownerApi?.getClaimType(CLAIM_TYPES[i].id);
+            if (!response) {
+                if (isOwner) {
+                    await ownerApi?.addClaimType(CLAIM_TYPES[i].id, CLAIM_TYPES[i].reward, CLAIM_TYPES[i].schema)
+                } else {
+                    throw new Error(`Claim type ${CLAIM_TYPES[i]} not existing`);
+                }
+            }
+        }
+        console.log("Claim types : Ok");
+    } else {
+        console.log("Confirm whether contract owner added trusted signer and claim types");
     }
 }
 

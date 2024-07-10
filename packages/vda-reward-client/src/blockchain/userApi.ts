@@ -18,6 +18,27 @@ export class VeridaRewardClient extends VeridaClientBase {
     }
 
     /**
+     * Get the contract owner address
+     * @returns Address
+     */
+    public async owner() {
+        let response
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.owner()
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.owner()
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to get owner address (${err.message})`)
+        }
+    }
+
+    /**
      * Get ClaimType information for given typeId
      * @param typeId - A short, lowercase, unique identifier for claim type (ie: facebook)
      * @returns Object of `ClaimType` type defined above
