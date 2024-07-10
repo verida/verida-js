@@ -1,6 +1,6 @@
 {
   "name": "@verida/cli-tools",
-  "version": "4.0.0-alpha-4",
+  "version": "4.0.0-alpha-5",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -20,7 +20,7 @@
   "dependencies": {
     "@verida/account": "^4.0.0-alpha-4",
     "@verida/account-node": "^4.0.0-alpha-4",
-    "@verida/client-ts": "^4.0.0-alpha-4",
+    "@verida/client-ts": "^4.0.0-alpha-5",
     "@verida/did-client": "^4.0.0-alpha-4",
     "@verida/did-document": "^4.0.0-alpha-4",
     "@verida/types": "^4.0.0-alpha-4",

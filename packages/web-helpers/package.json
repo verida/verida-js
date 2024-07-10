@@ -1,6 +1,6 @@
 {
   "name": "@verida/web-helpers",
-  "version": "4.0.0-alpha-4",
+  "version": "4.0.0-alpha-5",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@verida/account-web-vault": "^4.0.0-alpha-4",
-    "@verida/client-ts": "^4.0.0-alpha-4",
+    "@verida/client-ts": "^4.0.0-alpha-5",
     "@verida/types": "^4.0.0-alpha-4"
   },
   "devDependencies": {
