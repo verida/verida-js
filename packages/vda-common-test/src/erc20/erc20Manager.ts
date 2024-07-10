@@ -25,8 +25,12 @@ export class ERC20Manager {
         this.contract = new Contract(address, ABI.abi, txSigner);
     }
 
+    public async owner() {
+        return await this.contract.owner();
+    }
+
     public async totalSupply() {
-        return (await this.contract.totalSupply());
+        return await this.contract.totalSupply();
     }
 
     public async balanceOf(account: string) {

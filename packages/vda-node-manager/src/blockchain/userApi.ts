@@ -53,6 +53,31 @@ export class VeridaNodeManager extends VeridaClientBase {
     }
 
     /**
+     * Get the owner of the `StorageNodeRegistry` contract
+     * @returns Owner address
+     */
+    public async owner() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.owner();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.owner();
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get owner address (${message})`);
+        }
+    }
+
+    /**
      * Get DECIMAL of contract
      * @returns DECIMAL of contract
      */

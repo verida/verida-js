@@ -3,17 +3,19 @@
 Here explains stuffs related to test this `@verida/vda-node-manager` package.
 
 ## owner.test.ts
-Only the contract owner can test this file.
+- Only the contract owner can test this file.
 
 ## user_write.test.ts
-- Add initial data
-    There are some stuffs to be done before testing this file. This can be done by only the contract owner.
-    If users try to test this `user_write.test.ts` file before the contract owner does, they'd face the errors.
+Before testing this file, `owner.test.ts` should be passed. The `owner.test.ts` mange trusted signers, registered nodes & removed nodes, and etc.
 
-- Get received the token to the `PROVIDER` address
-    In the `.env` file, users set `PROVIDER_KEY` that is the private key of `PROVIDER` for testing the `depositFromProvider()` function.
-    Request the Token contract owner to send tokens to the `PROVIDER` address
-    Here, the Token contract address is get by `getVDATokenAddress()` function of the `src/userApi.ts`
+- Anybody can test this file
 
 ## user_read.test.ts
+Before testing this file, `user_write.test.ts` should be passed. In the `user_write.test.ts`, it calls `addInitialData()` function to add necessary informations
+
 - Anybody can test this file
+
+
+## stake_and_lock.test.ts
+This test file involves Token contract operations. Here, the `PRIVATE_KEY` in the `.env` file should be the owner of the Token contract.
+Can check the Token contract address by the `getVDATokenAddress()` function of the `VeridaNodeManager`.

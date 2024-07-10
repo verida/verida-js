@@ -1,6 +1,7 @@
-2024-07-03 (v)
+2024-07-10 (v)
 -------------------
 - Updated DID constants following the DID format changed in `vda-common`
+- Added `owner()` function to `ERC20Manager`
 
 
 2024-03-15 (v3.0.1)
