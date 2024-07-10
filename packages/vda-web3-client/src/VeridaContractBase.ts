@@ -92,13 +92,14 @@ export class VeridaContract {
             //     else
             //         throw new Error('either Signer or privateKey is required to initialize')
             // }
+            
             if (!this.signer && web3Config.privateKey) {
                 this.signer = new Wallet(web3Config.privateKey, this.contract.provider);
             }
 
-            if(this.signer) {
-                this.contract!.connect(this.signer);
-            }
+            // if(this.signer) {
+            //     this.contract = this.contract!.connect(this.signer);
+            // }
 
             const methods = config.abi.abi
             methods.forEach((item: any) => {
@@ -254,9 +255,9 @@ export class VeridaContract {
         if (this.type === 'web3') {
             let ret;
 
-            // const contract = await this.attachContract()
+            const contract = await this.attachContract()
             // console.log('Contract = ', contract)
-            const contract = this.contract!;
+            // const contract = this.contract!;
 
             try {
                 if (methodType === 'view' || methodType === 'pure') {
