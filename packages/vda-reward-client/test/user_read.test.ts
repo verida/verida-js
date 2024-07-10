@@ -20,8 +20,9 @@ const createRewardClientAPI = () => {
     })
 }
 
-describe("Verida RewardOwnerApi Test in Read mode", () => {
+describe("Verida RewardOwnerApi Test in Read mode", function() {
     let rewardClientApi;
+    this.timeout(100 * 1000)
 
     before(async () => {
         await addInitialData(configuration);

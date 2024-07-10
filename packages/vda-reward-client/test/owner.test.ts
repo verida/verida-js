@@ -25,7 +25,8 @@ const createOwnerAPI = () => {
     })
 }
 
-describe("Verida RewardOwnerApi Test", () => {
+describe("Verida RewardOwnerApi Test", function() {
+    this.timeout(100 * 1000)
     let ownerApi;
 
     before(async () => {

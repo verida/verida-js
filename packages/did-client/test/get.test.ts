@@ -6,7 +6,7 @@ const util = require('util')
 
 let didClient
 
-const DID = 'did:vda:banksia:0xB0BF030a742233448428590bf6A590C1E1582b4C'.toLowerCase()
+const DID = 'did:vda:polamoy:0x60e32de832d22ce242dbe0c64ffdc079f86c2b1f'.toLowerCase()
 
 /**
  * 

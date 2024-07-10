@@ -49,6 +49,8 @@ describe('vda-sbt-client blockchain api', () => {
     })
 
     describe("Claim", function() {
+        this.timeout(200*1000)
+
         // SBT info
         const sbtType = "twitter"
         const uniqueId = "-uiniqueId" + new Date().getTime();
@@ -139,7 +141,9 @@ describe('vda-sbt-client blockchain api', () => {
         })
     })
 
-    describe("burn", () => {
+    describe("burn", function () {
+        this.timeout(200*1000)
+
         it("Burn SBT", async () => {
             const lastTokenId = parseInt(await blockchainApi.totalSupply())
 

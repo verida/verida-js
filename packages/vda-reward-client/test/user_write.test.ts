@@ -39,7 +39,8 @@ const createNodeManagerAPI = () => {
     })
 }
 
-describe("Verida RewardOwnerApi Test in read/write mode", () => {
+describe("Verida RewardOwnerApi Test in read/write mode", function() {
+    this.timeout(100 * 1000)
     let rewardClientApi: VeridaRewardClient;
     let nodeManagerApi: VeridaNodeManager;
     let tokenAPI: ERC20Manager;
