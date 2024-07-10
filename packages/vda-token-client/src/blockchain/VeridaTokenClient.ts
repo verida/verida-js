@@ -64,6 +64,34 @@ export class VeridaTokenClient {
     }
 
     /**
+     * Get the contract owner
+     */
+    public async owner() {
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.owner();
+
+                if (response.success !== true) {
+                    throw new Error(`Failed to read owner`);
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.owner();
+
+                if (!response) {
+                    throw new Error(`Failed to read owner`);
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to read owner: (${err.message})`);
+        }
+    }
+
+    /**
      * Get the token name
      * @returns Token name
      */
@@ -243,7 +271,7 @@ export class VeridaTokenClient {
         }
 
         const response = await this.vdaWeb3Client!.transfer(to, value);
-        if (!response.success !== true) {
+        if (response.success !== true) {
             throw new Error(`Failed to transfer: ${response.reason}`);
         }
     }
@@ -290,7 +318,7 @@ export class VeridaTokenClient {
         }
 
         const response = await this.vdaWeb3Client!.approve(spender, value);
-        if (!response.success !== true) {
+        if (response.success !== true) {
             throw new Error(`Failed to approve: ${response.reason}`);
         }
     }
@@ -307,7 +335,7 @@ export class VeridaTokenClient {
         }
 
         const response = await this.vdaWeb3Client!.transferFrom(from, to, value);
-        if (!response.success !== true) {
+        if (response.success !== true) {
             throw new Error(`Failed to transfer from ${from} to ${to}: ${response.reason}`);
         }
     }
@@ -432,4 +460,247 @@ export class VeridaTokenClient {
             throw new Error(`Failed to get version: (${err.message})`);
         }
     }
+
+     /**
+     * Check the given address is set as AMM pair in the contract
+     * @param address AMM pair address to be checked
+     * @returns true if set
+     */
+     public async isAMMPair(address: string) {
+        let response
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.automatedMarketMakerPairs(address);
+
+                if (response.success !== true) {
+                    throw new Error(`Failed to check AMM`);
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.automatedMarketMakerPairs(address);
+
+                if (!response) {
+                    throw new Error(`Failed to check AMM`);
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to check AMM: (${err.message})`);
+        }
+    }
+
+    /**
+     * Return token balance limit per wallet in rate value
+     * @returns Decimal value
+     */
+    public async maxAmountPerWalletRate() {
+        let response
+        const denominator = await this.rateDenominator();
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.maxAmountPerWalletRate();
+
+                if (response.success !== true) {
+                    throw new Error('Failed to get max amount per wallet');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.maxAmountPerWalletRate();
+
+                if (!response) {
+                    throw new Error('Failed to get max amount per wallet');
+                }
+            }
+
+            return Number(response)/denominator;
+        } catch (err:any ) {
+            throw new Error(`Failed to get max amount per wallet: (${err.message})`);
+        }
+    }
+
+    /**
+     * Check whether wallet amount limited
+     * @returns true if enabled
+     */
+    public async isWalletAmountLimitEnabled() {
+        let response
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isMaxAmountPerWalletEnabled();
+
+                if (response.success !== true) {
+                    throw new Error('Failed to check wallet amount limit enabled');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.isMaxAmountPerWalletEnabled();
+
+                if (!response) {
+                    throw new Error('Failed to check wallet amount limit enabled');
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to check wallet amount limit enabled: (${err.message})`);
+        }
+    }
+
+    /**
+     * Check whether address is excluded from wallet amount limit
+     * @param address Wallet address
+     * @returns true if excluded
+     */
+    public async isExcludedFromWalletAmountLimit(address = this.address) {
+        let response
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isExcludedFromWalletAmountLimit(address);
+
+                if (response.success !== true) {
+                    throw new Error('Failed to check wallet excluded from amount limit');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.isExcludedFromWalletAmountLimit(address);
+
+                if (!response) {
+                    throw new Error('Failed to check wallet excluded from amount limit');
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to check wallet excluded from amount limit: (${err.message})`);
+        }
+    }
+
+
+    /**
+     * Return token amount limit per sell tx
+     * @returns Decimal
+     */
+    public async maxAmountPerSellRate() {
+        let response
+        const denominator = await this.rateDenominator();
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.maxAmountPerSellRate();
+
+                if (response.success !== true) {
+                    throw new Error('Failed to get max amount per sell');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.maxAmountPerSellRate();
+
+                if (!response) {
+                    throw new Error('Failed to get max amount per sell');
+                }
+            }
+
+            return Number(response)/denominator;
+        } catch (err:any ) {
+            throw new Error(`Failed to get max amount per sell: (${err.message})`);
+        }
+    }
+
+    /**
+     * Check whether sell amount per transaction limited
+     * @returns true if enabled
+     */
+    public async isSellAmountLimitEnabled() {
+        let response
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isMaxAmountPerSellEnabled();
+
+                if (response.success !== true) {
+                    throw new Error('Failed to check sell amount limit enabled');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.isMaxAmountPerSellEnabled();
+
+                if (!response) {
+                    throw new Error('Failed to check sell amount limit enabled');
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to check sell amount limit enabled: (${err.message})`);
+        }
+    }
+
+    /**
+     * Check whether address is excluded from sell amount limit
+     * @param address Wallet address
+     * @returns true if excluded
+     */
+    public async isExcludedFromSellAmountLimit(address = this.address) {
+        let response
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isExcludedFromSellAmountLimit(address);
+
+                if (response.success !== true) {
+                    throw new Error('Failed to check wallet excluded from sell amount limit');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.isExcludedFromSellAmountLimit(address);
+
+                if (!response) {
+                    throw new Error('Failed to check wallet excluded from sell amount limit');
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to check wallet excluded from sell amount limit: (${err.message})`);
+        }
+    }
+    public async isTokenTransferEnabled() {
+        let response
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.isTransferEnabled(address);
+
+                if (response.success !== true) {
+                    throw new Error('Failed to check wallet excluded from sell amount limit');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.isTransferEnabled(address);
+
+                if (!response) {
+                    throw new Error('Failed to check wallet excluded from sell amount limit');
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to check wallet excluded from sell amount limit: (${err.message})`);
+        }
+    }
+
+
+
 }

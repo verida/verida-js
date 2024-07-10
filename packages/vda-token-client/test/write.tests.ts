@@ -1,7 +1,7 @@
 require('dotenv').config();
 import { VeridaTokenClient } from "../src/index"
 import { Wallet } from "ethers";
-import { BlockchainAnchor } from "@verida/types";
+import { BlockchainAnchor, Network } from "@verida/types";
 
 const assert = require('assert')
 
@@ -10,6 +10,8 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
+const needMint = process.env.NEED_TOKEN_MINT === 'true';
+
 const createBlockchainAPI = async () => {
     return await VeridaTokenClient.CreateAsync({
         blockchainAnchor: BlockchainAnchor.DEVNET,
@@ -17,14 +19,23 @@ const createBlockchainAPI = async () => {
     })
 }
 
-describe('vda-name-client read and write tests', function() {
+describe('vda-token-client read and write tests', function() {
     this.timeout(200*1000)
 
     let blockchainApi : VeridaTokenClient;
 
     before(async () => {
         blockchainApi = await createBlockchainAPI();
+
+        const contractOwner = await blockchainApi.owner();
+        const curUser = new Wallet(privateKey);
+
+        if (contractOwner.toLowerCase() === curUser.address.toLowerCase()) {
+            await blockchainApi.min
+        }
     })
+
+
 
     /*
     describe('register', function() {
