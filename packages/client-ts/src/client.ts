@@ -110,6 +110,10 @@ class Client implements IClient {
     return typeof this.account != "undefined";
   }
 
+  public getNetwork(): Network {
+    return this.network
+  }
+
   /**
    * Open a storage context for the current account.
    *
