@@ -39,7 +39,8 @@ describe('vda-name-client read and write tests', function() {
     let blockchainApi : VeridaNameClient;
     const REGISTER_COUNT = 2;
 
-    before(async () => {
+    before(async function()  {
+        this.timeout(200*1000)
         blockchainApi = createBlockchainAPI(did);
         did.address = did.address.toLowerCase()
 

@@ -46,7 +46,8 @@ describe('vda-name-client read only tests', () => {
         await blockchainApiWrite.register(testNames[0]);
     }
 
-    before(async () => {
+    before(async function() {
+        this.timeout(200*1000)
         blockchainApi = createBlockchainAPI()
 
         // Check and add initial data
