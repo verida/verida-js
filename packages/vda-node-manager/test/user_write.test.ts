@@ -1,5 +1,5 @@
 require('dotenv').config();
-import { getBlockchainAPIConfiguration, TRUSTED_SIGNER, ERC20Manager, REGISTERED_DIDS, DID_NODE_MAP, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS, FALLBACK_DIDS, REGISTERED_LOCK_NODE } from "@verida/vda-common-test"
+import { getBlockchainAPIConfiguration, TRUSTED_SIGNER, REGISTERED_DIDS, DID_NODE_MAP, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS, FALLBACK_DIDS } from "@verida/vda-common-test"
 import { IStorageNode, VeridaNodeManager } from "../src/index"
 import { Wallet, BigNumber } from "ethers";
 import { BlockchainAnchor, EnumStatus } from "@verida/types";
@@ -12,12 +12,12 @@ const privateKey = process.env.PRIVATE_KEY
 if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
-const target_chain = BlockchainAnchor.POLAMOY;
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNodeManager({
-        blockchainAnchor: target_chain,
+        blockchainAnchor,
         did: did.address,
         signKey: did.privateKey,
         ...configuration

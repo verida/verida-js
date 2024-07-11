@@ -13,14 +13,14 @@ const privateKey = process.env.PRIVATE_KEY
 if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
-const target_chain = BlockchainAnchor.POLAMOY;
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 
-const nodeContractAddress = getContractInfoForBlockchainAnchor(target_chain, "storageNodeRegistry").address;
+const nodeContractAddress = getContractInfoForBlockchainAnchor(blockchainAnchor, "storageNodeRegistry").address;
 
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNodeManager({
-        blockchainAnchor: target_chain,
+        blockchainAnchor,
         did: did.address,
         signKey: did.privateKey,
         ...configuration

@@ -18,11 +18,11 @@ if (!privateKey) {
 const ownerDID = DID_LIST[0];
 const configuration = getBlockchainAPIConfiguration(privateKey);
 
-const target_chain = BlockchainAnchor.POLAMOY;
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 
 const createOwnerAPI = (did: any) => {
     return new VeridaNodeOwnerApi({
-        blockchainAnchor: target_chain,
+        blockchainAnchor,
         did: did.address,
         signKey: did.privateKey,
         ...configuration
@@ -30,7 +30,7 @@ const createOwnerAPI = (did: any) => {
 }
 const createNodeManagerAPI = (did: any) => {
     return new VeridaNodeManager({
-        blockchainAnchor: target_chain,
+        blockchainAnchor,
         did: did.address,
         signKey: did.privateKey,
         ...configuration
@@ -226,7 +226,7 @@ describe("Verida NodeOwnerApi Test", () => {
             const targetNode = new Wallet(REGISTERED_DIDS[0].privateKey);
 
             // `StorageNodeRegistry` contract address. Used to approve tokens
-            const contractAddress = getContractInfoForBlockchainAnchor(target_chain, "storageNodeRegistry").address;
+            const contractAddress = getContractInfoForBlockchainAnchor(blockchainAnchor, "storageNodeRegistry").address;
 
             const newNode = {
                 name: 'node-' + user.address.toLowerCase(),
