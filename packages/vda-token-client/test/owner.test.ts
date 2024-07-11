@@ -140,15 +140,22 @@ describe('vda-token-owner test', function() {
     })
 
     it("Enable/disable token transfer", async () => {
-        
+        await blockchainApi.enableTransfer(false);
+        assert.ok(await blockchainApi.isTransferEnabled() === false, 'Transfer disabled');
+
+        await blockchainApi.enableTransfer(true);
+        assert.ok(await blockchainApi.isTransferEnabled(), 'Transfer enabled');
     })
 
     it("Pause", async () => {
+        await blockchainApi.pause();
+        assert.ok(await blockchainApi.isPaused(), 'Contract paused');
         
     })
 
     it("Unpause", async () => {
-        
+        await blockchainApi.unpause();
+        assert.ok(await blockchainApi.isPaused() === false, 'Contract unpaused');
     })
 
 

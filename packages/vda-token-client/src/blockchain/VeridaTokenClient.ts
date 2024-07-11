@@ -675,29 +675,64 @@ export class VeridaTokenClient {
             throw new Error(`Failed to check wallet excluded from sell amount limit: (${err.message})`);
         }
     }
-    public async isTokenTransferEnabled() {
+
+    /**
+     * Check whether token transfer enabled by the contract owner
+     * @returns true if enabled
+     */
+    public async isTransferEnabled() {
         let response
 
         try {
             if (this.vdaWeb3Client) {
-                response = await this.vdaWeb3Client.isTransferEnabled(address);
+                response = await this.vdaWeb3Client.isTransferEnabled();
 
                 if (response.success !== true) {
-                    throw new Error('Failed to check wallet excluded from sell amount limit');
+                    throw new Error('Failed to check token trnasfer enabled');
                 }
 
                 response = response.data
             } else {
-                response = await this.contract!.callStatic.isTransferEnabled(address);
+                response = await this.contract!.callStatic.isTransferEnabled();
 
                 if (!response) {
-                    throw new Error('Failed to check wallet excluded from sell amount limit');
+                    throw new Error('Failed to check token trnasfer enabled');
                 }
             }
 
             return response;
         } catch (err:any ) {
-            throw new Error(`Failed to check wallet excluded from sell amount limit: (${err.message})`);
+            throw new Error(`Failed to check token trnasfer enabled: (${err.message})`);
+        }
+    }
+
+    /**
+     * Check whether contract is paused
+     * @returns true if paused
+     */
+    public async isPaused() {
+        let response
+
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.paused();
+
+                if (response.success !== true) {
+                    throw new Error('Failed to check contract paused');
+                }
+
+                response = response.data
+            } else {
+                response = await this.contract!.callStatic.paused();
+
+                if (!response) {
+                    throw new Error('Failed to check contract paused');
+                }
+            }
+
+            return response;
+        } catch (err:any ) {
+            throw new Error(`Failed to check contract paused: (${err.message})`);
         }
     }
 
