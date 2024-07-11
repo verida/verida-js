@@ -111,7 +111,7 @@ export default class SharingCredential {
 		if (!result) {
 			throw new Error('unable to save jwt item to db')
 		}
-		const uri = buildVeridaUri(did, contextName, dbName, result.id, ['content'], params) as any
+		const uri = buildVeridaUri(this.context.getClient().getNetwork(), did, contextName, dbName, result.id, ['content'], params) as any
 
 		return {
 			item,

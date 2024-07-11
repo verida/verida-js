@@ -239,7 +239,7 @@ class StorageEngineVerida extends BaseStorageEngine {
 
         if (config.permissions!.read == "public") {
           // connect account using a public endpoint
-          endpoint.setUsePublic()
+          await endpoint.setUsePublic()
           endpoints[endpointUri] = endpoint
         }
         else if (this.account) {

@@ -2,29 +2,72 @@ import { IAccount } from './IAccount';
 import { IStorageEngine } from './IStorageEngine';
 import { SecureContextConfig } from './StorageLinkInterfaces';
 
-export enum EnvironmentType {
-    LOCAL = "local",
+/**
+ * Kind of Verida Networks
+ */
+export enum Network {  
+	LOCAL = "local",  
 	DEVNET = "devnet",
-    TESTNET = "testnet",
-    MAINNET = "mainnet"
+	BANKSIA = "banksia",  
+	MYRTLE = "myrtle",  
 }
 
-export interface DefaultEnvironmentConfig {
+/**
+ * DID anchored chain for the {@link Network}
+ */
+export enum BlockchainAnchor {
+	POLAMOY = "polamoy",
+	POLPOS = "polpos",
+	DEVNET = "polamoy"
+}
+
+export interface IContractInfo {
+	address: string
+	abi: any
+}
+
+/**
+ * Interface for contract addresses of the Verida Network
+ */
+export interface INetworkContracts {
+	token: IContractInfo | null
+	didRegistry: IContractInfo | null
+	storageNodeRegistry: IContractInfo | null
+	nameRegistry: IContractInfo | null
+	didLinkage: IContractInfo | null
+	reward: IContractInfo | null
+	solboundNFT: IContractInfo | null
+}
+
+export type TContractNames = keyof INetworkContracts;
+
+/**
+ * Include Verida network information including {@link NetworkContracts}
+ */
+export interface NetworkDefinition extends INetworkContracts {
+	id: string
+	label: string
+	isMainnet: boolean
+	anchoredBlockchain: BlockchainAnchor	
+} 
+
+export interface DefaultNetworkConfig {
 	defaultDatabaseServerUrl?: string
 	defaultMessageServerUrl?: string
 	schemaPaths?: Record<string,string>
 	readOnlyDataApiUri?: string
 }
 
-export interface DefaultClientConfig extends DefaultEnvironmentConfig {
-	environment: EnvironmentType
-	environments: Record<string, DefaultEnvironmentConfig>
+export interface DefaultClientConfig extends DefaultNetworkConfig {
+	network: Network
+	environments: Record<string, DefaultNetworkConfig>
 	vaultAppName: string
 }
 
 export interface DIDClientConfig {
-    network: EnvironmentType              // `testnet` OR `mainnet`
-    rpcUrl?: string                              // blockchain RPC URI to use
+	network?: Network
+	blockchain?: BlockchainAnchor
+    rpcUrl?: string					// blockchain RPC URI to use
     timeout?: number
 }
 
@@ -38,11 +81,11 @@ export interface ClientConfig {
 	vaultAppName?: string;
 	
 	/**
-	 * Environment to load by default.
+	 * Verida network to load by default.
 	 *
-	 * Environment configuration can still be overridden by config items.
+	 * Verida network can still be overridden by config items.
 	 */
-	environment?: EnvironmentType;
+	network?: Network;
 
 	didClientConfig?: DIDClientConfig
 
@@ -97,6 +140,7 @@ export interface DatabaseEngines {
 
 export interface FetchUriParams {
 	did: string;
+	network: Network;
 	contextName: string;
 	dbName: string;
 	recordId: string;

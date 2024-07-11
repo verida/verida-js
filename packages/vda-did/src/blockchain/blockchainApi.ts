@@ -1,9 +1,10 @@
-import { interpretIdentifier, getContractInfoForNetwork } from "@verida/vda-common"
+import { getContractInfoForBlockchainAnchor, interpretIdentifier } from "@verida/vda-common"
 import { getVeridaSignWithNonce } from "./helpers"
-import { VdaDidConfigurationOptions, Web3GasConfiguration } from "@verida/types"
+import { VdaDidConfigurationOptions, Web3GasConfiguration, BlockchainAnchor, Web3SelfTransactionConfig } from "@verida/types"
 import { getVeridaContract, VeridaContract } from "@verida/web3"
 import { ethers } from "ethers"
 import EncryptionUtils from "@verida/encryption-utils"
+import { getDefaultRpcUrl } from "@verida/vda-common"
 
 export interface LookupResponse {
     didController: string
@@ -13,7 +14,7 @@ export interface LookupResponse {
 export default class BlockchainApi {
 
     private options: VdaDidConfigurationOptions
-    private network: string
+    private blockchain: BlockchainAnchor
     private didAddress : string
 
     private vdaWeb3Client : VeridaContract;
@@ -34,22 +35,27 @@ export default class BlockchainApi {
             }
         }
 
-        const { address, publicKey, network } = interpretIdentifier(options.identifier)
-        
+        const { address } = interpretIdentifier(options.identifier)
+
         this.didAddress = address.toLowerCase();
         // @ts-ignore
-        this.network = network || options.chainNameOrId
-        const contractInfo = getContractInfoForNetwork( "VeridaDIDRegistry", this.network);
+        this.blockchain = options.blockchain
+        const contractInfo = getContractInfoForBlockchainAnchor(this.blockchain, "didRegistry");
 
         // @ts-ignore
         if (options.callType == 'web3' && !options.web3Options.rpcUrl) {
-            throw new Error('Web3 transactions must specify `rpcUrl` in the configuration options')
+            const defaultRPCUrl = getDefaultRpcUrl(options.blockchain);
+            if (!defaultRPCUrl) {
+                throw new Error('Web3 transactions must specify `rpcUrl` in the configuration options')
+            }
+            (<Web3SelfTransactionConfig>options.web3Options).rpcUrl = defaultRPCUrl;
         }
 
         this.vdaWeb3Client = getVeridaContract(
             options.callType, 
             {...contractInfo,
-            ...options.web3Options});
+            ...options.web3Options,
+            blockchainAnchor: this.blockchain});
     }
 
     /**
@@ -153,6 +159,12 @@ export default class BlockchainApi {
         const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase();
 
         const signature = await this.getControllerSignature(controllerAddress);
+
+        if (this.didAddress == controllerAddress) {
+            // Controller hasn't changed, so don't update on chain
+            return
+        }
+
         let response: any;
         if (gasConfig !== undefined) {
             response = await this.vdaWeb3Client.setController(this.didAddress, controllerAddress, signature, gasConfig);

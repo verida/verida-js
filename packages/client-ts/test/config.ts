@@ -1,4 +1,5 @@
-import { AccountNodeDIDClientConfig, EnvironmentType } from "@verida/types"
+import { AccountNodeDIDClientConfig, Network } from "@verida/types"
+import { DefaultNetworkBlockchainAnchors, getDefaultRpcUrl } from "@verida/vda-common"
 
 // Note: These default endpoints are now deprecated as `account-node` node server will automatically
 // load them from the network.
@@ -11,7 +12,8 @@ for (let e in ENDPOINTS) {
 }
 
 export default {
-    ENVIRONMENT: EnvironmentType.DEVNET,
+    NETWORK: Network.BANKSIA,
+    RPC_URL: getDefaultRpcUrl(DefaultNetworkBlockchainAnchors[Network.BANKSIA].toString()),
     VDA_PRIVATE_KEY:   '',
     VDA_PRIVATE_KEY_2: '',
     VDA_PRIVATE_KEY_3: '',
@@ -32,7 +34,6 @@ export default {
         callType: 'web3',
         web3Config: {
             privateKey: '',
-            rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
         //didEndpoints: DID_ENDPOINTS
     },

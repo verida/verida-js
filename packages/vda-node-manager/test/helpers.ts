@@ -1,18 +1,18 @@
 import { ethers, BigNumber, Wallet, BigNumberish, BytesLike } from 'ethers';
 import { VeridaNodeOwnerApi, VeridaNodeManager } from '../src';
-import { EnvironmentType, EnumStatus } from "@verida/types";
+import { BlockchainAnchor, EnumStatus } from "@verida/types";
 import { TRUSTED_SIGNER, REGISTERED_DATACENTRES, DID_NODE_MAP, REGISTERED_DIDS, REMOVED_DATACENTRES, FALLBACK_DIDS, REMOVE_START_DIDS, ERC20Manager, LOCK_LIST, REGISTERED_LOCK_NODE } from "@verida/vda-common-test"
 import EncryptionUtils from "@verida/encryption-utils";
-import { getContractInfoForNetwork } from '@verida/vda-common';
+import { getContractInfoForBlockchainAnchor } from '@verida/vda-common';
 
 const CONTRACT_DECIMAL = 9;
-const TARGET_NETWORK = EnvironmentType.TESTNET;
+const TARGET_CHAIN = BlockchainAnchor.POLAMOY;
 
 const createNodeManager = (did: any, configuration: any) => {
     return new VeridaNodeManager({
+        blockchainAnchor: TARGET_CHAIN,
         did: did.address,
         signKey: did.privateKey,
-        network: TARGET_NETWORK,
         ...configuration
     })
 }
@@ -166,6 +166,11 @@ async function CheckAndRemoveNodes(configuration : Record<string, any>, dids: an
     }
 }
 
+/**
+ * Call `lock()` function for `user_read.test.ts`
+ * @param configuration 
+ * @param registeredLockNode 
+ */
 async function CheckAndLock(configuration : Record<string, any>, registeredLockNode: any) {
     const lockNodeApi = createNodeManager(registeredLockNode, configuration);
 
@@ -193,7 +198,7 @@ async function CheckAndLock(configuration : Record<string, any>, registeredLockN
     await tokenAPI.mint(transactionSender.address, lockTotalAmount);
 
     // Approve token for locking
-    const nodeContractInfo = getContractInfoForNetwork("StorageNodeRegistry", TARGET_NETWORK);
+    const nodeContractInfo = getContractInfoForBlockchainAnchor(TARGET_CHAIN, "storageNodeRegistry");
     await tokenAPI.approve(nodeContractInfo.address, lockTotalAmount);
 
     // Lock tokens with token transfer to the registered DID
@@ -203,6 +208,36 @@ async function CheckAndLock(configuration : Record<string, any>, registeredLockN
             await lockNodeApi.lock(lockInfo.purpose, lockInfo.amount, true);
         }
     }
+}
+
+/**
+ * Get registered data center IDs for read test
+ * @param blockchainAnchor Testing chain {@link BlockchainAnchor}
+ * @param nodeManager {@link VeridaNodeManager}
+ * @returns 
+ */
+export async function getRegisteredDataCenterIds(
+    blockchainAnchor: BlockchainAnchor, 
+    nodeManager: VeridaNodeManager | undefined = undefined ) {
+
+    if (!nodeManager) {
+        nodeManager = new VeridaNodeManager({blockchainAnchor});
+    }
+
+    const names : string[] = [];
+    for (let i = 0; i < REGISTERED_DATACENTRES.length; i++) {
+        let result = await nodeManager.isRegisteredDataCentreName(REGISTERED_DATACENTRES[i].name);
+        if (result === true) {
+            names.push(REGISTERED_DATACENTRES[i].name);
+        }
+    }
+
+    if (names.length === 0) {
+        throw new Error("Request contract owner to register data centres");
+    }
+
+    const dataCentres = await nodeManager.getDataCentresByName(names);
+    return dataCentres.map(item => item["id"]);
 }
 
 /**
@@ -218,48 +253,67 @@ export async function addInitialData (
     if (ownerApi === undefined) {
         const userDID = Wallet.createRandom();
         ownerApi = new VeridaNodeOwnerApi({
+            blockchainAnchor: TARGET_CHAIN,
             did: `did:vda:testnet:${userDID.address}`, // Not used during owner function call
             signKey: userDID.privateKey, // Not used during owner function call
-            network: TARGET_NETWORK,
             ...configuration
         })
     }
 
+    
+    const privateKey = configuration["web3Options"].privateKey;
+    const curUser = new Wallet(privateKey);
+    const owner = await ownerApi.owner();
+    const isOwner = curUser.address.toLowerCase() === owner.toLowerCase();
+
     console.log("Add initial data for test...")
     // Add trusted Signer
     if ((await ownerApi.isTrustedSigner(TRUSTED_SIGNER.address)) !== true) {
-        try {
-            await ownerApi.addTrustedSigner(TRUSTED_SIGNER.address);
-        } catch (err) {
-            throw new Error(`Failed to add trusted signer ${err}`);
+        if (isOwner) {
+            try {
+                await ownerApi.addTrustedSigner(TRUSTED_SIGNER.address);
+            } catch (err) {
+                throw new Error(`Failed to add trusted signer ${err}`);
+            }
+        } else {
+            throw new Error(`Trusted signer not added`);
         }
     }
-    console.log("### Trusted signer added");
+
+    console.log("### Trusted signer : Ok");
+    
 
     // Check & add data centres if not added
     let DATA_CENTRE_IDS : BigNumber[];
-    try {
-        // Add registered data centres
-        const names = await checkAndAddDataCentres(ownerApi, REGISTERED_DATACENTRES);
-        
-        // Add and remove datacentres for test
-        await checkAndAddDataCentres(ownerApi, REMOVED_DATACENTRES);
+    if (isOwner) {
+        try {
+            // Add registered data centres
+            const names = await checkAndAddDataCentres(ownerApi, REGISTERED_DATACENTRES);
+            
+            // Add and remove datacentres for test
+            await checkAndAddDataCentres(ownerApi, REMOVED_DATACENTRES);
 
-        const removeNames = REMOVED_DATACENTRES.map(item => item.name);
-        const removeDataCentres = await ownerApi.getDataCentresByName(removeNames);
-        for (let i = 0; i < removeDataCentres.length; i++) {
-            if (removeDataCentres[i].status === EnumStatus.active) {
-                await ownerApi.removeDataCentreByName(removeDataCentres[i].name);
+            const removeNames = REMOVED_DATACENTRES.map(item => item.name);
+            const removeDataCentres = await ownerApi.getDataCentresByName(removeNames);
+            for (let i = 0; i < removeDataCentres.length; i++) {
+                if (removeDataCentres[i].status === EnumStatus.active) {
+                    await ownerApi.removeDataCentreByName(removeDataCentres[i].name);
+                }
             }
-        }
 
-        // Get IDs of registered data centres
-        DATA_CENTRE_IDS = await ownerApi.getDataCentresByName(names);
-        DATA_CENTRE_IDS = DATA_CENTRE_IDS.map(item => item["id"]);
-    } catch (err) {
-        throw new Error(`Failed to add data centres ${err}`);
+            // Get IDs of registered data centres
+            DATA_CENTRE_IDS = await ownerApi.getDataCentresByName(names);
+            DATA_CENTRE_IDS = DATA_CENTRE_IDS.map(item => item["id"]);
+        } catch (err) {
+            throw new Error(`Failed to add data centres ${err}`);
+        }
+    } else {
+        DATA_CENTRE_IDS = await getRegisteredDataCenterIds(TARGET_CHAIN, ownerApi);
+        if (DATA_CENTRE_IDS.length === 0) {
+            throw new Error(`No data centers`)
+        }
     }
-    console.log("### Data centres are added")
+    console.log("### Data centres : Ok")
 
     // Check & add nodes
     await checkAndAddNodes(configuration, REGISTERED_DIDS);
@@ -273,8 +327,10 @@ export async function addInitialData (
     await CheckAndRemoveNodes(configuration, REMOVE_START_DIDS, unregisterTime, fallbackInfo);
     console.log("### Nodes are added");
 
-    await CheckAndLock(configuration, REGISTERED_LOCK_NODE);
-    console.log("### Locking tokens done")
+    if (isOwner) {
+        await CheckAndLock(configuration, REGISTERED_LOCK_NODE);
+        console.log("### Locking tokens done")
+    }
 
     return DATA_CENTRE_IDS;
 }

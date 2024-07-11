@@ -1,17 +1,12 @@
-
-
 'use strict'
 const assert = require('assert')
 
-import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
-import { DIDDocument } from '@verida/did-document'
+import { Client } from '../src/index'
+import { Network } from '@verida/types'
 import CONFIG from './config'
-import { EnvironmentType, IDatabase } from '@verida/types'
-import { isAssertionExpression } from 'typescript'
 
-const ENVIRONMENT = EnvironmentType.TESTNET
+const NETWORK = Network.DEVNET
 
 /**
  * Test a single (or collection) of storage nodes
@@ -20,9 +15,9 @@ describe('Storage context hash tests', () => {
     let didClient, contextByName, contextByHash
 
     const client = new Client({
-        environment: ENVIRONMENT,
+        network: NETWORK,
         didClientConfig: {
-            network: ENVIRONMENT,
+            network: NETWORK
         },
         //readOnlyDataApiUri: 'https://data.verida.network'
         //readOnlyDataApiUri: 'http://localhost:8182'
@@ -31,9 +26,28 @@ describe('Storage context hash tests', () => {
     describe('Test get profile', function() {
         this.timeout(200 * 1000)
 
-        const did = 'did:vda:testnet:0xb362351168D370b174E0fD3Feec93C4E6d2938e2'
+        let did
         const contextName = 'Verida: Vault'
         const profileName = 'basicProfile'
+
+        it(`can create a profile`, async () => {
+            const account = new AutoAccount({
+                privateKey: CONFIG.VDA_PRIVATE_KEY,
+                network: CONFIG.NETWORK,
+                didClientConfig: CONFIG.DID_CLIENT_CONFIG
+            })
+            did = await account.did()
+            await client.connect(account)
+            const context = await client.openContext('Verida: Vault', true)
+
+            const profile = await context!.openProfile()
+            await profile!.set("name", 'Test name')
+            await profile!.set("country", 'Australia')
+
+            await context.close({
+                clearLocal: true
+            })
+        })
 
         it(`can get a known profile`, async function() {
             const profile = await client.getPublicProfile(did, contextName, profileName)
@@ -60,9 +74,9 @@ describe('Storage context hash tests', () => {
 
         it(`can handle an invalid server URI`, async function() {
             const client2 = new Client({
-                environment: ENVIRONMENT,
+                network: NETWORK,
                 didClientConfig: {
-                    network: ENVIRONMENT,
+                    network: NETWORK,
                 },
                 readOnlyDataApiUri: 'https://www.google.com'
             })

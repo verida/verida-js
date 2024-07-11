@@ -9,6 +9,7 @@ Users can claim the Verida token as reward for registered claim type such as Fac
 This packages has dependency for following `verida-js` packages.
 - `@verida/types`
 - `@verida/vda-common`
+- `@verida/vda-client-base`
 
 Also, has a dependency for following `verida-js` packages for test.
 - `@verida/vda-common-test`

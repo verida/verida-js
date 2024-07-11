@@ -8,9 +8,10 @@ import { DIDDocument } from '@verida/did-document'
 import { Wallet } from 'ethers'
 import { getDIDClient } from './utils'
 import { DIDClient } from '@verida/did-client'
-import { SecureContextConfig } from '@verida/types'
+import { Network, SecureContextConfig } from '@verida/types'
 import { CONTEXT_NAME } from './utils'
 
+const NETWORK = Network.BANKSIA
 const wallet = Wallet.createRandom()
 
 function sleep(ms) {
@@ -19,7 +20,7 @@ function sleep(ms) {
 
 console.log(wallet.mnemonic)
 const address = wallet.address.toLowerCase()
-const DID = `did:vda:testnet:${address}`
+const DID = `did:vda:polamoy:${address}`
 
 // Test config
 const testConfig: SecureContextConfig = {
@@ -98,12 +99,12 @@ describe('Storage Link', () => {
 
             let storageConfig = Object.assign({}, expectedConfig)
 
-            const success = await StorageLink.setLink(didClient, testConfig, keyring1, wallet.privateKey)
+            const success = await StorageLink.setLink(NETWORK, didClient, testConfig, keyring1, wallet.privateKey)
             assert.ok(success, 'Set link succeeded')
-            const links = await StorageLink.getLinks(didClient, DID)
+            const links = await StorageLink.getLinks(NETWORK, didClient, DID)
             assert.ok(links.length, 1, 'Fetched exactly one saved link')
 
-            const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, testConfig.id)
+            const fetchedStorageConfig = await StorageLink.getLink(NETWORK, didClient, DID, testConfig.id)
             storageConfig.id = DIDDocument.generateContextHash(DID, CONTEXT_NAME)
             
             assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the expected storage config')
@@ -113,9 +114,9 @@ describe('Storage Link', () => {
             await sleep(1000)
             let storageConfig = Object.assign({}, expectedConfig)
             storageConfig.id = TEST_APP_NAME2
-            await StorageLink.setLink(didClient, storageConfig, keyring2, wallet.privateKey)
+            await StorageLink.setLink(NETWORK, didClient, storageConfig, keyring2, wallet.privateKey)
 
-            const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, TEST_APP_NAME2)
+            const fetchedStorageConfig = await StorageLink.getLink(NETWORK, didClient, DID, TEST_APP_NAME2)
             storageConfig.id = DIDDocument.generateContextHash(DID, TEST_APP_NAME2)
 
             const keys = await keyring2.publicKeys()
@@ -124,16 +125,16 @@ describe('Storage Link', () => {
 
             assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the submitted storage config')
 
-            const allConfigs = await StorageLink.getLinks(didClient, DID)
+            const allConfigs = await StorageLink.getLinks(NETWORK, didClient, DID)
             assert.equal(allConfigs.length, 2, 'Have two storage context configs')
         })
 
         it('can unlink secure storage contexts from a DID', async function() {
             await sleep(1000)
-            const removed = await StorageLink.unlink(didClient, TEST_APP_NAME2)
+            const removed = await StorageLink.unlink(NETWORK, didClient, TEST_APP_NAME2)
             assert.ok(removed, 'Successfully unlinked storage context')
 
-            const fetchedStorageConfig = await StorageLink.getLink(didClient, DID, TEST_APP_NAME2)
+            const fetchedStorageConfig = await StorageLink.getLink(NETWORK, didClient, DID, TEST_APP_NAME2)
             assert.ok(fetchedStorageConfig == undefined, 'Storage config no longer exists')
         })
 

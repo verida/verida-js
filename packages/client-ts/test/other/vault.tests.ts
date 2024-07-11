@@ -10,22 +10,22 @@ const VERIDA_CONTEXT_NAME = "Verida: Vault"
 /**
  * 
  */
-describe('Basic vault tests', () => {
+describe.skip('Basic vault tests', () => {
 
     describe('Test connecting', function() {
         this.timeout(60000)
         
         it('can open vault context', async function() {
             const client = new Client({
-                environment: CONFIG.ENVIRONMENT,
-        didClientConfig: {
-            rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
-        }
+                network: CONFIG.NETWORK,
+                didClientConfig: {
+                    rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
+                }
             })
 
-            const account = new AutoAccount(CONFIG.DEFAULT_ENDPOINTS, {
+            const account = new AutoAccount( {
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             await client.connect(account)

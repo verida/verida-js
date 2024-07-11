@@ -2,12 +2,15 @@ import { IAccount } from "./IAccount";
 import { IContext } from "./IContext";
 import { IProfile } from "./IProfile";
 import { ISchema } from "./ISchema";
+import { Network } from "./NetworkInterfaces";
 import { SecureContextConfig } from "./StorageLinkInterfaces";
 
 export interface IClient {
     connect(account: IAccount): Promise<void>
 
     isConnected(): void
+
+    getNetwork(): Network
 
     openContext(
         contextName: string,

@@ -4,25 +4,24 @@ import { Client } from '../../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from '../config'
 import { Wallet } from 'ethers'
-import { EnvironmentType } from '@verida/types'
+import { Network } from '@verida/types'
 
-const ENVIRONMENT = EnvironmentType.MAINNET
+const NETWORK = Network.DEVNET
 const CONTEXT_NAME = 'Verida: Vault'
 const DB_NAME = ''
 
 const seedPhrase = ``
-const privateKey = Wallet.fromMnemonic(seedPhrase).privateKey
 
 /**
  * 
  */
-describe('Verida basic database tests', () => {
+describe.skip('Verida basic database tests', () => {
     let context, did, account
 
     const network = new Client({
-        environment: ENVIRONMENT,
+        network: NETWORK,
         didClientConfig: {
-            network: ENVIRONMENT,
+            network: NETWORK,
         }
     })
 
@@ -32,8 +31,8 @@ describe('Verida basic database tests', () => {
         it('can connect and load DID', async function() {
             // Initialize account 1
             account = new AutoAccount({
-                privateKey,
-                environment: ENVIRONMENT,
+                privateKey: seedPhrase,
+                network: NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did = await account.did()

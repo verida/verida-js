@@ -1,6 +1,7 @@
 const assert = require('assert');
 require('dotenv').config();
 import Credentials from '../src/credentials';
+import { VeridaCredentialRecord } from '../src/interfaces';
 import config from './config';
 import { connectAccount } from './utils';
 import { Network } from '@verida/types';
@@ -34,6 +35,7 @@ describe('Credential tests', function () {
             })
 
             // Obtain the payload, that contains the verifiable credentialSdk (.vc)
+            console.log(decodedCredential)
             const payload = decodedCredential.payload
             const vc = payload.vc
 
@@ -51,6 +53,17 @@ describe('Credential tests', function () {
             assert.deepEqual(issuer.did, vc.issuer, 'Issuer matches expected DID');
             assert.equal(vc.credentialSchema.id, config.SCHEMA_SBT, 'Credential schema is correct')
             assert.equal(vc.sub, config.SUBJECT_DID, 'Credential subject matches expected DID')
+            
+        });
+        it('Verify createVerifiableCredentialRecord generates a proof', async function() {
+            const data: VeridaCredentialRecord = await credentialSdk.createVerifiableCredentialRecord({
+                subjectId: config.SUBJECT_DID,
+                schema: config.SCHEMA_SBT,
+                data: config.CREDENTIAL_DATA,
+                context: appContext
+            }, 'Test');
+
+            assert.ok(data.credentialData.proof, 'Credential data has a proof')
         });
         it('Unable to create credential with invalid schema data', async function () {
             const promise = new Promise((resolve, rejects) => {

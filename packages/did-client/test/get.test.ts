@@ -1,12 +1,12 @@
 'use strict'
 const assert = require('assert')
 import { DIDClient } from '@verida/did-client'
-import { EnvironmentType } from '@verida/types'
+import { BlockchainAnchor } from '@verida/types'
 const util = require('util')
 
 let didClient
 
-const DID = 'did:vda:testnet:0x3aEAEde1a43B51774C9250a5F9C167Dd7ec74bcA'.toLowerCase()
+const DID = 'did:vda:polamoy:0x60e32de832d22ce242dbe0c64ffdc079f86c2b1f'.toLowerCase()
 
 /**
  * 
@@ -15,7 +15,7 @@ describe('DID GET document tests', () => {
 
     before(async () => {
         didClient = new DIDClient({
-            network: EnvironmentType.TESTNET
+            blockchain: BlockchainAnchor.POLAMOY
         })
     })
 

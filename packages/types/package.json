@@ -1,6 +1,6 @@
 {
   "name": "@verida/types",
-  "version": "3.0.2",
+  "version": "4.0.0-alpha-4",
   "description": "Typescript definitions for interfaces used in Verida",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

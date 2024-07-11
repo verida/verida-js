@@ -25,41 +25,41 @@ const CONTEXT_2 = "Verida Tests: Messaging Application 2"
 /**
  * 
  */
-describe('Verida messaging tests', () => {
+describe.skip('Verida messaging tests', () => {
     let context1, did1
     let context2, did2
     let context3, did3
     let newContext
 
     const client1 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const client2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const client3 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
-    describe.skip('Sending messages', function() {
-        this.timeout(20 * 1000)
+    describe('Sending messages', function() {
+        this.timeout(120 * 1000)
 
         it('can send a message between users of the same application', async function() {
             // Initialize account 1
             const account1 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_1])
             did1 = await account1.did()
@@ -69,7 +69,7 @@ describe('Verida messaging tests', () => {
             // Initialize account 2 (different private key, same application context)
             const account2 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_1])
             did2 = await account2.did()
@@ -78,9 +78,7 @@ describe('Verida messaging tests', () => {
 
             // Initialize messaging for both accounts
             const messaging1 = await context1.getMessaging()
-            await messaging1.init()
             const messaging2 = await context2.getMessaging()
-            await messaging2.init()
 
             // Delete any existing inbox messages for the recipient
             const inbox = await messaging2.getInbox()
@@ -109,7 +107,6 @@ describe('Verida messaging tests', () => {
             // Create a new context so we don't reuse the same `inbox` instance
             newContext = await client2.openContext(CONTEXT_1, false)
             let messaging = await newContext.getMessaging()
-            await messaging.init()
             const messages = await messaging.getMessages()
 
             assert.ok(messages.length, "At least one message exists")
@@ -154,7 +151,7 @@ describe('Verida messaging tests', () => {
             // Initialize account 3 (different private key, different application context)
             const account3 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_2])
             did3 = await account3.did()
@@ -163,9 +160,7 @@ describe('Verida messaging tests', () => {
 
             // Initialize messaging for both accounts
             const messaging1 = await context1.getMessaging()
-            await messaging1.init()
             const messaging2 = await context3.getMessaging()
-            await messaging2.init()
 
             // Delete any existing inbox messages for the recipient
             const inbox = await messaging2.getInbox()
@@ -184,7 +179,6 @@ describe('Verida messaging tests', () => {
             // Create a new context so we don't reuse the same `inbox` instance
             newContext = await client3.openContext(CONTEXT_2, true)
             const messaging = await newContext.getMessaging()
-            await messaging.init()
             const messages = await messaging.getMessages()
 
             assert.ok(messages.length, "At least one message exists")

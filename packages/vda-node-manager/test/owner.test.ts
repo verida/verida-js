@@ -1,11 +1,11 @@
 require('dotenv').config();
-import { DID_LIST, getBlockchainAPIConfiguration, ERC20Manager, TRUSTED_SIGNER, DID_NODE_MAP, REGISTERED_DIDS } from "@verida/vda-common-test"
+import { DID_LIST, getBlockchainAPIConfiguration, ERC20Manager, TRUSTED_SIGNER, REGISTERED_DIDS } from "@verida/vda-common-test"
 import { VeridaNodeOwnerApi, VeridaNodeManager, IStorageNode } from "../src/index"
 import { BigNumber, BigNumberish, Wallet } from "ethers";
-import { EnvironmentType } from "@verida/types";
 import { expect } from "chai";
-import { CONTRACT_ADDRESS } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
 import { addInitialData, generateAuthSignature, compareNodeData } from "./helpers";
+import { BlockchainAnchor } from "@verida/types";
 
 
 const assert = require('assert')
@@ -18,19 +18,21 @@ if (!privateKey) {
 const ownerDID = DID_LIST[0];
 const configuration = getBlockchainAPIConfiguration(privateKey);
 
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
+
 const createOwnerAPI = (did: any) => {
     return new VeridaNodeOwnerApi({
+        blockchainAnchor,
         did: did.address,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
 const createNodeManagerAPI = (did: any) => {
     return new VeridaNodeManager({
+        blockchainAnchor,
         did: did.address,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
@@ -224,7 +226,7 @@ describe("Verida NodeOwnerApi Test", () => {
             const targetNode = new Wallet(REGISTERED_DIDS[0].privateKey);
 
             // `StorageNodeRegistry` contract address. Used to approve tokens
-            const contractAddress = CONTRACT_ADDRESS["StorageNodeRegistry"].testnet;
+            const contractAddress = getContractInfoForBlockchainAnchor(blockchainAnchor, "storageNodeRegistry").address;
 
             const newNode = {
                 name: 'node-' + user.address.toLowerCase(),

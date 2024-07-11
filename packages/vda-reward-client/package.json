@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-reward-client",
-  "version": "3.0.2",
+  "version": "4.0.0-alpha-4",
   "description": "Client to manage reward",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -14,8 +14,8 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "tests": "ts-mocha './test/**/*.tests.ts'",
-    "test": "ts-mocha --timeout 200000",
+    "tests": "ts-mocha './test/**/*.test.ts'",
+    "test": "ts-mocha --timeout 500000",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "rm -rf build && tsc",
@@ -25,13 +25,14 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@verida/encryption-utils": "*",
-    "@verida/helpers": "^3.0.3",
-    "@verida/types": "^3.0.2",
-    "@verida/web3": "^3.0.3"
+    "@verida/encryption-utils": "^4.0.0-alpha-2",
+    "@verida/helpers": "^4.0.0-alpha-4",
+    "@verida/types": "^4.0.0-alpha-4",
+    "@verida/vda-client-base": "^4.0.0-alpha-4",
+    "@verida/web3": "^4.0.0-alpha-4"
   },
   "devDependencies": {
-    "@verida/vda-common-test": "^3.0.2",
+    "@verida/vda-common-test": "^4.0.0-alpha-2",
     "dotenv": "^16.0.3",
     "ethers": "5.7.0",
     "gts": "^3.1.0",

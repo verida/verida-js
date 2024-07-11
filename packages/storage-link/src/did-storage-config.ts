@@ -13,7 +13,6 @@ export default class DIDStorageConfig {
     static async generate(account: any, contextName: string, servicesConfig: SecureContextServices): Promise<SecureContextConfig> {
         const keyring = await account.keyring(contextName)
         const publicKeys = await keyring.publicKeys()
-        const did = await account.did()
 
         const config: SecureContextConfig = {
             id: contextName,
@@ -27,7 +26,8 @@ export default class DIDStorageConfig {
                     publicKeyHex: publicKeys.signPublicKeyHex
                 }
             },
-            services: servicesConfig
+            services: servicesConfig,
+            isLegacyDid: false
         }
 
         return config

@@ -2,7 +2,8 @@ import { Command } from 'command-line-interface';
 import { SendInboxMessageOptions } from './interfaces';
 import { Client } from '@verida/client-ts';
 import { AutoAccount } from '@verida/account-node';
-import { EnvironmentType } from '@verida/types';
+import { Network } from '@verida/types';
+import { NETWORK_STRINGS } from '../constants';
 require('dotenv').config()
 
 export const SendInboxMessage: Command<SendInboxMessageOptions> = {
@@ -55,10 +56,9 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
         description: 'Verida network (testnet, mainnet)',
         type: 'string',
         alias: 'n',
-        defaultValue: 'mainnet',
+        defaultValue: 'myrtle',
         validate(val: string) {
-          const valid = ['testnet', 'mainnet']
-          if (valid.indexOf(val) === -1) {
+          if (NETWORK_STRINGS.indexOf(val) === -1) {
             return false
           }
         }
@@ -84,7 +84,7 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
       // Initialize Account
       const account = new AutoAccount({
         privateKey: options.privateKey,
-        environment: <EnvironmentType> options.network,
+        network: <Network> options.network,
         didClientConfig: {
           callType: 'web3',
           web3Config: {
@@ -96,7 +96,7 @@ export const SendInboxMessage: Command<SendInboxMessageOptions> = {
       })
 
       const client = new Client({
-        environment: <EnvironmentType> options.network
+        network: <Network> options.network
       })
 
       const sendingDID = await account.did()

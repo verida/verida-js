@@ -18,6 +18,15 @@ struct StorageNode {
 ```
 Here, `name`, `didAddress` and `endpointUri` are unique values. In turn, there are no duplicated values for these fields.
 
+## Verida package dependency
+- `@verida/types`
+- `@verida/vda-common`
+- `@verida/vda-base-client`
+
+Also, has a dependency for following `verida-js` packages for test.
+- `@verida/vda-common-test`
+- `@verida/encryption-utils`
+
 ## About Datacentre (Contract owner specific)
 To add storage nodes, we need `datacentreId`. Adding `datacentre`s are specific to the owner of `StorageNodeContract`.
 Before adding any storage node, the contract owner should add `data centre`s.

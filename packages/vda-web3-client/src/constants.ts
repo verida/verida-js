@@ -1,29 +1,43 @@
 /* eslint-disable prettier/prettier */
-import {CONTRACT_ADDRESS, CONTRACT_NAMES} from '@verida/vda-common';
+import { TContractNames } from '@verida/types';
+import { NETWORK_DEFINITIONS} from '@verida/vda-common';
 
+/**
+ * Create whitelist of Verida contract addresses
+ * @dev This is used for Meta Server transactions
+ * @returns List of contract addresses
+ */
 function createContractWhiteList() {
   const contractList = new Array<string>();
-  let contractName: CONTRACT_NAMES;
-  for (contractName in CONTRACT_ADDRESS) {
-    const contract = CONTRACT_ADDRESS[contractName];
-    for (const net in contract) {
-      const contractAddress = contract[net];
+
+  type ContractObject = Record<TContractNames, undefined>;
+  const contractProperties: ContractObject = {
+    "didLinkage": undefined,
+    "didRegistry": undefined,
+    "nameRegistry": undefined,
+    "reward": undefined,
+    "storageNodeRegistry": undefined,
+    "token": undefined,
+    "solboundNFT": undefined
+  };
+  const CONTRACT_NAMES = Object.keys(contractProperties) as (TContractNames)[];
+
+  let network: keyof typeof NETWORK_DEFINITIONS;
+  for (network in NETWORK_DEFINITIONS ) {
+    const networkData = NETWORK_DEFINITIONS[network];
+
+    CONTRACT_NAMES.forEach(contract => {
       if (
-        contractAddress !== null &&
-        !contractList.includes(contractAddress.toLowerCase())
+        networkData[contract] !== null &&
+        !contractList.includes((networkData[contract]!).address.toLowerCase())
       ) {
-        contractList.push(contractAddress.toLowerCase());
+        contractList.push(networkData[contract]!.address.toLowerCase());
       }
-    }
+    })
   }
   return contractList;
 }
 
 export const veridaContractWhiteList = createContractWhiteList()
 
-export const DEFAULT_JSON_RPC = 'http://127.0.0.1:8545/'
-
-export const knownNetworks: Record<string, string> = {
-  mainnet: '0x89',
-  testnet: '0x13881',
-};
+export const DEFAULT_JSON_RPC = 'http://127.0.0.1:8545/';

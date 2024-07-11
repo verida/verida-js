@@ -20,14 +20,14 @@ describe('Verida datastore tests', () => {
     let DB_USER_ENCRYPTION_KEY
 
     const network = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const network2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
@@ -40,7 +40,7 @@ describe('Verida datastore tests', () => {
             // Initialize account 1
             account1 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did1 = await account1.did()
@@ -80,7 +80,7 @@ describe('Verida datastore tests', () => {
             // Initialize account 2
             account2 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did2 = await account2.did()

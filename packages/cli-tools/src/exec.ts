@@ -1,6 +1,10 @@
 import { runCli } from 'command-line-interface'
 import { SendInboxMessage } from './commands/send-inbox-message'
 import { GetDIDDocument } from './commands/get-did-document'
+import { GetAccountInfo } from './commands/get-account-info'
+import { CreateAccount } from './commands/create-account'
+import { GetProfile } from './commands/get-profile'
+import { SetProfile } from './commands/set-profile'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async (): Promise<void> => {
@@ -19,6 +23,10 @@ import { GetDIDDocument } from './commands/get-did-document'
         subcommands: {
           GetDIDDocument,
           SendInboxMessage,
+          GetAccountInfo,
+          CreateAccount,
+          GetProfile,
+          SetProfile
         },
         handlers: {
           // @ts-ignore

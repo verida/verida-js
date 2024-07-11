@@ -5,6 +5,13 @@ A client library for minting a Soulbound Token with the Verida SBT smart contrac
 
 The smart contract maintains a list of trusted signers that are permitted to sign data off-chain that the smart contract will then trust. If the smart contract can't verify the data is signed by a trusted signer, the SBT will not be minted.
 
+## Dependencies
+This packages dependes on the following `verida-js` packages:
+- @verida/types
+- @verida/encryption-utils
+- @verida/vda-common-test
+- @verida/vda-client-base
+
 # Installation
 
 ```

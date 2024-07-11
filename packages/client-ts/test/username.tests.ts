@@ -5,7 +5,6 @@ import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import { VeridaNameClient } from '@verida/vda-name-client'
 import CONFIG from './config'
-import { EnvironmentType } from '@verida/types'
 
 /**
  * 
@@ -14,16 +13,16 @@ describe('Username lookup tests', () => {
     let didClient, context, USERNAME, DID
 
     const client = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
-            network: EnvironmentType.TESTNET,
+            network: CONFIG.NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const account = new AutoAccount({
         privateKey: CONFIG.VDA_PRIVATE_KEY,
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
 
@@ -44,17 +43,16 @@ describe('Username lookup tests', () => {
                 // username not found, need to create
                 const DID_PRIVATE_KEY = CONFIG.VDA_PRIVATE_KEY
                 const POLYGON_PRIVATE_KEY = CONFIG.DID_CLIENT_CONFIG.web3Config.privateKey
-                const RPC_URL = 'https://rpc-mumbai.maticvigil.com'
 
                 // Create name Client
                 const nameClient = new VeridaNameClient({
                     callType: 'web3',
                     did: DID,
                     signKey: DID_PRIVATE_KEY,
-                    network: EnvironmentType.TESTNET,
+                    network: CONFIG.NETWORK,
                     web3Options: {
-                        privateKey: POLYGON_PRIVATE_KEY,
-                        rpcUrl: RPC_URL
+                        rpcUrl: CONFIG.RPC_URL,
+                        privateKey: POLYGON_PRIVATE_KEY
                     }
                 })
 

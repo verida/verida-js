@@ -4,14 +4,14 @@ const assert = require('assert')
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from './config'
-import { EnvironmentType, IDatabase } from '@verida/types'
+import { Network } from '@verida/types'
 
 const TEST_DB_NAME = 'TestDb_1'
 const CONTEXT_NAME = 'Verida Test: Node failure'
 //const CONTEXT_NAME = '0xaf76137db7f06af84bca9ecf9666846c61c41b2fcad80e435f1aa3897a8426a0'
 
 const PRIVATE_KEY = '0x002efd2e44f0d2cbbb71506a02a2043ba45f222f04b501f139f29a0d3b21f002'
-const ENVIRONMENT = EnvironmentType.DEVNET
+const NETWORK = Network.DEVNET
 
 const SLEEP_SECONDS = 30
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -49,9 +49,9 @@ describe('Storage node failure tests', () => {
     let didClient, context
 
     const client = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: NETWORK,
         didClientConfig: {
-            network: ENVIRONMENT,
+            network: NETWORK,
         }
     })
 
@@ -64,7 +64,7 @@ describe('Storage node failure tests', () => {
 
             const account = new AutoAccount({
                 privateKey: PRIVATE_KEY,
-                environment: ENVIRONMENT,
+                network: NETWORK,
                 didClientConfig: {
                     ...CONFIG.DID_CLIENT_CONFIG,
                 }
@@ -100,7 +100,7 @@ describe('Storage node failure tests', () => {
         it(`can failover if a connected node goes down`, async function() {
             const account = new AutoAccount({
                 privateKey: PRIVATE_KEY,
-                environment: ENVIRONMENT,
+                network: NETWORK,
                 didClientConfig: {
                     ...CONFIG.DID_CLIENT_CONFIG,
                 }

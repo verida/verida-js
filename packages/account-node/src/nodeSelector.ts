@@ -1,4 +1,4 @@
-import { EnvironmentType } from '@verida/types'
+import { Network } from '@verida/types'
 import { COUNTRIES } from './countries'
 import axios from 'axios'
 import { ServiceEndpoint } from 'did-resolver'
@@ -21,22 +21,22 @@ function getRandomInt(min: number, max: number) {
 }
 
 export interface NodeSelectorParams {
-  network?: EnvironmentType
+  network?: Network
   notificationEndpoints?: ServiceEndpoint[]
   defaultTimeout?: number //5000
 }
 
 export interface NodeSelectorConfig {
-  network: EnvironmentType
+  network: Network
   notificationEndpoints: string[]
   defaultTimeout: number //5000
 }
 
 // @ts-ignore
 const STORAGE_NODE_URLS: Record<EnvironmentType, string> = {}
-STORAGE_NODE_URLS[EnvironmentType.DEVNET] = 'https://assets.verida.io/registry/storageNodes/devnet.json'
-STORAGE_NODE_URLS[EnvironmentType.TESTNET] = 'https://assets.verida.io/registry/storageNodes/testnet.json'
-STORAGE_NODE_URLS[EnvironmentType.MAINNET] = 'https://assets.verida.io/registry/storageNodes/mainnet.json'
+STORAGE_NODE_URLS[Network.DEVNET] = 'https://assets.verida.io/registry/storageNodes/devnet.json'
+STORAGE_NODE_URLS[Network.BANKSIA] = 'https://assets.verida.io/registry/storageNodes/banksia.json'
+STORAGE_NODE_URLS[Network.MYRTLE] = 'https://assets.verida.io/registry/storageNodes/myrtle.json'
 
 export class NodeSelector {
 

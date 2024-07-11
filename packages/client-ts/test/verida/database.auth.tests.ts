@@ -22,22 +22,22 @@ describe.skip('Verida auth tests', () => {
 
     const account = new AutoAccount({
         privateKey: CONFIG.VDA_PRIVATE_KEY,
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
 
     const invalidAccount = new AutoAccount({
         privateKey: CONFIG.VDA_PRIVATE_KEY,
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
 
     const invalidNetwork = new Client({
         didClientConfig: {
-            network: CONFIG.ENVIRONMENT,
+            network: CONFIG.NETWORK,
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         },
-        environment: CONFIG.ENVIRONMENT
+        network: CONFIG.NETWORK
     })
 
     describe('Handle authentication errors', function() {
@@ -71,18 +71,18 @@ describe.skip('Verida auth tests', () => {
             // Create a working connection
             const network = new Client({
                 didClientConfig: {
-                    network: CONFIG.ENVIRONMENT,
+                    network: CONFIG.NETWORK,
                     rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
                 },
-                environment: CONFIG.ENVIRONMENT
+                network: CONFIG.ENVIRONMENT
             })
         
             const network2 = new Client({
                 didClientConfig: {
-                    network: CONFIG.ENVIRONMENT,
+                    network: CONFIG.NETWORK,
                     rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
                 },
-                environment: CONFIG.ENVIRONMENT
+                network: CONFIG.NETWORK
             })
 
             await network.connect(account)
@@ -105,7 +105,7 @@ describe.skip('Verida auth tests', () => {
             const account2 = new AuthContextAccount({
                     privateKey: CONFIG.VDA_PRIVATE_KEY,
                     didClientConfig: CONFIG.DID_CLIENT_CONFIG,
-                    environment: CONFIG.ENVIRONMENT
+                    network: CONFIG.NETWORK
                 },
                 VALID_CONTEXT,
                 authContext
@@ -130,18 +130,18 @@ describe.skip('Verida auth tests', () => {
             // Create a working connection
             const network = new Client({
                 didClientConfig: {
-                    network: CONFIG.ENVIRONMENT,
+                    network: CONFIG.NETWORK,
                     rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
                 },
-                environment: CONFIG.ENVIRONMENT
+                network: CONFIG.NETWORK
             })
         
             const network2 = new Client({
                 didClientConfig: {
-                    network: CONFIG.ENVIRONMENT,
+                    network: CONFIG.NETWORK,
                     rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
                 },
-                environment: CONFIG.ENVIRONMENT
+                network: CONFIG.NETWORK
             })
             
             await network.connect(account)
@@ -161,7 +161,7 @@ describe.skip('Verida auth tests', () => {
             const account2 = new AuthContextAccount({
                     privateKey: CONFIG.VDA_PRIVATE_KEY,
                     didClientConfig: CONFIG.DID_CLIENT_CONFIG,
-                    environment: CONFIG.ENVIRONMENT
+                    network: CONFIG.NETWORK
                 },
                 VALID_CONTEXT,
                 authContext
