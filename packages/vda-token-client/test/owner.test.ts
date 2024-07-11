@@ -20,7 +20,7 @@ const createBlockchainAPI = async () => {
     })
 }
 
-describe('vda-token-owner test', function() {
+describe('VeridaTokenOwner test', function() {
     this.timeout(200*1000)
 
     let blockchainApi : VeridaTokenOwner;
@@ -92,7 +92,7 @@ describe('vda-token-owner test', function() {
 
     it("Update token limit per sell transaction", async () => {
         const orgRate = await blockchainApi.maxAmountPerSellRate();
-        console.log("Org wallet limit : ", orgRate);
+        console.log("Org sell limit : ", orgRate);
 
         await blockchainApi.updateMaxAmountPerSellRate(orgRate + 0.001);
 
@@ -140,11 +140,12 @@ describe('vda-token-owner test', function() {
     })
 
     it("Enable/disable token transfer", async () => {
-        await blockchainApi.enableTransfer(false);
-        assert.ok(await blockchainApi.isTransferEnabled() === false, 'Transfer disabled');
-
-        await blockchainApi.enableTransfer(true);
-        assert.ok(await blockchainApi.isTransferEnabled(), 'Transfer enabled');
+        if (await blockchainApi.isTransferEnabled() === true) {
+            console.log('Token transfer already enabled');
+        } else {
+            await blockchainApi.enableTransfer();
+            assert.ok(await blockchainApi.isTransferEnabled(), 'Transfer enabled');
+        }
     })
 
     it("Pause", async () => {

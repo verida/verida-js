@@ -143,13 +143,13 @@ export class VeridaTokenOwner extends VeridaTokenClient {
     }
 
     /**
-     * Enable/disable token transfer
-     * @param isEnabled boolean
+     * Enable token transfer
+     * @dev Only called once
      */
-    public async enableTransfer(isEnabled: boolean) {
-        const response = await this.vdaWeb3Client!.enableTransfer(isEnabled);
+    public async enableTransfer() {
+        const response = await this.vdaWeb3Client!.enableTransfer();
         if (response.success !== true) {
-            throw new Error(`Failed to enable transfer(${isEnabled}): ${response.reason}`);
+            throw new Error(`Failed to enable transfer: ${response.reason}`);
         }
     }
 
