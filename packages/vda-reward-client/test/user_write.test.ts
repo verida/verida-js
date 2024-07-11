@@ -18,12 +18,12 @@ if (!privateKey) {
 }
 const configuration = getBlockchainAPIConfiguration(privateKey);
 
-const target_chain = BlockchainAnchor.DEVNET;
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 
 // Create `VeridaRewardClient` in write mode
 const createRewardClientAPI = (did:Wallet, configuration: any) => {
     return new VeridaRewardClient({
-        blockchainAnchor: target_chain,
+        blockchainAnchor,
         did: `did:vda:testnet:${did.address}`,
         signKey: did.privateKey,
         ...configuration
@@ -32,7 +32,7 @@ const createRewardClientAPI = (did:Wallet, configuration: any) => {
 
 const createNodeManagerAPI = () => {
     return new VeridaNodeManager({
-        blockchainAnchor: target_chain,
+        blockchainAnchor,
         // did: did.address,
         // signKey: did.privateKey,
         // ...configuration
@@ -40,7 +40,7 @@ const createNodeManagerAPI = () => {
 }
 
 describe("Verida RewardOwnerApi Test in read/write mode", function() {
-    this.timeout(100 * 1000)
+    this.timeout(200 * 1000)
     let rewardClientApi: VeridaRewardClient;
     let nodeManagerApi: VeridaNodeManager;
     let tokenAPI: ERC20Manager;
@@ -52,7 +52,7 @@ describe("Verida RewardOwnerApi Test in read/write mode", function() {
         rewardClientApi = createRewardClientAPI(new Wallet(RECIPIENT_WALLET.privateKey), configuration);
 
         const TOKEN_ADDRESS = await rewardClientApi.getTokenAddress();
-        const rewardContractAddress = getContractInfoForBlockchainAnchor(target_chain, "reward").address;
+        const rewardContractAddress = getContractInfoForBlockchainAnchor(blockchainAnchor, "reward").address;
 
         // Create tokenAPI for claiming test
         tokenAPI = new ERC20Manager(
@@ -72,7 +72,7 @@ describe("Verida RewardOwnerApi Test in read/write mode", function() {
                 const mintAmount = 1000n;
                 await tokenAPI.mint(rewardContractAddress, mintAmount);
             } else {
-                throw new Error(`Not enough token in the 'VDARewardContract' at ${rewardContractAddress}`);
+                throw new Error(`Not enough token in the 'VDARewardContract'(${rewardContractAddress})`);
             }            
         }
 

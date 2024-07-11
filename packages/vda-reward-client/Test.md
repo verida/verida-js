@@ -15,7 +15,7 @@ Only the contract owner can test this file.
 
 ## user_write.test.ts
 - Add initial data
-    There are some stuffs to be done before testing this file. This can be done by only the contract owner.
+    There are some stuffs to be done before testing this file. Before running this test files, trusted signers and claim types should be added. This can be done by only the contract owner.
     If users try to test this `user_write.test.ts` file before the contract owner does, they'd face the errors.
 
 - Get received the token to the `Reward` contract
