@@ -5,7 +5,7 @@ import { Keyring } from "@verida/keyring";
 
 require('dotenv').config();
 
-const test_chain = process.env.TEST_NETWORK ? Network[process.env.TEST_NETWORK] : Network.BANKSIA;
+const test_network = process.env.TEST_NETWORK ? Network[process.env.TEST_NETWORK] : Network.BANKSIA;
 const rpcUrl = process.env[`RPC_URL`]
 if (rpcUrl === undefined) {
     throw new Error('RPC url is not defined in env')
@@ -24,7 +24,7 @@ const DEFAULT_ENDPOINTS = {
 }
 const DID_CLIENT_CONFIG = {
     callType: "web3",
-    network: test_chain,
+    network: test_network,
     web3Config: {
       privateKey: process.env.PRIVATE_KEY
     },
@@ -39,11 +39,11 @@ export async function getNetwork(privateKey: string, contextName: string): Promi
     keyring: Keyring
   }> {
     const network = new Client({
-        network: test_chain
+        network: test_network
     })
     const account = new AutoAccount({
         privateKey,
-        network: test_chain,
+        network: test_network,
         // @ts-ignore
         didClientConfig: DID_CLIENT_CONFIG
     })
@@ -71,7 +71,7 @@ export async function getSignerInfo(privateKey: string, contextName : string): P
     const trustedDid = await trustedSignerNetworkInfo.account.did()
     const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDIDClient().get(trustedDid)
   
-    const signedProof = trustedSignerDIDDocument.locateContextProof(contextName, test_chain)!
+    const signedProof = trustedSignerDIDDocument.locateContextProof(contextName, test_network)!
   
     return [
       trustedSignerNetworkInfo.keyring,

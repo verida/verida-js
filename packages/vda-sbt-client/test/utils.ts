@@ -6,16 +6,19 @@ import {
 
 import { VeridaSBTClient } from "../src/index"
 import { Keyring } from "@verida/keyring";
-import { BlockchainAnchor } from "@verida/types";
+import { Network } from "@verida/types";
 import { explodeDID } from "@verida/helpers"
+import { DefaultNetworkBlockchainAnchors } from "@verida/vda-common";
 const assert = require('assert')
 
+const test_network = process.env.TEST_NETWORK ? Network[process.env.TEST_NETWORK] : Network.BANKSIA;
+const blockchainAnchor = DefaultNetworkBlockchainAnchors[test_network];
+
 export const createBlockchainAPI = (did: DidInterface, isWallet = false) => {
-  const target_chain = BlockchainAnchor.DEVNET;
   const configuration = getBlockchainAPIConfiguration(did.privateKey);
   return new VeridaSBTClient({
-    blockchainAnchor: target_chain,
-    did: isWallet ? `did:vda:${target_chain}:${did.address}` : did.address,
+    blockchainAnchor,
+    did: isWallet ? `did:vda:${blockchainAnchor}:${did.address}` : did.address,
     signKey: did.privateKey,
     ...configuration
   })
