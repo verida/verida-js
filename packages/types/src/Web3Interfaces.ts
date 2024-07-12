@@ -41,7 +41,6 @@ export interface Web3GasConfiguration {
  * signer - optional - a Signer that sign the blockchain transactions. If a 'signer' is not provided, then 'contract' with an attached signer need to be used to make transactions
  * provider - optional - a web3 provider. At least one of `signer`,`provider`, or `rpcUrl` is required
  * rpcUrl - optinal - a JSON-RPC URL that can be used to connect to an ethereum network. At least one of `signer`, `provider`, or `rpcUrl` is required
- * web3 - optional - Can use provider or web.currentProvider as a provider.
  * 
  */
 export interface Web3SelfTransactionConfig extends Web3GasConfiguration {
@@ -50,7 +49,6 @@ export interface Web3SelfTransactionConfig extends Web3GasConfiguration {
     privateKey?: string
     provider?: Provider
     rpcUrl?: string
-    web3?: any
     chainId?: string | number
 
     /** Function list with default gas configuration  */
