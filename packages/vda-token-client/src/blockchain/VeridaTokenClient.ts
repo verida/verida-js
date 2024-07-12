@@ -1,5 +1,5 @@
 import { BlockchainAnchor, Web3SelfTransactionConfig } from '@verida/types'
-import { BigNumber, Contract, ethers, Wallet } from "ethers";
+import { BigNumber, BigNumberish, Contract, ethers, Wallet } from "ethers";
 import { getContractInfoForBlockchainAnchor, getDefaultRpcUrl } from "@verida/vda-common";
 import { getVeridaContract, VeridaContract } from '@verida/web3';
 import { JsonRpcProvider } from '@ethersproject/providers';
@@ -13,7 +13,7 @@ export class VeridaTokenClient {
     protected vdaWeb3Client? : VeridaContract
     protected contract?: Contract;
 
-    protected decimalCache: number|undefined;
+    protected decimalCache: BigNumber|undefined;
     protected nameCache: string|undefined;
     protected symbolCache: string|undefined;
     protected totalSupplyCache: BigNumber|undefined;
@@ -186,7 +186,7 @@ export class VeridaTokenClient {
                 }
             }
 
-            this.decimalCache = Number(response);
+            this.decimalCache = response;
             return this.decimalCache;
         } catch (err:any ) {
             throw new Error(`Failed to read decimal: (${err.message})`);
@@ -265,7 +265,7 @@ export class VeridaTokenClient {
      * @param to Receiver
      * @param value Amount to be transferred
      */
-    public async transfer(to: string, value: BigNumber) {
+    public async transfer(to: string, value: BigNumberish) {
         if (this.readOnly) {
             throw new Error(`Unable to submit to blockchain. No 'signer' provided in config.`)
         }
@@ -312,7 +312,7 @@ export class VeridaTokenClient {
      * @param spender Address
      * @param value Amount of token to be approved
      */
-    public async approve(spender: string, value: BigNumber) {
+    public async approve(spender: string, value: BigNumberish) {
         if (this.readOnly) {
             throw new Error(`Unable to submit to blockchain. No 'signer' provided in config.`)
         }
@@ -329,7 +329,7 @@ export class VeridaTokenClient {
      * @param to Address
      * @param value Amount
      */
-    public async transferFrom(from: string, to: string, value: BigNumber) {
+    public async transferFrom(from: string, to: string, value: BigNumberish) {
         if (this.readOnly) {
             throw new Error(`Unable to submit to blockchain. No 'signer' provided in config.`)
         }
@@ -426,7 +426,7 @@ export class VeridaTokenClient {
                 }
             }
 
-            return Number(response);
+            return response;
         } catch (err:any ) {
             throw new Error(`Failed to get minter list: (${err.message})`);
         }
@@ -455,7 +455,7 @@ export class VeridaTokenClient {
                 }
             }
 
-            return Number(response);
+            return response;
         } catch (err:any ) {
             throw new Error(`Failed to get version: (${err.message})`);
         }
@@ -480,7 +480,7 @@ export class VeridaTokenClient {
             } else {
                 response = await this.contract!.callStatic.automatedMarketMakerPairs(address);
 
-                if (!response) {
+                if (typeof response !== 'boolean') {
                     throw new Error(`Failed to check AMM`);
                 }
             }
@@ -541,7 +541,7 @@ export class VeridaTokenClient {
             } else {
                 response = await this.contract!.callStatic.isMaxAmountPerWalletEnabled();
 
-                if (!response) {
+                if (typeof response !== 'boolean' ) {
                     throw new Error('Failed to check wallet amount limit enabled');
                 }
             }
@@ -572,7 +572,7 @@ export class VeridaTokenClient {
             } else {
                 response = await this.contract!.callStatic.isExcludedFromWalletAmountLimit(address);
 
-                if (!response) {
+                if (typeof response !== 'boolean' ) {
                     throw new Error('Failed to check wallet excluded from amount limit');
                 }
             }
@@ -582,7 +582,6 @@ export class VeridaTokenClient {
             throw new Error(`Failed to check wallet excluded from amount limit: (${err.message})`);
         }
     }
-
 
     /**
      * Return token amount limit per sell tx
@@ -634,7 +633,7 @@ export class VeridaTokenClient {
             } else {
                 response = await this.contract!.callStatic.isMaxAmountPerSellEnabled();
 
-                if (!response) {
+                if (typeof response !== 'boolean' ) {
                     throw new Error('Failed to check sell amount limit enabled');
                 }
             }
@@ -665,7 +664,7 @@ export class VeridaTokenClient {
             } else {
                 response = await this.contract!.callStatic.isExcludedFromSellAmountLimit(address);
 
-                if (!response) {
+                if (typeof response !== 'boolean' ) {
                     throw new Error('Failed to check wallet excluded from sell amount limit');
                 }
             }
@@ -695,7 +694,7 @@ export class VeridaTokenClient {
             } else {
                 response = await this.contract!.callStatic.isTransferEnabled();
 
-                if (!response) {
+                if (typeof response !== 'boolean' ) {
                     throw new Error('Failed to check token trnasfer enabled');
                 }
             }
@@ -725,7 +724,7 @@ export class VeridaTokenClient {
             } else {
                 response = await this.contract!.callStatic.paused();
 
-                if (!response) {
+                if (typeof response !== 'boolean' ) {
                     throw new Error('Failed to check contract paused');
                 }
             }
@@ -735,7 +734,4 @@ export class VeridaTokenClient {
             throw new Error(`Failed to check contract paused: (${err.message})`);
         }
     }
-
-
-
 }

@@ -2,10 +2,16 @@ import { BlockchainAnchor } from "@verida/types"
 import { VeridaTokenOwner } from "../src"
 import { BigNumber, Wallet } from "ethers";
 
-export const mintToken = async (ownerPrivateKey: string, amount: BigNumber, to?: string) => {
+export interface IMintInformation {
+    to: string
+    amount: BigNumber
+}
+
+export const mintToken = async (ownerPrivateKey: string, blockchainAnchor: BlockchainAnchor, info: IMintInformation[], rpcUrl?: string) => {
     const tokenOwner = await VeridaTokenOwner.CreateAsync({
-        blockchainAnchor: BlockchainAnchor.DEVNET,
-        privateKey: ownerPrivateKey
+        blockchainAnchor,
+        privateKey: ownerPrivateKey,
+        rpcUrl
     });
 
     const contractOwner = await tokenOwner.owner();
@@ -15,8 +21,9 @@ export const mintToken = async (ownerPrivateKey: string, amount: BigNumber, to?:
         throw new Error(`Incorrect owner private key`);
     }
 
-    const recipient = to ?? contractOwner;
-    await tokenOwner.mint(recipient, amount);
+    for (let i = 0; i < info.length; i++) {
+        await tokenOwner.mint(info[i].to, info[i].amount);
+    }
 }
 
-export const 
+// export const 

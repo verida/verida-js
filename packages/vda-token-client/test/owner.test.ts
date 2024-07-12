@@ -1,8 +1,7 @@
 require('dotenv').config();
-import { VeridaTokenClient, VeridaTokenOwner } from "../src/index"
+import { VeridaTokenOwner } from "../src/index"
 import { BigNumber, Wallet } from "ethers";
-import { BlockchainAnchor, Network } from "@verida/types";
-import { TOKEN_SENDER } from "./const";
+import { BlockchainAnchor } from "@verida/types";
 
 const assert = require('assert')
 
@@ -10,11 +9,12 @@ const privateKey = process.env.PRIVATE_KEY
 if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 const owner = new Wallet(privateKey);
 
 const createBlockchainAPI = async () => {
     return await VeridaTokenOwner.CreateAsync({
-        blockchainAnchor: BlockchainAnchor.DEVNET,
+        blockchainAnchor,
         privateKey,
         rpcUrl: process.env.RPC_URL
     })

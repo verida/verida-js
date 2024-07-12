@@ -1,9 +1,23 @@
-# VDA Node Manager Test
+# VDA Token Client Test
 
-Here explains stuffs related to test this `@verida/vda-node-manager` package.
+Here explains stuffs related to test this `@verida/vda-token-client` package.
 
-- Add trusted signers
-    The contract owner should add `TRUSTED_SIGNER` in the `@verida/vda-common-test/src/const.ts`(`0x0162aE4B571E9daB51309f885200aDdF04F33747`)
+## owner.test.ts
+- Only the contract owner can test this file
 
-- Enough Matic in `RECIPIENT` wallet
-    `RECIPIENT_WALLET` in the `verida/vda-common-test/src/const.ts` should have enough matic to make transactions. (`0xeea7e0781317408d84aD70d1AA8c7553D3D31cA5`)
+## read.test.ts
+- Anybody can test this file
+
+## write.test.ts
+Please check following before run this test:
+- Token balances of following addresses:<br>
+```ts
+0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539: More than `AMOUNT_SEND`(=1000) tokens
+0xE3A441c4e699433FCf1262246Cf323d8e4302998: More than `AMOUNT_APPROVE`(=1000) tokens
+```
+
+- Enough Matic in following addresses:
+```ts
+0x8Ec5df9Ebc9554CECaA1067F974bD34735d3e539,
+0xE3A441c4e699433FCf1262246Cf323d8e4302998
+```
