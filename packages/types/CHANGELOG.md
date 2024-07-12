@@ -1,4 +1,10 @@
-2023-12-26 (v.3.0.0)
+2024-07-12 (v)
+-------------------
+
+- Removed `web3` parameter in `Web3SelfTransactionConfig`
+
+
+2023-12-26 (v3.0.0)
 -------------------
 
 - Mainnet release
