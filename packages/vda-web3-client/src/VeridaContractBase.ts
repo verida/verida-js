@@ -35,6 +35,7 @@ export class VeridaContract {
     /** Contract instance used in web3 mode */
     protected contract?: Contract
 
+    /** Signer for transactions */
     protected signer?: Signer
 
     // Gasless mode variables
@@ -73,7 +74,6 @@ export class VeridaContract {
 
                 this.contract = getContractInstance({
                     provider,
-                    web3: web3Config.web3,
 
                     blockchainAnchor: web3Config.blockchainAnchor,
                     rpcUrl: web3Config.rpcUrl,
@@ -86,12 +86,13 @@ export class VeridaContract {
                 throw new Error('either provider or rpcUrl is required to initialize')
             }
             this.signer = web3Config.signer
-            if (this.signer === undefined) {
-                if ( web3Config.privateKey )
-                    this.signer = new Wallet(web3Config.privateKey, this.contract.provider)
-                else
-                    throw new Error('either Signer or privateKey is required to initialize')
+            if (!this.signer && web3Config.privateKey) {
+                this.signer = new Wallet(web3Config.privateKey, this.contract.provider);
             }
+
+            // if(this.signer) {
+            //     this.contract = this.contract!.connect(this.signer);
+            // }
 
             const methods = config.abi.abi
             methods.forEach((item: any) => {
@@ -254,6 +255,11 @@ export class VeridaContract {
                 if (methodType === 'view' || methodType === 'pure') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
+                
+                    if (!this.signer) {
+                        throw new Error(`No 'signer' or 'privateKey' in the configuration`);
+                    }
+
                     let transaction: any
 
                     // console.log("params : ", params);
