@@ -1,14 +1,18 @@
-xxx (vx)
+2024-07-15 (v.4.0.0)
 -------------------
 
 Breaking changes:
 
+- Support BlockchainAnchor and Verida Network refactor
 - `Network.getRecord()` now requires the `network` parameter
 - `ClientConfig` configures the Verida Network using `network` instead of `environment`
 
 Other changes:
 
 - Fix: Sending inbox message to a full storage node was failing
+- Feature: `client.getPublicProfile()` support `networkFallback` boolean indicating if the profile should be loaded from the network if it's not available from the caching server
+- Fix: Edge case where closing a database didn't close correctly
+- Fix: Missing await when loading public credentials
 
 2024-03-15 (v.3.0.3)
 -------------------

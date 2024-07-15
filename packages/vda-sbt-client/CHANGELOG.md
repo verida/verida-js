@@ -1,6 +1,7 @@
-2024-07-09 (v)
+2024-07-15 (v.4.0.0)
 -------------------
 
+- Support BlockchainAnchor and Verida Network refactor
 - Updated `proof` releated test code
 - Added `Test.md`
 - Updated test script

@@ -1,6 +1,7 @@
-2024-07-03 (v)
+2024-07-15 (v.4.0.0)
 -------------------
-- Update Verida network & contract management
+
+- Support BlockchainAnchor and Verida Network refactor
 
 
 2024-03-22 (v3.0.2)

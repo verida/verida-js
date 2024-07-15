@@ -1,5 +1,7 @@
-2024-07-10 (v)
+2024-07-15 (v.4.0.0)
 -------------------
+
+- Support BlockchainAnchor and Verida Network refactor
 - Updated DID constants following the DID format changed in `vda-common`
 - Added `owner()` function to `ERC20Manager`
 

@@ -1,3 +1,9 @@
+2024-07-15 (v.4.0.0)
+-------------------
+
+- Support BlockchainAnchor and Verida Network refactor
+- Remove deprecated config
+
 2023-12-26 (v.3.0.0)
 -------------------
 

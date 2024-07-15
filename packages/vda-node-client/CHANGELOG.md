@@ -1,9 +1,9 @@
-2024-07-09 (v)
+2024-07-15 (v.4.0.0)
 -------------------
 
-- Updated for refactoring DIDs
+- Support BlockchainAnchor and Verida Network refactor
 - Updated test files
-- Updated .env.example file
+- Updated `.env.example` file
 
 2024-06-13 (v)
 -------------------

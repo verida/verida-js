@@ -1,3 +1,9 @@
+2024-07-15 (v.4.0.0)
+-------------------
+
+- Support BlockchainAnchor and Verida Network refactor
+- Change storage node authentication to sign consent message with context signing key instead of master key
+
 2023-12-26 (v.3.0.0)
 -------------------
 
