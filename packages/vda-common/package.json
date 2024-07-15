@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-common",
-  "version": "4.0.0-alpha-4",
+  "version": "4.0.0",
   "description": "Common utils & contract addresses for Verida",
   "main": "dist/index.js",
   "author": "Alex J",
@@ -24,8 +24,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@verida/encryption-utils": "^4.0.0-alpha-2",
-    "@verida/types": "^4.0.0-alpha-4",
+    "@verida/encryption-utils": "^4.0.0",
+    "@verida/types": "^4.0.0",
     "copyfiles": "^2.4.1",
     "ethers": "5.7.2"
   }
