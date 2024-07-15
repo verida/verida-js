@@ -31,7 +31,7 @@ export const CreateAccount: Command<CreateAccountOptions> = {
         type: 'boolean',
         alias: 's',
         defaultValue: false,
-      },
+      }
     ],
     async handle ({ options }) {
         const network = <Network> options.network
@@ -60,6 +60,7 @@ export const CreateAccount: Command<CreateAccountOptions> = {
           await account.ensureAuthenticated()
           const didClient = await account.getDIDClient()
           const didDocument = new DIDDocument(did, didClient.getPublicKey())
+
           await didClient.save(didDocument)
           console.log('Saved DID')
         }
