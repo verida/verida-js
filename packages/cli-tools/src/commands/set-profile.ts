@@ -33,6 +33,11 @@ export const SetProfile: Command<SetProfileOptions> = {
         }
       },
       {
+        name: 'storageNodes',
+        description: 'Storage nodes to use for the profile (comma separated). ie: `http://node1.com/,http://node2.com`',
+        type: 'string'
+      },
+      {
         name: 'name',
         type: 'string',
         isRequired: true,
@@ -61,6 +66,22 @@ export const SetProfile: Command<SetProfileOptions> = {
             },
         })
 
+        let accountConfig = undefined
+        if (options.storageNodes) {
+          console.log('Setting storage nodes: ', options.storageNodes)
+          const storageNodes = options.storageNodes.split(',')
+          accountConfig = {
+            defaultDatabaseServer: {
+              type: 'VeridaDatabase',
+              endpointUri: storageNodes
+            },
+            defaultMessageServer: {
+              type: 'VeridaMessage',
+              endpointUri: storageNodes
+            }
+          }
+        }
+
         // Initialize Account
         const account = new AutoAccount({
             privateKey: options.privateKey,
@@ -73,7 +94,7 @@ export const SetProfile: Command<SetProfileOptions> = {
                     privateKey: process.env.privateBlockchainKey
                 }
             }
-        })
+        }, accountConfig)
 
         await client.connect(account)
         const context = await client.openContext(options.contextName)

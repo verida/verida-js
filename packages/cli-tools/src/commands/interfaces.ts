@@ -37,6 +37,7 @@ export interface SetProfileOptions {
     privateKey: string
     contextName: string
     network: string
+    storageNodes: string
     name: string
     description: string
     country: string

@@ -1,7 +1,7 @@
-
-2024-07-10 (v)
+2024-07-15 (v.4.0.0)
 -------------------
 
+- Support BlockchainAnchor and Verida Network refactor
 - Add a dependency to the `@verida/vda-client-base`
 - Updated test codes
 - Added `Test.md` file

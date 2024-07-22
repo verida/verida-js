@@ -1,8 +1,8 @@
-2024-07-10 (v)
+2024-07-15 (v.4.0.0)
 -------------------
 
+- Support BlockchainAnchor and Verida Network refactor
 - Add a dependency to the `@verida/vda-client-base`
-- Update test codes for refactoring DIDs
 - Added `Test.md` file
 - Updated .env.example file
 - Separated `stake_and_lock.test.ts` from the `user_write.test.ts`
