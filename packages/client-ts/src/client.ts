@@ -229,7 +229,7 @@ class Client implements IClient {
         if (err.response && err.response.data && err.response.data.status == 'fail') {
           if (fallbackContext && fallbackContext != contextName) {
             // try the fallback context
-            return this.getPublicProfile(did, fallbackContext, profileName, null, ignoreCache)
+            return this.getPublicProfile(did, fallbackContext!, profileName, null, ignoreCache)
           }
         }
       }

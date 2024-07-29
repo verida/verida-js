@@ -1,3 +1,11 @@
+2024-07-29 (v.4.1)
+-------------------
+
+- Support database plugins when instantiating a database
+- Expose `getSchema()` method on Datastore instances
+- Resolve issue with fetching public databases from legacy DIDs 
+
+
 2024-07-15 (v.4.0.0)
 -------------------
 
