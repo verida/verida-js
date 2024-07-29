@@ -299,6 +299,12 @@ class BaseDb extends EventEmitter implements IDatabase {
       return
     }
 
+    if (this.config.plugins) {
+      for (let plugin of this.config.plugins) {
+        PouchDB.plugin(plugin)
+      }
+    }
+
     this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
   }
 
