@@ -1,6 +1,6 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "VeridaToken",
+  "contractName": "token",
   "sourceName": "contracts/VDA-V1.sol",
   "abi": [
     {
