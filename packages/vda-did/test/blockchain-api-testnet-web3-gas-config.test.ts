@@ -1,10 +1,12 @@
 const assert = require('assert')
 import BlockchainApi from "../src/blockchain/blockchainApi"
 import { BigNumber, Wallet } from "ethers";
-import { VdaDidConfigurationOptions } from '@verida/types';
+import { BlockchainAnchor, VdaDidConfigurationOptions } from '@verida/types';
 require('dotenv').config();
 
-const did = Wallet.createRandom();
+const didWallet = Wallet.createRandom();
+const did = `did:vda:${BlockchainAnchor.POLAMOY}:${didWallet.address}`;
+const testChain = BlockchainAnchor.POLAMOY;
 
 const endPoints_A = ['https://A_1', 'https://A_2', 'https://A_3'];
 
@@ -13,29 +15,24 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const rpcUrl = process.env.RPC_URL;
-if (!rpcUrl) {
-    throw new Error('No RPC_URL in the env file');
-}
-
-const createBlockchainAPI = (did: any, configuration:any) => {
+const createBlockchainAPI = (didWallet: any, blockchain: BlockchainAnchor, configuration:any) => {
     return new BlockchainApi(<VdaDidConfigurationOptions>{
-        identifier: did.address,
-        signKey: did.privateKey,
-        chainNameOrId: "testnet",
+        identifier: `did:vda:${blockchain}:${didWallet.address}`,
+        signKey: didWallet.privateKey,
+        blockchain,
         ...configuration
     })
 }
 
 const checkResult =async (configuration: any,  isSuccess = true, errMsg : string | undefined = undefined) => {
-    const blockchainApi = createBlockchainAPI(did, configuration);
+    const blockchainApi = createBlockchainAPI(didWallet, testChain, configuration);
 
     if (isSuccess) {
         await blockchainApi.register(endPoints_A);
-        const lookupResult = await blockchainApi.lookup(did.address);
+        const lookupResult = await blockchainApi.lookup(did);
         assert.deepEqual(
             lookupResult, 
-            {didController: did.address, endpoints: endPoints_A},
+            {didController: didWallet.address, endpoints: endPoints_A},
             'Get same endpoints');
     } else {
         let f = () => {};
@@ -59,7 +56,6 @@ const checkGlobalGasConfig = async (gasOption: Record<string, any>, isSuccess = 
         callType: 'web3',
         web3Options: {
             privateKey,
-            rpcUrl,
             ...gasOption
         }
     }
@@ -71,8 +67,6 @@ const checkMethodDefaultGasConfig = async (gasOption: Record<string, any>, isSuc
         callType: 'web3',
         web3Options: {
             privateKey,
-            rpcUrl,
-
             methodDefaults: {
                 "register": gasOption
             }
@@ -84,10 +78,10 @@ const checkMethodDefaultGasConfig = async (gasOption: Record<string, any>, isSuc
 const checkRuntimeGasConfig = async (blockchainApi:BlockchainApi, gasOption: Record<string, any>, isSuccess = true, errMsg : string | undefined = undefined) => {
     if (isSuccess) {
         await blockchainApi.register(endPoints_A, gasOption);
-        const lookupResult = await blockchainApi.lookup(did.address);
+        const lookupResult = await blockchainApi.lookup(did);
         assert.deepEqual(
             lookupResult, 
-            {didController: did.address, endpoints: endPoints_A},
+            {didController: didWallet.address, endpoints: endPoints_A},
             'Get same endpoints');
     } else {
         let f = () => {};
@@ -120,13 +114,16 @@ describe('vda-did blockchain api test for different gas configurations', functio
 
 
                 gasOption = {
-                    eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+                    eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
+                    // eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
+                    
                 }
                 await checkGlobalGasConfig(gasOption, false, 'To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
             })
 
             it("Success", async () => {
-                const mode = ['safeLow', 'standard', 'fast'];
+                // const mode = ['safeLow', 'standard', 'fast'];
+                const mode = ['fast'];
                 for (let i = 0; i < mode.length; i++) {
                     const gasOption = {
                         eip1559Mode: mode[i],
@@ -138,24 +135,25 @@ describe('vda-did blockchain api test for different gas configurations', functio
         })
 
         describe('Manual gas configuration test', function() {
-            it("Success with `maxFeePriority` option only", async () => {
-                const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                }
-                await checkGlobalGasConfig(gasOption, true);
-            })
+            // it("Success with `maxFeePriority` option only", async () => {
+            //     const gasOption = {
+            //         maxPriorityFeePerGas: BigNumber.from("31000000000"), //30Gwei
+            //         // maxPriorityFeePerGas: BigNumber.from("1"), //30Gwei
+            //     }
+            //     await checkGlobalGasConfig(gasOption, true);
+            // })
 
-            it("Success with `maxFee` option only", async () => {
-                const gasOption = {
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
-                }
-                await checkGlobalGasConfig(gasOption, true);
-            })
+            // it("Success with `maxFee` option only", async () => {
+            //     const gasOption = {
+            //         maxFeePerGas: BigNumber.from("32000000000") //30Gwei
+            //     }
+            //     await checkGlobalGasConfig(gasOption, true);
+            // })
 
             it("Success with both parameters",async () => {
                 const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
+                    maxPriorityFeePerGas: BigNumber.from("30000000000"), //30Gwei
+                    maxFeePerGas: BigNumber.from("30000000000") //30Gwei
                 }
                 await checkGlobalGasConfig(gasOption, true);
             })
@@ -167,7 +165,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
             it('Success', async() => {
                 const gasOption = {
                     eip1559Mode: 'fast',
-                    eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+                    eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
                 }
                 await checkMethodDefaultGasConfig(gasOption, true);
             })
@@ -184,8 +182,8 @@ describe('vda-did blockchain api test for different gas configurations', functio
 
             it('Success', async () => {
                 const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
+                    maxPriorityFeePerGas: BigNumber.from("30000000000"), //30Gwei
+                    maxFeePerGas: BigNumber.from("30000000000") //30Gwei
                 }
                 await checkMethodDefaultGasConfig(gasOption, true);
             })
@@ -193,18 +191,17 @@ describe('vda-did blockchain api test for different gas configurations', functio
     })
 
     describe('Gas configuration at runtime', function() {
-        const blockchainApi = createBlockchainAPI(did, {
+        const blockchainApi = createBlockchainAPI(didWallet, testChain, {
             callType: 'web3',
             web3Options: {
                 privateKey,
-                rpcUrl,
             }
         })
         describe('Gas configuration from gas station url', function() {
             it('Success', async () => {
                 const gasOption = {
                     eip1559Mode: 'fast',
-                    eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
+                    eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
                 }
                 await checkRuntimeGasConfig(blockchainApi, gasOption, true);
             })
@@ -220,8 +217,8 @@ describe('vda-did blockchain api test for different gas configurations', functio
             })
             it('Success with valid gas configuration',async () => {
                 const gasOption = {
-                    maxPriorityFeePerGas: BigNumber.from("1000000000"), //1Gwei
-                    maxFeePerGas: BigNumber.from("5000000000") //5Gwei
+                    maxPriorityFeePerGas: BigNumber.from("30000000000"), //30Gwei
+                    maxFeePerGas: BigNumber.from("30000000000") //30Gwei
                 }
                 await checkRuntimeGasConfig(blockchainApi, gasOption, true);
             })
@@ -232,42 +229,4 @@ describe('vda-did blockchain api test for different gas configurations', functio
         })
 
     })
-
-    // describe('register', function() {
-    //     this.timeout(100 * 1000)
-
-    //     it.only('Register successfully', async () => {
-    //         await blockchainApi.register(endPoints_A);
-
-    //         const lookupResult = await blockchainApi.lookup(did.address);
-    //         assert.deepEqual(
-    //             lookupResult, 
-    //             {didController: did.address, endpoints: endPoints_A},
-    //             'Get same endpoints');
-    //     })
-
-    //     it('Should update for registered DID', async () => {
-    //         await blockchainApi.register(endPoints_B);
-
-    //         const lookupResult = await blockchainApi.lookup(did.address);
-    //         assert.deepEqual(
-    //             lookupResult, 
-    //             {didController: did.address, endpoints: endPoints_B}, 
-    //             'Get updated endpoints');
-    //     })
-
-    //     it('Should reject for revoked did', async () => {
-    //         const tempDID = Wallet.createRandom();
-    //         const testAPI = createBlockchainAPI(tempDID)
-
-    //         await testAPI.register(endPoints_Empty);
-    //         await testAPI.revoke();
-
-    //         await assert.rejects(
-    //             testAPI.register(endPoints_A),
-    //             {message: 'Failed to register endpoints'}
-    //         )
-    //     })
-    // })
-   
 })

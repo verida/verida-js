@@ -1,11 +1,16 @@
-import { EnvironmentType } from "@verida/types";
+import { Network } from "@verida/types";
 import { Client, Context } from '@verida/client-ts'
 import { AutoAccount } from '@verida/account-node'
 import { Keyring } from "@verida/keyring";
 
 require('dotenv').config();
 
-const VERIDA_ENVIRONMENT = EnvironmentType.TESTNET
+const test_network = process.env.TEST_NETWORK ? Network[process.env.TEST_NETWORK] : Network.BANKSIA;
+const rpcUrl = process.env[`RPC_URL`]
+if (rpcUrl === undefined) {
+    throw new Error('RPC url is not defined in env')
+}
+
 // const DEFAULT_CONTEXT_NAME = 'Verida Testing : Default Context'
 const DEFAULT_ENDPOINTS = {
     "defaultDatabaseServer": {
@@ -19,11 +24,11 @@ const DEFAULT_ENDPOINTS = {
 }
 const DID_CLIENT_CONFIG = {
     callType: "web3",
-    network: EnvironmentType.TESTNET,
+    network: test_network,
     web3Config: {
       privateKey: process.env.PRIVATE_KEY
     },
-    rpcUrl: "https://rpc-mumbai.maticvigil.com/",
+    rpcUrl,
     didEndpoints: ["https://node1-euw6.gcp.devnet.verida.tech/did/", "https://node2-euw6.gcp.devnet.verida.tech/did/", "https://node3-euw6.gcp.devnet.verida.tech/did/"]
 }
   
@@ -34,11 +39,11 @@ export async function getNetwork(privateKey: string, contextName: string): Promi
     keyring: Keyring
   }> {
     const network = new Client({
-        environment: VERIDA_ENVIRONMENT
+        network: test_network
     })
     const account = new AutoAccount({
         privateKey,
-        environment: VERIDA_ENVIRONMENT,
+        network: test_network,
         // @ts-ignore
         didClientConfig: DID_CLIENT_CONFIG
     })
@@ -64,9 +69,9 @@ export async function getSignerInfo(privateKey: string, contextName : string): P
   ]> {
     const trustedSignerNetworkInfo = await getNetwork(privateKey, contextName)
     const trustedDid = await trustedSignerNetworkInfo.account.did()
-    const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDidClient().get(trustedDid)
+    const trustedSignerDIDDocument = await trustedSignerNetworkInfo.account.getDIDClient().get(trustedDid)
   
-    const signedProof = trustedSignerDIDDocument.locateContextProof(contextName)!
+    const signedProof = trustedSignerDIDDocument.locateContextProof(contextName, test_network)!
   
     return [
       trustedSignerNetworkInfo.keyring,

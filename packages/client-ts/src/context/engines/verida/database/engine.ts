@@ -237,9 +237,14 @@ class StorageEngineVerida extends BaseStorageEngine {
         const endpointUri = <string> endpointUris[i]
         const endpoint = new Endpoint(this, this.storageContext, this.contextConfig, endpointUri)
 
-        // connect account to the endpoint if we are connected
-        // @todo: make async for all endpoints
-        if (this.account) {
+        if (config.permissions!.read == "public") {
+          // connect account using a public endpoint
+          await endpoint.setUsePublic()
+          endpoints[endpointUri] = endpoint
+        }
+        else if (this.account) {
+          // connect account to the endpoint if we are connected
+          // @todo: make async for all endpoints
           try {
             await endpoint.connectAccount(this.account, false)
             endpoints[endpointUri] = endpoint
@@ -308,7 +313,8 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
-          verifyEncryptionKey: config.verifyEncryptionKey
+          verifyEncryptionKey: config.verifyEncryptionKey,
+          plugins: config.plugins ? config.plugins : []
         },
         this
       );
@@ -319,8 +325,6 @@ class StorageEngineVerida extends BaseStorageEngine {
       // If we aren't the owner of this database use the public credentials
       // to access this database
       if (!config.isOwner) {
-        await endpoint.setUsePublic()
-
         if (config.permissions!.write != "public") {
           config.readOnly = true;
         }
@@ -336,6 +340,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         endpoint,
         isOwner: config.isOwner,
         saveDatabase: config.saveDatabase,
+        plugins: config.plugins ? config.plugins : []
       }, this);
 
       await db.init();
@@ -375,7 +380,8 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
-          verifyEncryptionKey: config.verifyEncryptionKey
+          verifyEncryptionKey: config.verifyEncryptionKey,
+          plugins: config.plugins ? config.plugins : []
         },
         this
       );

@@ -1,32 +1,27 @@
 import { Contract } from "ethers";
-import { CONTRACT_ADDRESS, CONTRACT_ABI as abiList, RPC_URLS } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor, getDefaultRpcUrl } from "@verida/vda-common";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { BigNumberish } from "ethers";
-import { EnumStatus } from "@verida/types";
+import { BlockchainAnchor, EnumStatus } from "@verida/types";
 
 export class VeridaNodeClient {
     private contract: Contract;
 
     /**
      * Constructor
-     * @param network Network name to test. Should be one of the Verida supported network names
+     * @param network Verida Network
      * @param RPC_URL Optional parameter. RPC_URL to be used
      */
-    public constructor(network:string, RPC_URL?: string) {
-        const rpcUrl = RPC_URL?? RPC_URLS[network];
+    public constructor(blockchainAnchor:BlockchainAnchor, RPC_URL?: string) {
+        const rpcUrl = RPC_URL?? getDefaultRpcUrl(blockchainAnchor);
         if (!rpcUrl) {
-            throw new Error(`Unable to locate RPC_URL for network: ${network}`)
+            throw new Error(`Unable to locate RPC_URL for chain: ${blockchainAnchor}`)
         }
 
-        const contractABI = abiList["StorageNodeRegistry"];
+        const contractInfo = getContractInfoForBlockchainAnchor(blockchainAnchor, "storageNodeRegistry");
         const provider = new JsonRpcProvider(rpcUrl);
-        const address = CONTRACT_ADDRESS["StorageNodeRegistry"][network];
 
-        if (!address) {
-            throw new Error(`Empty contract address for network-${network}`)
-        }
-
-        this.contract = new Contract(address, contractABI.abi, provider);
+        this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider);
     }
 
     /**
@@ -425,6 +420,27 @@ export class VeridaNodeClient {
             'getVDATokenAddress',
             'Failed to get Verida Token Address'
         );
+    }
+
+    /**
+     * Call locked() function of `StorageNodeRegistry` contract
+     * @param didAddress DID address
+     * @param purpose Purpose of locking
+     * @return Locked amount
+     */
+    public async locked(didAddress: string, purpose: string) {
+        return await this.executeFunction('locked', 'Failed to get locked amount of purpose', didAddress, purpose);
+    }
+
+    /**
+     * Call getLocks() function of `StorageNodeRegistry` contract
+     * @param didAddress DID address
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Starts from 1
+     * @return Array of locked information list 
+     */
+    public async getLocks(didAddress: string, pageSize: BigNumberish, pageNumber: BigNumberish) {
+        return await this.executeFunction('getLocks', 'Failed to get locked information list', didAddress, pageSize, pageNumber);
     }
 
 }

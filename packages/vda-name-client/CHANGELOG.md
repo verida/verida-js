@@ -1,4 +1,13 @@
-2023-12-26 (v.3.0.0)
+2024-07-15 (v.4.0.0)
+-------------------
+
+- Support BlockchainAnchor and Verida Network refactor
+- Make `VeridaNameClient` extends `VeridaClientBase`
+- Update the test code
+- Updated `.env.example` file
+- Added `Test.md` file
+
+2023-12-26 (v3.0.0)
 -------------------
 
 - Mainnet release

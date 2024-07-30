@@ -2,6 +2,7 @@ import { StorageLink } from "@verida/storage-link";
 import { DIDClient } from "@verida/did-client";
 import { IAccount, DIDContextConfigs, SecureContextEndpoint, SecureContextConfig } from "@verida/types";
 import { DIDDocument } from "@verida/did-document";
+import { Network } from "@verida/types";
 
 /**
  * Manage all the available storage contexts for all the DIDs being requested,
@@ -17,9 +18,11 @@ class DIDContextManager {
   private didContexts: DIDContextConfigs = {};
 
   private didClient: DIDClient;
+  private network: Network
   private account?: IAccount;
 
-  public constructor(didClient: DIDClient) {
+  public constructor(network: Network, didClient: DIDClient) {
+    this.network = network
     this.didClient = didClient;
   }
 
@@ -76,6 +79,7 @@ class DIDContextManager {
     }
 
     let storageConfig = await StorageLink.getLink(
+      this.network,
       this.didClient,
       did,
       contextHash,
@@ -119,9 +123,19 @@ class DIDContextManager {
             contextName,
             forceCreate!
           );
+
+          // If we have a legacy DID then we need to update the context hash
+          // to use `did:vda:mainnet`
+          if (storageConfig?.isLegacyDid) {
+            did = await this.account.did()
+
+            if (contextName.substring(0, 2) != '0x') {
+              contextHash = DIDDocument.generateContextHash(did, contextName);
+            }
+          }
           //console.log(`getDIDContextConfig(${did}, ${contextName}): ${(new Date()).getTime()-now}`)
-        } catch (err) {
-          console.log(err)
+        } catch (err: any) {
+          throw new Error(`Unable to locate requested storage context (${contextName}) for this DID (${did}): ${err.message}`)
           // account may not support context
           // @todo: create error instance for this specific type of error
         }
@@ -130,11 +144,21 @@ class DIDContextManager {
 
     if (!storageConfig) {
       storageConfig = await StorageLink.getLink(
+        this.network,
         this.didClient,
         did,
         contextName,
         true
       );
+
+      // If we have a legacy DID then we need to update the context hash
+      // to use `did:vda:mainnet`
+      if (storageConfig?.isLegacyDid) {
+        if (contextName.substring(0, 2) != '0x') {
+          did = did.replace('polpos', 'mainnet')
+          contextHash = DIDDocument.generateContextHash(did, contextName);
+        }
+      }
     }
 
     if (!storageConfig) {

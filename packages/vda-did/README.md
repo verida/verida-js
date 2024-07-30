@@ -82,7 +82,7 @@ export interface VdaDidConfigurationOptions {
     signKey: string;
     chainNameOrId?: 'testnet' | 'mainnet';
     callType: 'gasless' | 'web3';
-    web3Options: VeridaWeb3ConfigurationOptions;
+    web3Options: VeridaWeb3TransactionOptions;
 }
 ```
 

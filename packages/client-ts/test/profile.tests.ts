@@ -12,13 +12,13 @@ const DATA = {
 
 describe('Profile tests', () => {
     const client1 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: CONFIG.DID_CLIENT_CONFIG
     })
     let did1, context1, profile1
 
     const client2 = new Client({
-        environment: CONFIG.ENVIRONMENT
+        network: CONFIG.NETWORK
     })
     let did2, context2, profile2
     let vaultContext
@@ -30,7 +30,7 @@ describe('Profile tests', () => {
             try {
                 const account1 = new AutoAccount({
                     privateKey: CONFIG.VDA_PRIVATE_KEY,
-                    environment: CONFIG.ENVIRONMENT,
+                    network: CONFIG.NETWORK,
                     didClientConfig: CONFIG.DID_CLIENT_CONFIG
                 })
                 did1 = await account1.did()
@@ -71,7 +71,7 @@ describe('Profile tests', () => {
             await sleep(5000)
             const account2 = new AutoAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             did2 = await account2.did()

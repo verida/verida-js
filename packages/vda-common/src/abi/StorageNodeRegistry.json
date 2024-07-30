@@ -3,7 +3,7 @@
   "abi": [
     {
       "type": "function",
-      "name": "diamondCut",
+      "name": "storageNodeRegistry",
       "constant": false,
       "payable": false,
       "inputs": [
@@ -766,6 +766,43 @@
     },
     {
       "type": "function",
+      "name": "getLocks",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "uint256",
+          "name": "pageSize"
+        },
+        {
+          "type": "uint256",
+          "name": "pageNumber"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "tuple[]",
+          "name": "",
+          "components": [
+            {
+              "type": "string",
+              "name": "purpose"
+            },
+            {
+              "type": "uint256",
+              "name": "amount"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "getLogLimitPerDay",
       "constant": true,
       "stateMutability": "view",
@@ -939,6 +976,62 @@
     },
     {
       "type": "function",
+      "name": "lock",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "string",
+          "name": "purpose"
+        },
+        {
+          "type": "uint256",
+          "name": "amount"
+        },
+        {
+          "type": "bool",
+          "name": "withDeposit"
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "locked",
+      "constant": true,
+      "stateMutability": "view",
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "string",
+          "name": "purpose"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "uint256",
+          "name": ""
+        }
+      ]
+    },
+    {
+      "type": "function",
       "name": "logNodeIssue",
       "constant": false,
       "payable": false,
@@ -1013,6 +1106,60 @@
         {
           "type": "string",
           "name": "moreInfoUrl"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "unlock",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "string",
+          "name": "purpose"
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "type": "function",
+      "name": "unlockAndWithdraw",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        {
+          "type": "address",
+          "name": "didAddress"
+        },
+        {
+          "type": "string",
+          "name": "purpose"
+        },
+        {
+          "type": "address",
+          "name": "withdrawWallet"
+        },
+        {
+          "type": "bytes",
+          "name": "requestSignature"
+        },
+        {
+          "type": "bytes",
+          "name": "requestProof"
         }
       ],
       "outputs": []

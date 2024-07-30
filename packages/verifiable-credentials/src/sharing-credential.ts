@@ -4,6 +4,7 @@ import { VCResult } from './interfaces';
 import { Credentials } from '.';
 import { IContext, DatabasePermissionOptionsEnum } from '@verida/types';
 import { buildVeridaUri, encodeUri } from '@verida/helpers'
+import { CreatePresentationOptions } from 'did-jwt-vc';
 
 const PermissionOptionsEnum = DatabasePermissionOptionsEnum
 
@@ -24,10 +25,11 @@ export default class SharingCredential {
 	/**
 	 * Method to encrypt and issue credential
 	 * @param didJwtVc
+	 * @param options
 	 * @returns
 	 */
 
-	async issueEncryptedPresentation(didJwtVc: any): Promise<any> {
+	async issueEncryptedPresentation(didJwtVc: any, options?: CreatePresentationOptions): Promise<any> {
 		const account = this.context.getAccount();
 		const did = await account.did();
 		const encryptionKey = new Uint8Array(EncryptionUtils.randomKey(22));
@@ -36,7 +38,7 @@ export default class SharingCredential {
 
 		const result = (await this.issuePublicPresentation(did, didJwtVc, contextName, {
 			key: encryptionKey,
-		})) as VCResult;
+		}, options)) as VCResult;
 
 		return result;
 	}
@@ -53,7 +55,8 @@ export default class SharingCredential {
 		did: string,
 		didJwtVc: any,
 		contextName: string,
-		options: any
+		options: any,
+		createPresentationOptions: CreatePresentationOptions = {removeOriginalFields: false}
 	): Promise<VCResult | unknown> {
 		const defaults = {
 			encrypt: true,
@@ -87,7 +90,7 @@ export default class SharingCredential {
 
 		// Generate verifiable presentation
 		const credentials = new Credentials()
-		const presentation = await credentials.createVerifiablePresentation([didJwtVc], this.context)
+		const presentation = await credentials.createVerifiablePresentation([didJwtVc], this.context, undefined, createPresentationOptions)
 
 		let item
 
@@ -108,7 +111,7 @@ export default class SharingCredential {
 		if (!result) {
 			throw new Error('unable to save jwt item to db')
 		}
-		const uri = buildVeridaUri(did, contextName, dbName, result.id, ['content'], params) as any
+		const uri = buildVeridaUri(this.context.getClient().getNetwork(), did, contextName, dbName, result.id, ['content'], params) as any
 
 		return {
 			item,

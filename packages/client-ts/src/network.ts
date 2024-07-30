@@ -1,7 +1,7 @@
-import { NetworkConnectionConfig, EnvironmentType } from "@verida/types";
+import { NetworkConnectionConfig, Network as VeridaNetwork } from "@verida/types";
 import { Context } from ".";
 import Client from "./client";
-import { decodeUri, explodeVeridaUri, explodeDID, fetchVeridaUri } from '@verida/helpers'
+import { decodeUri, fetchVeridaUri, explodeVeridaUri } from '@verida/helpers'
 
 /**
  * @category
@@ -40,12 +40,10 @@ class Network {
       veridaUri = decodeUri(veridaUri)
     }
 
-    const uriParts = explodeVeridaUri(veridaUri)
-    const didParts = explodeDID(uriParts.did)
-    const environment = <EnvironmentType> didParts.network
+    const urlParts = explodeVeridaUri(veridaUri)
 
     const client = new Client({
-      environment
+      network: urlParts.network
     })
     const record = await fetchVeridaUri(veridaUri, client)
     return record

@@ -1,23 +1,23 @@
-import { DefaultClientConfig, EnvironmentType } from "@verida/types"
+import { DefaultClientConfig, Network } from "@verida/types"
 
 const config: DefaultClientConfig = {
-    environment: EnvironmentType.TESTNET,
+    network: Network.BANKSIA,
     environments: {
-        local: {
+        "local": {
             schemaPaths: {
                 '/': 'https://schemas.verida.io/',
                 'https://schemas.verida.io/': 'https://schemas.testnet.verida.io/'
                 //'https://schemas.verida.io/': 'http://localhost:5010/'
             }
         },
-        testnet: {
+        "banksia": {
             schemaPaths: {
                 '/': 'https://schemas.verida.io/',
                 'https://schemas.verida.io/': 'https://schemas.testnet.verida.io/'
             },
             readOnlyDataApiUri: 'https://data.verida.network'
         },
-        mainnet: {
+        "myrtle": {
             schemaPaths: {
                 '/': 'https://schemas.verida.io/'
             },

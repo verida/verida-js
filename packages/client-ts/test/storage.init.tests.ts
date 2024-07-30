@@ -17,7 +17,7 @@ const wallet = Wallet.createRandom()
 describe('Storage initialization tests', () => {
     let didClient, did
     const network = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl!
         }
@@ -37,8 +37,8 @@ describe('Storage initialization tests', () => {
 
         it('can authenticate a user', async function () {
             const account = new AutoAccount({
-                privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                privateKey: wallet.privateKey,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
 
@@ -69,7 +69,7 @@ describe('Storage initialization tests', () => {
             assert.ok(accountContext, 'Account storage opened')
 
             const accountStorageConfig = await accountContext.getContextConfig()
-            const fetchedStorageConfig = await StorageLink.getLink(didClient, did, CONFIG.CONTEXT_NAME)
+            const fetchedStorageConfig = await StorageLink.getLink(CONFIG.NETWORK, didClient, did, CONFIG.CONTEXT_NAME)
 
             accountStorageConfig.id = DIDDocument.generateContextHash(did, CONFIG.CONTEXT_NAME)
 

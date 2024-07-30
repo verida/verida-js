@@ -2,7 +2,7 @@
 import Axios from 'axios';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { isVeridaContract, getMaticFee } from './utils'
-import { getContractForNetwork, isVeridaWeb3GasConfiguration } from './config'
+import { getContractInstance, isVeridaWeb3GasConfiguration } from './config'
 import { Wallet, BigNumber, Contract, Signer, utils } from 'ethers';
 import { VdaTransactionResult, VeridaWeb3Config, Web3CallType, Web3GasConfiguration, Web3GaslessPostConfig, Web3GaslessRequestConfig, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from '@verida/types';
 
@@ -35,6 +35,7 @@ export class VeridaContract {
     /** Contract instance used in web3 mode */
     protected contract?: Contract
 
+    /** Signer for transactions */
     protected signer?: Signer
 
     // Gasless mode variables
@@ -68,26 +69,31 @@ export class VeridaContract {
             const web3Config = <Web3SelfTransactionConfig>config;
             if (web3Config.provider || web3Config.signer?.provider || web3Config.rpcUrl) {
 
-                // console.log("VeridaContractBase : ", config.abi.abi)
+                // console.log("VeridaContractBase : ", config);
+                const provider = web3Config.provider ?? web3Config.signer?.provider;
 
-                this.contract = getContractForNetwork({
+                this.contract = getContractInstance({
+                    provider,
+
+                    blockchainAnchor: web3Config.blockchainAnchor,
+                    rpcUrl: web3Config.rpcUrl,
+                    chainId: web3Config.chainId,
+
                     abi: config.abi,
                     address: config.address,
-                    provider: web3Config.provider,
-                    registry: config.address,
-                    rpcUrl: web3Config.rpcUrl,
-                    web3: web3Config.web3
                 })
             } else {
                 throw new Error('either provider or rpcUrl is required to initialize')
             }
             this.signer = web3Config.signer
-            if (this.signer === undefined) {
-                if ( web3Config.privateKey )
-                    this.signer = new Wallet(web3Config.privateKey, this.contract.provider)
-                else
-                    throw new Error('either Signer or privateKey is required to initialize')
+            
+            if (!this.signer && web3Config.privateKey) {
+                this.signer = new Wallet(web3Config.privateKey, this.contract.provider);
             }
+
+            // if(this.signer) {
+            //     this.contract = this.contract!.connect(this.signer);
+            // }
 
             const methods = config.abi.abi
             methods.forEach((item: any) => {
@@ -142,8 +148,10 @@ export class VeridaContract {
                                 }
                             }
                         } else { // Need to pull the gas configuration from the station
+                            // console.log("Getting gas config....");
                             if ('eip1559Mode' in gasConfig && 'eip1559gasStationUrl' in gasConfig) {
                                 gasConfig = await getMaticFee(gasConfig['eip1559gasStationUrl'], gasConfig['eip1559Mode']);
+                                // console.log("gas config : ", gasConfig);
                             } else {
                                 throw new Error('To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
                             }
@@ -248,7 +256,14 @@ export class VeridaContract {
                 if (methodType === 'view' || methodType === 'pure') {
                     ret = await contract.callStatic[methodName](...params)
                 } else {
+                
+                    if (!this.signer) {
+                        throw new Error(`No 'signer' or 'privateKey' in the configuration`);
+                    }
+
                     let transaction: any
+
+                    // console.log("params : ", params);
 
                     if (gasConfig === undefined || Object.keys(gasConfig).length === 0) { //No gas configuration
                         transaction = await contract.functions[methodName](...params);

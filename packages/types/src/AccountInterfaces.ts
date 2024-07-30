@@ -1,7 +1,7 @@
 import { ServiceEndpoint } from 'did-resolver'
 import { SecureContextEndpoint } from './DocumentInterfaces'
 import { SecureContextPublicKey } from './StorageLinkInterfaces'
-import { DIDClientConfig, EnvironmentType } from './NetworkInterfaces'
+import { DIDClientConfig, Network } from './NetworkInterfaces'
 import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from './Web3Interfaces'
 
 export interface AccountConfig {
@@ -41,7 +41,7 @@ export class ContextAuthorizationError extends Error {
 
 export interface AccountNodeConfig {
     privateKey: string, // or mnemonic
-    environment: EnvironmentType
+    network: Network,
     didClientConfig: AccountNodeDIDClientConfig
     options?: any
     countryCode?: string
@@ -81,7 +81,7 @@ export interface AccountVaultConfig {
     schemeUri?: string,
     deeplinkId?: string,
     request?: AccountVaultRequest,
-    environment?: EnvironmentType,
+    network?: Network,
     callback?(response: AuthResponse): void        // callback function (called when auth response received)
     callbackRejected?(): void   // callback function (called when user rejects / cancels the login by closing the modal)
 }

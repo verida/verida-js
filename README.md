@@ -31,7 +31,6 @@ nvm install lts/hydrogen
 nvm use # this uses the .nvmrc file
 ```
 
-
 ### Linking dependencies
 
 It's not possible to add dependencies between monorepo packages using yarn (ie: `yarn add @verida/encryption-utils`) if that package hasn't been published to `npm`.
@@ -41,10 +40,9 @@ Unpublished dependencies between monorepo packages can be linked by:
 - Manually adding the expected dependency to `package.json` (ie: `@verida/encryption-utils`)
 - Run `yarn install` in the root directory of this project
 
-
 ### Building
 
-Build everything:
+Build all packages:
 
 In the root directory:
 
@@ -58,8 +56,6 @@ To build a specific package:
 * `cd package/package-name`
 * `yarn`
 * `yarn build`
-
-
 
 ## Creating a release
 

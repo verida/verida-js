@@ -1,0 +1,78 @@
+{
+    "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+    "created": "2024-05-28T00:44:16Z",
+    "updated": "2024-07-02T00:31:27Z",
+    "controller": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+    "versionId": 11,
+    "assertionMethod": [
+      "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9#controller",
+      "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+      "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=sign",
+      "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=asym"
+    ],
+    "verificationMethod": [
+      {
+        "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9#controller",
+        "type": "EcdsaSecp256k1RecoveryMethod2020",
+        "controller": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+        "blockchainAccountId": "@eip155:137:0x7eaCB880F0666230B538432Cd3fCf799483E74f9"
+      },
+      {
+        "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+        "type": "EcdsaSecp256k1VerificationKey2019",
+        "controller": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+        "publicKeyHex": "04c1aea44bb64e7ae198dfcc962bc54435d70f01b8a6b67962a6c8953fbc6def066bf472fff1f268d84312e48fe2b5d1aee4cf005cdcc4d670407c8481904d09f3"
+      },
+      {
+        "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=sign",
+        "type": "EcdsaSecp256k1VerificationKey2019",
+        "controller": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+        "proof": "0xf5bf49def8af4d978196277085760d3d3fbdac92a115cd744422651893debf7c7bd9a643f24d2850db72e794af38741b37b04bd73809cf13d465ce31dcdadd421b",
+        "publicKeyHex": "0258d355183fc9a8c7072ac691b420e4fd5177f2d536fc79aedcf51cc9e79f2bd7"
+      },
+      {
+        "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=asym",
+        "type": "X25519KeyAgreementKey2019",
+        "controller": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+        "publicKeyHex": "0dc54475e870f9ce8bc1ea3cda1fd32f9f79b44c78747a4d96e45d88e5ca075a"
+      }
+    ],
+    "authentication": [
+      "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9#controller",
+      "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9"
+    ],
+    "service": [
+      {
+        "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=database",
+        "type": "VeridaDatabase",
+        "serviceEndpoint": [
+          "https://node4-southeastasia.mnaz.verida.tech:443/",
+          "https://node1-switzerlandnorth.mnaz.verida.tech:443/",
+          "https://node4-centralindia.mnaz.verida.tech:443/"
+        ]
+      },
+      {
+        "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=messaging",
+        "type": "VeridaMessage",
+        "serviceEndpoint": [
+          "https://node4-southeastasia.mnaz.verida.tech:443/",
+          "https://node1-switzerlandnorth.mnaz.verida.tech:443/",
+          "https://node4-centralindia.mnaz.verida.tech:443/"
+        ]
+      },
+      {
+        "id": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=notification",
+        "type": "VeridaNotification",
+        "serviceEndpoint": []
+      }
+    ],
+    "keyAgreement": [
+      "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9?network=myrtle&context=0xec7de04e263eb683ccd00d955084321166043552ef0e377bcaf269a1577a0436&type=asym"
+    ],
+    "proof": {
+      "type": "EcdsaSecp256k1VerificationKey2019",
+      "verificationMethod": "did:vda:mainnet:0x7eacb880f0666230b538432cd3fcf799483e74f9",
+      "proofPurpose": "assertionMethod",
+      "proofValue": "0x16b3e4b6193efe987ab80c2329ebca46b788d44aa917fb0f5754b84da097ce723995a4e75b7a59e13138c4c3180f4d99aa1af8209714a9f25d08fb2b2d513ead1b"
+    }
+  }

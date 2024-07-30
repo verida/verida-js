@@ -59,21 +59,21 @@ const validateDidDocument = async(account: AutoAccount, context: Context, did: s
 describe('Verida notification tests', () => {
     let context, context2, context3
     const client = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const client2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const client3 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
@@ -88,7 +88,7 @@ describe('Verida notification tests', () => {
             // Initialize account 1
             const account = new AutoAccount({
                 privateKey: wallet.privateKey,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, ENDPOINT_CONFIG)
             const did = await account.did()
@@ -110,7 +110,7 @@ describe('Verida notification tests', () => {
             // Initialize account 1 without a notification server
             const account = new AutoAccount({
                 privateKey: wallet.privateKey,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             })
             VDA_ACCOUNT = account
@@ -141,7 +141,7 @@ describe('Verida notification tests', () => {
         it('can ping a notification server when sending a message', async () => {
             const account = new AutoAccount({
                 privateKey: wallet.privateKey,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, ENDPOINT_CONFIG);
             const did = await account.did()

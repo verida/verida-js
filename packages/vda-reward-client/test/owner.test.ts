@@ -1,7 +1,7 @@
 require('dotenv').config();
 import { DID_LIST, getBlockchainAPIConfiguration, ERC20Manager } from "@verida/vda-common-test"
 import { VeridaRewardOwnerApi } from '../src/blockchain/ownerApi';
-import { EnvironmentType } from "@verida/types";
+import { BlockchainAnchor } from "@verida/types";
 import { addInitialData } from "./helpers";
 import { Wallet } from 'ethers';
 import { ClaimType } from "./const";
@@ -19,13 +19,14 @@ const createOwnerAPI = () => {
     const ownerDID = DID_LIST[0];
 
     return new VeridaRewardOwnerApi({
+        blockchainAnchor: BlockchainAnchor.DEVNET,
         did: ownerDID.address,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
 
-describe("Verida RewardOwnerApi Test", () => {
+describe("Verida RewardOwnerApi Test", function() {
+    this.timeout(100 * 1000)
     let ownerApi;
 
     before(async () => {

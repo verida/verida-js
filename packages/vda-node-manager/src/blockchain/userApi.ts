@@ -1,13 +1,7 @@
-import {
-    getVeridaContract,
-    VeridaContract
-} from "@verida/web3";
-import { VdaClientConfig, Web3SelfTransactionConfig, EnumStatus } from '@verida/types'
-import { ethers, Contract, BigNumberish, BytesLike } from "ethers";
-import { getContractInfoForNetwork, RPC_URLS, getVeridaSignWithNonce } from "@verida/vda-common";
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { explodeDID } from '@verida/helpers';
+import { VdaClientConfig, EnumStatus } from '@verida/types'
+import { ethers, BigNumberish, BytesLike } from "ethers";
 import EncryptionUtils from "@verida/encryption-utils";
+import { VeridaClientBase } from "@verida/vda-client-base";
 
 export interface IStorageNode {
     name: string;
@@ -34,57 +28,12 @@ export interface IFallbackNodeInfo {
 }
 
 
-export class VeridaNodeManager {
-
-    protected config: VdaClientConfig
-    protected network: string
-    protected didAddress?: string
-
-    protected vdaWeb3Client? : VeridaContract
-
-    protected readOnly: boolean
-    protected contract?: ethers.Contract
+export class VeridaNodeManager extends VeridaClientBase {
 
     protected CONTRACT_DECIMAL?: number
     
     public constructor(config: VdaClientConfig) {
-        if (!config.callType) {
-            config.callType = 'web3'
-        }
-
-        this.config = config
-        this.readOnly = true
-        if (!config.web3Options) {
-            config.web3Options = {}
-        }
-
-        this.network = config.network
-
-        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
-        }
-
-        const contractInfo = getContractInfoForNetwork("StorageNodeRegistry", this.network)
-
-        if (config.did) {
-            this.readOnly = false
-            const { address } = explodeDID(config.did)
-            this.didAddress = address.toLowerCase()
-
-            this.vdaWeb3Client = getVeridaContract(
-                config.callType, 
-                {...contractInfo,
-                ...config.web3Options})
-        } else {
-            let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
-            if (!rpcUrl) {
-                rpcUrl = <string> RPC_URLS[this.network]
-            }
-
-            const provider = new JsonRpcProvider(rpcUrl)
-
-            this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider)
-        }
+        super(config, "storageNodeRegistry");
     }
 
     /**
@@ -101,6 +50,31 @@ export class VeridaNodeManager {
             throw new Error('Error in getting nonce');
         }
         return response.data;
+    }
+
+    /**
+     * Get the owner of the `StorageNodeRegistry` contract
+     * @returns Owner address
+     */
+    public async owner() {
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.owner();
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data
+            } else {
+                response = await this.contract!.callStatic.owner();
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get owner address (${message})`);
+        }
     }
 
     /**
@@ -1220,6 +1194,178 @@ export class VeridaNodeManager {
 
         if (response.success !== true) {
             throw new Error(`Failed to accept the ownership: ${response.reason}`);
+        }
+    }
+
+    /**
+     * Lock the tokens for a purpose
+     * @param purpose Purpose of locking
+     * @param amount Token amount to be locked
+     * @param withDeposit If true, tokens will be deposited from transaction sender(=config.signKey)
+     */
+    public async lock(
+        purpose: string,
+        amount: BigNumberish,
+        withDeposit = false
+    ) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(this.config.signKey.slice(2), "hex")
+        );
+
+        // Sign the blockchain request as this DID
+        const nonce = await this.nonceFN();
+        const requestMsg = ethers.utils.solidityPack(
+            ["address", "string", "uint", "bool", "uint"],
+            [this.didAddress, purpose, amount, withDeposit, nonce]
+        );
+        const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
+
+        const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase();
+        const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray);
+
+        const response = await this.vdaWeb3Client!.lock(
+            this.didAddress,
+            purpose,
+            amount,
+            withDeposit,
+            requestSignature,
+            requestProof
+        );
+
+        if (response.success !== true) {
+            throw new Error(`Failed to lock: ${response.reason}`);
+        }
+    }
+
+
+    /**
+     * Return the locked amount for the given purpose
+     * @param purpose Purpose of locking
+     * @param didAddress DID address
+     */
+    public async locked(purpose: string, didAddress = this.didAddress) {
+        if (this.readOnly && !didAddress) {
+            throw new Error(`Need didAddress in read only mode`)
+        }
+
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.locked(didAddress, purpose);
+
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.locked(didAddress, purpose);
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get locked amount (${message})`);
+        }
+    }
+
+    /**
+     * 
+     * @param pageSize Number of maximum elements of returned
+     * @param pageNumber Page index. Starts from 1
+     * @param didAddress DIDAddress
+     */
+    public async getLocks(
+        pageSize: BigNumberish,
+        pageNumber: BigNumberish,
+        didAddress = this.didAddress
+    ) {
+        if (this.readOnly && !didAddress) {
+            throw new Error(`Need didAddress in read only mode`)
+        }
+
+        let response;
+        try {
+            if (this.vdaWeb3Client) {
+                response = await this.vdaWeb3Client.getLocks(didAddress, pageSize, pageNumber);
+
+                if (response.success !== true) {
+                    throw new Error(response.reason);
+                }
+
+                return response.data;
+            } else {
+                response = await this.contract!.callStatic.getLocks(didAddress, pageSize, pageNumber);
+
+                return response;
+            }
+        } catch (err:any ) {
+            const message = err.reason ? err.reason : err.message;
+            throw new Error(`Failed to get locked information list (${message})`);
+        }
+    }
+
+    /**
+     * Unlock the token for specified purpose. 
+     * @param purpose Purpose of locked
+     * @param withdrawWallet Withdraw wallet address. If not set, token will be deposited as credit
+     */
+    public async unlock(
+        purpose: string,
+        withdrawWallet?: string
+    ) {
+        if (this.readOnly || !this.config.signKey) {
+            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+        }
+
+        const privateKeyArray = new Uint8Array(
+            Buffer.from(this.config.signKey.slice(2), "hex")
+        );
+
+        // Sign the blockchain request as this DID
+        const nonce = await this.nonceFN();
+        let requestMsg: string;
+        if (!withdrawWallet) {
+            requestMsg = ethers.utils.solidityPack(
+                ["address", "string", "uint"],
+                [this.didAddress, purpose, nonce]
+            );
+        } else {
+            requestMsg = ethers.utils.solidityPack(
+                ["address", "string", "address", "uint"],
+                [this.didAddress, purpose, withdrawWallet!, nonce]
+            );
+        }
+        
+        const requestSignature = EncryptionUtils.signData(requestMsg, privateKeyArray);
+
+        const requestProofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase();
+        const requestProof = EncryptionUtils.signData(requestProofMsg, privateKeyArray);
+
+        let response;
+        if (!withdrawWallet) {
+            response = await this.vdaWeb3Client!.unlock(
+                this.didAddress,
+                purpose,
+                requestSignature,
+                requestProof
+            );
+        } else {
+            response = await this.vdaWeb3Client!.unlockAndWithdraw(
+                this.didAddress,
+                purpose,
+                withdrawWallet,
+                requestSignature,
+                requestProof
+            );
+        }
+        
+        if (response.success !== true) {
+            throw new Error(`Failed to unlock: ${response.reason}`);
         }
     }
 }

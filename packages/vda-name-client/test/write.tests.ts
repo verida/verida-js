@@ -2,7 +2,7 @@ require('dotenv').config();
 import { DID_LIST, getBlockchainAPIConfiguration } from "@verida/vda-common-test"
 import { VeridaNameClient } from "../src/index"
 import { Wallet } from "ethers";
-import { EnvironmentType } from "@verida/types";
+import { BlockchainAnchor } from "@verida/types";
 
 const assert = require('assert')
 
@@ -26,24 +26,32 @@ if (!privateKey) {
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNameClient({
+        blockchainAnchor: BlockchainAnchor.POLAMOY,
         did: did.address,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
 
-describe('vda-name-client read and write tests', () => {
+describe('vda-name-client read and write tests', function() {
+    this.timeout(200*1000)
+
     let blockchainApi : VeridaNameClient;
     const REGISTER_COUNT = 2;
 
-    before(() => {
+    before(async function()  {
+        this.timeout(200*1000)
         blockchainApi = createBlockchainAPI(did);
         did.address = did.address.toLowerCase()
+
+        const maxLimit = Number(await blockchainApi.getNameLimitPerDID());
+        console.log("NameLimit : ", maxLimit);
+        if (REGISTER_COUNT > maxLimit) {
+            throw new Error(`Can register up to ${maxLimit} names per DID`);
+        }
     })
 
     describe('register', function() {
-        this.timeout(60*1000)
         it('Should reject for invalid names', async () => {
             const invalidnames = [
                 'hello world.vda',   // Space in the name 
@@ -68,7 +76,7 @@ describe('vda-name-client read and write tests', () => {
                 await blockchainApi.register(testNames[i])
 
                 const nameDID = await blockchainApi.getDID(testNames[i])
-                assert.equal(nameDID, did.address, 'Get registered DID')
+                assert.equal(nameDID.toLowerCase(), did.address.toLowerCase(), 'Get registered DID')
             }
         })
 
@@ -83,7 +91,6 @@ describe('vda-name-client read and write tests', () => {
     })
 
     describe('Get usernames', function() {
-        this.timeout(60*1000)
         it('Get usernames successfully', async () => {
             const usernames = await blockchainApi.getUsernames(did.address);
             const expectedNames : string[] = []
@@ -103,13 +110,12 @@ describe('vda-name-client read and write tests', () => {
     })
 
     describe('Get DID', function() {
-        this.timeout(60*1000)
         it('Get DID successfully', async () => {
             for (let i = 0; i < REGISTER_COUNT; i++) {
                 const foundDID = await blockchainApi.getDID(testNames[i])
 
                 assert.equal(
-                    foundDID,
+                    foundDID.toLowerCase(),
                     did.address.toLowerCase(),
                     'Get registered DID'
                 )
@@ -127,7 +133,6 @@ describe('vda-name-client read and write tests', () => {
     })
 
     describe('Unregister', function() {
-        this.timeout(60*1000)
         it('Should reject for unregistered names', async () => {
             await assert.rejects(
                 blockchainApi.unregister(testNames[4]),

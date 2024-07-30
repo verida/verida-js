@@ -1,9 +1,9 @@
-import { CONTRACT_ADDRESS, RPC_URLS, CONTRACT_ABI as abiList } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor, getDefaultRpcUrl } from "@verida/vda-common";
 
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
 import { activeDIDCount } from "./activeDIDCount";
-import { EnvironmentType } from '@verida/types'
+import { BlockchainAnchor } from '@verida/types'
   
 /**
  * Call lookUp() function of DIDRegistry contract
@@ -11,37 +11,36 @@ import { EnvironmentType } from '@verida/types'
  * @param startIndex Index to start
  * @param count Total number of results to fetch
  */
-export async function getDIDs(network: EnvironmentType, startIndex: number=0, count: number=20, mostRecent: boolean=true): Promise<string[]> {
-    const rpcUrl = RPC_URLS[network]
+export async function getDIDs(blockchain: BlockchainAnchor, startIndex: number=0, count: number=20, mostRecent: boolean=true): Promise<string[]> {
+    const rpcUrl = getDefaultRpcUrl(blockchain.toString())
     if (!rpcUrl) {
-        throw new Error(`Unable to locate RPC_URL for network: ${network}`)
+        throw new Error(`Unable to locate RPC_URL for network: ${blockchain.toString()}`)
     }
+
+    const contractInfo = getContractInfoForBlockchainAnchor(blockchain, "didRegistry");
 
     // Simple read-only of the blockchain
-    const contractABI = abiList["VeridaDIDRegistry"];
     const provider = new JsonRpcProvider(rpcUrl);
-    const address = CONTRACT_ADDRESS["VeridaDIDRegistry"][network];
-
-    if (!address) {
-        throw new Error(`Empty contract address for network-${network}`)
-    }
 
     try {
-        const contract = new Contract(address, contractABI.abi, provider);
+        const contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider);
 
         if (mostRecent) {
             // user wants most recent DIDs
             // we need to calculate the correct offset
             // Note that startIndex is indexed from the **end** of the list of DIDs
             //   so a startIndex of 0 and count of 20 means get the 20 most recent.
-            const activeDidCount = await activeDIDCount(network)
+            const activeDidCount = await activeDIDCount(blockchain)
             startIndex = activeDidCount - startIndex - count
+            if (startIndex < 0) {
+                startIndex = 0
+            }
         }
-        
+
         const data = (await contract.callStatic.getDIDs(startIndex, count)) as string[];
 
         // map the raw string into the correct canonoical DID format
-        return (data || []).map((did) => `did:vda:${network}:${did}`)
+        return (data || []).map((did) => `did:vda:${blockchain.toString()}:${did}`)
 
     } catch (e: any) {
         throw new Error('Failed to get list of active DIDs');

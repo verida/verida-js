@@ -82,7 +82,7 @@ export class VdaDidResolver {
      */
      public async _resolve(parsed: any): Promise<DIDDocument> {
         const rpcUrl = this.options.rpcUrl ? this.options.rpcUrl : RPC_URLS[parsed.network]
-        
+
         let endpoints
         try {
             endpoints = await lookup(parsed.address, parsed.network, rpcUrl!)
@@ -105,7 +105,6 @@ export class VdaDidResolver {
         
         // @todo: support consensus
         // @todo: support proof verification
-        
         
         // For now return the first doc
         return didDocuments[0]

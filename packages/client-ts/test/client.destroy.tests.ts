@@ -3,30 +3,30 @@ const assert = require('assert')
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import CONFIG from './config'
-import { EnvironmentType, IDatabase } from '@verida/types'
+import { Network } from '@verida/types'
 
 const CONTEXT_NAME = 'Verida Test: Destroyer'
 
 const PRIVATE_KEY = ''
-const ENVIRONMENT = EnvironmentType.TESTNET
+const NETWORK = Network.DEVNET
 
 let client, account, did
 
-describe('Destroy account and context tests', function() {
+describe.skip('Destroy account and context tests', function() {
 
     this.beforeAll(async function() {
         const localStorageNodeUri = 'http://localhost:5000/'
         
         client = new Client({
-            environment: ENVIRONMENT,
+            network: NETWORK,
             didClientConfig: {
-                network: ENVIRONMENT,
+                network: NETWORK,
             }
         })
 
         account = new AutoAccount({
             privateKey: PRIVATE_KEY,
-            environment: ENVIRONMENT,
+            network: CONFIG.NETWORK,
             didClientConfig: CONFIG.DID_CLIENT_CONFIG
         }, {
             defaultDatabaseServer: {
@@ -44,7 +44,7 @@ describe('Destroy account and context tests', function() {
         console.log(`DID: ${did}`)
     })
 
-    describe.skip('Destroy stuff', () =>{
+    describe('Destroy stuff', () =>{
 
         it('can open and destroy a context', async function () {
             // open a context and save some data

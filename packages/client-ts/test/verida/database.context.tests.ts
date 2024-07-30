@@ -22,21 +22,21 @@ describe('Verida database tests relating to contexts', () => {
     let db1
 
     const network = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const network2 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
     })
 
     const network3 = new Client({
-        environment: CONFIG.ENVIRONMENT,
+        network: CONFIG.NETWORK,
         didClientConfig: {
             rpcUrl: CONFIG.DID_CLIENT_CONFIG.rpcUrl
         }
@@ -49,7 +49,7 @@ describe('Verida database tests relating to contexts', () => {
             // Initialize account 1
             const account1 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_1])
             did1 = await account1.did()
@@ -78,7 +78,7 @@ describe('Verida database tests relating to contexts', () => {
             // Initialize account 2
             const account2 = new LimitedAccount({
                 privateKey: CONFIG.VDA_PRIVATE_KEY_2,
-                environment: CONFIG.ENVIRONMENT,
+                network: CONFIG.NETWORK,
                 didClientConfig: CONFIG.DID_CLIENT_CONFIG
             }, undefined, [CONTEXT_1, CONTEXT_2])
             did2 = await account2.did()

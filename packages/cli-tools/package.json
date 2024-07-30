@@ -1,0 +1,44 @@
+{
+  "name": "@verida/cli-tools",
+  "version": "4.1.2-rc1",
+  "main": "dist/index.js",
+  "license": "ISC",
+  "directories": {
+    "src": "src",
+    "test": "tests"
+  },
+  "repository": "https://github.com/verida/verida-js.git",
+  "scripts": {
+    "cli": "node dist/exec.js",
+    "tests": "ts-mocha './test/**/*.ts'",
+    "test": "ts-mocha --timeout 100000",
+    "build": "rm -rf dist; tsc"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@verida/account": "^4.1.2-rc1",
+    "@verida/account-node": "^4.1.2-rc1",
+    "@verida/client-ts": "^4.1.2-rc1",
+    "@verida/did-client": "^4.1.2-rc1",
+    "@verida/did-document": "^4.1.2-rc1",
+    "@verida/types": "^4.1.2-rc1",
+    "@verida/vda-did-resolver": "^4.1.2-rc1",
+    "@verida/vda-name-client": "^4.1.2-rc1",
+    "command-line-interface": "^5.0.0",
+    "did-resolver": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.1"
+  },
+  "devDependencies": {
+    "@types/crypto-pouch": "^4.0.1",
+    "@types/mocha": "^9.1.1",
+    "@types/pouchdb": "^6.4.0",
+    "mocha": "^8.2.1",
+    "ts-mocha": "^8.0.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "gitHead": ""
+}

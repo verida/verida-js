@@ -1,7 +1,7 @@
 import { DIDClient } from "@verida/did-client"
 import { DIDDocument as VeridaDIDDocument } from "@verida/did-document"
 import { DIDDocument as DocInterface, ServiceEndpoint } from 'did-resolver'
-import { IKeyring, SecureContextConfig, SecureContextEndpoints, SecureContextEndpointType, VdaDidEndpointResponses } from "@verida/types"
+import { Network, IKeyring, SecureContextConfig, SecureContextEndpoints, SecureContextEndpointType, VdaDidEndpointResponses } from "@verida/types"
 const Url = require('url-parse')
 
 /**
@@ -10,14 +10,15 @@ const Url = require('url-parse')
 export default class StorageLink {
 
     // @todo: cache
-    static async getLinks(didClient: DIDClient, did: string): Promise<SecureContextConfig[]> {
+    static async getLinks(network: Network, didClient: DIDClient, did: string): Promise<SecureContextConfig[]> {
         if (!did) {
             return []
         }
 
         try {
             const didDocument = await didClient.get(did)
-            return StorageLink.buildSecureContexts(didDocument)
+            const isLegacyDid = (didDocument.export().id != did)
+            return StorageLink.buildSecureContexts(didDocument, network, isLegacyDid)
         } catch (err) {
             // DID not found
             return []
@@ -31,15 +32,19 @@ export default class StorageLink {
      * @param contextName 
      * @returns SecureStorageContextConfig | undefined (if not found)
      */
-    static async getLink(didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
+    static async getLink(network: Network, didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
+        const secureContexts =  await StorageLink.getLinks(network, didClient, did)
+
         let contextHash = context
         if (contextIsName) {
+            if (secureContexts.length && secureContexts[0].isLegacyDid) {
+                did = did.replace('polpos', 'mainnet')
+            }
+
             contextHash = VeridaDIDDocument.generateContextHash(did, context)
         }
 
-        const secureContexts =  await StorageLink.getLinks(didClient, did)
         const secureContext = StorageLink._findHash(secureContexts, contextHash)
-
         return secureContext
     }
 
@@ -48,8 +53,8 @@ export default class StorageLink {
      * @param didClient
      * @param storageConfig (Must have .id as the contextName)
      */
-    static async setLink(didClient: DIDClient, storageConfig: SecureContextConfig, keyring: IKeyring, privateKey: string) {
-        const did = didClient.getDid()
+    static async setLink(network: Network, didClient: DIDClient, storageConfig: SecureContextConfig, keyring: IKeyring, privateKey: string) {
+        let did = didClient.getDid()
 
         if (!did) {
             throw new Error("DID client is not authenticated")
@@ -60,13 +65,18 @@ export default class StorageLink {
             didDocument = await didClient.get(did)
 
             // Remove existing context if it exists
-            const existing = await StorageLink.getLink(didClient, did, storageConfig.id)
+            const existing = await StorageLink.getLink(network, didClient, did, storageConfig.id)
             if (existing) {
-                await StorageLink.unlink(didClient, storageConfig.id)
+                await StorageLink.unlink(network, didClient, storageConfig.id)
             }
         } catch (err) {
             // DID document not found
             didDocument = new VeridaDIDDocument(did, didClient.getPublicKey())
+        }
+
+        const isLegacyDid = (didDocument.export().id != did)
+        if (isLegacyDid) {
+            did.replace('polpos', 'mainnet')
         }
 
         const endpoints: SecureContextEndpoints = {
@@ -82,11 +92,11 @@ export default class StorageLink {
             endpoints.notification = storageConfig.services.notificationServer
         }
 
-        await didDocument.addContext(storageConfig.id, keyring, privateKey, endpoints)
+        await didDocument.addContext(network, storageConfig.id, keyring, privateKey, endpoints)
         return await didClient.save(didDocument)
     }
 
-    static async setContextService(didClient: DIDClient, contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<VdaDidEndpointResponses> {
+    static async setContextService(network: Network, didClient: DIDClient, contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<VdaDidEndpointResponses> {
         const did = didClient.getDid()
         if (!did) {
             throw new Error("DID client is not authenticated")
@@ -105,12 +115,12 @@ export default class StorageLink {
         const contextHash = VeridaDIDDocument.generateContextHash(did, contextName)
 
         // Add the context service
-        await didDocument.addContextService(contextHash, endpointType, serverType, StorageLink.standardizeUrls(endpointUris))
+        await didDocument.addContextService(network, contextHash, endpointType, serverType, StorageLink.standardizeUrls(endpointUris))
 
         return didClient.save(didDocument)
     }
 
-    static async unlink(didClient: DIDClient, contextName: string): Promise<VdaDidEndpointResponses | boolean> {
+    static async unlink(network: Network, didClient: DIDClient, contextName: string): Promise<VdaDidEndpointResponses | boolean> {
         const did = didClient.getDid()
         if (!did) {
             throw  new Error("DID Client is not authenticated")
@@ -124,7 +134,7 @@ export default class StorageLink {
             return false
         }
 
-        const success = await didDocument!.removeContext(contextName)
+        const success = await didDocument!.removeContext(contextName, network)
         if (!success) {
             return false
         }
@@ -140,9 +150,12 @@ export default class StorageLink {
         }
     }
 
-    static buildSecureContexts(didDocument: VeridaDIDDocument): SecureContextConfig[] {
+    static buildSecureContexts(didDocument: VeridaDIDDocument, network?: Network, isLegacyDid?: boolean): SecureContextConfig[] {
         const doc: DocInterface = didDocument.export()
         const did = doc.id
+        const networkString = network ? `network=${network.toString()}&` : ''
+
+        let returnLegacyContexts = false
 
         // strategy: loop through all signing keys as our way of looping through all contexts
         const contexts: SecureContextConfig[] = []
@@ -155,7 +168,7 @@ export default class StorageLink {
             const contextHash = assertionParts.query.context
             
             // Get signing key
-            const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=sign`)
+            const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=sign`)
             if (!signKeyVerificationMethod) {
                 return
             }
@@ -163,7 +176,7 @@ export default class StorageLink {
             const signKey = signKeyVerificationMethod!.publicKeyHex
 
             // Get asym key
-            const asymKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=asym`)
+            const asymKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=asym`)
             if (!asymKeyVerificationMethod)  {
                 return 
             }
@@ -171,10 +184,10 @@ export default class StorageLink {
             const asymKey = asymKeyVerificationMethod!.publicKeyHex
 
             // Get services
-            const databaseService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=database`)
-            const messageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=messaging`)
-            const storageService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=storage`)
-            const notificationService = doc.service!.find((entry: any) => entry.id == `${did}?context=${contextHash}&type=notification`)
+            const databaseService = doc.service!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=database`)
+            const messageService = doc.service!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=messaging`)
+            const storageService = doc.service!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=storage`)
+            const notificationService = doc.service!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=notification`)
 
             // Valid we have everything
             if (!signKey || !asymKey || !databaseService || !messageService) {
@@ -203,7 +216,8 @@ export default class StorageLink {
                         type: messageService!.type,
                         endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> messageService!.serviceEndpoint)
                     }
-                }
+                },
+                isLegacyDid: isLegacyDid ? true : false
             }
 
             if (storageService) {
@@ -218,10 +232,18 @@ export default class StorageLink {
                     type: notificationService!.type,
                     endpointUri: StorageLink.standardizeUrls(<ServiceEndpoint[]> notificationService!.serviceEndpoint)
                 }
+
             }
 
             contexts.push(config)
         })
+
+        if (networkString && network == Network.MYRTLE) {
+            // Old Myrtle DID's don't specify the network, so if we have Myrtle
+            // network, attempt to find context config that has no network specified
+            const legacyContexts = StorageLink.buildSecureContexts(didDocument, undefined, isLegacyDid)
+            contexts.push(...legacyContexts)
+        }
 
         return contexts
     }

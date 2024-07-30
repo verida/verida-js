@@ -1,115 +1,119 @@
-// import * as fs from 'fs';
-export type CONTRACT_NAMES = 
-    "VeridaDIDRegistry"     |
-    "NameRegistry"          |
-    "SoulboundNFT"          |
+import { IContractInfo, INetworkContracts } from "@verida/types";
+import { BlockchainAnchor, Network, TContractNames } from "@verida/types";
+import { NetworkDefinition } from "@verida/types";
 
-    "VeridaDIDLinkage"      |
-    "VeridaToken"           |
-    "VDARewardContract"     |
-    "StorageNodeRegistry"   |
-    "VDAXPReward"
-    ;
-
-
-export interface CONTRACT_INFO {
-    abi: any,
-    address: string
+export const CONTRACT_ABI : Record<TContractNames, any> = {
+    didRegistry: require('./abi/VeridaDIDRegistry.json'),
+    nameRegistry: require('./abi/NameRegistry.json'),
+    didLinkage: require('./abi/VeridaDIDLinkage.json'),
+    token: require('./abi/VeridaToken.json'),
+    reward: require('./abi/VDARewardContract.json'),
+    storageNodeRegistry: require('./abi/StorageNodeRegistry.json'),
+    solboundNFT: require('./abi/SoulboundNFT.json'),
 }
 
-export const CONTRACT_ADDRESS : Record<CONTRACT_NAMES, Record<string, string | null>> = {
-    "VeridaDIDRegistry": {
-        mainnet: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
-        "0x89": "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
-        testnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
-        "0x13881": "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
-        devnet: "0x08CB4462958e6462Cc899862393f0b3bB6664efD",
+/**
+ * Contract information for each `BlockchainAnchor` type
+ */
+export const CHAIN_CONTRACTS : Record<BlockchainAnchor, INetworkContracts> = {
+    polpos: {
+        token: {
+            address: "0x683565196C3EAb450003C964D4bad1fd3068D4cC",
+            abi: CONTRACT_ABI["token"]
+        },
+        didRegistry: {
+            address: "0x6FF180EF62FA57e611E91bdDaDadB6635D6b9Af7",
+            abi: CONTRACT_ABI["didRegistry"]
+        },
+        storageNodeRegistry: null,
+        nameRegistry: {
+            address: "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
+            abi: CONTRACT_ABI["nameRegistry"]
+        },
+        didLinkage: {
+            address: "0x5916F97e31B77884d81bdA875b7686A988E0d517",
+            abi: CONTRACT_ABI["didLinkage"]
+        },
+        reward: null,
+        solboundNFT: null
     },
-    "NameRegistry": {
-        mainnet: "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
-        "0x89": "0xc9ce048b464034C53207Bf120bF85f317fdb38C8",
-        testnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
-        "0x13881": "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
-        devnet: "0x1dD6AAc1858100091BEbb867C7628DA639F7C16E",
-    },
-    "SoulboundNFT" : {
-        mainnet: "0xB500418b5F47758903Ae02bfB3605cBd19062889",
-        "0x89": "0xB500418b5F47758903Ae02bfB3605cBd19062889",
-        testnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
-        "0x13881": "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
-        devnet: "0x7bf539E81e8beE06e3408359aC0867eD9C3bbD52",
-    },
-
-    "VeridaDIDLinkage" : {
-        mainnet: "0x5916F97e31B77884d81bdA875b7686A988E0d517",
-        "0x89": "0x5916F97e31B77884d81bdA875b7686A988E0d517",
-        testnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
-        "0x13881": "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
-        devnet: "0xF394a23dc6777cAB3067566F27Ec5bdDD2D0bD2A",
-    },
-    "VeridaToken" : {
-        mainnet: "0x683565196C3EAb450003C964D4bad1fd3068D4cC",
-        "0x89": "0x683565196C3EAb450003C964D4bad1fd3068D4cC",
-        testnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
-        "0x13881": "0x745Db51351015d61573db37bC16C49B8506B93c8",
-        devnet: "0x745Db51351015d61573db37bC16C49B8506B93c8",
-    },
-    "VDARewardContract": {
-        mainnet: "",
-        "0x89": "",
-        testnet: "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
-        "0x13881": "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
-        devnet: "0xB9B749971B1E6DBb72e6D105d873ebA547C472c8",
-    },
-    "StorageNodeRegistry": {
-        mainnet: null,
-        "0x89": null,
-        testnet: "0xDfe326357A4078A3ea8A192084255F25Ab73c712",
-        "0x13881": "0xDfe326357A4078A3ea8A192084255F25Ab73c712",
-        devnet: "0xDfe326357A4078A3ea8A192084255F25Ab73c712"
-    },
-    "VDAXPReward": {
-        mainnet: "",
-        "0x89": "",
-        testnet: "0x61cf4C431aFec40156d717d53E7D4De0A1dEcE4d",
-        "0x13881": "0x61cf4C431aFec40156d717d53E7D4De0A1dEcE4d",
-        devnet: "0x61cf4C431aFec40156d717d53E7D4De0A1dEcE4d",
+    polamoy: {
+        token: {
+            address: "0xC3D1eB4E0241a4A2B859f91dd2a6aDA176cCB6F2",
+            abi: CONTRACT_ABI["token"]
+        },
+        didRegistry: {
+            address: "0x5CC5cf757C0f2af7b3935093F88EaF45c5210002",
+            abi: CONTRACT_ABI["didRegistry"]
+        },
+        storageNodeRegistry: {
+            address: "0xb19197875f4e76db9565c32E98e588F6A215ceb5",
+            abi: CONTRACT_ABI["storageNodeRegistry"]
+        },
+        nameRegistry: {
+            address: "0x91381c424485dc12650811601d9a8B0025e51afc",
+            abi: CONTRACT_ABI["nameRegistry"]
+        },
+        didLinkage: {
+            address: "0x3A2439746D84bF4a8416fAfbF9C864Fc380BA23B",
+            abi: CONTRACT_ABI["didLinkage"]
+        },
+        reward: {
+            address: "0x4BDf0193aF01dF6b6Ff14A97eECE42071575d706",
+            abi: CONTRACT_ABI["reward"]
+        },
+        solboundNFT: {
+            address: "0xa7D552ccc8E561164d26711516033bcdeD975ca3",
+            abi: CONTRACT_ABI["solboundNFT"]
+        }
     }
-};
-
-export const CONTRACT_ABI : Record<CONTRACT_NAMES, any> = {
-    "VeridaDIDRegistry": require('./abi/VeridaDIDRegistry.json'),
-    "NameRegistry": require('./abi/NameRegistry.json'),
-    "SoulboundNFT": require('./abi/SoulboundNFT.json'),
-
-    "VeridaDIDLinkage": require('./abi/VeridaDIDLinkage.json'),
-    "VeridaToken": require('./abi/VeridaToken.json'),
-    "VDARewardContract": require('./abi/VDARewardContract.json'),
-    "StorageNodeRegistry": require('./abi/StorageNodeRegistry.json'),
-    "VDAXPReward": require('./abi/VDAXPReward.json'),
 }
 
-export function getContractInfoForNetwork(name: CONTRACT_NAMES, chainNameOrId: string) : CONTRACT_INFO {
-    // const abiPath = `../abi/${name}.json`;
-    // console.log("File : ", abiPath)
-    // if (!fs.existsSync(abiPath)) {
-    //     throw new Error("Contract ABI file not exist")
-    // }
-    // const abi = require(abiPath);
+export const NETWORK_DEFINITIONS: Record<Network, NetworkDefinition> = {
+    [Network.MYRTLE]: {
+        id: Network.MYRTLE,
+        label: "Myrtle",
+        isMainnet: true,
+        anchoredBlockchain: BlockchainAnchor.POLPOS,
+        ...CHAIN_CONTRACTS[BlockchainAnchor.POLPOS]
+    },
+    [Network.BANKSIA]: {
+        id: Network.BANKSIA,
+        label: "Banksia",
+        isMainnet: false,
+        anchoredBlockchain: BlockchainAnchor.POLAMOY,
+        ...CHAIN_CONTRACTS[BlockchainAnchor.POLAMOY]
+    },
+    [Network.DEVNET]: {
+        id: Network.DEVNET,
+        label: "Devnet",
+        isMainnet: false,
+        anchoredBlockchain: BlockchainAnchor.POLAMOY,
+        ...CHAIN_CONTRACTS[BlockchainAnchor.POLAMOY]
+    },
+    [Network.LOCAL]: {
+        id: Network.LOCAL,
+        label: "Local",
+        isMainnet: false,
+        anchoredBlockchain: BlockchainAnchor.POLAMOY,
+        ...CHAIN_CONTRACTS[BlockchainAnchor.POLAMOY]
+    },
+}
 
-    const abi = CONTRACT_ABI[name];
-    if (!abi) {
-        throw new Error("Contract ABI not exist")
-    }
+export function getNetworkFromString(networkName: string): Network {
+    return Network[networkName.toUpperCase() as keyof typeof Network];
+}
 
-    const address = CONTRACT_ADDRESS[name][chainNameOrId];
+export const BLOCKCHAIN_CHAINIDS: Record<BlockchainAnchor, string> = {
+    [BlockchainAnchor.POLPOS]: '0x89',
+    [BlockchainAnchor.POLAMOY]: '0x13882'
+}
 
-    if (!address) {
-        throw new Error("Contract address not defined");
-    }
-
-    return {
-        abi: abi,
-        address: <string>address
-    }
+/**
+ * Return the contract information for given `BlockchainAnchor`
+ * @param blockchainAnchor Target chain that Verida support {@link BlockchainAnchor}
+ * @param contractName Contract name {@link TContractNames}
+ */
+export function getContractInfoForBlockchainAnchor(blockchainAnchor: BlockchainAnchor, contractName: TContractNames) : IContractInfo {
+    return CHAIN_CONTRACTS[blockchainAnchor][contractName]!;
 }

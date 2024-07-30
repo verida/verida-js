@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-node-manager",
-  "version": "3.0.3",
+  "version": "4.1.2-rc1",
   "description": "Client to manage storage nodes from the blockchain",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -14,7 +14,7 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "tests": "ts-mocha './test/**/*.tests.ts'",
+    "tests": "ts-mocha './test/**/*.test.ts'",
     "test": "ts-mocha --timeout 500000",
     "lint": "gts lint",
     "clean": "gts clean",
@@ -33,9 +33,10 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@verida/helpers": "^3.0.3",
-    "@verida/types": "^3.0.2",
-    "@verida/web3": "^3.0.3",
+    "@verida/helpers": "^4.1.2-rc1",
+    "@verida/types": "^4.1.2-rc1",
+    "@verida/vda-client-base": "^4.1.2-rc1",
+    "@verida/web3": "^4.1.2-rc1",
     "axios": "^1.6.0",
     "ethers": "5.7.2"
   }

@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-node-client",
-  "version": "3.0.3",
+  "version": "4.1.2-rc1",
   "description": "Client library that read nodat & datacentre information.",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -14,7 +14,7 @@
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
-    "tests": "ts-mocha './test/**/*.tests.ts'",
+    "tests": "ts-mocha './test/**/*.test.ts'",
     "test": "ts-mocha --timeout 200000",
     "lint": "gts lint",
     "clean": "gts clean",
@@ -25,13 +25,13 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@verida/types": "^3.0.2",
-    "@verida/vda-common": "^3.0.3",
+    "@verida/types": "^4.1.2-rc1",
+    "@verida/vda-common": "^4.1.2-rc1",
     "axios": "^0.27.2",
     "ethers": "^5.7.0"
   },
   "devDependencies": {
-    "@verida/vda-common-test": "^3.0.2",
+    "@verida/vda-common-test": "^4.0.0",
     "dotenv": "^16.0.3",
     "gts": "^3.1.0",
     "mocha": "^10.1.0",

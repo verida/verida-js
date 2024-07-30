@@ -5,6 +5,16 @@ A client library for registering / unregistering a human readable username alias
 
 DID's can have multiple usernames (although the smart contract currently limits to just `1`)
 
+## Dependencies
+This package dependes on the following `verida-js` packages:
+- `@verida/types`
+- `@verida/vda-common`
+- `@verida/helpers`
+- `@verida/vda-client-base`
+
+And dependes on the following packages for test:
+- `@verida/vda-common-test`
+
 ## Installation
 
 ```

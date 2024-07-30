@@ -1,17 +1,19 @@
 const assert = require("assert");
 import { Wallet } from 'ethers';
-import { EnumStatus } from '@verida/types';
-import { DID_NODE_MAP, REGISTERED_DATACENTRES, REGISTERED_DIDS, REMOVED_DATACENTRES, REMOVE_START_DIDS } from '@verida/vda-common-test';
+import { BlockchainAnchor, EnumStatus } from '@verida/types';
+import { DID_NODE_MAP, LOCK_LIST, REGISTERED_DATACENTRES, REGISTERED_DIDS, REGISTERED_LOCK_NODE, REMOVED_DATACENTRES, REMOVE_START_DIDS } from '@verida/vda-common-test';
 
 import { VeridaNodeClient } from '../src/index';
 import { BigNumber } from 'ethers';
 
-describe("vda-node-client", () => {
+describe("vda-node-client", function() {
     let blockchainApi: VeridaNodeClient;
     const wallet = Wallet.createRandom();
 
+    this.timeout(100*1000)
+
     before(() => {
-        blockchainApi = new VeridaNodeClient("testnet");
+        blockchainApi = new VeridaNodeClient(BlockchainAnchor.POLAMOY);
     })
 
     describe("Contract information", () => {
@@ -281,6 +283,21 @@ describe("vda-node-client", () => {
         it('isWithdrawalEnabled',async () => {
             const result = await blockchainApi.isWithdrawalEnabled();
             assert.equal(typeof(result), 'boolean', `isWithdrawalEnabled return boolean`);
+        })
+    })
+
+    describe('Lock information', () => {
+        const lockDIDAddress = new Wallet(REGISTERED_LOCK_NODE.privateKey).address;
+        it('locked', async () => {
+            for (let lockInfo of LOCK_LIST) {
+                const result = await blockchainApi.locked(lockDIDAddress, lockInfo.purpose) as BigNumber;
+                assert.equal(typeof(result), 'object', 'Get locked amount');
+            }
+        })
+
+        it('getLocks', async () => {
+            const result = await blockchainApi.getLocks(lockDIDAddress, 10, 1);
+            assert.ok(result.length >= 0, 'Get lock information list');
         })
     })
 })

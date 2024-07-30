@@ -1,10 +1,9 @@
 require('dotenv').config();
-import { getBlockchainAPIConfiguration, TRUSTED_SIGNER, ERC20Manager, REGISTERED_DIDS, DID_NODE_MAP, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS, FALLBACK_DIDS } from "@verida/vda-common-test"
+import { getBlockchainAPIConfiguration, TRUSTED_SIGNER, REGISTERED_DIDS, DID_NODE_MAP, REGISTERED_DATACENTRES, REMOVED_DATACENTRES, REMOVE_START_DIDS, FALLBACK_DIDS } from "@verida/vda-common-test"
 import { IStorageNode, VeridaNodeManager } from "../src/index"
 import { Wallet, BigNumber } from "ethers";
-import { EnvironmentType, EnumStatus } from "@verida/types";
+import { BlockchainAnchor, EnumStatus } from "@verida/types";
 import { addInitialData, generateAuthSignature, compareNodeData, getFallbackNodeInfo, FallbackNodeInfoStruct, getFallbackMigrationProof } from "./helpers";
-import { CONTRACT_ADDRESS } from "@verida/vda-common";
 
 
 const assert = require('assert')
@@ -13,15 +12,14 @@ const privateKey = process.env.PRIVATE_KEY
 if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
-
-const nodeContractAddress = CONTRACT_ADDRESS["StorageNodeRegistry"].testnet;
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNodeManager({
+        blockchainAnchor,
         did: did.address,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
@@ -120,7 +118,7 @@ describe('vda-node-manager read and write tests', () => {
     
                 it('Get data centres by ids successfully', async () => {
                     const validIdGroup = [...registeredCentreIds];
-    
+
                     const result = await blockchainApi.getDataCentresById(validIdGroup);
                     assert.ok(result.length === validIdGroup.length, 'Get same length data centres');
                 })
@@ -593,159 +591,6 @@ describe('vda-node-manager read and write tests', () => {
             })
         })
 
-        describe('Staking features', () => {
-            let TOKEN_ADDRESS: string;
-            let tokenAPI: ERC20Manager;
-
-            const transactionSender = new Wallet(privateKey);
-            const depositAmount = BigNumber.from("5000");
-
-            /**
-             * Check `depositToken()` or `depositTokenFromProvider()` function
-             * @param from The address of token provider.
-             * @param to The address of `StorageNodeRegistry` contract
-             * @param amount Token amount to be deposited
-             */
-            const checkDeposit =async (
-                from: string, 
-                nodeContract: string, 
-                amount: BigNumber,
-                methodName: "checkDeposit" | "checkDepositFromProvider"
-            ) => {
-                const orgExcessAmount: BigNumber = await blockchainApi.excessTokenAmount();
-                const orgBalance: BigNumber = await tokenAPI.balanceOf(from);
-                if (orgBalance.lt(amount)) {
-                    throw new Error(`Need ${amount} token at address : ${from}`);
-                }
-                assert.ok(orgBalance.gte(depositAmount), "Enough token to deposit");
-
-                // Approve transactionSender Token to node contract
-                const allowance : BigNumber = await tokenAPI.allowance(from, nodeContract);
-                if (allowance.lt(depositAmount) === true) {
-                    throw new Error(`${from} need to approve ${amount} tokens to ${nodeContract}`);
-                }
-
-                // Deposit
-                if (methodName === "checkDeposit") {
-                    await blockchainApi.depositToken(depositAmount);
-                } else {
-                    await blockchainApi.depositTokenFromProvider(from, amount);
-                }
-                
-
-                // Check deposit success
-                const excessAmount : BigNumber = await blockchainApi.excessTokenAmount();
-                assert.ok(excessAmount.eq(orgExcessAmount.add(depositAmount)), "Excess token increased");
-
-                // Check sender's balance decreased
-                const updatedBalance : BigNumber = await tokenAPI.balanceOf(from);
-                assert.ok(updatedBalance.eq(orgBalance.sub(depositAmount)), "Sender balance decreased");
-            }
-
-            before(async () => {
-                TOKEN_ADDRESS = await blockchainApi.getVDATokenAddress();
-
-                tokenAPI = new ERC20Manager(
-                    TOKEN_ADDRESS,
-                    <string>process.env.RPC_URL,
-                    privateKey
-                );
-
-                if (process.env.NEED_MINT_TOKEN === 'true') {
-                    // Mint & approve
-                    let balance: BigNumber = await tokenAPI.balanceOf(transactionSender.address);
-                    if (balance.lt(depositAmount)) {
-                        const mintAmount = depositAmount.sub(balance);
-                        await tokenAPI.mint(transactionSender.address, mintAmount);
-
-                        balance = await tokenAPI.balanceOf(transactionSender.address);
-                    }
-                    assert.ok(balance.gte(depositAmount), "Enough token to deposit");
-                    await tokenAPI.approve(<string>nodeContractAddress, depositAmount);
-                    
-                    const provider = new Wallet(process.env.PROVIDER_KEY!);
-                    balance = await tokenAPI.balanceOf(provider.address);
-                    if (balance.lt(depositAmount)) {
-                        const mintAmount = depositAmount.sub(balance);
-                        await tokenAPI.mint(provider.address, mintAmount);
-
-                        balance = await tokenAPI.balanceOf(provider.address);
-                    }
-                    assert.ok(balance.gte(depositAmount), "Enough token to deposit");
-
-                    const providerTokenAPI = new ERC20Manager(
-                        TOKEN_ADDRESS,
-                        <string>process.env.RPC_URL,
-                        provider.privateKey
-                    );
-                    await providerTokenAPI.approve(<string>nodeContractAddress, depositAmount)
-                }
-            })
-
-            it("Excess token amount",async () => {
-                const excessAmount = await blockchainApi.excessTokenAmount();
-                assert.ok(excessAmount.isZero(), "No excess token for user");
-            })
-
-            it("deposit from self",async () => {
-                await checkDeposit(transactionSender.address, <string>nodeContractAddress, depositAmount, "checkDeposit");
-            })
-
-            it("deposit from provider",async () => {
-                if (!process.env.PROVIDER_KEY) {
-                    throw new Error("No provider key in the env file");
-                }
-                const provider = new Wallet(process.env.PROVIDER_KEY!);
-
-                await checkDeposit(provider.address, <string>nodeContractAddress, depositAmount, "checkDepositFromProvider");
-            })
-
-            it("Withdraw",async () => {
-                // Check user excess amount
-                const excessAmount : BigNumber = await blockchainApi.excessTokenAmount();
-                assert.ok(excessAmount.gt(BigNumber.from(0)), "Excess token exist");
-
-                const tokenBal : BigNumber = await tokenAPI.balanceOf(transactionSender.address);
-
-                // Withdraw to the transaction sender, ofc can withdraw to any address
-                const recipient = transactionSender.address;
-                await blockchainApi.withdraw(recipient, excessAmount);
-
-                // Check withdraw success
-                const updatedExcessAmount : BigNumber = await blockchainApi.excessTokenAmount();
-                assert.ok(updatedExcessAmount.eq(BigNumber.from(0)), "Withdrawn successfully");
-
-                const updatedTokenBal : BigNumber = await tokenAPI.balanceOf(transactionSender.address);
-
-                assert.ok(updatedTokenBal.eq(tokenBal.add(excessAmount)), "Token amount increased");
-            })
-
-            it("Log issue",async () => {
-                const LOG_ISSUE_FEE : BigNumber = await blockchainApi.getNodeIssueFee();
-
-                // Check & mint token for logging
-                const balance: BigNumber = await tokenAPI.balanceOf(transactionSender.address);
-                if (balance.lt(LOG_ISSUE_FEE)) {
-                    const mintAmount = LOG_ISSUE_FEE.sub(balance);
-                    await tokenAPI.mint(transactionSender.address, mintAmount);
-                }
-
-                // Allow token for logging
-                const allowance : BigNumber = await tokenAPI.allowance(transactionSender.address, <string>nodeContractAddress);
-                if (allowance.lt(LOG_ISSUE_FEE) === true) {
-                    await tokenAPI.approve(<string>nodeContractAddress, LOG_ISSUE_FEE);
-                }
-
-                // Log issue
-                const curTotalIssueFee: BigNumber = await blockchainApi.getTotalIssueFee();
-                const nodeAddress = new Wallet(REGISTERED_DIDS[0].privateKey).address;
-                await blockchainApi.logNodeIssue(nodeAddress, 10);
-
-                const updatedTotalIssueFee: BigNumber = await blockchainApi.getTotalIssueFee();
-                assert.ok(updatedTotalIssueFee.eq(curTotalIssueFee.add(LOG_ISSUE_FEE)), "Total issue fee increased");
-            })
-        })
-    
         describe('Remove Node', () => {
             let fallbackInfo: FallbackNodeInfoStruct;            
 

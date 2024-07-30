@@ -5,9 +5,10 @@ import { Account } from '@verida/account'
 import { DIDClient, Wallet } from '@verida/did-client'
 import EncryptionUtils from "@verida/encryption-utils"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
-import { AccountConfig, AccountNodeConfig, AuthContext, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { AccountConfig, AccountNodeConfig, AuthContext, BlockchainAnchor, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 import { NodeSelector, NodeSelectorConfig, NodeSelectorParams } from './nodeSelector'
 import { ServiceEndpoint } from 'did-resolver'
+import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common'
 
 /**
  * An Authenticator that automatically signs everything
@@ -17,6 +18,7 @@ export default class AutoAccount extends Account {
     private didClient: DIDClient
 
     private wallet: Wallet
+    private _did: string
     protected accountConfig?: AccountConfig
     protected autoConfig: AccountNodeConfig
     protected contextAuths: Record<string, Record<string, VeridaDatabaseAuthType>> = {}
@@ -26,11 +28,14 @@ export default class AutoAccount extends Account {
         super()
         this.accountConfig = accountConfig
         this.autoConfig = autoConfig
-        this.wallet = new Wallet(autoConfig.privateKey, <string> autoConfig.environment)
+
+        const blockchain = DefaultNetworkBlockchainAnchors[autoConfig.network]
+        this.wallet = new Wallet(autoConfig.privateKey, blockchain.toString())
+        this._did = this.wallet.did
 
         this.didClient = new DIDClient({
             ...autoConfig.didClientConfig,
-            network: autoConfig.environment
+            network: autoConfig.network
         })
     }
 
@@ -44,6 +49,10 @@ export default class AutoAccount extends Account {
 
     public getAccountConfig(): AccountConfig | undefined {
         return this.accountConfig
+    }
+
+    public getAutoConfig(): AccountNodeConfig {
+        return this.autoConfig
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
@@ -60,7 +69,7 @@ export default class AutoAccount extends Account {
     }
 
     public async did(): Promise<string> {
-        return this.wallet.did
+        return this._did
     }
 
     public async loadDefaultStorageNodes(countryCode?: string, numNodes: number = 3, config: NodeSelectorParams = {}): Promise<void> {
@@ -77,7 +86,7 @@ export default class AutoAccount extends Account {
             },
             defaultNotificationServer:  {
                 type: 'VeridaNotification',
-                endpointUri: config.notificationEndpoints!
+                endpointUri: config.notificationEndpoints! ? config.notificationEndpoints! : []
             }
         }
     }
@@ -87,7 +96,7 @@ export default class AutoAccount extends Account {
             return this.defaultNodes
         }
 
-        config.network = this.autoConfig.environment
+        config.network = this.autoConfig.network
         config.defaultTimeout = config.defaultTimeout ? config.defaultTimeout : 5000
         config.notificationEndpoints = config.notificationEndpoints ? config.notificationEndpoints : []
 
@@ -101,8 +110,13 @@ export default class AutoAccount extends Account {
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
         await this.ensureAuthenticated()
 
-        const did = await this.did()
-        let storageConfig = await StorageLink.getLink(this.didClient, did, contextName, true)
+        let did = await this.did()
+        let storageConfig = await StorageLink.getLink(this.autoConfig.network, this.didClient, did, contextName, true)
+
+        if (storageConfig && storageConfig.isLegacyDid) {
+            this._did = this._did.replace('polpos', 'mainnet')
+            did = this._did
+        }
         
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
@@ -124,6 +138,23 @@ export default class AutoAccount extends Account {
             }
 
             storageConfig = await DIDStorageConfig.generate(this, contextName, endpoints)
+            
+            // Need to determine if this is a legacy DID
+            try {
+                const didDocument = await this.didClient.get(did)
+                storageConfig.isLegacyDid = didDocument.id.match('mainnet') ? true : false
+
+                if (storageConfig.isLegacyDid) {
+                    this._did = this._did.replace('polpos', 'mainnet')
+                }
+            }  catch (err: any) {
+                // DID may not exist, which means it's not a legacy DID, so no action required
+                if (!err.message.match('notFound')) {
+                    // Unknown error, so rethrow
+                    throw err
+                }
+            }
+
             await this.linkStorage(storageConfig)
         }
 
@@ -138,7 +169,7 @@ export default class AutoAccount extends Account {
      public async linkStorage(storageConfig: SecureContextConfig): Promise<boolean> {
         await this.ensureAuthenticated()
         const keyring = await this.keyring(storageConfig.id)
-        const result = await StorageLink.setLink(this.didClient, storageConfig, keyring, this.wallet.privateKey)
+        const result = await StorageLink.setLink(this.autoConfig.network, this.didClient, storageConfig, keyring, this.wallet.privateKey)
 
         for (let i in result) {
             const response = result[i]
@@ -157,7 +188,7 @@ export default class AutoAccount extends Account {
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         await this.ensureAuthenticated()
-        let result = await StorageLink.unlink(this.didClient, contextName)
+        let result = await StorageLink.unlink(this.autoConfig.network, this.didClient, contextName)
         if (!result) {
             return false
         }
@@ -179,7 +210,7 @@ export default class AutoAccount extends Account {
      */
     public async linkStorageContextService(contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
         await this.ensureAuthenticated()
-        const result = await StorageLink.setContextService(this.didClient, contextName, endpointType, serverType, endpointUris)
+        const result = await StorageLink.setContextService(this.autoConfig.network, this.didClient, contextName, endpointType, serverType, endpointUris)
 
         for (let i in result) {
             const response = result[i]
@@ -189,11 +220,6 @@ export default class AutoAccount extends Account {
         }
 
         return true
-    }
-
-    public async getDidClient(): Promise<DIDClient> {
-        await this.ensureAuthenticated()
-        return this.didClient
     }
 
     public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: VeridaDatabaseAuthTypeConfig, authType: string = "database"): Promise<AuthContext> {
@@ -247,7 +273,7 @@ export default class AutoAccount extends Account {
         return success
     }
 
-    private async ensureAuthenticated() {
+    public async ensureAuthenticated() {
         if (!this.didClient.authenticated()) {
             if (!this.autoConfig.didClientConfig.didEndpoints) {
                 const nodeUris = await this.getDefaultNodes(this.autoConfig.countryCode)

@@ -1,4 +1,12 @@
-2023-12-26 (v.3.0.0)
+2024-07-15 (v.4.0.0)
+-------------------
+
+- Support BlockchainAnchor and Verida Network refactor
+- Updated `proof` releated test code
+- Added `Test.md`
+- Updated test script
+
+2023-12-26 (v3.0.0)
 -------------------
 
 - Mainnet release

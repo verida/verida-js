@@ -1,14 +1,14 @@
 require('dotenv').config();
 import { getBlockchainAPIConfiguration, ERC20Manager, TRUSTED_SIGNER } from "@verida/vda-common-test"
 import { REGISTERED_DIDS as REGISTERED_NODE_DIDS, RECIPIENT_WALLET } from "@verida/vda-common-test"
-import { EnvironmentType } from "@verida/types";
+import { BlockchainAnchor } from "@verida/types";
 import { addInitialData, generateProof } from "./helpers";
 import { Wallet, BigNumber } from 'ethers';
 import { CLAIM_TYPES, ClaimType } from "./const";
 import { VeridaRewardClient } from "../src/blockchain/userApi";
 
 import { VeridaNodeManager } from "@verida/vda-node-manager";
-import { CONTRACT_ADDRESS } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
 
 const assert = require('assert')
 
@@ -18,26 +18,29 @@ if (!privateKey) {
 }
 const configuration = getBlockchainAPIConfiguration(privateKey);
 
+const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
+
 // Create `VeridaRewardClient` in write mode
 const createRewardClientAPI = (did:Wallet, configuration: any) => {
     return new VeridaRewardClient({
+        blockchainAnchor,
         did: `did:vda:testnet:${did.address}`,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         ...configuration
     })
 }
 
 const createNodeManagerAPI = () => {
     return new VeridaNodeManager({
+        blockchainAnchor,
         // did: did.address,
         // signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
         // ...configuration
     })
 }
 
-describe("Verida RewardOwnerApi Test in read/write mode", () => {
+describe("Verida RewardOwnerApi Test in read/write mode", function() {
+    this.timeout(200 * 1000)
     let rewardClientApi: VeridaRewardClient;
     let nodeManagerApi: VeridaNodeManager;
     let tokenAPI: ERC20Manager;
@@ -49,7 +52,7 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
         rewardClientApi = createRewardClientAPI(new Wallet(RECIPIENT_WALLET.privateKey), configuration);
 
         const TOKEN_ADDRESS = await rewardClientApi.getTokenAddress();
-        const rewardContractAddress = CONTRACT_ADDRESS["VDARewardContract"].testnet!;
+        const rewardContractAddress = getContractInfoForBlockchainAnchor(blockchainAnchor, "reward").address;
 
         // Create tokenAPI for claiming test
         tokenAPI = new ERC20Manager(
@@ -63,11 +66,13 @@ describe("Verida RewardOwnerApi Test in read/write mode", () => {
 
         // Check out token amount of reward contract
         if (await tokenAPI.balanceOf(rewardContractAddress) < 1000n) {
-            if (process.env.NEED_TOKEN_MINT === `true`) {
+            const tokenOwner = await tokenAPI.owner();
+            const userWallet = new Wallet(privateKey);
+            if (tokenOwner.toLowerCase() === userWallet.address.toLowerCase()) {
                 const mintAmount = 1000n;
-                tokenAPI.mint(rewardContractAddress, mintAmount);
+                await tokenAPI.mint(rewardContractAddress, mintAmount);
             } else {
-                throw new Error(`Not enough token in the 'VDARewardContract' at ${rewardContractAddress}`);
+                throw new Error(`Not enough token in the 'VDARewardContract'(${rewardContractAddress})`);
             }            
         }
 

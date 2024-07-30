@@ -5,8 +5,10 @@ export const RPC_URLS: Record<string, string | null> = {
     mainnet: "https://rpc.ankr.com/polygon",
     "0x89": "https://rpc.ankr.com/polygon",
     testnet: "https://rpc-amoy.polygon.technology",
-    "0x13881": "https://rpc-amoy.polygon.technology",
+    "0x13882": "https://rpc-amoy.polygon.technology",
     devnet: "https://rpc-amoy.polygon.technology",
+    polpos: "https://rpc.ankr.com/polygon",
+    polamoy: "https://rpc-amoy.polygon.technology"
 };
 
 export function getDefaultRpcUrl(chainNameOrId: any) {

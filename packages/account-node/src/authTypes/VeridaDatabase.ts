@@ -62,7 +62,9 @@ export default class VeridaDatabaseAuthType extends AuthType {
       try {
         // Generate a refresh token by authenticating
         const consentMessage = `Authenticate this application context: "${this.contextName}"?\n\n${did.toLowerCase()}\n${authJwt.authRequestId}`
-        const signature = await this.account.sign(consentMessage)
+        const keyring = await this.account.keyring(this.contextName)
+        const signature = await keyring.sign(consentMessage)
+        //const signature = await this.account.sign(consentMessage)
 
         refreshResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/authenticate",{
           authJwt: authJwt.authJwt,
