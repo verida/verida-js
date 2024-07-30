@@ -22,7 +22,7 @@ export class VeridaTokenClient {
     protected constructor(config: Web3SelfTransactionConfig, addr?: string) {
         this.config = config;
         if (!config.blockchainAnchor) {
-            throw new Error('Should provid "blockchainAnchor" in the configuration');
+            throw new Error('Should provide "blockchainAnchor" in the configuration');
         }
         this.blockchainAnchor = config.blockchainAnchor;
 
