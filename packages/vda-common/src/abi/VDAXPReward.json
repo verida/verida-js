@@ -94,32 +94,6 @@
           "type": "string"
         },
         {
-          "internalType": "uint256",
-          "name": "xp",
-          "type": "uint256"
-        },
-        {
-          "internalType": "bytes",
-          "name": "signature",
-          "type": "bytes"
-        }
-      ],
-      "name": "InvalidProof",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "didAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "typeId",
-          "type": "string"
-        },
-        {
           "internalType": "uint16",
           "name": "year",
           "type": "uint16"
@@ -380,6 +354,11 @@
             {
               "internalType": "bytes",
               "name": "signature",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "proof",
               "type": "bytes"
             }
           ],
