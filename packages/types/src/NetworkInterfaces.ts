@@ -37,6 +37,7 @@ export interface INetworkContracts {
 	didLinkage: IContractInfo | null
 	reward: IContractInfo | null
 	solboundNFT: IContractInfo | null
+	xpReward: IContractInfo | null
 }
 
 export type TContractNames = keyof INetworkContracts;
