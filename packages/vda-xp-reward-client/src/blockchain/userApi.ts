@@ -1,13 +1,8 @@
-import {
-    getVeridaContract,
-    VeridaContract
-} from "@verida/web3"
-import { Web3SelfTransactionConfig, VdaClientConfig } from '@verida/types'
-import { ethers, Contract, BytesLike } from "ethers";
-import { getContractInfoForNetwork, RPC_URLS, getVeridaSign, getVeridaSignWithNonce } from "@verida/vda-common";
-import { JsonRpcProvider } from '@ethersproject/providers';
-import { explodeDID } from '@verida/helpers'
-import EncryptionUtils from "@verida/encryption-utils";
+import { VdaClientConfig, Web3SelfTransactionConfig } from '@verida/types'
+import { ethers, BytesLike, BigNumber } from "ethers";
+import { getContractInfoForBlockchainAnchor, getVeridaSign } from "@verida/vda-common";
+import { VeridaClientBase } from "@verida/vda-client-base";
+import { VeridaTokenClient } from '@verida/vda-token-client';
 
 /**
  * This is the claim information
@@ -32,55 +27,10 @@ export interface ClaimXPInfo {
 /**
  * This is a client class that interacts with the `VDAXPReward` contract of Verida
  */
-export class VeridaXPRewardClient {
-
-    protected config: VdaClientConfig
-    protected network: string
-    protected didAddress?: string
-
-    protected vdaWeb3Client? : VeridaContract
-
-    protected readOnly: boolean
-    protected contract?: ethers.Contract
+export class VeridaXPRewardClient extends VeridaClientBase{
 
     public constructor(config: VdaClientConfig) {
-        if (!config.callType) {
-            config.callType = 'web3'
-        }
-
-        this.config = config
-        this.readOnly = true
-        if (!config.web3Options) {
-            config.web3Options = {}
-        }
-
-        this.network = config.network
-
-        if (config.callType == 'web3' && !(<Web3SelfTransactionConfig>config.web3Options).rpcUrl) {
-            (<Web3SelfTransactionConfig> config.web3Options).rpcUrl = <string> RPC_URLS[this.network]
-        }
-
-        const contractInfo = getContractInfoForNetwork("VDAXPReward", this.network)
-
-        if (config.did) {
-            this.readOnly = false
-            const { address } = explodeDID(config.did)
-            this.didAddress = address.toLowerCase()
-            
-            this.vdaWeb3Client = getVeridaContract(
-                config.callType, 
-                {...contractInfo,
-                ...config.web3Options})
-        } else {
-            let rpcUrl = (<Web3SelfTransactionConfig>config.web3Options).rpcUrl
-            if (!rpcUrl) {
-                rpcUrl = <string> RPC_URLS[this.network]
-            }
-
-            const provider = new JsonRpcProvider(rpcUrl)
-
-            this.contract = new Contract(contractInfo.address, contractInfo.abi.abi, provider)
-        }
+        super(config, "xpReward");
     }
 
     /**
@@ -208,10 +158,46 @@ export class VeridaXPRewardClient {
             claims,
             requestSignature,
             requestProof
-        )
+        );
 
         if (response.success !== true) {
             throw new Error(`Failed to claim xp: (${response.reason})`)
+        }
+    }
+
+    /**
+     * Deposit verida token to the `XPRewardContract` for `claimXPReward()` function calls
+     * In face, this function is for owner to deposit token to the contract.
+     * By the way, any others also can deposit tokens instead of owner
+     * @param amount Amount of token to be deposited
+     */
+    public async depositToken(amount: BigNumber) {
+        if (this.readOnly) {
+            throw new Error(`Unable to submit to blockchain. No 'signKey' provided in config.`)
+        }
+
+        // Check the Token contract address is the same as the Verida token contract in the `vda-common`
+        const contractTokenAddress = await this.getTokenAddress();
+        const vdaTokenAddress = getContractInfoForBlockchainAnchor(this.blockchainAnchor, "token").address;
+
+        // if (contractTokenAddress.toLowerCase() !== vdaTokenAddress.toLowerCase()) {
+        //     throw new Error(`Reward token address in the contract not matched with the Verida Token address`);
+        // }
+
+        const xpRewardContractAddress = getContractInfoForBlockchainAnchor(this.blockchainAnchor, "xpReward").address;
+
+        const web3Options: Web3SelfTransactionConfig = <Web3SelfTransactionConfig>this.config.web3Options;
+
+        const vdaTokenApi = await VeridaTokenClient.CreateAsync({
+            blockchainAnchor: this.blockchainAnchor,
+            privateKey: web3Options.privateKey,
+            rpcUrl: web3Options.rpcUrl
+        });
+
+        try {
+            await vdaTokenApi.transfer(xpRewardContractAddress, amount);
+        } catch (e: any) {
+            console.log("Errr");
         }
     }
 }

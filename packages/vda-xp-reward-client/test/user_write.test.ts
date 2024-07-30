@@ -1,13 +1,12 @@
 require('dotenv').config();
-import { getBlockchainAPIConfiguration, ERC20Manager, TRUSTED_SIGNER } from "@verida/vda-common-test"
+import { getBlockchainAPIConfiguration, ERC20Manager, TRUSTED_SIGNER, DID_LIST } from "@verida/vda-common-test"
 import { RECIPIENT_WALLET } from "@verida/vda-common-test"
-import { EnvironmentType } from "@verida/types";
-import { addInitialData, generateProof } from "./helpers";
-import { Wallet, BigNumber, ethers } from 'ethers';
-import { ClaimInfo } from "./const";
+import { addInitialData } from "./helpers";
+import { BigNumber, Wallet, ethers } from 'ethers';
+import { ClaimInfo, CONTEXT_SIGNER, Test_BlockchainAnchor } from "./const";
 import { VeridaXPRewardClient } from "../src/blockchain/userApi";
 
-import { CONTRACT_ADDRESS } from "@verida/vda-common";
+import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
 import EncryptionUtils from "@verida/encryption-utils";
 
 const assert = require('assert')
@@ -23,12 +22,12 @@ const createXPRewardClientAPI = (did:Wallet, configuration: any) => {
     return new VeridaXPRewardClient({
         did: `did:vda:testnet:${did.address}`,
         signKey: did.privateKey,
-        network: EnvironmentType.TESTNET,
+        blockchainAnchor: Test_BlockchainAnchor,
         ...configuration
     })
 }
 
-describe("Verida XPRewardOwnerApi Test in read/write mode", () => {
+describe("Verida XPRewardClientApi Test in read/write mode", () => {
     let xpRewardClientApi: VeridaXPRewardClient;
     let tokenAPI: ERC20Manager;
 
@@ -37,11 +36,19 @@ describe("Verida XPRewardOwnerApi Test in read/write mode", () => {
     const xpAmountWithUniqueId = 200;
 
     before(async () => {
-        await addInitialData(configuration);
+        const ownerPrivateKey = process.env.OWNER_PRIVATE_KEY;
+        if (ownerPrivateKey !== undefined) {
+            const ownerConfiguration = getBlockchainAPIConfiguration(ownerPrivateKey);
+            await addInitialData(ownerConfiguration);
+        }
+
         xpRewardClientApi = createXPRewardClientAPI(new Wallet(userDID.privateKey), configuration);
 
         const TOKEN_ADDRESS = await xpRewardClientApi.getTokenAddress();
-        const rewardXPContractAddress = CONTRACT_ADDRESS["VDAXPReward"].testnet!;
+        const rewardXPContractAddress = getContractInfoForBlockchainAnchor(Test_BlockchainAnchor, "xpReward").address;
+
+        // console.log("Token: ", TOKEN_ADDRESS);
+        // console.log("xpReward:", rewardXPContractAddress);
 
         // Create tokenAPI for claiming test
         tokenAPI = new ERC20Manager(
@@ -74,7 +81,7 @@ describe("Verida XPRewardOwnerApi Test in read/write mode", () => {
 
         it("Get rate denominator",async () => {
             const response = await xpRewardClientApi.getRateDenominator();
-            assert.ok(response && response > 0, 'Get the result');
+            assert.ok(response && BigNumber.from(response.toString()).gt(0), 'Get the result');
         })
 
         it("Get conversion rate",async () => {
@@ -84,13 +91,16 @@ describe("Verida XPRewardOwnerApi Test in read/write mode", () => {
     })
 
     describe("Claim XP Reward", () => {
+        const contextSigner = new Wallet(CONTEXT_SIGNER.privateKey);
+
         const claimData: ClaimInfo = {
             typeId: `type-${new Date().getTime()}`,
             uniqueId: ``,
             issueYear: 0,
             issueMonth: 0,
             xp: 50n,
-            signature: ''
+            signature: '',
+            proof: ''
         }
 
         const getProof = (didWallet:Wallet, data: ClaimInfo, trustedSigner: Wallet) => {
@@ -98,8 +108,13 @@ describe("Verida XPRewardOwnerApi Test in read/write mode", () => {
                 ['address', 'string', 'uint16', 'uint8', 'uint'],
                 [didWallet.address, `${data.typeId}${data.uniqueId}`, data.issueYear, data.issueMonth, data.xp]
             );
-            const privateKeyArray = new Uint8Array(Buffer.from(trustedSigner.privateKey.slice(2), 'hex'))
-            return EncryptionUtils.signData(rawMsg, privateKeyArray);
+            let privateKeyArray = new Uint8Array(Buffer.from(contextSigner.privateKey.slice(2), 'hex'))
+            const signature = EncryptionUtils.signData(rawMsg, privateKeyArray);
+
+            const proofMsg = `${trustedSigner.address}${contextSigner.address}`.toLowerCase();
+            privateKeyArray = new Uint8Array(Buffer.from(trustedSigner.privateKey.slice(2), 'hex'));
+            const proof = EncryptionUtils.signData(proofMsg, privateKeyArray);
+            return [ signature, proof ];
         }
 
         before(async () => {
@@ -113,7 +128,7 @@ describe("Verida XPRewardOwnerApi Test in read/write mode", () => {
         it("Claim without `uniqueId`", async () => {
             claimData.xp = BigInt(xpAmount);
             claimData.uniqueId = '';
-            claimData.signature = getProof(userDID, claimData, new Wallet(TRUSTED_SIGNER.privateKey));
+            [ claimData.signature, claimData.proof ] = getProof(userDID, claimData, new Wallet(TRUSTED_SIGNER.privateKey));
 
             const orgBalance = await tokenAPI.balanceOf(RECIPIENT_WALLET.address);
             await xpRewardClientApi.claimXPReward(RECIPIENT_WALLET.address, [claimData])
@@ -127,7 +142,7 @@ describe("Verida XPRewardOwnerApi Test in read/write mode", () => {
             claimData.typeId = `${claimData.typeId}-1`
             claimData.uniqueId = 'uniqueid-1';
             claimData.xp = BigInt(xpAmount);
-            claimData.signature = getProof(userDID, claimData, new Wallet(TRUSTED_SIGNER.privateKey));
+            [ claimData.signature, claimData.proof ] = getProof(userDID, claimData, new Wallet(TRUSTED_SIGNER.privateKey));
 
             const orgBalance = await tokenAPI.balanceOf(RECIPIENT_WALLET.address);
             await xpRewardClientApi.claimXPReward(RECIPIENT_WALLET.address, [claimData])

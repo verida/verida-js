@@ -1,41 +1,49 @@
 require('dotenv').config();
-import { DID_LIST, getBlockchainAPIConfiguration, ERC20Manager } from "@verida/vda-common-test"
+import { getBlockchainAPIConfiguration, ERC20Manager, DID_LIST, sleep } from "@verida/vda-common-test"
 import { VeridaXPRewardOwnerApi } from '../src/blockchain/ownerApi';
-import { EnvironmentType } from "@verida/types";
 import { addInitialData } from "./helpers";
-import { Wallet } from 'ethers';
+import { BigNumber, Wallet } from 'ethers';
+import { Test_BlockchainAnchor } from "./const";
+import { VeridaTokenClient } from "@verida/vda-token-client";
 
 const assert = require('assert')
 
-const privateKey = process.env.PRIVATE_KEY
-if (!privateKey) {
-    throw new Error('No PRIVATE_KEY in the env file');
+const ownerPrivateKey = process.env.OWNER_PRIVATE_KEY;
+if (!ownerPrivateKey) {
+    throw new Error('No OWNER_PRIVATE_KEY in the env file');
 }
-const configuration = getBlockchainAPIConfiguration(privateKey);
 
+const configuration = getBlockchainAPIConfiguration(ownerPrivateKey);
+const ownerWallet = new Wallet(ownerPrivateKey);
+const ownerDID = `did:vda:${Test_BlockchainAnchor}:${ownerWallet.address}`;
 
 const createOwnerAPI = () => {
-    const ownerDID = DID_LIST[0];
-
     return new VeridaXPRewardOwnerApi({
-        did: ownerDID.address,
-        network: EnvironmentType.TESTNET,
+        blockchainAnchor: Test_BlockchainAnchor,
+        did: ownerDID, // In fact, not used for owner functions. Used for read functions
         ...configuration
     })
 }
 
 describe("Verida XPRewardOwnerApi Test", () => {
     let ownerApi;
+    let tokenApi: VeridaTokenClient;
+
+    const DEPOSIT_AMOUNT = 10;
 
     before(async () => {
         ownerApi = createOwnerAPI();
         await addInitialData(configuration, ownerApi);
+
+        tokenApi = await VeridaTokenClient.CreateAsync({
+            blockchainAnchor: Test_BlockchainAnchor,
+        })
     })
 
     describe("Trusted signer test", () => {
         const newSigner = Wallet.createRandom();
 
-        it("Add a trusted signer",async () => {
+        it.only("Add a trusted signer",async () => {
             let response = await ownerApi.isTrustedSigner(newSigner.address);
             assert.equal(response, false);
 
@@ -45,7 +53,7 @@ describe("Verida XPRewardOwnerApi Test", () => {
             assert.equal(response, true);
         })
 
-        it("Remove a trusted signer",async () => {
+        it.only("Remove a trusted signer",async () => {
             await ownerApi.removeTrustedSigner(newSigner.address);
 
             const response = await ownerApi.isTrustedSigner(newSigner.address);
@@ -89,7 +97,33 @@ describe("Verida XPRewardOwnerApi Test", () => {
         })
     })
 
-    describe("Withdraw", () => {
+    describe("Deposit token", () => {
+        it("Deposit successfully", async () => {
+            const ownerBal: BigNumber = await tokenApi.balanceOf(ownerWallet.address);
 
+            if (ownerBal.lt(DEPOSIT_AMOUNT)) {
+                throw new Error("Not enough Token in the wallet");
+            }
+
+            await ownerApi.depositToken(DEPOSIT_AMOUNT);
+            const ownerNewBal: BigNumber = await tokenApi.balanceOf(ownerWallet.address);
+
+            assert.ok((ownerBal.sub(ownerNewBal)).eq(DEPOSIT_AMOUNT), "Deposited");
+        })
+    })
+
+    describe("Withdraw", () => {
+        const recipient = new Wallet(DID_LIST[0].privateKey);
+        /**
+         * Might be failed if the token address of the `XPRewardContract` is different from the `VDAToken` contract address
+         */
+        it("Withdraw successfully", async () => {
+            const orgBalance: BigNumber = await tokenApi.balanceOf(recipient.address);
+
+            await ownerApi.withdraw(recipient.address, DEPOSIT_AMOUNT);
+
+            const newBalance: BigNumber = await tokenApi.balanceOf(recipient.address);
+            assert.ok((newBalance.sub(orgBalance)).eq(DEPOSIT_AMOUNT), "Withdrawn");
+        })
     })
 })

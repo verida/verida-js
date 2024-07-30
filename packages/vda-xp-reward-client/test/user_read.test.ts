@@ -1,9 +1,8 @@
 require('dotenv').config();
-import { DID_LIST, getBlockchainAPIConfiguration, ERC20Manager } from "@verida/vda-common-test"
-import { EnvironmentType } from "@verida/types";
+import { getBlockchainAPIConfiguration } from "@verida/vda-common-test"
 import { addInitialData } from "./helpers";
-import { Wallet } from 'ethers';
 import { VeridaXPRewardClient } from "../src/blockchain/userApi";
+import { Test_BlockchainAnchor } from "./const";
 
 const assert = require('assert')
 
@@ -16,15 +15,19 @@ const configuration = getBlockchainAPIConfiguration(privateKey);
 
 const createXPRewardClientAPI = () => {
     return new VeridaXPRewardClient({
-        network: EnvironmentType.TESTNET,
+        blockchainAnchor: Test_BlockchainAnchor
     })
 }
 
-describe("Verida RewardOwnerApi Test in Read mode", () => {
+describe("Verida RewardClientApi Test in Read mode", () => {
     let xpRewardClientApi;
 
     before(async () => {
-        await addInitialData(configuration);
+        const ownerPrivateKey = process.env.OWNER_PRIVATE_KEY;
+        if (ownerPrivateKey !== undefined) {
+            const ownerConfiguration = getBlockchainAPIConfiguration(ownerPrivateKey);
+            await addInitialData(ownerConfiguration);
+        }
         xpRewardClientApi = createXPRewardClientAPI();
     })
 

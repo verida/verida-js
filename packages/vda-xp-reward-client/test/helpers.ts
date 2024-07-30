@@ -1,8 +1,8 @@
 import { DID_LIST, TRUSTED_SIGNER } from "@verida/vda-common-test";
 import { VeridaXPRewardOwnerApi } from "../src/blockchain/ownerApi";
-import { EnvironmentType } from "@verida/types";
 import { Wallet } from 'ethers';
 import EncryptionUtils from `@verida/encryption-utils`;
+import { Test_BlockchainAnchor } from "./const";
 
 /**
  * Add initial data that is used in testing
@@ -19,7 +19,7 @@ export async function addInitialData(
 
         ownerApi = new VeridaXPRewardOwnerApi({
             did: owenrDID.address,
-            network: EnvironmentType.TESTNET,
+            blockchainAnchor: Test_BlockchainAnchor,
             ...configuration
         });
     }
