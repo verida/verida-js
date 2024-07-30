@@ -43,7 +43,7 @@ describe("Verida XPRewardOwnerApi Test", () => {
     describe("Trusted signer test", () => {
         const newSigner = Wallet.createRandom();
 
-        it.only("Add a trusted signer",async () => {
+        it("Add a trusted signer",async () => {
             let response = await ownerApi.isTrustedSigner(newSigner.address);
             assert.equal(response, false);
 
@@ -53,7 +53,7 @@ describe("Verida XPRewardOwnerApi Test", () => {
             assert.equal(response, true);
         })
 
-        it.only("Remove a trusted signer",async () => {
+        it("Remove a trusted signer",async () => {
             await ownerApi.removeTrustedSigner(newSigner.address);
 
             const response = await ownerApi.isTrustedSigner(newSigner.address);
