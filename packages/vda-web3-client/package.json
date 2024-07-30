@@ -1,6 +1,6 @@
 {
   "name": "@verida/web3",
-  "version": "4.0.0",
+  "version": "4.1.2-rc1",
   "description": "",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -39,8 +39,8 @@
     "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/contracts": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@verida/types": "^4.0.0",
-    "@verida/vda-common": "^4.0.0",
+    "@verida/types": "^4.1.2-rc1",
+    "@verida/vda-common": "^4.1.2-rc1",
     "axios": "^1.2.3",
     "ethers": "^5.7.2"
   }

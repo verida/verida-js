@@ -150,6 +150,15 @@ class DIDContextManager {
         contextName,
         true
       );
+
+      // If we have a legacy DID then we need to update the context hash
+      // to use `did:vda:mainnet`
+      if (storageConfig?.isLegacyDid) {
+        if (contextName.substring(0, 2) != '0x') {
+          did = did.replace('polpos', 'mainnet')
+          contextHash = DIDDocument.generateContextHash(did, contextName);
+        }
+      }
     }
 
     if (!storageConfig) {

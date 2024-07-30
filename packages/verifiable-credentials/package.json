@@ -1,6 +1,6 @@
 {
 	"name": "@verida/verifiable-credentials",
-	"version": "4.0.0",
+	"version": "4.1.2-rc1",
 	"main": "dist/index.js",
 	"license": "ISC",
 	"directories": {
@@ -18,9 +18,9 @@
 	},
 	"dependencies": {
 		"@verida/encryption-utils": "^4.0.0",
-		"@verida/helpers": "^4.0.0",
-		"@verida/types": "^4.0.0",
-		"@verida/vda-did-resolver": "^4.0.0",
+		"@verida/helpers": "^4.1.2-rc1",
+		"@verida/types": "^4.1.2-rc1",
+		"@verida/vda-did-resolver": "^4.1.2-rc1",
 		"axios": "^1.3.3",
 		"dayjs": "^1.10.7",
 		"did-jwt": "^6.11.0",
@@ -31,7 +31,7 @@
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.14.177",
-		"@verida/client-ts": "^4.0.0",
+		"@verida/client-ts": "^4.1.2-rc1",
 		"dotenv": "^16.0.3",
 		"mocha": "^8.2.1",
 		"ts-mocha": "^8.0.0",

@@ -313,7 +313,8 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
-          verifyEncryptionKey: config.verifyEncryptionKey
+          verifyEncryptionKey: config.verifyEncryptionKey,
+          plugins: config.plugins ? config.plugins : []
         },
         this
       );
@@ -339,6 +340,7 @@ class StorageEngineVerida extends BaseStorageEngine {
         endpoint,
         isOwner: config.isOwner,
         saveDatabase: config.saveDatabase,
+        plugins: config.plugins ? config.plugins : []
       }, this);
 
       await db.init();
@@ -378,7 +380,8 @@ class StorageEngineVerida extends BaseStorageEngine {
           endpoint,
           isOwner: config.isOwner,
           saveDatabase: config.saveDatabase,
-          verifyEncryptionKey: config.verifyEncryptionKey
+          verifyEncryptionKey: config.verifyEncryptionKey,
+          plugins: config.plugins ? config.plugins : []
         },
         this
       );

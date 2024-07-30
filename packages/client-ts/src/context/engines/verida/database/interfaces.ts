@@ -22,4 +22,6 @@ export interface VeridaDatabaseConfig {
   saveDatabase: boolean;
 
   endpoint: Endpoint;
+
+  plugins?: any[]
 }

@@ -1,12 +1,24 @@
+
 2024-07-30 (v)
 -------------------
 
 - Updated `XPReward` contract address and abi
 
+?
+-------------------
+
+- npx lerna publish --dist-tag next
+
+
 2024-07-15 (v.4.0.0)
 -------------------
 
 - Support BlockchainAnchor and Verida Network refactor
+
+2024-05-31 (v)
+-------------------
+- Support `VDAXPReward` contract
+
 
 2024-05-31 (v)
 -------------------

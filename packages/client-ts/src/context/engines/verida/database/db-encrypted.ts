@@ -53,6 +53,12 @@ class EncryptedDatabase extends BaseDb {
       return;
     }
 
+    if (this.config.plugins) {
+      for (let plugin of this.config.plugins) {
+        PouchDBCrypt.plugin(plugin)
+      }
+    }
+
     const now = (new Date()).getTime()
     await super.init();
     //console.log(`Db.init-1(${this.databaseName}): ${(new Date()).getTime()-now}`)
