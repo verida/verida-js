@@ -1,6 +1,7 @@
 import { DatabaseCloseOptions, DatastoreOpenConfig } from "./ContextInterfaces"
 import { IContext } from "./IContext"
 import { IDatabase } from "./IDatabase"
+import { ISchema } from "./ISchema"
 
 export interface IDatastore {
     errors: any
@@ -35,4 +36,6 @@ export interface IDatastore {
     ): Promise<void>
 
     close(options?: DatabaseCloseOptions): Promise<void>
+
+    getSchema(): ISchema
 }

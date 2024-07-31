@@ -74,6 +74,11 @@ export interface DatabaseOpenConfig {
    * Verify the encryption key is correct when opening the database
    */
   verifyEncryptionKey?: boolean
+
+  /**
+   * Plugins to connect when initializing this database
+   */
+  plugins?: any
 }
 
 export interface DatabaseDeleteConfig {

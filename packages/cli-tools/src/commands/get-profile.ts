@@ -46,7 +46,7 @@ export const GetProfile: Command<GetProfileOptions> = {
     ],
     async handle ({ options }) {
         let network: Network
-        if (options.did.match('mainnet') || options.did.match('myrtle')) {
+        if (options.did.match('mainnet') || options.did.match('polpos')) {
             network = Network.MYRTLE
         } else {
             network = Network.BANKSIA

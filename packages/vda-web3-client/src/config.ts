@@ -6,22 +6,20 @@ import { BlockchainAnchor, Web3ContractInfo } from '@verida/types'
 import { BLOCKCHAIN_CHAINIDS } from '@verida/vda-common'
 
 /**
- * Should contain provider or web3.currentProvider
- * { provider: <provider instance> } or {web3: <Web3 instance> }
+ * Should contain provider
+ * { provider: <provider instance> }
  * 
  * Otherwise, this configuration should contain rpcUrl, and one of `blockchainAnchor` and `chainId`
  * ex: { rpcUrl: <RPC_URL>, blockchainAnchor: BlockchainAnchor.POLAMOY}
  * ex: { rpcUrl: <RPC_URL>, chainId: '0x89'}
  * 
  * @param provider Provider supported by `ethers`
- * @param web3 `Web3` instance
  * @param rpcUrl RPC that is used in blockchain transactions
  * @param blockchainAnchor Verida supported blockchain {@link BlockchainAnchor}
  * @param chainId Blockchain Id. ex: `0x89` for Polygon mainnet
  */
 export interface ProviderConfiguration {
     provider?: Provider;
-    web3?: any;
 
     rpcUrl?: string;
     blockchainAnchor?: BlockchainAnchor;
@@ -52,7 +50,7 @@ export function isVeridaWeb3GasConfiguration(obj : Object) {
  * @returns Contract instance
  */
 export function getContractInstance(conf: ProviderConfiguration & Web3ContractInfo): Contract {
-    let provider: Provider = conf.provider || conf.web3?.currentProvider
+    let provider: Provider | undefined = conf.provider;
     if (!provider) {
         if (conf.rpcUrl) {
             if (!conf.chainId && !conf.blockchainAnchor) {

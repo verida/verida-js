@@ -197,6 +197,10 @@ class Datastore implements IDatastore {
     return db.changes(cb, options);
   }
 
+  public getSchema() {
+    return this.schema
+  }
+
   /**
    * Initialize this datastore instance before use.
    *

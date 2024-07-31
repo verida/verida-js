@@ -5,6 +5,12 @@
 
 2023-12-26 (v.3.0.0)
 -------------------
+
+- Removed `web3` parameter in `Web3SelfTransactionConfig`
+
+2023-12-26 (v3.0.0)
+-------------------
+
 - Fix bugs in `pure` type function call
 
 2023-10-29 (v2.4.1)

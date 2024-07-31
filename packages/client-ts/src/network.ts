@@ -1,7 +1,7 @@
 import { NetworkConnectionConfig, Network as VeridaNetwork } from "@verida/types";
 import { Context } from ".";
 import Client from "./client";
-import { decodeUri, fetchVeridaUri } from '@verida/helpers'
+import { decodeUri, fetchVeridaUri, explodeVeridaUri } from '@verida/helpers'
 
 /**
  * @category
@@ -35,13 +35,15 @@ class Network {
     }
   }
 
-  public static async getRecord(network: VeridaNetwork, veridaUri: string, encoded: boolean = false) {
+  public static async getRecord(veridaUri: string, encoded: boolean = false) {
     if (encoded) {
       veridaUri = decodeUri(veridaUri)
     }
 
+    const urlParts = explodeVeridaUri(veridaUri)
+
     const client = new Client({
-      network
+      network: urlParts.network
     })
     const record = await fetchVeridaUri(veridaUri, client)
     return record

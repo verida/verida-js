@@ -3,7 +3,7 @@
   "abi": [
     {
       "type": "function",
-      "name": "diamondCut",
+      "name": "storageNodeRegistry",
       "constant": false,
       "payable": false,
       "inputs": [

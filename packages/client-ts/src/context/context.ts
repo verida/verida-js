@@ -376,7 +376,7 @@ class Context extends EventEmitter implements IContext {
   ): Promise<IDatabase> {
     did = await this.getClient().parseDid(did)
     did = did.toLowerCase()
-    const cacheKey = `${did}/${databaseName}/external`
+    let cacheKey = `${did.replace(/did:vda:[a-z]*:/,'')}/${databaseName}/external`
     if (this.databaseCache[cacheKey] && !config.ignoreCache) {
       return this.databaseCache[cacheKey]
     }
@@ -390,6 +390,10 @@ class Context extends EventEmitter implements IContext {
       );
 
       config.endpoints = <string[]> contextConfig.services.databaseServer.endpointUri
+
+      if (contextConfig.isLegacyDid) {
+        did = config.did = did.replace('polpos', 'mainnet')
+      }
     }
 
     config = _.merge(

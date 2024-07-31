@@ -1,18 +1,21 @@
 {
-  "name": "@verida/vda-client-base",
+  "name": "@verida/vda-token-client",
   "version": "4.1.2-rc1",
-  "description": "Base class of all `vda-xxx-client` classes",
+  "description": "Client to manage Verida token",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
   "files": [
     "build/src"
   ],
   "directories": {
-    "src": "src"
+    "src": "src",
+    "test": "tests"
   },
   "license": "Apache-2.0",
   "keywords": [],
   "scripts": {
+    "tests": "ts-mocha './test/**/*.tests.ts'",
+    "test": "ts-mocha --timeout 200000",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "rm -rf build && tsc",
@@ -29,6 +32,8 @@
     "ethers": "^5.7.0"
   },
   "devDependencies": {
+    "@verida/vda-common-test": "^4.0.0-alpha-1",
+    "dotenv": "^16.0.3",
     "gts": "^3.1.0",
     "mocha": "^10.1.0",
     "ts-mocha": "^10.0.0",

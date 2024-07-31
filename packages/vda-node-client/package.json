@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-node-client",
-  "version": "4.0.0",
+  "version": "4.1.2-rc1",
   "description": "Client library that read nodat & datacentre information.",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -25,8 +25,8 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.7.2",
-    "@verida/types": "^4.0.0",
-    "@verida/vda-common": "^4.0.0",
+    "@verida/types": "^4.1.2-rc1",
+    "@verida/vda-common": "^4.1.2-rc1",
     "axios": "^0.27.2",
     "ethers": "^5.7.0"
   },
