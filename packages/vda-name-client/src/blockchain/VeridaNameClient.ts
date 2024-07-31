@@ -320,7 +320,7 @@ export class VeridaNameClient extends VeridaClientBase {
 
         const requestSignature = getVeridaSignWithNonce(rawMsg, this.config.signKey!, await this.nonceFN());
 
-        const proofMsg = `${this.didAddress}${this.didAddress}`;
+        const proofMsg = `${this.didAddress}${this.didAddress}`.toLowerCase();
         const requestProof = getVeridaSign(proofMsg, this.config.signKey!);
 
         return { requestSignature, requestProof };

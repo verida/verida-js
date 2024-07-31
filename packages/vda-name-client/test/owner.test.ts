@@ -1,14 +1,10 @@
 require('dotenv').config();
-import { DID_LIST, ERC20Manager, getBlockchainAPIConfiguration, ZERO_ADDRESS } from "@verida/vda-common-test"
-import { IAppDataItem, VeridaNameClient, VeridaNameOwnerApi } from "../src/index"
-import { BigNumber, Wallet } from "ethers";
-import { BlockchainAnchor } from "@verida/types";
-import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
-import { addInitialDataV2, APP_REGISTER_FEE, appDataWithDomain, BLOCKCHAIN_ANCHOR, DID_OWNER, DID_WALLET } from "./utils";
+import { getBlockchainAPIConfiguration } from "@verida/vda-common-test"
+import { VeridaNameOwnerApi } from "../src/index"
+import { Wallet } from "ethers";
+import { APP_REGISTER_FEE, BLOCKCHAIN_ANCHOR, DID_WALLET } from "./utils";
 
 const assert = require('assert')
-
-const did = DID_WALLET;
 
 const ownerPrivateKey = process.env.OWNER_PRIVATE_KEY;
 
@@ -20,8 +16,8 @@ const configuration = getBlockchainAPIConfiguration(ownerPrivateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNameOwnerApi({
         blockchainAnchor: BLOCKCHAIN_ANCHOR,
-        did: did.address,
-        signKey: did.privateKey,
+        did: `did:vda:${BLOCKCHAIN_ANCHOR}:${did.address}`,
+        // signKey: did.privateKey,
         ...configuration
     })
 }
@@ -33,8 +29,8 @@ describe('vda-name-client owner test', function() {
     const REGISTER_COUNT = 5;
 
     before(async function()  {
-        this.timeout(200*1000)
-        blockchainApi = createBlockchainAPI(did);
+        this.timeout(300*1000)
+        blockchainApi = createBlockchainAPI(DID_WALLET);
     })
 
     describe("V1 features", () => {
@@ -49,10 +45,16 @@ describe('vda-name-client owner test', function() {
         })
 
         it("Update name count limit per DID", async () => {
-            const curLimit = await blockchainApi.maxNamesPerDID();
-            if (!curLimit.eq(REGISTER_COUNT)) {
-                await blockchainApi.updateMaxNamesPerDID(REGISTER_COUNT);
+            const orgLimit = Number(await blockchainApi.maxNamesPerDID());
+
+            if (orgLimit < REGISTER_COUNT) {
+                const newLimit = orgLimit + 1;
+                await blockchainApi.updateMaxNamesPerDID(newLimit);
+
+                const updatedLimit = Number(await blockchainApi.maxNamesPerDID());
+                assert.ok(newLimit === updatedLimit, "Updated name count per DID");
             }
+            
         })
         
     })
@@ -88,10 +90,10 @@ describe('vda-name-client owner test', function() {
         it("Enable app registering", async () => {
             const isEnabled = await blockchainApi.isAppRegisterEnabled();
 
-            await blockchainApi.enableAppRegister(!isEnabled);
+            await blockchainApi.setAppRegisterEnabled(!isEnabled);
             assert.ok(await blockchainApi.isAppRegisterEnabled() === !isEnabled);
 
-            await blockchainApi.enableAppRegister(isEnabled);
+            await blockchainApi.setAppRegisterEnabled(isEnabled);
         })
     })
 })

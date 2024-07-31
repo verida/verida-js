@@ -1,8 +1,5 @@
 import { VdaClientConfig } from '@verida/types'
-import { BigNumberish, ethers } from "ethers";
-import { getVeridaSignWithNonce } from "@verida/vda-common";
-import { explodeDID } from '@verida/helpers'
-import { VeridaClientBase } from '@verida/vda-client-base'
+import { BigNumberish } from "ethers";
 import { VeridaNameClient } from './VeridaNameClient';
 
 export class VeridaNameOwnerApi extends VeridaNameClient {
@@ -16,7 +13,7 @@ export class VeridaNameOwnerApi extends VeridaNameClient {
      * @param suffix Suffix to be added
      */
     public async addSuffix(suffix: string) {
-        if (this.readOnly || !this.config.signKey) {
+        if (this.readOnly || !this.vdaWeb3Client) {
             throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
@@ -32,7 +29,7 @@ export class VeridaNameOwnerApi extends VeridaNameClient {
      * @param count Name count limit to be updated
      */
     public async updateMaxNamesPerDID(count: BigNumberish) {
-        if (this.readOnly || !this.config.signKey) {
+        if (this.readOnly || !this.vdaWeb3Client) {
             throw new Error(`Unable to submit to blockchain in read only mode`);
         }
 
@@ -48,7 +45,7 @@ export class VeridaNameOwnerApi extends VeridaNameClient {
      * @param tokenAddr Token address to be set
      */
     public async setTokenAddress(tokenAddr: string) {
-        if (this.readOnly || !this.config.signKey) {
+        if (this.readOnly || !this.vdaWeb3Client) {
             throw new Error(`Unable to submit to blockchain in read only mode`);
         }
 
@@ -64,7 +61,7 @@ export class VeridaNameOwnerApi extends VeridaNameClient {
      * @param fee Fee to be updated
      */
     public async updateAppRegisterFee(fee: BigNumberish) {
-        if (this.readOnly || !this.config.signKey) {
+        if (this.readOnly || !this.vdaWeb3Client) {
             throw new Error(`Unable to submit to blockchain in read only mode`);
         }
 
@@ -80,12 +77,12 @@ export class VeridaNameOwnerApi extends VeridaNameClient {
      * @dev To enable the app registereing, token address and fee should be set before
      * @param isEnabled true if enabling
      */
-    public async enableAppRegister(isEnabled: boolean) {
-        if (this.readOnly || !this.config.signKey) {
+    public async setAppRegisterEnabled(isEnabled: boolean) {
+        if (this.readOnly || !this.vdaWeb3Client) {
             throw new Error(`Unable to submit to blockchain in read only mode`);
         }
 
-        const response = await this.vdaWeb3Client!.enableAppRegister(isEnabled);
+        const response = await this.vdaWeb3Client!.setAppRegisterEnabled(isEnabled);
 
         if (response.success !== true) {
             throw new Error(`Failed to enable app registering: ${isEnabled} (${response.reason})`);

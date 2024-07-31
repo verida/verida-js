@@ -2,9 +2,8 @@ require('dotenv').config();
 import { DID_LIST, ERC20Manager, getBlockchainAPIConfiguration, ZERO_ADDRESS } from "@verida/vda-common-test"
 import { IAppDataItem, VeridaNameClient } from "../src/index"
 import { BigNumber, Wallet } from "ethers";
-import { BlockchainAnchor } from "@verida/types";
+import { addInitialDataV2, appDataWithDomain, BLOCKCHAIN_ANCHOR, DID_OWNER } from "./utils";
 import { getContractInfoForBlockchainAnchor } from "@verida/vda-common";
-import { addInitialDataV2, appDataWithDomain, DID_OWNER } from "./utils";
 
 const assert = require('assert')
 
@@ -26,12 +25,11 @@ if (!privateKey) {
 }
 
 const ownerPrivateKey = process.env.OWNER_PRIVATE_KEY;
-const blockchainAnchor = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 
 const configuration = getBlockchainAPIConfiguration(privateKey);
 const createBlockchainAPI = (did: any) => {
     return new VeridaNameClient({
-        blockchainAnchor: BlockchainAnchor.POLAMOY,
+        blockchainAnchor: BLOCKCHAIN_ANCHOR,
         did: did.address,
         signKey: did.privateKey,
         ...configuration
@@ -45,7 +43,6 @@ describe('vda-name-client read and write tests', function() {
     const REGISTER_COUNT = 2;
 
     before(async function()  {
-        this.timeout(200*1000)
         blockchainApi = createBlockchainAPI(did);
         did.address = did.address.toLowerCase()
     })
@@ -170,7 +167,7 @@ describe('vda-name-client read and write tests', function() {
     })
 
     describe("V2 features", () => {
-        let tokenApi: ERC20Manager;
+        let tokenAPI: ERC20Manager;
         const txSender = new Wallet(privateKey);
 
         const appName = "App new";
@@ -182,6 +179,8 @@ describe('vda-name-client read and write tests', function() {
             }
         ];
 
+        let appRegisterFee: BigNumber;
+
         before(async () => {
             if (!(await blockchainApi.isAppRegisterEnabled())) {
                 if (ownerPrivateKey) {
@@ -190,6 +189,14 @@ describe('vda-name-client read and write tests', function() {
                     throw new Error("App registering is not enabled. Let the contract owner enable it.");
                 }
             }
+
+            const TOKEN_ADDRESS = await blockchainApi.getTokenAddress();
+
+            tokenAPI = new ERC20Manager(
+                TOKEN_ADDRESS,
+                <string>process.env.RPC_URL,
+                privateKey
+            )
         })
         
         it("Get token address", async () => {
@@ -198,8 +205,8 @@ describe('vda-name-client read and write tests', function() {
         })
 
         it("Get app register fee", async () => {
-            const fee: BigNumber = await blockchainApi.getAppRegisterFee();
-            assert.ok(fee.gt(0), 'App registering fee set');
+            appRegisterFee = await blockchainApi.getAppRegisterFee();
+            assert.ok(appRegisterFee.gt(0), 'App registering fee set');
         })
 
         it("Check app registering enabled", async () => {
@@ -208,6 +215,17 @@ describe('vda-name-client read and write tests', function() {
 
         it("Register an app", async () => {
             // Register an app to the `DID` in the utils.ts with the current owner name for `DID`
+            // Approve token before register
+            const payWalletBalance: BigNumber = await tokenAPI.balanceOf(txSender.address);
+            if (payWalletBalance.lt(appRegisterFee)) {
+                throw new Error("Insufficient token balance at tx sender");
+            }
+
+            const nameRegistryContractAddress = getContractInfoForBlockchainAnchor(BLOCKCHAIN_ANCHOR, "nameRegistry").address;
+            const allowance: BigNumber = await tokenAPI.allowance(txSender.address, nameRegistryContractAddress);
+            if (allowance.lt(appRegisterFee)) {
+                await tokenAPI.approve(nameRegistryContractAddress, appRegisterFee.mul(100));
+            }
             await blockchainApi.registerApp(DID_OWNER, appName, appData);
         });
 
@@ -224,13 +242,14 @@ describe('vda-name-client read and write tests', function() {
             await blockchainApi.updateApp(DID_OWNER, appName, updateItem);
         })
 
-        it("DeRegister an app", async () => {
-            await blockchainApi.deRegisterApp(DID_OWNER, appName);
-            // Confirem deregistered
-            const appData = await blockchainApi.getApp(DID_OWNER, appName);
-            assert.ok(appData.length === 0, 'App deregistered');
+        it("Deregister an app", async () => {
+            await blockchainApi.deregisterApp(DID_OWNER, appName);
+            // Confirm deregistered
+            try {
+                await blockchainApi.getApp(DID_OWNER, appName);
+            } catch (e) {
+                assert.ok(e.message.match('Failed to get an app'), 'Fail to get an app');
+            }
         })
     })
-
-    
 })

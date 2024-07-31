@@ -7,7 +7,7 @@ import { BigNumber, Wallet } from "ethers";
 export const BLOCKCHAIN_ANCHOR = process.env.BLOCKCHAIN_ANCHOR !== undefined ? BlockchainAnchor[process.env.BLOCKCHAIN_ANCHOR] : BlockchainAnchor.POLAMOY;
 
 // V1 test data
-export const DID_WALLET = new Wallet(DID_LIST[0]);
+export const DID_WALLET = new Wallet(DID_LIST[0].privateKey);
 // {
 //     address: '0xcD3EbA1884878c8a859D0452d45a8AbdB084e500',
 //     privateKey: '0x4abef2602c6419a8d86d04179b48c8988c4047cf5dba7917ebac703998094cb3',
@@ -99,7 +99,7 @@ export const addInitialDataV2 = async (ownerPrivateKey: string) => {
     }
 
     if(!(await nameOwnerApi.isAppRegisterEnabled())) {
-        await nameOwnerApi.enableAppRegister(true);
+        await nameOwnerApi.setAppRegisterEnabled(true);
     }
 
     const result = await nameOwnerApi.getApp(DID_OWNER, DID_APP);
