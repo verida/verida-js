@@ -1,3 +1,9 @@
+2024-07-31 (v)
+-------------------
+
+- Update the abi of `NameRegistry` contract to support registering apps
+
+
 2024-07-15 (v.4.0.0)
 -------------------
 
