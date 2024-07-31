@@ -4,8 +4,54 @@
   "sourceName": "contracts/NameRegistry.sol",
   "abi": [
     {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isInvalidOwner",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "isInvalidApp",
+          "type": "bool"
+        }
+      ],
+      "name": "AppNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AppRegisterFeeNotSet",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AppRegisterNotEnabled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "DuplicatedAppName",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "DuplicatedOwnerName",
+      "type": "error"
+    },
+    {
       "inputs": [],
       "name": "InvalidAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidAppName",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidDomainName",
       "type": "error"
     },
     {
@@ -20,6 +66,11 @@
     },
     {
       "inputs": [],
+      "name": "InvalidOwnerName",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "InvalidSignature",
       "type": "error"
     },
@@ -30,7 +81,27 @@
     },
     {
       "inputs": [],
+      "name": "InvalidValue",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "LimitedNameCount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoDomainInAppMetaData",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoSigners",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TokenAddressNotSet",
       "type": "error"
     },
     {
@@ -44,6 +115,44 @@
         }
       ],
       "name": "AddSuffix",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "enabled",
+          "type": "bool"
+        }
+      ],
+      "name": "AppRegisterEnabled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "ownerName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "appName",
+          "type": "string"
+        }
+      ],
+      "name": "DeregisterApp",
       "type": "event"
     },
     {
@@ -101,6 +210,62 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "ownerName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct INameRegistryV2.AppMetaDataItem[]",
+          "name": "metadata",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "RegisterApp",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "tokenAddr",
+          "type": "address"
+        }
+      ],
+      "name": "SetTokenAddress",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": true,
           "internalType": "string",
           "name": "name",
@@ -114,6 +279,68 @@
         }
       ],
       "name": "Unregister",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "ownerName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct INameRegistryV2.AppMetaDataItem",
+          "name": "item",
+          "type": "tuple"
+        }
+      ],
+      "name": "UpdateApp",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "from",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "to",
+          "type": "uint256"
+        }
+      ],
+      "name": "UpdateAppRegisterFee",
       "type": "event"
     },
     {
@@ -151,12 +378,125 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "ownerName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes",
+          "name": "requestSignature",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "requestProof",
+          "type": "bytes"
+        }
+      ],
+      "name": "deregisterApp",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "name",
           "type": "string"
         }
       ],
       "name": "findDID",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "ownerName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "appName",
+          "type": "string"
+        }
+      ],
+      "name": "getApp",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct INameRegistryV2.AppMetaDataItem[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAppRegisterFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSuffixList",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getTokenAddress",
       "outputs": [
         {
           "internalType": "address",
@@ -188,9 +528,54 @@
     },
     {
       "inputs": [],
+      "name": "getVersion",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "initialize",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "isAppRegisterEnabled",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "suffix",
+          "type": "string"
+        }
+      ],
+      "name": "isValidSuffix",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -262,10 +647,86 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "ownerName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct INameRegistryV2.AppMetaDataItem[]",
+          "name": "metadata",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "requestSignature",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "requestProof",
+          "type": "bytes"
+        }
+      ],
+      "name": "registerApp",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "renounceOwnership",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isEnabled",
+          "type": "bool"
+        }
+      ],
+      "name": "setAppRegisterEnabled",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20Upgradeable",
+          "name": "tokenAddr",
+          "type": "address"
+        }
+      ],
+      "name": "setTokenAddress",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -302,6 +763,69 @@
       "name": "unregister",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "ownerName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "key",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct INameRegistryV2.AppMetaDataItem",
+          "name": "item",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "requestSignature",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "requestProof",
+          "type": "bytes"
+        }
+      ],
+      "name": "updateApp",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "feeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateAppRegisterFee",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     },
     {

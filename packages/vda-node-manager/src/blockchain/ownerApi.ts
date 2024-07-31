@@ -55,7 +55,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
     ) {
         const CONTRACT_DECIMAL = await this.getContractDecimal();
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.addDataCentre({
@@ -78,7 +78,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async removeDataCentre(datacentreId: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.removeDataCentre(datacentreId);
@@ -95,7 +95,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async removeDataCentreByName(name: string) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.removeDataCentreByName(name);
@@ -112,7 +112,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async setStakingRequired(isRequired: boolean) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.setStakingRequired(isRequired);
@@ -129,7 +129,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async updateStakePerSlot(stakeAmount: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.updateStakePerSlot(stakeAmount);
@@ -145,7 +145,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async updateMinSlotCount(minSlots: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.updateMinSlotCount(minSlots);
@@ -161,7 +161,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async updateMaxSlotCount(maxSlots: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.updateMaxSlotCount(maxSlots);
@@ -177,7 +177,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async updateNodeIssueFee(newFee: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.updateNodeIssueFee(newFee);
@@ -194,7 +194,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async withdrawIssueFee(to: string, amount: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.withdrawIssueFee(to, amount);
@@ -210,7 +210,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async updateSameNodeLogDuration(value: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.updateSameNodeLogDuration(value);
@@ -226,7 +226,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async updateLogLimitPerDay(value: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.updateLogLimitPerDay(value);
@@ -250,7 +250,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
         moreInfoUrl: string) 
     {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.slash(nodeAddress, reasonCode, amount, moreInfoUrl);
@@ -267,7 +267,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async addReasonCode(reasonCode: BigNumberish, description: string) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.addReasonCode(reasonCode, description);
@@ -283,7 +283,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async disableReasonCode(reasonCode: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.disableReasonCode(reasonCode);
@@ -300,7 +300,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async updateReasonCodeDescription(reasonCode: BigNumberish, description: string) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.updateReasonCodeDescription(reasonCode, description);
@@ -316,7 +316,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async setWithdrawalEnabled(isEnabled: boolean) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.setWithdrawalEnabled(isEnabled);
@@ -333,7 +333,7 @@ export class VeridaNodeOwnerApi extends VeridaNodeManager {
      */
     public async transferOwnership(to: string) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.transferOwnership(to);
