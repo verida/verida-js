@@ -11,8 +11,8 @@ import { BlockchainAnchor } from '@verida/types'
  * @param startIndex Index to start
  * @param count Total number of results to fetch
  */
-export async function getDIDs(blockchain: BlockchainAnchor, startIndex: number=0, count: number=20, mostRecent: boolean=true): Promise<string[]> {
-    const rpcUrl = getDefaultRpcUrl(blockchain.toString())
+export async function getDIDs(blockchain: BlockchainAnchor, startIndex: number=0, count: number=20, mostRecent: boolean=true, rpcUrl: string | null = ''): Promise<string[]> {
+    rpcUrl = rpcUrl ? rpcUrl : getDefaultRpcUrl(blockchain.toString())
     if (!rpcUrl) {
         throw new Error(`Unable to locate RPC_URL for network: ${blockchain.toString()}`)
     }
