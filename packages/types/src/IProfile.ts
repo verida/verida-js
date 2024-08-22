@@ -1,3 +1,5 @@
+import { IDatastore } from "./IDatastore";
+
 export interface ProfileDocument {
     _id: string;
     [key: string]: string;
@@ -19,4 +21,8 @@ export interface IProfile {
   setMany(data: any): Promise<any> 
 
   listen(callback: any): Promise<any>
+
+  getDs(): Promise<IDatastore>
+
+  getErrors(): Promise<object>
 }
