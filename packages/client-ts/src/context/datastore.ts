@@ -3,6 +3,19 @@ import Context from "./context";
 import Schema from "./schema";
 import { IDatastore, DatastoreOpenConfig, DatabaseOpenConfig, DatabaseCloseOptions } from "@verida/types";
 
+class PouchDbError extends Error {
+  status: number;
+  name: string;
+  reason: string;
+
+  constructor(message: string, status: number, name: string, reason: string) {
+      super(message);
+      this.status = status;
+      this.name = name;
+      this.reason = reason;
+  }
+}
+
 /**
  * A datastore wrapper around a given database and schema.
  *
@@ -153,11 +166,19 @@ class Datastore implements IDatastore {
    * Get a record by ID.
    *
    * @param {string} key Unique ID of the record to fetch
-   * @param {object} [options] Database options that will be passed through to [PouchDB.get()](https://pouchdb.com/api.html#fetch_document)
+   * @param {object} [options] Database options that will be passed through to [PouchDB.find()](https://pouchdb.com/api.html#query_index)
    */
   public async get(key: string, options: any = {}) {
     await this.init();
-    return this.db.get(key, options);
+    const record = await this.getOne({
+      _id: key
+    }, options);
+
+    if (!record) {
+      throw new PouchDbError('missing', 404, 'not_found', 'missing');
+    }
+
+    return record
   }
 
   /**

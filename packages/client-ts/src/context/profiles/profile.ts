@@ -172,7 +172,7 @@ export class Profile extends EventEmitter implements IProfile {
   private async getRecord(): Promise<ProfileDocument> {
     await this.init();
     try {
-      const record = await this.store!.get(this.profileName);
+      const record = <ProfileDocument> await this.store!.get(this.profileName);
       return record;
     } catch (err: any) {
       if (err.message.match('Database not found')) {
