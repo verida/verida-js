@@ -1,6 +1,6 @@
 import { Command } from 'command-line-interface';
 import { SetProfileOptions } from './interfaces';
-import { Network } from '@verida/types';
+import { IProfile, Network } from '@verida/types';
 import { Client } from '@verida/client-ts';
 import { NETWORK_STRINGS } from '../constants';
 import { AutoAccount } from '@verida/account-node';
@@ -95,22 +95,28 @@ export const SetProfile: Command<SetProfileOptions> = {
                 }
             }
         }, accountConfig)
+        const did = await account.did()
 
         await client.connect(account)
         const context = await client.openContext(options.contextName)
-        const profile = await context!.openProfile()
+        const profile = <IProfile> await context!.openProfile()
 
-        console.log(`Profile located:`)
-        console.log(await profile!.getMany({}, {}))
+        console.log(`Profile located for ${did}:`)
+        console.log(await profile.getMany({}, {}))
 
-        const saveResult = await profile!.setMany({
-            name: options.name,
-            description: options.description,
-            country: options.country
+        const saveResult = await profile.setMany({
+            name: options.name ? options.name : undefined,
+            description: options.description ? options.description : undefined,
+            country: options.country ? options.country : undefined
         })
 
-        console.log(`Profile updated:`)
-        console.log(await profile!.getMany({}, {}))
+        if (!saveResult) {
+          console.log('Error saving profile')
+          console.log(await profile.getErrors())
+        } else {
+          console.log(`Profile updated:`)
+          console.log(await profile!.getMany({}, {}))
+        }
 
         await context!.close()
     }

@@ -14,8 +14,8 @@ for (let e in ENDPOINTS) {
 export default {
     NETWORK: Network.BANKSIA,
     RPC_URL: getDefaultRpcUrl(DefaultNetworkBlockchainAnchors[Network.BANKSIA].toString()),
-    VDA_PRIVATE_KEY:   '',
-    VDA_PRIVATE_KEY_2: '',
+    VDA_PRIVATE_KEY:   'shiver runway dove loyal diagram emotion insane gossip noise scare oven stomach',
+    VDA_PRIVATE_KEY_2: 'reopen excite repeat write below advice wonder disease stage spend airport asset',
     VDA_PRIVATE_KEY_3: '',
     CONTEXT_NAME: 'Verida Test: Test Application 1',
     DATABASE_SERVER: 'https://node1-euw6.gcp.devnet.verida.tech/',  // http://localhost:5000/ for local testing when running local @verida/storage-node
@@ -33,7 +33,8 @@ export default {
     DID_CLIENT_CONFIG: <AccountNodeDIDClientConfig> {
         callType: 'web3',
         web3Config: {
-            privateKey: '',
+            privateKey: '3c9efd2e44f0d2cbbb71506a02a2043ba45f222f04b501f139f29a0d3b21f64a',
+            //rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
         //didEndpoints: DID_ENDPOINTS
     },

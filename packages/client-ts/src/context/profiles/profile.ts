@@ -1,5 +1,5 @@
 const EventEmitter = require("events");
-import { DatabasePermissionOptionsEnum, IProfile } from "@verida/types";
+import { DatabasePermissionOptionsEnum, IDatastore, IProfile } from "@verida/types";
 import Context from "../context";
 import Datastore from "../datastore";
 import { verifyDidControlsDomain } from '@verida/helpers'
@@ -172,7 +172,7 @@ export class Profile extends EventEmitter implements IProfile {
   private async getRecord(): Promise<ProfileDocument> {
     await this.init();
     try {
-      const record = await this.store!.get(this.profileName);
+      const record = <ProfileDocument> await this.store!.get(this.profileName);
       return record;
     } catch (err: any) {
       if (err.message.match('Database not found')) {
@@ -201,6 +201,18 @@ export class Profile extends EventEmitter implements IProfile {
     }
 
     return success ? true : false;
+  }
+
+  public async getDs(): Promise<IDatastore> {
+    await this.init()
+
+    return this.store!
+  }
+  
+  public async getErrors(): Promise<object> {
+    await this.init()
+
+    return this.store!.errors
   }
 
   private async init() {

@@ -1,3 +1,10 @@
+2024-09-30 (v.4.2)
+-------------------
+
+- Feature: Support getting datastore and save errors from profiles
+- Feature: Support ignoring fields when force updating a document
+- Fix: `datastore.get()` not respecting the schema
+
 2024-07-29 (v.4.1)
 -------------------
 

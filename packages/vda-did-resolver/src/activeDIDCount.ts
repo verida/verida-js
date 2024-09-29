@@ -9,8 +9,8 @@ import { BlockchainAnchor } from "@verida/types";
  * @param didAddress DID address to lookup
  * @param rpcUrl URL
  */
-export async function activeDIDCount(blockchain: BlockchainAnchor): Promise<number> {
-    const rpcUrl = getDefaultRpcUrl(blockchain)
+export async function activeDIDCount(blockchain: BlockchainAnchor, rpcUrl: string | null = ''): Promise<number> {
+    rpcUrl = rpcUrl ? rpcUrl : getDefaultRpcUrl(blockchain.toString())
     if (!rpcUrl) {
         throw new Error(`Unable to locate RPC_URL for network: ${blockchain.toString()}`)
     }

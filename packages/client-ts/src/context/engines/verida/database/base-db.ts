@@ -15,6 +15,50 @@ import { VeridaDatabaseConfig } from "./interfaces";
 const { default: PouchDB } = PouchDBLib as any;
 PouchDB.plugin(PouchDBFind);
 
+//const defaultIgnoredUpdateFields = ["modifiedAt", "signatures"]
+
+function getObjectDiff(obj1: any, obj2: any) {
+  const diff = Object.keys(obj1).reduce((result, key) => {
+      if (!obj2.hasOwnProperty(key)) {
+          result.push(key);
+      } else if (_.isEqual(obj1[key], obj2[key])) {
+          const resultKeyIndex = result.indexOf(key);
+          result.splice(resultKeyIndex, 1);
+      }
+      return result;
+  }, Object.keys(obj2));
+
+  return diff;
+}
+
+export interface DatabaseSaveOptions {
+  /**
+   * Update an existing document even if there’s conflict
+   * You must pecify the base revision _rev and use force=true
+   * A new conflict revision will be created
+   */
+  force?: boolean
+
+  /**
+   * If a record exists with the given _id, do an update instead
+   * of attempting to insert (avoiding a document conflict)
+   * The record being saved must not have _rev property.
+   */
+  forceUpdate?: boolean
+
+  /**
+   * When forcing an update there are some fields that should be ignored
+   * when determining if the record has been updated (ie: `modifiedAt` timestamp)
+   */
+  forceUpdateIgnoredFields?: string[]
+
+  /**
+   * Force inserting a record (will throw exception if it already exists)
+   * The record being saved must not have _id property.
+   */
+  forceInsert?: boolean
+}
+
 /**
  * @category
  * Modules
@@ -76,6 +120,7 @@ class BaseDb extends EventEmitter implements IDatabase {
     return this.engine
   }
 
+
   /**
    * Save data to an application schema.
    *
@@ -98,7 +143,11 @@ class BaseDb extends EventEmitter implements IDatabase {
    * }
    * @returns {boolean} Boolean indicating if the save was successful. If not successful `this.errors` will be populated.
    */
-  public async save(data: any, options: any = {}): Promise<boolean> {
+  public async save(data: any, options: DatabaseSaveOptions = {
+    force: false,
+    forceInsert: false,
+    forceUpdate: false
+  }): Promise<boolean> {
     const db = await this.getDb();
 
     if (this.readOnly) {
@@ -130,6 +179,16 @@ class BaseDb extends EventEmitter implements IDatabase {
         const existingDoc = await this.get(data._id);
         if (existingDoc) {
           data._rev = existingDoc._rev;
+          if (_.isEqual(data, existingDoc)) {
+            // The document update exactly matches the current doc, so don't save
+            return true
+          } else {
+            const diffFields = getObjectDiff(data, existingDoc)
+            if (_.isEqual(diffFields, options.forceUpdateIgnoredFields)) {
+              // The document update matches the current doc, once ignored fields are excluded, so don't save
+              return true
+            }
+          }
           insert = false;
         }
       } catch (err: any) {
@@ -162,7 +221,9 @@ class BaseDb extends EventEmitter implements IDatabase {
       this.emit("beforeUpdate", data);
     }
 
-    let response = await db.put(data, options);
+    let response = await db.put(data, {
+      force: options.force
+    });
 
     if (insert) {
       this._afterInsert(data, options);

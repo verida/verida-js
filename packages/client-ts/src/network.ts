@@ -1,4 +1,4 @@
-import { NetworkConnectionConfig, Network as VeridaNetwork } from "@verida/types";
+import { BlockchainAnchor, ClientConfig, NetworkConnectionConfig, Network as VeridaNetwork } from "@verida/types";
 import { Context } from ".";
 import Client from "./client";
 import { decodeUri, fetchVeridaUri, explodeVeridaUri } from '@verida/helpers'
@@ -8,6 +8,13 @@ import { decodeUri, fetchVeridaUri, explodeVeridaUri } from '@verida/helpers'
  * Modules
  */
 class Network {
+
+  protected rpcUrls: Record<string, string> = {}
+
+  public setRpcUrls(rpcUrls: Record<string, string>) {
+    this.rpcUrls = rpcUrls
+  }
+
   /**
    * Opens a new application context to provide encrypted storage and messaging to an application.
    *
@@ -17,7 +24,7 @@ class Network {
    * @param config NetworkConnectionConfig Configuration
    * @returns {Context | undefined} If the user logs in a valid `Context` object is returned. If an unexpected error occurs or the user cancels the login attempt then nothing is returned.
    */
-  public static async connect(
+  public async connect(
     config: NetworkConnectionConfig
   ): Promise<Context | undefined> {
     const client = new Client(config.client ? config.client : {});
@@ -35,19 +42,31 @@ class Network {
     }
   }
 
-  public static async getRecord(veridaUri: string, encoded: boolean = false) {
+  public async getRecord(veridaUri: string, encoded: boolean = false) {
     if (encoded) {
       veridaUri = decodeUri(veridaUri)
     }
 
     const urlParts = explodeVeridaUri(veridaUri)
-
-    const client = new Client({
+    const clientConfig: ClientConfig = {
       network: urlParts.network
-    })
+    }
+
+    // Set custom RPC URL if required
+    for (const blockchain of Object.keys(this.rpcUrls)) {
+      if (urlParts.did.match(blockchain)) {
+        clientConfig.didClientConfig = {
+          rpcUrl: this.rpcUrls[blockchain],
+          blockchain: <BlockchainAnchor> blockchain
+        }
+        break
+      }
+    }
+
+    const client = new Client(clientConfig)
     const record = await fetchVeridaUri(veridaUri, client)
     return record
   }
 }
 
-export default Network;
+export default new Network()
