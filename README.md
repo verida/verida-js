@@ -1,5 +1,5 @@
 
-# Verida Javascript Library
+# Verida Typescript Library
 
 This monorepo contains [Verida Client Library](https://github.com/verida/verida-js/tree/main/packages/verida-ts) and a variety of utility packages that support that library.
 
