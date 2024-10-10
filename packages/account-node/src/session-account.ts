@@ -12,7 +12,7 @@ export type SessionAccountConfig = {
     contextAuths: Record<string, VeridaDatabaseAuthContext | undefined>
 }
 
-export default class SessionAccount extends Account {
+export class SessionAccount extends Account {
     private accountConfig?: AccountConfig
     private sessionConfig: SessionAccountConfig
 
@@ -79,7 +79,7 @@ export default class SessionAccount extends Account {
 
     // Handle scenario where the Endpoint hostname doesn't exactly match the DID
     // Document endpoint (typically when port 443 is in one endpoint, but not the other
-  private locateEndpointContextAuth(contextName: string, endpointUri: string): VeridaDatabaseAuthContext | undefined {
+    private locateEndpointContextAuth(contextName: string, endpointUri: string): VeridaDatabaseAuthContext | undefined {
         if (this.sessionConfig.context !== contextName) {
             throw new Error(`Account does not support context: ${contextName}`)
         }
