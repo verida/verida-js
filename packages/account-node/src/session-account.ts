@@ -1,16 +1,7 @@
 import { Keyring } from '@verida/keyring'
 import { Account } from '@verida/account'
-import { AccountConfig, AuthContext, AuthTypeConfig, ContextAuthorizationError, Network, SecureContextConfig, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { AccountConfig, AuthContext, AuthTypeConfig, ContextAuthorizationError, SecureContextConfig, SessionAccountConfig, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 import Axios from 'axios'
-
-export type SessionAccountConfig = {
-    did: string
-    context: string
-    network: Network;
-    signature: string
-    contextConfig: SecureContextConfig
-    contextAuths: Record<string, VeridaDatabaseAuthContext | undefined>
-}
 
 export class SessionAccount extends Account {
     private accountConfig?: AccountConfig
@@ -35,11 +26,11 @@ export class SessionAccount extends Account {
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
-        if (this.sessionConfig.context !== contextName) {
+        if (this.sessionConfig.session.contextName !== contextName) {
             throw new Error(`Account does not support context: ${contextName}`)
         }
 
-        return new Keyring(this.sessionConfig.signature)
+        return new Keyring(this.sessionConfig.session.signature)
     }
 
     // returns a compact JWS
@@ -48,15 +39,15 @@ export class SessionAccount extends Account {
     }
 
     public async did(): Promise<string> {
-        return this.sessionConfig.did
+        return this.sessionConfig.session.did
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
-        if (this.sessionConfig.context !== contextName) {
+        if (this.sessionConfig.session.contextName !== contextName) {
           throw new Error(`Account does not support context: ${contextName}`)
         }
 
-        return this.sessionConfig.contextConfig
+        return this.sessionConfig.session.contextConfig
     }
 
     /**
@@ -80,13 +71,13 @@ export class SessionAccount extends Account {
     // Handle scenario where the Endpoint hostname doesn't exactly match the DID
     // Document endpoint (typically when port 443 is in one endpoint, but not the other
     private locateEndpointContextAuth(contextName: string, endpointUri: string): VeridaDatabaseAuthContext | undefined {
-        if (this.sessionConfig.context !== contextName) {
+        if (this.sessionConfig.session.contextName !== contextName) {
             throw new Error(`Account does not support context: ${contextName}`)
         }
 
         const endpointHostname = new URL(endpointUri)
 
-        const filteredContextAuths = Object.entries(this.sessionConfig.contextAuths).filter(([uri]) => {
+        const filteredContextAuths = Object.entries(this.sessionConfig.session.contextAuths).filter(([uri]) => {
             const url = new URL(uri)
             return endpointHostname.hostname === url.hostname
         }).map(([, contextAuth]) => contextAuth)
@@ -101,7 +92,7 @@ export class SessionAccount extends Account {
     public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
-        if (this.sessionConfig.context !== contextName) {
+        if (this.sessionConfig.session.contextName !== contextName) {
             throw new Error(`Account does not support context: ${contextName}`)
         }
 
