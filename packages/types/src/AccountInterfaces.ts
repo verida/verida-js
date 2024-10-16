@@ -47,7 +47,7 @@ export interface AccountNodeConfig {
     countryCode?: string
 }
 
-export type AccountSession = {
+export type ContextSession = {
     did: string
     contextName: string
     signature: string
@@ -57,7 +57,7 @@ export type AccountSession = {
 
 export type SessionAccountConfig = {
     network: Network;
-    session: AccountSession
+    contextSession: ContextSession
 }
 
 /**

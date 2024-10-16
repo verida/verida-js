@@ -26,11 +26,11 @@ export class SessionAccount extends Account {
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
-        if (this.sessionConfig.session.contextName !== contextName) {
+        if (this.sessionConfig.contextSession.contextName !== contextName) {
             throw new Error(`Account does not support context: ${contextName}`)
         }
 
-        return new Keyring(this.sessionConfig.session.signature)
+        return new Keyring(this.sessionConfig.contextSession.signature)
     }
 
     // returns a compact JWS
@@ -39,15 +39,15 @@ export class SessionAccount extends Account {
     }
 
     public async did(): Promise<string> {
-        return this.sessionConfig.session.did
+        return this.sessionConfig.contextSession.did
     }
 
     public async storageConfig(contextName: string, forceCreate?: boolean): Promise<SecureContextConfig | undefined> {
-        if (this.sessionConfig.session.contextName !== contextName) {
+        if (this.sessionConfig.contextSession.contextName !== contextName) {
           throw new Error(`Account does not support context: ${contextName}`)
         }
 
-        return this.sessionConfig.session.contextConfig
+        return this.sessionConfig.contextSession.contextConfig
     }
 
     /**
@@ -71,13 +71,13 @@ export class SessionAccount extends Account {
     // Handle scenario where the Endpoint hostname doesn't exactly match the DID
     // Document endpoint (typically when port 443 is in one endpoint, but not the other
     private locateEndpointContextAuth(contextName: string, endpointUri: string): VeridaDatabaseAuthContext | undefined {
-        if (this.sessionConfig.session.contextName !== contextName) {
+        if (this.sessionConfig.contextSession.contextName !== contextName) {
             throw new Error(`Account does not support context: ${contextName}`)
         }
 
         const endpointHostname = new URL(endpointUri)
 
-        const filteredContextAuths = Object.entries(this.sessionConfig.session.contextAuths).filter(([uri]) => {
+        const filteredContextAuths = Object.entries(this.sessionConfig.contextSession.contextAuths).filter(([uri]) => {
             const url = new URL(uri)
             return endpointHostname.hostname === url.hostname
         }).map(([, contextAuth]) => contextAuth)
@@ -92,7 +92,7 @@ export class SessionAccount extends Account {
     public async getAuthContext(contextName: string, contextConfig: SecureContextConfig, authConfig: AuthTypeConfig = {
         force: false
     }, authType: string = "database"): Promise<AuthContext> {
-        if (this.sessionConfig.session.contextName !== contextName) {
+        if (this.sessionConfig.contextSession.contextName !== contextName) {
             throw new Error(`Account does not support context: ${contextName}`)
         }
 

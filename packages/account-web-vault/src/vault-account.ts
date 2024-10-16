@@ -2,7 +2,7 @@ import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
 import Axios from "axios";
 import { Account } from '@verida/account';
-import { AccountSession, AccountVaultConfig, AccountConfig, VeridaDatabaseAuthContext, SecureContextConfig, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, Network } from '@verida/types';
+import { ContextSession, AccountVaultConfig, AccountConfig, VeridaDatabaseAuthContext, SecureContextConfig, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, Network } from '@verida/types';
 
 const jwt = require('jsonwebtoken');
 const querystring = require('querystring')
@@ -175,7 +175,7 @@ export class VaultAccount extends Account {
         return true
     }
 
-    public async getSession(contextName: string): Promise<AccountSession | null> {
+    public async getContextSession(contextName: string): Promise<ContextSession | null> {
         // TODO: Also get from auth token in query params like in
         // loadFromSession once loadFromSession is fixed.
 
@@ -187,6 +187,10 @@ export class VaultAccount extends Account {
         // externally and not respect the expected format.
 
         if (!storedContextSession) {
+            return null
+        }
+
+        if (storedContextSession.context !== contextName) {
             return null
         }
 
