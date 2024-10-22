@@ -1,6 +1,6 @@
 import { ServiceEndpoint } from 'did-resolver'
 import { SecureContextEndpoint } from './DocumentInterfaces'
-import { SecureContextPublicKey } from './StorageLinkInterfaces'
+import { SecureContextConfig, SecureContextPublicKey } from './StorageLinkInterfaces'
 import { DIDClientConfig, Network } from './NetworkInterfaces'
 import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from './Web3Interfaces'
 
@@ -45,6 +45,19 @@ export interface AccountNodeConfig {
     didClientConfig: AccountNodeDIDClientConfig
     options?: any
     countryCode?: string
+}
+
+export type ContextSession = {
+    did: string
+    contextName: string
+    signature: string
+    contextConfig: SecureContextConfig
+    contextAuths: Record<string, VeridaDatabaseAuthContext | undefined>
+}
+
+export type SessionAccountConfig = {
+    network: Network;
+    contextSession: ContextSession
 }
 
 /**

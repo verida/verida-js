@@ -175,12 +175,21 @@ export class WebUser extends EventEmitter {
     }
 
     /**
+     * Check if a session already exists locally.
+     *
+     * @returns 'true' if a session exists, 'false' otherwise.
+     */
+    public hasSession() {
+        return hasSession(this.config.contextConfig.name)
+    }
+
+    /**
      * Connect the user if a session already exists locally. It won't prompt the user to login.
      *
      * @returns A promise resolving to 'true' if the user is now connected, 'false' otherwise.
      */
     public async autoConnectExistingSession() {
-        if (hasSession(this.config.contextConfig.name)) {
+        if (this.hasSession()) {
             return this.connect()
         }
         return this.isConnected();
@@ -196,7 +205,7 @@ export class WebUser extends EventEmitter {
         if (this.isConnected()) {
             return true
         }
-        
+
         if (this.connecting) {
             // Have an existing promise (that may or may not be resolved)
             // Return it so if it's pending, the requestor will wait
