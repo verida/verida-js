@@ -11,7 +11,7 @@ for (let e in ENDPOINTS) {
     DID_ENDPOINTS.push(`${ENDPOINTS[e]}did/`)
 }
 
-export default {
+let config = {
     NETWORK: Network.BANKSIA,
     RPC_URL: getDefaultRpcUrl(DefaultNetworkBlockchainAnchors[Network.BANKSIA].toString()),
     VDA_PRIVATE_KEY:   'shiver runway dove loyal diagram emotion insane gossip noise scare oven stomach',
@@ -33,7 +33,7 @@ export default {
     DID_CLIENT_CONFIG: <AccountNodeDIDClientConfig> {
         callType: 'web3',
         web3Config: {
-            privateKey: '3c9efd2e44f0d2cbbb71506a02a2043ba45f222f04b501f139f29a0d3b21f64a',
+            privateKey: '',
             //rpcUrl: 'https://rpc-mumbai.maticvigil.com/'
         },
         //didEndpoints: DID_ENDPOINTS
@@ -49,3 +49,15 @@ export default {
         },
     }
 }
+
+try {
+    const localConfig = require('./config.local')
+    config = {
+        ...config,
+        ...localConfig
+    }
+} catch (err: any) {
+    // no local config
+}
+
+export default config

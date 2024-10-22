@@ -2,7 +2,7 @@ import { Keyring } from '@verida/keyring'
 import VaultModalLogin from './vault-modal-login'
 import Axios from "axios";
 import { Account } from '@verida/account';
-import { AccountVaultConfig, AccountConfig, VeridaDatabaseAuthContext, SecureContextConfig, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, Network} from '@verida/types';
+import { ContextSession, AccountVaultConfig, AccountConfig, VeridaDatabaseAuthContext, SecureContextConfig, AuthTypeConfig, AuthContext, VeridaDatabaseAuthTypeConfig, ContextAuthorizationError, Network } from '@verida/types';
 
 const jwt = require('jsonwebtoken');
 const querystring = require('querystring')
@@ -32,8 +32,8 @@ const CONFIG_DEFAULTS: Record<Network, AccountVaultConfig> = {
 
 /**
  * Get an auth token from query params
- * 
- * @returns 
+ *
+ * @returns
  */
 const getAuthTokenFromQueryParams = () => {
     // Attempt to load session from query params
@@ -113,7 +113,7 @@ export class VaultAccount extends Account {
                     if (!storedSessions) {
                         storedSessions = {}
                     }
- 
+
                     storedSessions[contextName] = response
                     store.set(VERIDA_AUTH_CONTEXT, storedSessions)
                 }
@@ -142,9 +142,9 @@ export class VaultAccount extends Account {
 
     /**
      * Verify we have valid JWT's and non-expired accessToken and refreshToken
-     * 
-     * @param contextAuth 
-     * @returns 
+     *
+     * @param contextAuth
+     * @returns
      */
     public contextAuthIsValid(contextAuths: VeridaDatabaseAuthContext[]): boolean {
         for (let c in contextAuths) {
@@ -175,13 +175,48 @@ export class VaultAccount extends Account {
         return true
     }
 
+    public async getContextSession(contextName: string): Promise<ContextSession | null> {
+        // TODO: Also get from auth token in query params like in
+        // loadFromSession once loadFromSession is fixed.
+
+        const storedSessions = store.get(VERIDA_AUTH_CONTEXT)
+
+        const storedContextSession = storedSessions ? storedSessions[contextName] : null
+
+        // TODO: Ideally validate the stored session as it can be altered
+        // externally and not respect the expected format.
+
+        if (!storedContextSession) {
+            return null
+        }
+
+        if (storedContextSession.context !== contextName) {
+            return null
+        }
+
+        if (!this.contextAuthIsValid(storedContextSession.contextAuths)) {
+            return null
+        }
+
+        return {
+            did: storedContextSession.did,
+            contextName: storedContextSession.context,
+            signature: storedContextSession.signature,
+            contextConfig: storedContextSession.contextConfig,
+            contextAuths: storedContextSession.contextAuths
+        }
+    }
+
     public async loadFromSession(contextName: string): Promise<SecureContextConfig | undefined> {
+        // TODO: Use getSession once it covers the auth token. Will have to deal with the different type though
+
         // First, attempt to Load from query parameters if specified
         const token = getAuthTokenFromQueryParams()
         if (token && token.context == contextName) {
             // convert a single context auth to an array
             if (token.contextAuth && !token.contextAuths) {
                 token.contextAuths = [token.contextAuth]
+                // FIXME: This is not the expected format of contextAuths. We have to be better at typescript, get rid of the any, this is so error prone!
             }
 
             if (this.contextAuthIsValid(token.contextAuths)) {
@@ -200,7 +235,7 @@ export class VaultAccount extends Account {
 
                 storedSessions[contextName] = token
                 store.set(VERIDA_AUTH_CONTEXT, storedSessions)
-                
+
                 return token.contextConfig
             }
         }
@@ -215,11 +250,12 @@ export class VaultAccount extends Account {
 
         if (this.contextAuthIsValid(response.contextAuths)) {
             this.setDid(response.did)
-
             this.addContext(response.context, response.contextConfig, new Keyring(response.signature), response.contextAuths)
 
             if (typeof(this.config!.callback) === "function") {
-                this.config!.callback(response)
+                this.config!.callback(response) // TODO: Remove?
+                // The callback simply setDid and addContext, so it's redundant
+                // with above.
             }
 
             return response.contextConfig
@@ -340,7 +376,7 @@ export class VaultAccount extends Account {
                         did,
                         contextName: contextName
                     });
-            
+
                     const accessToken = accessResponse.data.accessToken
                     this.contextCache[contextName].contextAuths[endpointUri].accessToken = accessToken
                     return this.contextCache[contextName].contextAuths[endpointUri]
