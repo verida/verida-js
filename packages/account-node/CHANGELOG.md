@@ -1,4 +1,4 @@
-2024-10-23 (v.4.1.0)
+2024-10-23 (v.4.3.0)
 -------------------
 
 - Support `SessionAccount` object that can load a network connection when provided with a base64 encoded full session object
