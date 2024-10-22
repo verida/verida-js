@@ -11,7 +11,7 @@ for (let e in ENDPOINTS) {
     DID_ENDPOINTS.push(`${ENDPOINTS[e]}did/`)
 }
 
-export default {
+let config = {
     NETWORK: Network.BANKSIA,
     RPC_URL: getDefaultRpcUrl(DefaultNetworkBlockchainAnchors[Network.BANKSIA].toString()),
     VDA_PRIVATE_KEY:   '',
@@ -49,3 +49,15 @@ export default {
         },
     }
 }
+
+try {
+    const localConfig = require('./config.local')
+    config = {
+        ...config,
+        ...localConfig
+    }
+} catch (err: any) {
+    // no local config
+}
+
+export default config
