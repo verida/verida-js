@@ -1,13 +1,32 @@
 import { Keyring } from '@verida/keyring'
 import { Account } from '@verida/account'
+import EncryptionUtils from '@verida/encryption-utils'
 import { AccountConfig, AuthContext, AuthTypeConfig, ContextAuthorizationError, SecureContextConfig, SessionAccountConfig, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { interpretIdentifier } from '@verida/vda-common'
 import Axios from 'axios'
+import { buildContextConsentMessage } from './auto'
 
 export class SessionAccount extends Account {
     private accountConfig?: AccountConfig
     private sessionConfig: SessionAccountConfig
 
     constructor(sessionConfig: SessionAccountConfig, accountConfig?: AccountConfig) {
+        // Validate the session config
+
+        if (!sessionConfig.contextSession.did || !sessionConfig.contextSession.signature || !sessionConfig.contextSession.contextName) {
+            throw new Error('Invalid session config')
+        }
+
+        const message = buildContextConsentMessage(sessionConfig.contextSession.did, sessionConfig.contextSession.contextName)
+
+        const signer = EncryptionUtils.getSigner(message, sessionConfig.contextSession.signature)
+
+        if (signer.toLowerCase() !== interpretIdentifier(sessionConfig.contextSession.did).address.toLowerCase()) {
+            throw new Error('Invalid signature')
+        }
+
+        // Create the instance
+
         super()
         this.sessionConfig = sessionConfig
         this.accountConfig = accountConfig

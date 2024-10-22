@@ -10,6 +10,11 @@ import { NodeSelector, NodeSelectorConfig, NodeSelectorParams } from './nodeSele
 import { ServiceEndpoint } from 'did-resolver'
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common'
 
+export function buildContextConsentMessage(did: string, contextName: string) {
+    const lowerCaseDid = did.toLowerCase()
+    return `Do you wish to unlock this storage context: "${contextName}"?\n\n${lowerCaseDid}`
+}
+
 /**
  * An Authenticator that automatically signs everything
  */
@@ -56,9 +61,8 @@ export default class AutoAccount extends Account {
     }
 
     public async keyring(contextName: string): Promise<Keyring> {
-        let did = await this.did()
-        did = did.toLowerCase()
-        const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?\n\n${did}`
+        const did = await this.did()
+        const consentMessage = buildContextConsentMessage(did, contextName)
         const signature = await this.sign(consentMessage)
         return new Keyring(signature)
     }
@@ -117,7 +121,7 @@ export default class AutoAccount extends Account {
             this._did = this._did.replace('polpos', 'mainnet')
             did = this._did
         }
-        
+
         // Create the storage config if it doesn't exist and force create is specified
         if (!storageConfig && forceCreate) {
             if (!this.accountConfig) {
@@ -138,7 +142,7 @@ export default class AutoAccount extends Account {
             }
 
             storageConfig = await DIDStorageConfig.generate(this, contextName, endpoints)
-            
+
             // Need to determine if this is a legacy DID
             try {
                 const didDocument = await this.didClient.get(did)
@@ -163,8 +167,8 @@ export default class AutoAccount extends Account {
 
     /**
      * Link storage to this user
-     * 
-     * @param storageConfig 
+     *
+     * @param storageConfig
      */
      public async linkStorage(storageConfig: SecureContextConfig): Promise<boolean> {
         await this.ensureAuthenticated()
@@ -183,8 +187,8 @@ export default class AutoAccount extends Account {
 
      /**
       * Unlink storage for this user
-      * 
-      * @param contextName 
+      *
+      * @param contextName
       */
     public async unlinkStorage(contextName: string): Promise<boolean> {
         await this.ensureAuthenticated()
@@ -206,7 +210,7 @@ export default class AutoAccount extends Account {
 
     /**
      * Link storage context service endpoint
-     * 
+     *
      */
     public async linkStorageContextService(contextName: string, endpointType: SecureContextEndpointType, serverType: string, endpointUris: string[]): Promise<boolean> {
         await this.ensureAuthenticated()
@@ -239,7 +243,7 @@ export default class AutoAccount extends Account {
         }
 
         const signKey = contextConfig.publicKeys.signKey
-        
+
         // @todo: Currently hard code database server, need to support other service types in the future
         const serviceEndpoint = contextConfig.services.databaseServer
 
