@@ -66,7 +66,7 @@
 2022-02-27 (v1.1.8)
 -------------------
 
-- Fix: Storage config only force create if storage config not found. Previously force created all the time, which caused unexpected udpates
+- Fix: Storage config only force create if storage config not found. Previously force created all the time, which caused unexpected updates
 
 2022-01-24 (v1.1.7)
 -------------------
