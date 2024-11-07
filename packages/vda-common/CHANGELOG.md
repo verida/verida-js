@@ -1,12 +1,28 @@
+
+2024-07-30 (v)
+-------------------
+
+- Updated `XPReward` contract address and abi
+
 ?
 -------------------
 
 - npx lerna publish --dist-tag next
 
+
 2024-07-15 (v.4.0.0)
 -------------------
 
 - Support BlockchainAnchor and Verida Network refactor
+
+2024-05-31 (v)
+-------------------
+- Support `VDAXPReward` contract
+
+
+2024-05-31 (v)
+-------------------
+- Support `VDAXPReward` contract
 
 
 2024-03-22 (v3.0.2)
@@ -14,7 +30,6 @@
 
 - Update the abi & address of `StorageNodeRegistry` contract (locking feature added)
 - Replaced the testenet RPC_URL from `Mumbai` to `Amoy`
-
 
 2024-03-22 (v3.0.2)
 -------------------

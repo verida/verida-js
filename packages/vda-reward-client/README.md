@@ -36,7 +36,7 @@ import { EnvironmentType } from '@verida/types'
 
 // Create name Client
 const rewardClient = new VeridaRewardClient({
-    environment: EnvironmentType.TESTNET
+    network: EnvironmentType.TESTNET
 })
 ```
 
@@ -57,9 +57,9 @@ Setup the library in `read and write` mode to support the above get methods *and
 import { VeridaRewardClient } from '@verida/vda-name-client'
 import { EnvironmentType, Web3CallType } from '@verida/types'
 
-// DID address that controls the proof of eligibility to mint the SBT
+// DID address that controls the proof
 const DID_ADDRESS = '0x...'
-// DID private key that controls the proof of eligibility to mint the SBT
+// DID private key that controls the proof
 const DID_PRIVATE_KEY = '0x...'
 // Polygon private key that will fund blockchain transactions
 const POLYGON_PRIVATE_KEY = '0x...'
@@ -70,9 +70,9 @@ const RPC_URL = 'https://rpc-mumbai.maticvigil.com'
 
 // Create name Client
 const rewardClient = new VeridaRewardClient({
-    environment: EnvironmentType.TESTNET
+    network: EnvironmentType.TESTNET
     callType: CALL_TYPE,
-    did: DID_ADDRESS,
+    did: `did:vda:testnet:${DID_ADDRESS}`,
     signKey: DID_PRIVATE_KEY,
     web3Options: {
         rpcUrl: RPC_URL,
