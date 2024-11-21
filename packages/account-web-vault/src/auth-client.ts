@@ -62,7 +62,7 @@ export default class AuthClient {
                 const deeplinkElm = document.getElementById(this.config.deeplinkId!)
 
                 if (deeplinkElm) {
-                    deeplinkElm.setAttribute('href', redirectUri)
+                    deeplinkElm.setAttribute('href', redirectUri + "&mobile=true")
                 }
                 qrcode.toCanvas().then(() => {}).catch((error: any) => {
                     console.error("Error: ", { error })
