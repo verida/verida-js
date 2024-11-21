@@ -14,7 +14,7 @@ class VdaVerificationUtilsClass {
     public async addTrustedSigner(didAddress: string) {
 
         if (this.readOnly || !this.vdaWeb3Client) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client.addTrustedSigner(didAddress);
@@ -32,7 +32,7 @@ class VdaVerificationUtilsClass {
         didAddress: string
     ) {
         if (this.readOnly || !this.vdaWeb3Client) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.removeTrustedSigner(didAddress);

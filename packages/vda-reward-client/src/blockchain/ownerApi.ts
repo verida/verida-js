@@ -49,7 +49,7 @@ export class VeridaRewardOwnerApi extends VeridaRewardClient {
         schema: string
     ) {
         if (this.readOnly || !this.vdaWeb3Client) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`);
+            throw new Error(`Unable to submit to blockchain in read only mode`);
         }
 
         const response = await this.vdaWeb3Client!.addClaimType(typeId, rewardAmount, schema);
@@ -70,7 +70,7 @@ export class VeridaRewardOwnerApi extends VeridaRewardClient {
      */
     public async removeClaimType(typeId: string) {
         if (this.readOnly || !this.vdaWeb3Client) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`);
+            throw new Error(`Unable to submit to blockchain in read only mode`);
         }
 
         const response = await this.vdaWeb3Client!.removeClaimType(typeId);
@@ -92,7 +92,7 @@ export class VeridaRewardOwnerApi extends VeridaRewardClient {
         rewardAmount: bigint,
     ) {
         if (this.readOnly || !this.vdaWeb3Client) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`);
+            throw new Error(`Unable to submit to blockchain in read only mode`);
         }
 
         const response = await this.vdaWeb3Client!.updateClaimTypeReward(typeId, rewardAmount);
