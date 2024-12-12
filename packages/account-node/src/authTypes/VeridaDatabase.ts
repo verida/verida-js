@@ -40,7 +40,6 @@ export default class VeridaDatabaseAuthType extends AuthType {
 
     // No context auth or no refresh token, so generate it by signing a consent message
     if (!this.contextAuth || !this.contextAuth.refreshToken) {
-      //console.log('getContextAuth(): no refreshtoken, generating')
       // @todo: get a new refresh token if getting close to expiring?
 
       let authJwt
@@ -62,9 +61,9 @@ export default class VeridaDatabaseAuthType extends AuthType {
       try {
         // Generate a refresh token by authenticating
         const consentMessage = `Authenticate this application context: "${this.contextName}"?\n\n${did.toLowerCase()}\n${authJwt.authRequestId}`
-        const keyring = await this.account.keyring(this.contextName)
-        const signature = await keyring.sign(consentMessage)
-        //const signature = await this.account.sign(consentMessage)
+        // const keyring = await this.account.keyring(this.contextName)
+        // const signature = await keyring.sign(consentMessage)
+        const signature = await this.account.sign(consentMessage)
 
         refreshResponse = await this.getAxios(this.contextName).post(serverUrl + "auth/authenticate",{
           authJwt: authJwt.authJwt,
