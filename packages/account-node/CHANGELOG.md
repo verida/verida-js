@@ -1,3 +1,8 @@
+2024-12-13 (v.4.4.0)
+-------------------
+
+- Fix: Update storage node signing to use master DID key, not context signing key for enhanced security
+
 2024-10-23 (v.4.3.0)
 -------------------
 
