@@ -1,3 +1,8 @@
+2024-12-13 (v.4.3)
+-------------------
+
+- Fix: Update to PouchDB v9 to fix syntax bugs in PouchDB 7.x
+
 2024-09-30 (v.4.2)
 -------------------
 
