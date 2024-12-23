@@ -126,6 +126,13 @@ export default class DIDDocument implements IDIDDocument {
         this.addContextAsymKey(network, contextHash, keys.asymPublicKeyHex)
     }
 
+    /**
+     * Remove the context from the DID document
+     * 
+     * @param contextName 
+     * @param network 
+     * @returns 
+     */
     public removeContext(contextName: string, network?: Network): boolean {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
 
@@ -265,7 +272,7 @@ export default class DIDDocument implements IDIDDocument {
         return EncryptionUtils.verifySig(data, signature, `0x${verificationMethod.publicKeyHex!}`)
     }
 
-    public verifyContextSignature(data: any, network: Network, contextName: string, signature: string, contextIsHash: boolean = false) {
+    public verifyContextSignature(data: any, network: Network, contextName: string, signature: string, contextIsHash: boolean = false): boolean {
         let contextHash = contextName
         if (!contextIsHash) {
             contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
@@ -280,7 +287,8 @@ export default class DIDDocument implements IDIDDocument {
             if (networkString && network == Network.MYRTLE) {
                 // Old Myrtle DID's don't specify the network, so if we have Myrtle
                 // network, attempt to find context config that has no network specified
-                return this.removeContext(contextName)
+                // @ts-ignore
+                return this.verifyContextSignature(data, undefined, contextName, signature, contextIsHash)
             }
 
             return false
