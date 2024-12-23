@@ -1,3 +1,8 @@
+2024-07-15 (?)
+-------------------
+
+- Fix: Verification of context signature to correctly handle legacy mainnet DIDs
+
 2024-07-15 (v.4.0.0)
 -------------------
 
