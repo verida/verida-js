@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,7 +17,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@verida/did-document": "^4.4.0",
+    "@verida/did-document": "^4.4.1",
     "@verida/types": "^4.4.0",
     "@verida/vda-common": "^4.4.0",
     "@verida/web3": "^4.4.0",
