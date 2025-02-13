@@ -12,6 +12,10 @@ import { AuthContext, DatabasePermissionsConfig, EndpointUsage, SecureContextCon
 // See https://github.com/pouchdb/pouchdb/issues/6862
 const { default: PouchDB } = PouchDBLib as any;
 
+export class EndpointDiedError extends Error {
+    name = "EndpointDiedError"
+}
+
 PouchDB.plugin(PouchDBFind);
 
 /**
@@ -62,7 +66,7 @@ export default class Endpoint extends EventEmitter {
         await this.authenticate(isOwner)
     }
 
-    public async connectDb(did: string, databaseName: string, permissions: DatabasePermissionsConfig, isOwner: boolean) {
+    public async connectDb(did: string, databaseName: string, permissions: DatabasePermissionsConfig, isOwner: boolean): Promise<any> {
         const databaseHash = Utils.buildDatabaseHash(databaseName, this.contextName, did);
         //console.log(`connectDb(${databaseName} / ${databaseHash} / ${this.endpointUri})`)
         if (this.databases[databaseHash]) {
@@ -106,6 +110,9 @@ export default class Endpoint extends EventEmitter {
 
                     // Return an authorized result
                     return result
+                } else if (result.status == 400 && result.reason == 'Not a valid key') {
+                    // Server has a key error, so flag this endpoint has died
+                    throw new EndpointDiedError(`Server is returning invalid key: ${instance.toString()}`)
                 }
 
                 // Return an authorized result
@@ -115,8 +122,9 @@ export default class Endpoint extends EventEmitter {
 
         const db = new PouchDB(`${this.couchDbHost!}/${databaseHash}`, dbConfig);
 
+        let info
         try {
-            let info = await db.info();
+            info = await db.info();
             if (info.error && info.error == "not_found") {
                 if (isOwner) {
                     await this.storageEngine.createDb(databaseName, did, permissions)
@@ -124,16 +132,18 @@ export default class Endpoint extends EventEmitter {
                     throw new Error(`Database not found: ${databaseName} / ${databaseHash}`);
                 }
             }
-
-            if (info && info.error == "forbidden") {
-                throw new Error(`Permission denied to access remote database.`);
-            }
         } catch (err: any) {
             if (isOwner) {
                 await this.storageEngine.createDb(databaseName, did, permissions)
             } else {
                 throw new Error(`Database (${databaseName} / ${databaseHash}) not found on ${this.endpointUri}: ${err.message}`);
             }
+        }
+
+        if (info && info.error == "forbidden") {
+            throw new EndpointDiedError(`Permission denied to access remote database.`);
+        } else if (info && info.reason == 'Not a valid key') {
+            throw new EndpointDiedError(`Invalid access token.`);
         }
 
         this.databases[databaseHash] = db
