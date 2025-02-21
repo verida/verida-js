@@ -1,6 +1,6 @@
 {
   "name": "@verida/client-ts",
-  "version": "4.4.1",
+  "version": "4.4.2",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
