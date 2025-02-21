@@ -1,4 +1,9 @@
-2024-12-13 (v.4.4)
+2024-12-13 (v.4.2.2)
+-------------------
+
+- Handle invalid key error from storage node, by switching to another node
+
+2024-12-13 (v4.4.0)
 -------------------
 
 - Fix: Update to PouchDB v9 to fix syntax bugs in PouchDB 7.x
