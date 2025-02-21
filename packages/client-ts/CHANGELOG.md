@@ -1,4 +1,4 @@
-2024-12-13 (v.4.2.2)
+2024-12-13 (v.4.4.2)
 -------------------
 
 - Handle invalid key error from storage node, by switching to another node
