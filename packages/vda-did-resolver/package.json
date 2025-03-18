@@ -24,6 +24,7 @@
     "@verida/vda-common": "^4.4.0",
     "@verida/vda-did": "^4.4.1",
     "axios": "1.2.0-alpha.1",
+    "ethers": "^5.7.2",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
@@ -31,7 +32,6 @@
     "@types/mocha": "^10.0.0",
     "@verida/vda-common-test": "^4.0.0",
     "did-resolver": "^4.0.1",
-    "ethers": "^5.7.2",
     "mocha": "^10.1.0",
     "ts-mocha": "^8.0.0",
     "ts-node": "^10.9.1",
