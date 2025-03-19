@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-did-resolver",
-  "version": "4.4.1",
+  "version": "4.4.2-4.4.2-pr1.0",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
