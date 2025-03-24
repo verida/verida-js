@@ -302,7 +302,7 @@ export class VeridaNodeManager extends VeridaClientBase {
         authSignature: BytesLike
     ) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(
@@ -356,7 +356,7 @@ export class VeridaNodeManager extends VeridaClientBase {
      */
     public async removeNodeStart(unregisterDateTime: BigNumberish, fallbackInfo: IFallbackNodeInfo) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(
@@ -395,7 +395,7 @@ export class VeridaNodeManager extends VeridaClientBase {
      */
     public async removeNodeComplete(fundReleasedTo:string, fallbackMigrationProof: BytesLike) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(
@@ -897,7 +897,7 @@ export class VeridaNodeManager extends VeridaClientBase {
      */
     public async withdraw(to:string, amount: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(
@@ -934,7 +934,7 @@ export class VeridaNodeManager extends VeridaClientBase {
      */
     public async depositToken(amount: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
         
         const response = await this.vdaWeb3Client!.depositToken(
@@ -954,7 +954,7 @@ export class VeridaNodeManager extends VeridaClientBase {
      */
     public async depositTokenFromProvider(from: string, amount: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
         
         const response = await this.vdaWeb3Client!.depositTokenFromProvider(
@@ -1075,7 +1075,7 @@ export class VeridaNodeManager extends VeridaClientBase {
      */
     public async logNodeIssue(nodeAddress: string, reasonCode: BigNumberish) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(
@@ -1187,7 +1187,7 @@ export class VeridaNodeManager extends VeridaClientBase {
      */
     public async acceptOwnership() {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.acceptOwnership();
@@ -1209,7 +1209,7 @@ export class VeridaNodeManager extends VeridaClientBase {
         withDeposit = false
     ) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(
@@ -1319,7 +1319,7 @@ export class VeridaNodeManager extends VeridaClientBase {
         withdrawWallet?: string
     ) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(

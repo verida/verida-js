@@ -1,3 +1,9 @@
+2024-07-15 (v)
+-------------------
+
+- Support registering apps
+- Added `src/VeridaNameOwnerApi.ts` for owner specific functions
+
 2024-07-15 (v.4.0.0)
 -------------------
 

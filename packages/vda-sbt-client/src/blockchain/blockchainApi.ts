@@ -149,7 +149,7 @@ export class VeridaSBTClient extends VeridaClientBase {
         signerContextProof: string
     ) : Promise<number> {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const privateKeyArray = new Uint8Array(
@@ -303,7 +303,7 @@ export class VeridaSBTClient extends VeridaClientBase {
         tokenId: BigNumberish
     ) {
         if (this.readOnly || !this.config.signKey) {
-            throw new Error(`Unable to submit to blockchain. In read only mode.`)
+            throw new Error(`Unable to submit to blockchain in read only mode`)
         }
 
         const response = await this.vdaWeb3Client!.burnSBT(tokenId);
