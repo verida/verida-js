@@ -18,7 +18,8 @@ function createContractWhiteList() {
     "reward": undefined,
     "storageNodeRegistry": undefined,
     "token": undefined,
-    "solboundNFT": undefined
+    "solboundNFT": undefined,
+    "xpReward": undefined
   };
   const CONTRACT_NAMES = Object.keys(contractProperties) as (TContractNames)[];
 

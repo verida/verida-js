@@ -10,6 +10,7 @@ export const CONTRACT_ABI : Record<TContractNames, any> = {
     reward: require('./abi/VDARewardContract.json'),
     storageNodeRegistry: require('./abi/StorageNodeRegistry.json'),
     solboundNFT: require('./abi/SoulboundNFT.json'),
+    xpReward: require('./abi/VDAXPReward.json'),
 }
 
 /**
@@ -35,7 +36,8 @@ export const CHAIN_CONTRACTS : Record<BlockchainAnchor, INetworkContracts> = {
             abi: CONTRACT_ABI["didLinkage"]
         },
         reward: null,
-        solboundNFT: null
+        solboundNFT: null,
+        xpReward: null
     },
     polamoy: {
         token: {
@@ -65,6 +67,10 @@ export const CHAIN_CONTRACTS : Record<BlockchainAnchor, INetworkContracts> = {
         solboundNFT: {
             address: "0xa7D552ccc8E561164d26711516033bcdeD975ca3",
             abi: CONTRACT_ABI["solboundNFT"]
+        },
+        xpReward: {
+            address: "0x6007b8e2DC179ea20c39Ccf6C4d500362E542667",
+            abi: CONTRACT_ABI["xpReward"]
         }
     }
 }

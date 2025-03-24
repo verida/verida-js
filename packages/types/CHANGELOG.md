@@ -1,5 +1,12 @@
+2024-07-15 (v.)
+-------------------
+
+- Added `xpReward` to the `INetworkContracts` interface in the `NetworkInterfaces.ts`
+
+
 2024-07-15 (v.4.0.0)
 -------------------
+
 - Removed `web3` parameter in `Web3SelfTransactionConfig`
 - Support BlockchainAnchor and Verida Network refactor
 
