@@ -2,10 +2,8 @@ const assert = require('assert')
 
 import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
-import { StorageLink } from '@verida/storage-link'
 import { DIDDocument } from '@verida/did-document'
 import CONFIG from './config'
-import { EnvironmentType, IDatabase } from '@verida/types'
 
 const CONTEXT_NAME = 'Verida Storage Node Test: Test Application 1'
 
@@ -25,7 +23,7 @@ describe.skip('Storage context hash tests', function() {
                 network: CONFIG.NETWORK,
             }
         })
-        
+
         account = new AutoAccount({
             privateKey: PRIVATE_KEY,
             network: CONFIG.NETWORK,

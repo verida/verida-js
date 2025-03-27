@@ -4,11 +4,8 @@ import { Client } from '../src/index'
 import { AutoAccount } from '@verida/account-node'
 import { StorageLink } from '@verida/storage-link'
 import { DIDDocument } from '@verida/did-document'
-import Utils from "../src/context/engines/verida/database/utils";
-//import { Wallet } from 'ethers'
 import CONFIG from './config'
 import { sleep } from './utils'
-import { EnvironmentType } from '@verida/types'
 import { getRandomInt } from '../src/context/utils'
 
 const TEST_DB_NAME = 'TestDb_3'
@@ -208,7 +205,7 @@ describe.skip('Storage endpoint tests', () => {
             const randInt = getRandomInt(0, 1000000)
             const res = await secondaryConnection.post({'second': randInt})
             await sleep(5*1000)
-            
+
             const res1 = await primaryConnection.get(res.id)
             const res2 = await secondaryConnection.get(res.id)
 
@@ -260,6 +257,6 @@ describe.skip('Storage endpoint tests', () => {
         })
 
         // @todo: add a new endpoint, let it sync then perform the same tests across all the endpoints
-        
+
     })
 })
