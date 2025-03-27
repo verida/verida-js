@@ -333,14 +333,14 @@ class Client implements IClient {
 
       const signerDid = `did:vda:${sNetwork}:${sDid}`;
 
-      if (!did || signerDid.toLowerCase() == did.toLowerCase()) {
+      if (!did || signerDid.toLowerCase() === did.toLowerCase()) {
         const didDocument = await this.didClient.get(signerDid);
         if (!didDocument) {
           continue;
         }
 
         // Support old signature format (simple string) and new signature format (object)
-        const matchSig = typeof(signature) == 'string' ? signature : signature['secp256k1']
+        const matchSig = typeof(signature) === 'string' ? signature : signature['secp256k1']
 
         const validSig = didDocument.verifyContextSignature(
           _data,

@@ -1,6 +1,9 @@
 import { utils, Wallet as EthersWallet } from "ethers"
 
-export default class Wallet {
+/**
+ * @deprecated Use VeridaDidWallet instead
+ */
+export class Wallet {
 
     /* @ts-ignore */
     private _did: string
@@ -61,5 +64,4 @@ export default class Wallet {
     public get publicKeyBase58(): string {
         return utils.base58.encode(this._publicKey)
     }
-
 }

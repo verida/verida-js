@@ -1,35 +1,34 @@
-import { DIDClient } from "../src/index"
-// import { Wallet } from '@ethersproject/wallet'
+import { DIDClient } from "../src/did-client"
 import { Wallet } from "ethers"
-import { DIDClientConfig } from "@verida/types"
+import { DIDClientConfig, Network } from "@verida/types"
 
 require('dotenv').config()
 
-if (process.env.PRIVATE_KEY === undefined) {
-    throw new Error('PRIVATE_KEY not defined in env')
-}
-const privateKey : string = process.env.PRIVATE_KEY!
+export async function getDIDClient(wallet: Wallet, didEndpoints: string[]) {
+    const privateKey = process.env.PRIVATE_KEY
+    if (!privateKey) {
+        throw new Error('PRIVATE_KEY not defined in env')
+    }
 
-const rpcUrl = process.env[`RPC_URL`]
-if (rpcUrl === undefined) {
-    throw new Error('RPC url is not defined in env')
-}
-console.log('RPC URL :', rpcUrl)
+    const rpcUrl = process.env[`RPC_URL`]
+    if (rpcUrl === undefined) {
+        throw new Error('RPC url is not defined in env')
+    }
+    console.log('RPC URL :', rpcUrl)
 
-export async function getDIDClient(veridaAccount: Wallet, didEndpoints: string[]) {
     const config: DIDClientConfig = {
-        network: 'testnet',
+        network: Network.BANKSIA,
         rpcUrl: rpcUrl!
     }
 
     const didClient = new DIDClient(config)
 
     // Configure authenticate to talk directly to the blockchain
-    didClient.authenticate(
-        veridaAccount.privateKey,   // Verida DID private key
+    await didClient.authenticate(
+        wallet,
         'web3',
         {
-            privateKey,             // MATIC private key that will submit transaction
+            privateKey, // MATIC private key that will submit transaction
         },
         didEndpoints
     )
@@ -42,7 +41,7 @@ export async function getDIDClient(veridaAccount: Wallet, didEndpoints: string[]
             serverConfig: {
                 headers: {
                     'context-name' : 'Verida Test'
-                } 
+                }
               },
               postConfig: {
                   headers: {

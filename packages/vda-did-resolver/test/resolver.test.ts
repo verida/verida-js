@@ -30,10 +30,10 @@ if (!privateKey) {
 }
 const baseConfig = getBlockchainAPIConfiguration(privateKey)
 
-const VDA_DID_CONFIG = {
+const VDA_DID_CONFIG = { // TODO: Add strong type to configuration
     identifier: DID,
     blockchain: BlockchainAnchor.POLAMOY,
-    signKey: DID_PRIVATE_KEY,
+    signer: wallet,
     callType: baseConfig.callType,
     web3Options: baseConfig.web3Options
 }

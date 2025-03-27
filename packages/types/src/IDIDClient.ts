@@ -1,20 +1,21 @@
+import { Signer } from "ethers";
 import { IDIDDocument } from "./IDIDDocument";
-import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfigPart, VdaDidEndpointResponses } from "./Web3Interfaces";
+import { Web3CallType, VeridaWeb3TransactionOptions, VdaDidEndpointResponses } from "./Web3Interfaces";
 
 
 export interface IDIDClient {
     authenticate(
-        veridaPrivateKey: string,
+        signer: Signer,
         callType: Web3CallType,
-        web3Config: Web3SelfTransactionConfigPart | Web3MetaTransactionConfig,
+        web3Config: VeridaWeb3TransactionOptions,
         defaultEndpoints: string[]
-    ): void
+    ): Promise<void>
 
-    authenticated(): boolean 
+    authenticated(): boolean
 
-    getDid(): string | undefined 
+    getDid(): string | undefined
 
-    getPublicKey(): string | undefined 
+    getPublicKey(): string | undefined
 
     save(document: IDIDDocument): Promise<VdaDidEndpointResponses>
 

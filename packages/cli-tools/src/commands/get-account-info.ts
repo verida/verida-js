@@ -2,7 +2,7 @@ import { Command } from 'command-line-interface';
 import { GetAccountInfoOptions } from './interfaces';
 import { AutoAccount } from '@verida/account-node';
 import { Network } from '@verida/types';
-import { Wallet } from '@verida/did-client';
+import { VeridaDidWallet } from '@verida/did-client';
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common';
 import { NETWORK_STRINGS } from '../constants';
 require('dotenv').config()
@@ -51,7 +51,7 @@ export const GetAccountInfo: Command<GetAccountInfoOptions> = {
       console.log(`DID: ${did}`)
 
       const blockchain = DefaultNetworkBlockchainAnchors[network]
-      const wallet = new Wallet(options.privateKey, blockchain.toString())
+      const wallet = VeridaDidWallet.fromPrivateKeyOrMnemonic(options.privateKey, blockchain)
       console.log(`Wallet private key: ${wallet.privateKey}`)
       console.log(`Wallet public key: ${wallet.publicKey}`)
     }

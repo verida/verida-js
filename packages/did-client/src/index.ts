@@ -1,7 +1,4 @@
-import { DIDClient } from "./did-client"
-import Wallet from "./wallet"
-
-export {
-    DIDClient,
-    Wallet
-}
+export * from './utils'
+export * from './verida-did-wallet'
+export * from './wallet'
+export * from './did-client'

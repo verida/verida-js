@@ -1,29 +1,34 @@
 const assert = require('assert')
 import { StorageLink } from '../src/index'
-import { DIDClient } from '@verida/did-client'
+import { DIDClient, VeridaDidWallet } from '@verida/did-client'
 import { CONTEXT_NAME } from './utils'
 import { BlockchainAnchor, Network } from '@verida/types'
 require('dotenv').config()
 
 const NETWORK = Network.BANKSIA
 const BLOCKCHAIN = BlockchainAnchor.POLAMOY
-
 const MNEMONIC = "pumpkin salad also husband east armor online simple chair perfect used heavy"
+
+const veridaDidWallet = VeridaDidWallet.fromPrivateKeyOrMnemonic(MNEMONIC)
+
 const didClient = new DIDClient({
     blockchain: BLOCKCHAIN
 })
-didClient.authenticate(MNEMONIC, 'web3', {
-    privateKey: process.env.PRIVATE_KEY,
-    rpcUrl: process.env.RPC_URL
-}, [])
-const DID = <string> didClient.getDid()
+
+const DID = veridaDidWallet.did
 
 describe('Test storage links for a DID', () => {
+    before(async () => {
+        await didClient.authenticate(veridaDidWallet.signer, 'web3', {
+            privateKey: process.env.PRIVATE_KEY,
+            rpcUrl: process.env.RPC_URL
+        }, [])
+    })
 
     describe('Get links for an existing DID', function() {
         this.timeout(20000)
 
-        it('can fetch all storage links', async function() {
+        it('can fetch all storage links', async function () {
             const storageLinks = await StorageLink.getLinks(NETWORK, didClient, DID)
             console.log(storageLinks)
 
