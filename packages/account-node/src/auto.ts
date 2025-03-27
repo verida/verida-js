@@ -1,13 +1,13 @@
-import { AccountConfig, AccountNodeConfig, SignerAccountConfig } from '@verida/types'
-import { SignerAccount } from './signer-account'
+import { AccountConfig, AccountNodeConfig } from '@verida/types'
 import { Wallet } from 'ethers'
 import { VeridaDidWallet } from '@verida/did-client'
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common'
+import { WalletAccount, WalletAccountConfig } from './wallet-account'
 
 /**
  * An Authenticator that automatically signs everything
  */
-export default class AutoAccount extends SignerAccount {
+export default class AutoAccount extends WalletAccount {
     constructor(autoConfig: AccountNodeConfig, accountConfig?: AccountConfig) {
         const { privateKey, ...config } = autoConfig
 
@@ -16,11 +16,11 @@ export default class AutoAccount extends SignerAccount {
         const blockchain = DefaultNetworkBlockchainAnchors[config.network]
         const veridaDidWallet = VeridaDidWallet.fromPrivateKeyOrMnemonic(privateKey, blockchain)
 
-        const signerConfig: SignerAccountConfig = {
+        const walletAccountConfig: WalletAccountConfig = {
             ...config,
-            signer: wallet
+            veridaDidWallet
         }
 
-        super(signerConfig, veridaDidWallet, accountConfig)
+        super(walletAccountConfig, accountConfig)
     }
 }

@@ -1,10 +1,14 @@
 'use strict'
 const assert = require('assert')
-import { SignerAccount } from "../src/signer-account"
+import { WalletAccount } from "../src/wallet-account"
 import { decodeJWT } from 'did-jwt'
 //import CONFIG from './config'
 import { AccountNodeDIDClientConfig, Network } from "@verida/types"
+import { VeridaDidWallet } from "@verida/did-client"
+import { DefaultNetworkBlockchainAnchors } from "@verida/vda-common"
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
+
+const veridaDidWallet = VeridaDidWallet.fromPrivateKeyOrMnemonic(MNEMONIC, DefaultNetworkBlockchainAnchors[Network.BANKSIA])
 
 const APPLICATION_NAME = 'Verida Test: DIDJWT'
 
@@ -21,9 +25,9 @@ describe('Auto account tests', () => {
         this.timeout(100000)
 
         it('verify did-jwt', async function () {
-            const account = new SignerAccount({
+            const account = new WalletAccount({
                 network: Network.BANKSIA,
-                privateKey: MNEMONIC,
+                veridaDidWallet,
                 didClientConfig: DID_CLIENT_CONFIG
             })
             const didJwt = await account.createDidJwt(APPLICATION_NAME, {
@@ -40,17 +44,17 @@ describe('Auto account tests', () => {
         })
 
         it('can reopen the same did account with the same mnemonic and did', async () => {
-            const account1 = new SignerAccount({
+            const account1 = new WalletAccount({
                 network: Network.BANKSIA,
-                privateKey: MNEMONIC,
+                veridaDidWallet,
                 didClientConfig: DID_CLIENT_CONFIG
             })
 
             const did1 = await account1.did()
 
-            const account2 = new SignerAccount({
+            const account2 = new WalletAccount({
                 network: Network.BANKSIA,
-                privateKey: MNEMONIC,
+                veridaDidWallet,
                 didClientConfig: DID_CLIENT_CONFIG
             })
 

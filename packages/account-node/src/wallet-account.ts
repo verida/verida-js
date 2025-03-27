@@ -4,26 +4,36 @@ import { Account } from '@verida/account'
 
 import { DIDClient, VeridaDidWallet } from '@verida/did-client'
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
-import { AccountConfig, AuthContext, SecureContextConfig, SecureContextEndpointType, SecureContextServices, SignerAccountConfig, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
+import { AccountConfig, AccountNodeDIDClientConfig, AuthContext, Network, SecureContextConfig, SecureContextEndpointType, SecureContextServices, VdaDidEndpointResponses, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 import { NodeSelector, NodeSelectorConfig, NodeSelectorParams } from './nodeSelector'
 import { ServiceEndpoint } from 'did-resolver'
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common'
 import { buildContextConsentMessage } from './utils'
+import { Signer } from 'ethers'
 
-export class SignerAccount extends Account {
+export interface WalletAccountConfig {
+    veridaDidWallet: VeridaDidWallet,
+    network: Network,
+    didClientConfig: AccountNodeDIDClientConfig
+    /** @deprecated */
+    options?: any
+    countryCode?: string
+}
+
+export class WalletAccount extends Account {
     private didClient: DIDClient
     private veridaDidWallet: VeridaDidWallet
     protected accountConfig?: AccountConfig
-    protected config: SignerAccountConfig
+    protected config: WalletAccountConfig
     protected contextAuths: Record<string, Record<string, VeridaDatabaseAuthType>> = {}
     protected defaultNodes: string[] = []
 
-    constructor(config: SignerAccountConfig, veridaDidWallet: VeridaDidWallet, accountConfig?: AccountConfig) {
+    constructor(config: WalletAccountConfig, accountConfig?: AccountConfig) {
         super()
         this.accountConfig = accountConfig
         this.config = config
 
-        this.veridaDidWallet = veridaDidWallet
+        this.veridaDidWallet = config.veridaDidWallet
 
         this.didClient = new DIDClient({
             ...config.didClientConfig,
@@ -31,11 +41,16 @@ export class SignerAccount extends Account {
         })
     }
 
-    public static async create(config: SignerAccountConfig, accountConfig?: AccountConfig): Promise<SignerAccount> {
+    public static async createFromSigner(signer: Signer, config: Omit<WalletAccountConfig, 'veridaDidWallet'>, accountConfig?: AccountConfig): Promise<WalletAccount> {
         const blockchain = DefaultNetworkBlockchainAnchors[config.network]
-        const veridaDidWallet = await VeridaDidWallet.fromSigner(config.signer, blockchain)
+        const veridaDidWallet = await VeridaDidWallet.fromSigner(signer, blockchain)
 
-        return new SignerAccount(config, veridaDidWallet, accountConfig)
+        const walletAccountConfig: WalletAccountConfig = {
+            ...config,
+            veridaDidWallet
+        }
+
+        return new WalletAccount(walletAccountConfig, accountConfig)
     }
 
     public getDIDClient(): DIDClient {
@@ -50,7 +65,7 @@ export class SignerAccount extends Account {
         return this.accountConfig
     }
 
-    public getConfig(): SignerAccountConfig {
+    public getConfig(): WalletAccountConfig {
         return this.config
     }
 

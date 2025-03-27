@@ -4,12 +4,12 @@ import { SessionAccount } from "./session-account"
 import ContextAccount from "./contextAccount"
 import AuthContextAccount from "./authcontext"
 import VeridaDatabaseAuthType from "./authTypes/VeridaDatabase"
-import { SignerAccount } from "./signer-account"
+import { WalletAccount } from './wallet-account'
 export * from './nodeSelector'
 
 export {
     AutoAccount,
-    SignerAccount,
+    WalletAccount,
     VeridaDatabaseAuthType,
     LimitedAccount,
     SessionAccount,

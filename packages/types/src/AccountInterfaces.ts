@@ -40,17 +40,13 @@ export class ContextAuthorizationError extends Error {
     }
 }
 
-export interface SignerAccountConfig {
-    signer: Signer,
+export interface AccountNodeConfig {
+    privateKey: string, // or mnemonic
     network: Network,
     didClientConfig: AccountNodeDIDClientConfig
     /** @deprecated */
     options?: any
     countryCode?: string
-}
-
-export interface AccountNodeConfig extends Omit<SignerAccountConfig, 'signer'> {
-    privateKey: string, // or mnemonic
 }
 
 export type ContextSession = {
