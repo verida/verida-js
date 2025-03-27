@@ -28,10 +28,10 @@ const configuration = {
     }
   }
 
-const createBlockchainAPI = (did: any) => {
-    return new BlockchainApi(<VdaDidConfigurationOptions>{
-        identifier: `did:vda:${BlockchainAnchor.POLPOS}:${did.address}`,
-        signKey: did.privateKey,
+const createBlockchainAPI = (wallet: Wallet) => {
+    return new BlockchainApi({
+        identifier: `did:vda:${BlockchainAnchor.POLPOS}:${wallet.address}`,
+        signer: wallet,
         blockchain: BlockchainAnchor.POLPOS,
         ...configuration
     })
@@ -51,7 +51,7 @@ describe('vda-did blockchain api', () => {
 
             const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
-                lookupResult, 
+                lookupResult,
                 {didController: didWallet.address, endpoints: endPoints_A},
                 'Get same endpoints');
         })
@@ -61,8 +61,8 @@ describe('vda-did blockchain api', () => {
 
             const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
-                lookupResult, 
-                {didController: didWallet.address, endpoints: endPoints_B}, 
+                lookupResult,
+                {didController: didWallet.address, endpoints: endPoints_B},
                 'Get updated endpoints');
         })
 

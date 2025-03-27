@@ -83,7 +83,7 @@ describe("VdaDid tests", function() {
                     created: doc.buildTimestamp(NOW),
                     updated: doc.buildTimestamp(NOW)
                 })
-                doc.signProof(wallet.privateKey)
+                doc.signProof(wallet)
 
                 await veridaApi.create(doc, ENDPOINTS)
 
@@ -92,7 +92,7 @@ describe("VdaDid tests", function() {
                 assert.equal(err.message, `Unable to create DID: Blockchain in address doesn't match config`)
             }
         })
-        
+
         it("Success", async () => {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
@@ -100,7 +100,7 @@ describe("VdaDid tests", function() {
                     created: doc.buildTimestamp(NOW),
                     updated: doc.buildTimestamp(NOW),
                 })
-                doc.signProof(wallet.privateKey)
+                doc.signProof(wallet)
                 masterDidDoc = doc
 
                 const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)
@@ -121,7 +121,7 @@ describe("VdaDid tests", function() {
                     created: doc.buildTimestamp(NOW),
                     updated: doc.buildTimestamp(NOW)
                 })
-                doc.signProof(wallet.privateKey)
+                doc.signProof(wallet)
                 await veridaApi.create(doc, ENDPOINTS)
 
                 assert.fail(`Document created, when it shouldn't`)
@@ -153,7 +153,7 @@ describe("VdaDid tests", function() {
                 doc.setAttributes({
                     updated: doc.buildTimestamp(LATER)
                 })
-                doc.signProof(wallet.privateKey)
+                doc.signProof(wallet)
 
                 await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
@@ -172,7 +172,7 @@ describe("VdaDid tests", function() {
                     versionId: 3,
                     updated: doc.buildTimestamp(LATER)
                 })
-                doc.signProof(wallet.privateKey)
+                doc.signProof(wallet)
 
                 await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
@@ -191,7 +191,7 @@ describe("VdaDid tests", function() {
                     versionId: 1,
                     updated: doc.buildTimestamp(NOW),
                 })
-                doc.signProof(wallet.privateKey)
+                doc.signProof(wallet)
 
                 await veridaApi.update(doc)
                 assert.fail(`Document updated, when it shouldn't`)
@@ -203,7 +203,7 @@ describe("VdaDid tests", function() {
         it("Fail - 1/n endpoints fail", async () => {
             try {
                 const doc = new DIDDocument(DID, DID_PK)
-                doc.signProof(wallet.privateKey)
+                doc.signProof(wallet)
                 doc.setAttributes({
                     updated: doc.buildTimestamp(NOW)+1
                 })
@@ -222,7 +222,7 @@ describe("VdaDid tests", function() {
                 versionId: 1,
                 updated: doc.buildTimestamp(LATER)
             })
-            doc.signProof(wallet.privateKey)
+            doc.signProof(wallet)
 
             // Verify update response is correct
             const response = await veridaApi.update(doc)

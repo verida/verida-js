@@ -1,13 +1,11 @@
 import Axios from 'axios'
-import { ethers } from 'ethers'
+import { ethers, Signer } from 'ethers'
 import { DIDDocument } from '@verida/did-document'
-import EncryptionUtils from '@verida/encryption-utils'
 import BlockchainApi from "./blockchain/blockchainApi";
 import { interpretIdentifier } from '@verida/vda-common'
 import { VdaDidConfigurationOptions, VdaDidEndpointResponses } from '@verida/types'
 
 export default class VdaDid {
-
     private options: VdaDidConfigurationOptions
     private blockchain: BlockchainApi
     private lastEndpointErrors?: VdaDidEndpointResponses
@@ -19,18 +17,18 @@ export default class VdaDid {
 
     /**
      * Publish the first version of a DIDDocument to a list of endpoints.
-     * 
+     *
      * If an endpoint fails to accept the DID Document, that endpoint will be ignored and won't be included in the
      * list of valid endpoints on chain.
-     * 
-     * @param didDocument 
-     * @param endpoints 
+     *
+     * @param didDocument
+     * @param endpoints
      * @return VdaDidEndpointResponses Map of endpoints where the DID Document was successfully published
      */
     public async create(didDocument: DIDDocument, endpoints: string[], retries: number = 3): Promise<VdaDidEndpointResponses> {
         this.lastEndpointErrors = undefined
-        if (!this.options.signKey) {
-            throw new Error(`Unable to create DID: No private key specified in config.`)
+        if (!this.options.signer) {
+            throw new Error(`Unable to create DID: No signer specified in config.`)
         }
 
         const doc = didDocument.export()
@@ -47,7 +45,7 @@ export default class VdaDid {
         }
 
         // Sign the DID Document
-        didDocument.signProof(this.options.signKey!)
+        didDocument.signProof(this.options.signer)
 
         // Submit to all the endpoints
         const promises = []
@@ -105,18 +103,18 @@ export default class VdaDid {
 
     /**
      * Publish an updated version of a DIDDocument to a list of endpoints.
-     * 
+     *
      * If an endpoint fails to accept the DID Document, that will be reflected in the response.
-     * 
+     *
      * Note: Any failed endpoints will remain on-chain and will need to have the update re-attempted or remove the endpoint from the DID Registry
-     * 
-     * @param didDocument 
+     *
+     * @param didDocument
      * @returns VdaDidEndpointResponses Map of endpoints where the DID Document was successfully published
      */
-    public async update(didDocument: DIDDocument, controllerPrivateKey?: string): Promise<VdaDidEndpointResponses> {
+    public async update(didDocument: DIDDocument, controllerSigner?: Signer): Promise<VdaDidEndpointResponses> {
         this.lastEndpointErrors = undefined
-        if (!this.options.signKey) {
-            throw new Error(`Unable to update DID Document. No private key specified in config.`)
+        if (!this.options.signer) {
+            throw new Error(`Unable to update DID Document. No signer specified in config.`)
         }
 
         const attributes = didDocument.export()
@@ -124,7 +122,7 @@ export default class VdaDid {
             throw new Error(`Unable to update DID Document. "updated" timestamp matches "created" timestamp.`)
         }
 
-        didDocument.signProof(this.options.signKey)
+        didDocument.signProof(this.options.signer)
 
         // Fetch the endpoint list from the blockchain
         const response: any = await this.blockchain.lookup(didDocument.id)
@@ -140,13 +138,13 @@ export default class VdaDid {
         // @ts-ignore
         if (currentController !== didDocumentController) {
             // Controller has changed, ensure we have a private key
-            if (!controllerPrivateKey) {
-                throw new Error(`Unable to update DID Document. Changing controller, but "controllerPrivateKey" not specified.`)
+            if (!controllerSigner) {
+                throw new Error(`Unable to update DID Document. Changing controller, but "controllerSigner" not specified.`)
             }
 
             // Ensure new controller in the DID Document matches the private key
-            const privateKeyAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase()
-            if (privateKeyAddress !== didDocumentController) {
+            const newControllerAddress = ethers.utils.computeAddress(await controllerSigner.getAddress()).toLowerCase()
+            if (newControllerAddress !== didDocumentController) {
                 throw new Error(`Unable to update DID Document. Changing controller, but private key doesn't match controller in DID Document`)
             }
 
@@ -199,7 +197,7 @@ export default class VdaDid {
         // If the controller doesn't match the DID, the controller may have changed
         if (updateController) {
             // If the DID controller has changed, update on-chain via `setController()`
-            await this.blockchain.setController(controllerPrivateKey!)
+            await this.blockchain.setController(controllerSigner!)
         }
 
         return finalEndpoints
@@ -210,8 +208,8 @@ export default class VdaDid {
         const did = this.options.identifier.toLowerCase()
         const nowInMinutes = Math.round((new Date()).getTime() / 1000 / 60)
         const proofString = `Delete DID Document ${did} at ${nowInMinutes}`
-        const privateKey = new Uint8Array(Buffer.from(this.options.signKey!.substr(2),'hex'))
-        const signature = EncryptionUtils.signData(proofString, privateKey)
+
+        const signature = await this.options.signer.signMessage(proofString)
 
         // Delete DID Document from all the endpoints
         const promises = []
@@ -254,8 +252,9 @@ export default class VdaDid {
     }
 
     public async delete(): Promise<VdaDidEndpointResponses> {
-        if (!this.options.signKey) {
-            throw new Error(`Unable to delete DID. No private key specified in config.`)
+        if (!this.options.signer) {
+            // Is it really necessary? The signer is not used in this function
+            throw new Error(`Unable to delete DID. No signer specified in config.`)
         }
 
         const did = this.options.identifier.toLowerCase()
@@ -283,13 +282,14 @@ export default class VdaDid {
 
     /**
      * Add a new to an existing DID
-     * 
-     * @param endpointUri 
-     * @param verifyAllVersions 
+     *
+     * @param endpointUri
+     * @param verifyAllVersions
      */
     public async addEndpoint(endpointUri: string, verifyAllVersions=false) {
-        if (!this.options.signKey) {
-            throw new Error(`Unable to create DID. No private key specified in config.`)
+        if (!this.options.signer) {
+            // Is it really necessary? The signer is not used in this function
+            throw new Error(`Unable to add endpoint. No signer specified in config.`)
         }
 
         // 1. Fetch all versions of the DID
@@ -304,7 +304,7 @@ export default class VdaDid {
 
         // 2. Call /migrate on the new endpoint
         // @todo: generate signature
-        const proofString = '' 
+        const proofString = ''
         const signature = ''
         try {
             const response = await Axios.post(`${endpointUri}/migrate`, {
@@ -328,10 +328,11 @@ export default class VdaDid {
 
     // @todo: Implement
     public async removeEndpoint(did: string, endpoint: string) {
-        if (!this.options.signKey) {
+        if (!this.options.signer) {
+            // Is it really necessary? The signer is not used in this function
             throw new Error(`Unable to create DID. No private key specified in config.`)
         }
-        
+
         // @todo
     }
 
@@ -340,8 +341,6 @@ export default class VdaDid {
     }
 
     private async fetchDocumentHistory(endpoints: string[]): Promise<DIDDocument[]> {
-        const documents: DIDDocument[] = []
-
         const endpointVersions: any = {}
         for (let i in endpoints) {
             const endpointUri = endpoints[i]

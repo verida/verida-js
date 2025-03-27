@@ -26,10 +26,10 @@ const configuration = {
     }
   }
 
-const createBlockchainAPI = (did: any, blockchain: BlockchainAnchor = testChain) => {
-    return new BlockchainApi(<VdaDidConfigurationOptions>{
-        identifier: `did:vda:${blockchain}:${did.address}`,
-        signKey: did.privateKey,
+const createBlockchainAPI = (wallet: Wallet, blockchain: BlockchainAnchor = testChain) => {
+    return new BlockchainApi({
+        identifier: `did:vda:${blockchain}:${wallet.address}`,
+        signer: wallet,
         blockchain,
         ...configuration
     })
@@ -49,7 +49,7 @@ describe('vda-did blockchain api', () => {
 
             const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
-                lookupResult, 
+                lookupResult,
                 {didController: didWallet.address, endpoints: endPoints_A},
                 'Get same endpoints');
         })
@@ -59,8 +59,8 @@ describe('vda-did blockchain api', () => {
 
             const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
-                lookupResult, 
-                {didController: didWallet.address, endpoints: endPoints_B}, 
+                lookupResult,
+                {didController: didWallet.address, endpoints: endPoints_B},
                 'Get updated endpoints');
         })
 
@@ -86,8 +86,8 @@ describe('vda-did blockchain api', () => {
         it('Get endpoints successfully', async () => {
             const lookupResult = await blockchainApi.lookup(did);
             assert.deepEqual(
-                lookupResult, 
-                {didController:didWallet.address, endpoints:endPoints_B}, 
+                lookupResult,
+                {didController:didWallet.address, endpoints:endPoints_B},
                 'Get updated endpoints');
         })
 
@@ -126,7 +126,7 @@ describe('vda-did blockchain api', () => {
         it('Should reject for unregistered DID', async () => {
             const testAPI = createBlockchainAPI(Wallet.createRandom());
             await assert.rejects(
-                testAPI.setController(controller.privateKey),
+                testAPI.setController(controller),
                 err => {
                     assert.ok(err.message.startsWith('Failed to set controller'));
                     return true;
@@ -142,12 +142,12 @@ describe('vda-did blockchain api', () => {
             const orgController = await testAPI.getController();
             assert.equal(orgController, orgDID.address, 'Controller itself');
 
-            await testAPI.setController(controller.privateKey);
+            await testAPI.setController(controller);
             const newController = await testAPI.getController();
             assert.equal(newController, controller.address, 'Updated controller');
 
             // Restore controller
-            await testAPI.setController(orgDID.privateKey);
+            await testAPI.setController(orgDID);
         })
     })
 

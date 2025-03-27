@@ -98,11 +98,8 @@ export interface Web3GaslessPostConfig {
  */
 export interface VdaDidConfigurationOptions {
     identifier: string;
-    signKey?: string;
-    signer?: (data: any) => Promise<string>;
-    //chainNameOrId?: string | number;
+    signer: Signer;
     blockchain: BlockchainAnchor
-
     callType: Web3CallType;
     web3Options: VeridaWeb3TransactionOptions;
 }
@@ -115,8 +112,11 @@ export interface VdaDidEndpointResponse {
 export type VdaDidEndpointResponses = Record<string, VdaDidEndpointResponse>
 
 // Part of VeridaSelfTransactionConfig
-export interface Web3SelfTransactionConfigPart  {
+export type Web3SelfTransactionConfigPart  = {
     signer?: Signer         // Pre-built transaction signer that is configured to pay for gas
+    privateKey: string     // MATIC private key that will pay for gas
+} | {
+    signer: Signer         // Pre-built transaction signer that is configured to pay for gas
     privateKey?: string     // MATIC private key that will pay for gas
 }
 
