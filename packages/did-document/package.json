@@ -25,6 +25,7 @@
     "@verida/types": "^4.4.0",
     "@verida/vda-common": "^4.4.0",
     "did-resolver": "^4.0.1",
+    "ethers": "^5.8.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

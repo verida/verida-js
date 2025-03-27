@@ -5,7 +5,7 @@ import { strip0x } from './helpers'
 import { IDIDDocument, IKeyring, Network, SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface, VerificationMethodTypes } from '@verida/types'
 import { BLOCKCHAIN_CHAINIDS, mapDidNetworkToBlockchainAnchor, interpretIdentifier } from '@verida/vda-common'
 import { BlockchainAnchor } from '@verida/types'
-const _ = require('lodash')
+import { Signer } from 'ethers'
 
 export default class DIDDocument implements IDIDDocument {
 
@@ -14,8 +14,8 @@ export default class DIDDocument implements IDIDDocument {
 
     /**
      * Force lower case DID as we can't guarantee the DID will always be provided with checksum
-     * 
-     * @param doc - this value can be a DocInterface or DID. 
+     *
+     * @param doc - this value can be a DocInterface or DID.
      */
     constructor(doc: VeridaDocInterface | string, publicKeyHex?: string) {
         if (typeof(doc) == 'string') {
@@ -38,7 +38,7 @@ export default class DIDDocument implements IDIDDocument {
             const { address, network } = interpretIdentifier(this.doc.id)
             const blockchainAnchor = mapDidNetworkToBlockchainAnchor(network ? network.toString() : 'mainnet')
             const chainId = blockchainAnchor ? BLOCKCHAIN_CHAINIDS[blockchainAnchor] : BLOCKCHAIN_CHAINIDS[BlockchainAnchor.POLPOS]
-            
+
             // Add default signing key
             this.doc.assertionMethod = [
                 `${this.doc.id}#controller`,
@@ -82,13 +82,13 @@ export default class DIDDocument implements IDIDDocument {
 
     /**
      * Not used directly, used for testing
-     * 
+     *
      * @param contextName string
      * @param keyring Keyring
-     * @param privateKey Private key of the DID that controls this DID Document 
+     * @param signer Signer
      * @param endpoints Endpoints
      */
-    public async addContext(network: Network, contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints) {
+    public async addContext(network: Network, contextName: string, keyring: IKeyring, signer: Signer, endpoints: SecureContextEndpoints) {
         // Remove this context if it already exists
         this.removeContext(contextName, network)
 
@@ -115,11 +115,8 @@ export default class DIDDocument implements IDIDDocument {
 
         // Generate a proof that the DID controls the context public signing key that can be used on chain
         const proofString = `${didAddress}${keys.signPublicAddress}`.toLowerCase()
-        const privateKeyArray = new Uint8Array(
-            Buffer.from(privateKey.slice(2), "hex")
-        )
 
-        const proof = EncryptionUtils.signData(proofString, privateKeyArray)
+        const proof = await signer.signMessage(proofString)
 
         // Add keys to DID document
         this.addContextSignKey(network, contextHash, keys.signPublicKeyHex, proof)
@@ -128,10 +125,10 @@ export default class DIDDocument implements IDIDDocument {
 
     /**
      * Remove the context from the DID document
-     * 
-     * @param contextName 
-     * @param network 
-     * @returns 
+     *
+     * @param contextName
+     * @param network
+     * @returns
      */
     public removeContext(contextName: string, network?: Network): boolean {
         const contextHash = DIDDocument.generateContextHash(this.doc.id, contextName)
@@ -161,14 +158,14 @@ export default class DIDDocument implements IDIDDocument {
         })
         this.doc.assertionMethod = this.doc.assertionMethod!.filter((entry: string | VerificationMethod) => {
             return (
-                entry !== `${this.doc.id}?${networkString}context=${contextHash}&type=sign` && 
+                entry !== `${this.doc.id}?${networkString}context=${contextHash}&type=sign` &&
                 entry !== `${this.doc.id}?${networkString}context=${contextHash}&type=asym`
             )
         })
         this.doc.keyAgreement = this.doc.keyAgreement!.filter((entry: string | VerificationMethod) => {
             return entry !== `${this.doc.id}?${networkString}context=${contextHash}&type=asym`
         })
-        
+
         // Remove services
         this.doc.service = this.doc.service!.filter((entry: Service) => {
             return !entry.id.match(`${this.doc.id}\\?${networkString}context=${contextHash}`)
@@ -342,13 +339,10 @@ export default class DIDDocument implements IDIDDocument {
         }
     }
 
-    public signProof(privateKey: Uint8Array | string) {
-        if (privateKey == 'string') {
-            privateKey = new Uint8Array(Buffer.from(privateKey.substr(2),'hex'))
-        }
-
+    public async signProof(signer: Signer) {
         const proofData = this.getProofData()
-        const signature = EncryptionUtils.signData(proofData, <Uint8Array> privateKey)
+
+        const signature = await signer.signMessage(proofData)
 
         this.doc.proof = {
             type: "EcdsaSecp256k1VerificationKey2019",

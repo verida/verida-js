@@ -1,4 +1,4 @@
-import { Signer } from '@ethersproject/abstract-signer'
+import { Signer } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Provider } from '@ethersproject/providers'
 import { BlockchainAnchor, Network } from './NetworkInterfaces'
@@ -16,10 +16,10 @@ export interface Web3ContractInfo {
 
 /** EIP1559 Gas Configuration speed */
 export type EIP1559GasMode = 'safeLow' | 'standard' | 'fast';
-/** Gas configuration 
- * 
+/** Gas configuration
+ *
  * eip1559Mode - optional - Once this parameter is set, all other parameters are not used. Gas information is pulled from network.
- * 
+ *
  * maxFeePerGas - optional - Used for EIP1559 chains
  * maxPriorityFeePerGas - optional - Used for EIP1559 chains
  * gasLimit - optional - Used for non EIP1559 chains
@@ -41,7 +41,7 @@ export interface Web3GasConfiguration {
  * signer - optional - a Signer that sign the blockchain transactions. If a 'signer' is not provided, then 'contract' with an attached signer need to be used to make transactions
  * provider - optional - a web3 provider. At least one of `signer`,`provider`, or `rpcUrl` is required
  * rpcUrl - optinal - a JSON-RPC URL that can be used to connect to an ethereum network. At least one of `signer`, `provider`, or `rpcUrl` is required
- * 
+ *
  */
 export interface Web3SelfTransactionConfig extends Web3GasConfiguration {
     blockchainAnchor?: BlockchainAnchor
@@ -86,9 +86,9 @@ export interface Web3GaslessPostConfig {
 
 /**
  * Interface for VDA-DID instance creation.
- * 
+ *
  * `signKey` or `signer` must be provided
- * 
+ *
  * @param identifier: DID
  * @param signKey: private key of DID's controller. Used to generate signature in transactions to chains
  * @param signer: Signing function that accepts a private key and returns a signature in hex format
