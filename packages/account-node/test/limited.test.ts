@@ -1,10 +1,11 @@
 const assert = require('assert')
 import { LimitedAccount } from "../src/index"
-import { DIDClient } from "@verida/did-client"
-import { AccountNodeDIDClientConfig, EnvironmentType } from "@verida/types"
+import { DIDClient, VeridaDidWallet } from "@verida/did-client"
+import { AccountNodeDIDClientConfig, BlockchainAnchor, Network } from "@verida/types"
 require('dotenv').config()
 
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
+const wallet = VeridaDidWallet.fromPrivateKeyOrMnemonic(MNEMONIC, BlockchainAnchor.POLAMOY)
 
 const DID_CLIENT_CONFIG: AccountNodeDIDClientConfig = {
     //privateKey: CONFIG.networkPrivateKey,
@@ -14,29 +15,29 @@ const DID_CLIENT_CONFIG: AccountNodeDIDClientConfig = {
 }
 
 const didClient = new DIDClient({
-    network: EnvironmentType.TESTNET
+    network: Network.BANKSIA
 })
-didClient.authenticate(MNEMONIC, 'web3', {
-    privateKey: process.env.PRIVATE_KEY,
-    rpcUrl: process.env.RPC_URL
-}, [])
-const DID = didClient.getDid()
 
 const VALID_CONTEXT = 'Verida Test: Valid Context'
 const INVALID_CONTEXT = 'Verida Test: Invalid Context'
 
-
 describe('Limited account tests', () => {
+    before(async () => {
+        await didClient.authenticate(wallet.signer, 'web3', {
+            privateKey: process.env.PRIVATE_KEY,
+            rpcUrl: process.env.RPC_URL
+        }, [])
+    })
 
     describe('Basic tests', function() {
         this.timeout(100000)
 
         it('Won\'t fetch keyring for an unsupported context', async function() {
             const account = new LimitedAccount({
-                environment: EnvironmentType.TESTNET,
+                network: Network.BANKSIA,
                 privateKey: MNEMONIC,
                 didClientConfig: DID_CLIENT_CONFIG
-            }, [VALID_CONTEXT])
+            }, undefined, [VALID_CONTEXT])
 
             const validKeyring = await account.keyring(VALID_CONTEXT)
             assert.ok(validKeyring, "Have a valid keyring")

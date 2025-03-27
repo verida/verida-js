@@ -1,6 +1,6 @@
 'use strict'
 const assert = require('assert')
-import { AutoAccount } from "../src/index"
+import { SignerAccount } from "../src/signer-account"
 import { decodeJWT } from 'did-jwt'
 //import CONFIG from './config'
 import { AccountNodeDIDClientConfig, Network } from "@verida/types"
@@ -21,7 +21,7 @@ describe('Auto account tests', () => {
         this.timeout(100000)
 
         it('verify did-jwt', async function () {
-            const account = new AutoAccount({
+            const account = new SignerAccount({
                 network: Network.BANKSIA,
                 privateKey: MNEMONIC,
                 didClientConfig: DID_CLIENT_CONFIG
@@ -40,7 +40,7 @@ describe('Auto account tests', () => {
         })
 
         it('can reopen the same did account with the same mnemonic and did', async () => {
-            const account1 = new AutoAccount({
+            const account1 = new SignerAccount({
                 network: Network.BANKSIA,
                 privateKey: MNEMONIC,
                 didClientConfig: DID_CLIENT_CONFIG
@@ -48,7 +48,7 @@ describe('Auto account tests', () => {
 
             const did1 = await account1.did()
 
-            const account2 = new AutoAccount({
+            const account2 = new SignerAccount({
                 network: Network.BANKSIA,
                 privateKey: MNEMONIC,
                 didClientConfig: DID_CLIENT_CONFIG

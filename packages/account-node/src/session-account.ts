@@ -4,7 +4,7 @@ import EncryptionUtils from '@verida/encryption-utils'
 import { AccountConfig, AuthContext, AuthTypeConfig, ContextAuthorizationError, SecureContextConfig, SessionAccountConfig, VeridaDatabaseAuthContext, VeridaDatabaseAuthTypeConfig } from '@verida/types'
 import { interpretIdentifier } from '@verida/vda-common'
 import Axios from 'axios'
-import { buildContextConsentMessage } from './auto'
+import { buildContextConsentMessage } from './utils'
 
 export class SessionAccount extends Account {
     private accountConfig?: AccountConfig
