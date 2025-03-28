@@ -36,10 +36,10 @@ export class VeridaDidWallet {
     /**
      * Create a new random wallet
      *
-     * @param blockchainAnchor - Blockchain network to anchor the DID (defaults to POLPOS)
+     * @param blockchainAnchor - Blockchain network to anchor the DID
      * @returns New VeridaDidWallet instance
      */
-    public static createRandom(blockchainAnchor: BlockchainAnchor = BlockchainAnchor.POLPOS) {
+    public static createRandom(blockchainAnchor: BlockchainAnchor) {
         const wallet = Wallet.createRandom()
         return new VeridaDidWallet(wallet, blockchainAnchor, wallet.address, wallet.privateKey)
     }
@@ -48,10 +48,10 @@ export class VeridaDidWallet {
      * Create a wallet from an existing signer
      *
      * @param signer - Signer instance to use
-     * @param blockchainAnchor - Blockchain network to anchor the DID (defaults to POLPOS)
+     * @param blockchainAnchor - Blockchain network to anchor the DID
      * @returns New VeridaDidWallet instance
      */
-    public static async fromSigner(signer: Signer, blockchainAnchor: BlockchainAnchor = BlockchainAnchor.POLPOS) {
+    public static async fromSigner(signer: Signer, blockchainAnchor: BlockchainAnchor) {
         const address = await signer.getAddress()
         return new VeridaDidWallet(signer, blockchainAnchor, address, undefined)
     }
@@ -60,10 +60,10 @@ export class VeridaDidWallet {
      * Create a wallet from a private key or mnemonic phrase
      *
      * @param privateKeyOrMnemonic - Private key (0x prefixed) or mnemonic phrase
-     * @param blockchainAnchor - Blockchain network to anchor the DID (defaults to POLPOS)
+     * @param blockchainAnchor - Blockchain network to anchor the DID
      * @returns New VeridaDidWallet instance
      */
-    public static fromPrivateKeyOrMnemonic(privateKeyOrMnemonic: string, blockchainAnchor: BlockchainAnchor = BlockchainAnchor.POLPOS) {
+    public static fromPrivateKeyOrMnemonic(privateKeyOrMnemonic: string, blockchainAnchor: BlockchainAnchor) {
         let wallet
         if (privateKeyOrMnemonic.substr(0,2) == "0x") {
             wallet = new Wallet(privateKeyOrMnemonic)
