@@ -19,7 +19,7 @@ const DID_CLIENT_CONFIG: AccountNodeDIDClientConfig = {
     didEndpoints: []
 }
 
-describe('Auto account tests', () => {
+describe('WalletAccount tests', () => {
 
     describe('Basic tests', function () {
         this.timeout(100000)

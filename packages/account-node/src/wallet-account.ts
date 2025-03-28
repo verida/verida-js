@@ -11,12 +11,10 @@ import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common'
 import { buildContextConsentMessage } from './utils'
 import { Signer } from 'ethers'
 
-export interface WalletAccountConfig {
+export type WalletAccountConfig = {
     veridaDidWallet: VeridaDidWallet,
     network: Network,
     didClientConfig: AccountNodeDIDClientConfig
-    /** @deprecated */
-    options?: any
     countryCode?: string
 }
 
