@@ -4,6 +4,7 @@ import { AutoAccount } from "../src/index"
 import { decodeJWT } from 'did-jwt'
 //import CONFIG from './config'
 import { AccountNodeDIDClientConfig, Network } from "@verida/types"
+
 const MNEMONIC = 'next awake illegal system analyst border core forum wheat frost hen patch'
 
 const APPLICATION_NAME = 'Verida Test: DIDJWT'

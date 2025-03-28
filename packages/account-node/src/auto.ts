@@ -1,5 +1,4 @@
 import { AccountConfig, AccountNodeConfig } from '@verida/types'
-import { Wallet } from 'ethers'
 import { VeridaDidWallet } from '@verida/did-client'
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common'
 import { WalletAccount, WalletAccountConfig } from './wallet-account'
@@ -10,8 +9,6 @@ import { WalletAccount, WalletAccountConfig } from './wallet-account'
 export default class AutoAccount extends WalletAccount {
     constructor(autoConfig: AccountNodeConfig, accountConfig?: AccountConfig) {
         const { privateKey, ...config } = autoConfig
-
-        const wallet = new Wallet(privateKey)
 
         const blockchain = DefaultNetworkBlockchainAnchors[config.network]
         const veridaDidWallet = VeridaDidWallet.fromPrivateKeyOrMnemonic(privateKey, blockchain)
