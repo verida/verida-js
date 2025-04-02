@@ -16,6 +16,8 @@ export class VeridaDidWallet {
     public signer: Signer
     /** Optional private key, unavailable if created from a signer */
     public privateKey: string | undefined
+    /** Optional private key, unavailable if created from a signer */
+    public publicKey: string | undefined
 
     /**
      * The constructor is intentionally private, use the static methods to create instances
@@ -25,12 +27,13 @@ export class VeridaDidWallet {
      * @param address - Wallet address
      * @param privateKey - Optional private key
      */
-    private constructor(signer: Signer, blockchainAnchor: BlockchainAnchor, address: string, privateKey: string | undefined) {
+    private constructor(signer: Signer, blockchainAnchor: BlockchainAnchor, address: string, publicKey: string | undefined, privateKey: string | undefined) {
         this.did = buildVeridaDidIdentifier(blockchainAnchor, address)
         this.blockchainAnchor = blockchainAnchor
         this.address = address
         this.signer = signer
         this.privateKey = privateKey
+        this.publicKey = publicKey
     }
 
     /**
@@ -41,7 +44,7 @@ export class VeridaDidWallet {
      */
     public static createRandom(blockchainAnchor: BlockchainAnchor) {
         const wallet = Wallet.createRandom()
-        return new VeridaDidWallet(wallet, blockchainAnchor, wallet.address, wallet.privateKey)
+        return new VeridaDidWallet(wallet, blockchainAnchor, wallet.address, wallet.publicKey, wallet.privateKey)
     }
 
     /**
@@ -53,7 +56,9 @@ export class VeridaDidWallet {
      */
     public static async fromSigner(signer: Signer, blockchainAnchor: BlockchainAnchor) {
         const address = await signer.getAddress()
-        return new VeridaDidWallet(signer, blockchainAnchor, address, undefined)
+
+        // For security purpose, the public and private keys are not exposed by a signer
+        return new VeridaDidWallet(signer, blockchainAnchor, address, undefined, undefined)
     }
 
     /**
@@ -70,22 +75,17 @@ export class VeridaDidWallet {
         } else {
             wallet = Wallet.fromMnemonic(privateKeyOrMnemonic)
         }
-        return new VeridaDidWallet(wallet, blockchainAnchor, wallet.address, wallet.privateKey)
-    }
-
-    /** The public key, same as the address */
-    public get publicKey(): string {
-        return this.address
+        return new VeridaDidWallet(wallet, blockchainAnchor, wallet.address, wallet.publicKey, wallet.privateKey)
     }
 
     /** The public key as a buffer */
-    public get publicKeyBuffer(): Uint8Array {
-        return Buffer.from(this.address.substr(2), 'hex')
+    public get publicKeyBuffer(): Uint8Array | undefined {
+        return this.publicKey ? Buffer.from(this.publicKey.substr(2), 'hex') : undefined
     }
 
     /** The public key encoded in base58 */
-    public get publicKeyBase58(): string {
-        return utils.base58.encode(this.address)
+    public get publicKeyBase58(): string | undefined {
+        return this.publicKey ? utils.base58.encode(this.publicKey) : undefined
     }
 
     /** The private key as a buffer if available */

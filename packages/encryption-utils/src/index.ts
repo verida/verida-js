@@ -15,7 +15,7 @@ const newKey = (length: number) => randomBytes(length ? length : secretbox.keyLe
 
 /**
  * Utilizes `tweetnacl` for symmetric and asymmetric encryption.
- * 
+ *
  * Utilizes `keccak256` algorithm to hash signed data and `secp256k1` signature algorithm for the resulting signature.
  */
 export default class EncryptionUtils {
@@ -123,11 +123,11 @@ export default class EncryptionUtils {
     }
 
     /**
-     * 
-     * @param data 
-     * @param signature 
+     *
+     * @param data
+     * @param signature
      * @param publicKey Hex encoded public key or public key in shortened address format
-     * @returns 
+     * @returns
      */
     static verifySig(data: any, signature: string, publicKeyOrAddress: string) {
         const signerAddress = EncryptionUtils.getSigner(data, signature)
@@ -135,7 +135,7 @@ export default class EncryptionUtils {
             return true
         }
 
-        const expectedAddress = utils.computeAddress(publicKeyOrAddress)
+        const expectedAddress = publicKeyOrAddress.length === 132 ? utils.computeAddress(publicKeyOrAddress) : publicKeyOrAddress
         return signerAddress.toLowerCase() == expectedAddress.toLowerCase()
     }
 
@@ -162,7 +162,7 @@ export default class EncryptionUtils {
         return encodeBase64(data)
     }
 
-    static hash(data: any) {    
+    static hash(data: any) {
         if (typeof(data) === 'string') {
             if (!isHexString(data)) {
                 data = utils.toUtf8Bytes(data)

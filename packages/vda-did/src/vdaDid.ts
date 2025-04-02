@@ -45,7 +45,7 @@ export default class VdaDid {
         }
 
         // Sign the DID Document
-        didDocument.signProof(this.options.signer)
+        await didDocument.signProof(this.options.signer)
 
         // Submit to all the endpoints
         const promises = []
@@ -122,7 +122,7 @@ export default class VdaDid {
             throw new Error(`Unable to update DID Document. "updated" timestamp matches "created" timestamp.`)
         }
 
-        didDocument.signProof(this.options.signer)
+        await didDocument.signProof(this.options.signer)
 
         // Fetch the endpoint list from the blockchain
         const response: any = await this.blockchain.lookup(didDocument.id)
