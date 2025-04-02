@@ -37,7 +37,7 @@ export class DIDClient implements IDIDClient {
         const resolverConfig: Web3ResolverConfigurationOptions = {
             timeout: config.timeout ? config.timeout : 10000
         }
-        
+
         resolverConfig.rpcUrl = this.getRpcUrl()
 
         const vdaDidResolver = getResolver(resolverConfig)
@@ -56,7 +56,7 @@ export class DIDClient implements IDIDClient {
 
     /**
      * Unlock save() function by providing verida signing key.
-     * 
+     *
      * @param veridaPrivateKey Private key of a Verida Account. Used to sign transactions in the DID Registry to verify the request originated from the DID owner / controller
      * @param callType Blockchain interaction mode. 'web3' | 'gasless'
      * @param web3Config Web3 configuration. If `web3`, you must provide `privateKey` (MATIC private key that will pay for gas). If `gasless` you must specify `endpointUrl` (URL of the meta transaction server) and any appropriate `serverConfig` and `postConfig`.
@@ -77,8 +77,8 @@ export class DIDClient implements IDIDClient {
         }
 
         // @ts-ignore
-        if (callType == 'web3' && !web3Config.privateKey) {
-            throw new Error('Web3 transactions must specify `web3config.privateKey`')
+        if (callType == 'web3' && !web3Config.privateKey && !web3Config.signer) {
+            throw new Error('Web3 transactions must specify either `web3config.privateKey` or `web3config.signer`')
         }
 
         web3Config = {
@@ -111,20 +111,20 @@ export class DIDClient implements IDIDClient {
     public authenticated(): boolean {
         return this.veridaWallet !== undefined
     }
-    
+
     public getDid(): string | undefined {
         // Add the network into the DID, if not specified
         if (this.veridaWallet === undefined) {
             return undefined
         }
-        
+
         if (this.veridaWallet.did.substring(0,10) == 'did:vda:0x') {
             return this.veridaWallet.did.replace(`did:vda:`, `did:vda:${this.blockchainAnchor.toString()}:`)
         }
 
         return this.veridaWallet.did
     }
-    
+
     public getPublicKey(): string | undefined {
         if (this.veridaWallet !== undefined) {
             return this.veridaWallet.publicKey
@@ -135,7 +135,7 @@ export class DIDClient implements IDIDClient {
 
     /**
      * Destroy this DID
-     * 
+     *
      * Note: This can not be reversed and is written to the blockchain
      */
     public async destroy(): Promise<VdaDidEndpointResponses> {
@@ -148,7 +148,7 @@ export class DIDClient implements IDIDClient {
 
     /**
      * Save DIDDocument to the chain
-     * 
+     *
      * @param document Updated DIDDocuent
      * @returns true if success.
      */
@@ -218,7 +218,7 @@ export class DIDClient implements IDIDClient {
 
     /**
      * Get original document loaded from blockchain. Creates a new document if it didn't exist
-     * 
+     *
      * @returns DID Document instance
      */
     public async get(did: string): Promise<VeridaDIDDocument> {
