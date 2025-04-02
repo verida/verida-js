@@ -22,6 +22,7 @@ export default class DIDDocument implements IDIDDocument {
             // We are creating a new DID Document
             // Make sure we have a public key
             if (!publicKeyHex || publicKeyHex.length != 132) {
+                // TODO: If the public key is mandatory, don't make it optional in the arguments
                 throw new Error('Unable to create DID Document. Invalid or non-existent public key.')
             }
 
@@ -44,14 +45,17 @@ export default class DIDDocument implements IDIDDocument {
                 `${this.doc.id}#controller`,
                 this.doc.id
             ]
+
             this.doc.verificationMethod = [
                 // From vda-did-resolver/resolver.ts #322
                 {
                     id: `${this.doc.id}#controller`,
                     type: VerificationMethodTypes.EcdsaSecp256k1RecoveryMethod2020,
                     controller: this.doc.id,
+                    // FIXME: Remove the `@` + use the actual chainId number rather than the hex version
                     blockchainAccountId: `@eip155:${chainId}:${address}`,
                 },
+                // TODO: Challenge adding a verification method with the public key, as it is not always available, from a signer for instance.
                 {
                     id: this.doc.id,
                     type: "EcdsaSecp256k1VerificationKey2019",
