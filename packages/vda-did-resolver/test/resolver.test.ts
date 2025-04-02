@@ -10,13 +10,11 @@ import { BlockchainAnchor, VeridaDocInterface } from '@verida/types';
 
 const wallet = ethers.Wallet.createRandom()
 
-let DID_ADDRESS, DID, DID_PK, DID_PRIVATE_KEY, DID_TESTNET
-
-DID_ADDRESS = wallet.address
-DID = `did:vda:polamoy:${DID_ADDRESS}`
-DID_TESTNET = `did:vda:testnet:${DID_ADDRESS}`
-DID_PK = wallet.publicKey
-DID_PRIVATE_KEY = wallet.privateKey
+const DID_ADDRESS = wallet.address
+const DID = `did:vda:polamoy:${DID_ADDRESS}`
+const DID_TESTNET = `did:vda:testnet:${DID_ADDRESS}`
+const DID_PK = wallet.publicKey
+const DID_PRIVATE_KEY = wallet.privateKey
 
 const KNOWN_MAINNET_ADDRESS = `0xCDEdd96AfA6956f0299580225C2d9a52aca8487A`
 
@@ -32,10 +30,10 @@ if (!privateKey) {
 }
 const baseConfig = getBlockchainAPIConfiguration(privateKey)
 
-const VDA_DID_CONFIG = {
+const VDA_DID_CONFIG = { // TODO: Add strong type to configuration
     identifier: DID,
     blockchain: BlockchainAnchor.POLAMOY,
-    signKey: DID_PRIVATE_KEY,
+    signer: wallet,
     callType: baseConfig.callType,
     web3Options: baseConfig.web3Options
 }
@@ -53,7 +51,7 @@ describe("DID Resolver Tests", function() {
     this.beforeAll(async () => {
         // Create the test DID
         const doc = new DIDDocument(DID, DID_PK)
-        doc.signProof(wallet.privateKey)
+        doc.signProof(wallet)
         masterDidDoc = doc
 
         const publishedEndpoints = await veridaApi.create(doc, ENDPOINTS)

@@ -1,5 +1,4 @@
 import Axios from "axios";
-import AutoAccount from "../auto";
 import { AuthType } from '@verida/account'
 import { Account } from "@verida/account";
 import { ServiceEndpoint } from 'did-resolver'
@@ -8,13 +7,13 @@ import { ContextAuthorizationError, SecureContextPublicKey, VeridaDatabaseAuthCo
 export default class VeridaDatabaseAuthType extends AuthType {
 
   protected contextAuth?: VeridaDatabaseAuthContext
-  protected account: AutoAccount
+  protected account: Account
   // 5 second request timeout
   protected timeout: number = 10000
 
   public constructor(account: Account, contextName: string, serviceEndpoint: ServiceEndpoint, signKey: SecureContextPublicKey) {
     super(account, contextName, serviceEndpoint, signKey)
-    this.account = <AutoAccount> account
+    this.account = account
   }
 
   public async getAuthContext(config: VeridaDatabaseAuthTypeConfig = {
@@ -138,7 +137,7 @@ export default class VeridaDatabaseAuthType extends AuthType {
 
     const consentMessage = `Invalidate device for this application context: "${this.contextName}"?\n\n${did.toLowerCase()}\n${deviceId}`
     const signature = await this.account.sign(consentMessage)
-    
+
     try {
       const response = await this.getAxios(this.contextName).post(`${contextAuth.endpointUri}auth/invalidateDeviceId`, {
           did,

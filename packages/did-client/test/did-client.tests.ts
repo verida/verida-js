@@ -7,7 +7,8 @@ import { DIDDocument } from "@verida/did-document"
 import { ServiceEndpoint } from "did-resolver"
 
 import { getDIDClient } from "./utils"
-import { SecureContextEndpointType } from '@verida/types'
+import { Network, SecureContextEndpointType } from '@verida/types'
+import { DIDClient } from '../src/did-client'
 
 const wallet = Wallet.createRandom()
 
@@ -15,6 +16,7 @@ const address = wallet.address.toLowerCase()
 const did = `did:vda:testnet:${address}`
 
 const CONTEXT_NAME = 'Verida: Test DID Context'
+const NETWORK = Network.BANKSIA
 
 const keyring = new Keyring(wallet.mnemonic.phrase)
 
@@ -35,10 +37,11 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-let didClient, currentDoc
+let didClient: DIDClient
+let currentDoc: DIDDocument
 
 /**
- * 
+ *
  */
 describe('DID Client tests', () => {
 
@@ -65,7 +68,7 @@ describe('DID Client tests', () => {
         })
 
         it('can add a context to an existing DID and verify', async function() {
-            await currentDoc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+            await currentDoc.addContext(NETWORK, CONTEXT_NAME, keyring, wallet, endpoints)
 
             // Sleep so enough time passes for the updated field to not match created
             await sleep(1000)
@@ -87,11 +90,11 @@ describe('DID Client tests', () => {
 
             // Validate service endpoints
             assert.equal(savedDoc.service?.length, 2, "Have two service entries")
-            function validateServiceEndpoint(type, endpointUri, actual: ServiceEndpoint) {
+            function validateServiceEndpoint(type: SecureContextEndpointType, endpointUri: string[], actual: ServiceEndpoint | undefined) {
                 assert.ok(actual)
-                assert.equal(actual.id, `${did}?context=${contextHash}&type=${type}`, "Endpoint ID matches hard coded value")
-                assert.equal(actual.type, type, "Type has expected value")
-                assert.deepEqual(actual.serviceEndpoint, endpointUri, `Endpoint (${actual.serviceEndpoint}) has expected value (${endpointUri})`)
+                assert.equal(actual?.id, `${did}?context=${contextHash}&type=${type}`, "Endpoint ID matches hard coded value")
+                assert.equal(actual?.type, type, "Type has expected value")
+                assert.deepEqual(actual?.serviceEndpoint, endpointUri, `Endpoint (${actual?.serviceEndpoint}) has expected value (${endpointUri})`)
             }
 
             const endpoint1 = doc.locateServiceEndpoint(CONTEXT_NAME, SecureContextEndpointType.DATABASE)
@@ -101,11 +104,11 @@ describe('DID Client tests', () => {
             validateServiceEndpoint(endpoints.messaging.type, endpoints.messaging.endpointUri, endpoint2)
 
             // @todo: validate verification method
-            assert.equal(savedDoc.verificationMethod.length, 4, "Have four verificationMethod entries")
+            assert.equal(savedDoc.verificationMethod?.length, 4, "Have four verificationMethod entries")
             assert.deepEqual(savedDoc.verificationMethod, currentDoc.export().verificationMethod, "Verification methods match")
 
-            assert.equal(savedDoc.assertionMethod.length, 4, "Have four assertionMethod entries")
-            assert.equal(savedDoc.keyAgreement.length, 1, "Have one keyAgreement entries")
+            assert.equal(savedDoc.assertionMethod?.length, 4, "Have four assertionMethod entries")
+            assert.equal(savedDoc.keyAgreement?.length, 1, "Have one keyAgreement entries")
         })
 
         it('can remove an existing context', async function() {
@@ -118,8 +121,8 @@ describe('DID Client tests', () => {
 
             // Validate service endpoints
             assert.equal(data.service?.length, 0, "Have no service entries")
-            assert.equal(data.verificationMethod.length, 2, "Have two verificationMethod entries")
-            assert.equal(data.assertionMethod.length, 2, "Have two assertionMethod entries")
+            assert.equal(data.verificationMethod?.length, 2, "Have two verificationMethod entries")
+            assert.equal(data.assertionMethod?.length, 2, "Have two assertionMethod entries")
 
             const saved = await didClient.save(doc)
             assert.ok(saved, 'Context successfully saved to blockchain')
@@ -129,14 +132,14 @@ describe('DID Client tests', () => {
             const chainData = chainDoc.export()
 
             assert.equal(chainData.service?.length, 0, "Have no service entries")
-            assert.equal(chainData.verificationMethod.length, 2, "Have two verificationMethod entries")
-            assert.equal(chainData.assertionMethod.length, 2, "Have two assertionMethod entries")
+            assert.equal(chainData.verificationMethod?.length, 2, "Have two verificationMethod entries")
+            assert.equal(chainData.assertionMethod?.length, 2, "Have two assertionMethod entries")
         })
 
         it('can replace an existing context, not add again', async function() {
             try {
                 const doc = await didClient.get(did)
-                await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
+                await doc.addContext(NETWORK, CONTEXT_NAME, keyring, wallet, endpoints)
 
                 // Sleep so enough time passes for the updated field to not match created
                 await sleep(1000)
@@ -144,19 +147,19 @@ describe('DID Client tests', () => {
                 assert.ok(saved)
 
                 // Add the same context and save a second time
-                await doc.addContext(CONTEXT_NAME, keyring, wallet.privateKey, endpoints)
-                
+                await doc.addContext(NETWORK, CONTEXT_NAME, keyring, wallet, endpoints)
+
                 // Sleep so enough time passes for the updated field to not match created
                 await sleep(1000)
-                
+
                 saved = await didClient.save(doc)
                 assert.ok(saved)
 
                 const data = doc.export()
-                assert.equal(data.service!.length, 2, 'Have two service endpoints')
-                assert.equal(data.verificationMethod!.length, 4, 'Have four verification methods')
-                assert.equal(data.keyAgreement!.length, 1, 'Have one keyAgreement')
-                assert.equal(data.assertionMethod!.length, 4, 'Have four assertionMethods')
+                assert.equal(data.service?.length, 2, 'Have two service endpoints')
+                assert.equal(data.verificationMethod?.length, 4, 'Have four verification methods')
+                assert.equal(data.keyAgreement?.length, 1, 'Have one keyAgreement')
+                assert.equal(data.assertionMethod?.length, 4, 'Have four assertionMethods')
             } catch (err) {
                 console.log(didClient.getLastEndpointErrors())
                 throw err

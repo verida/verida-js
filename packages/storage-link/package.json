@@ -22,6 +22,7 @@
     "@verida/encryption-utils": "^4.0.0",
     "@verida/keyring": "^4.4.0",
     "did-resolver": "^4.0.0",
+    "ethers": "^5.8.0",
     "url-parse": "^1.5.3"
   },
   "devDependencies": {

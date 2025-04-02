@@ -2,7 +2,7 @@ import { Command } from 'command-line-interface';
 import { CreateAccountOptions } from './interfaces';
 import { AutoAccount } from '@verida/account-node';
 import { Network } from '@verida/types';
-import { Wallet } from '@verida/did-client';
+import { VeridaDidWallet } from '@verida/did-client';
 import { DefaultNetworkBlockchainAnchors } from '@verida/vda-common';
 import { NETWORK_STRINGS } from '../constants';
 import { ethers } from 'ethers';
@@ -34,7 +34,7 @@ export const CreateAccount: Command<CreateAccountOptions> = {
       }
     ],
     async handle ({ options }) {
-        const network = <Network> options.network
+        const network = <Network>options.network
 
         const randomWallet = ethers.Wallet.createRandom()
         const mnemonic = randomWallet.mnemonic!.phrase
@@ -66,9 +66,9 @@ export const CreateAccount: Command<CreateAccountOptions> = {
         }
 
         const blockchain = DefaultNetworkBlockchainAnchors[network]
-        const wallet = new Wallet(randomWallet.privateKey, blockchain.toString())
+        const wallet = VeridaDidWallet.fromPrivateKeyOrMnemonic(mnemonic, blockchain)
         console.log(`Wallet mnemonic: ${mnemonic}`)
         console.log(`Wallet private key: ${wallet.privateKey}`)
         console.log(`Wallet public key: ${wallet.publicKey}`)
     }
-  };
+};

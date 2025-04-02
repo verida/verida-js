@@ -3,6 +3,7 @@ import { SecureContextEndpoint } from './DocumentInterfaces'
 import { SecureContextConfig, SecureContextPublicKey } from './StorageLinkInterfaces'
 import { DIDClientConfig, Network } from './NetworkInterfaces'
 import { Web3CallType, Web3MetaTransactionConfig, Web3SelfTransactionConfig } from './Web3Interfaces'
+import { Signer } from 'ethers'
 
 export interface AccountConfig {
     defaultDatabaseServer: SecureContextEndpoint,
@@ -43,6 +44,7 @@ export interface AccountNodeConfig {
     privateKey: string, // or mnemonic
     network: Network,
     didClientConfig: AccountNodeDIDClientConfig
+    /** @deprecated */
     options?: any
     countryCode?: string
 }

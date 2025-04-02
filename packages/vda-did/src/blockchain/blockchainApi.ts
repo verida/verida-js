@@ -2,8 +2,7 @@ import { getContractInfoForBlockchainAnchor, interpretIdentifier } from "@verida
 import { getVeridaSignWithNonce } from "./helpers"
 import { VdaDidConfigurationOptions, Web3GasConfiguration, BlockchainAnchor, Web3SelfTransactionConfig } from "@verida/types"
 import { getVeridaContract, VeridaContract } from "@verida/web3"
-import { ethers } from "ethers"
-import EncryptionUtils from "@verida/encryption-utils"
+import { ethers, Signer } from "ethers"
 import { getDefaultRpcUrl } from "@verida/vda-common"
 
 export interface LookupResponse {
@@ -12,7 +11,6 @@ export interface LookupResponse {
 }
 
 export default class BlockchainApi {
-
     private options: VdaDidConfigurationOptions
     private blockchain: BlockchainAnchor
     private didAddress : string
@@ -22,17 +20,8 @@ export default class BlockchainApi {
     constructor(options: VdaDidConfigurationOptions) {
         this.options = options
 
-        if (!this.options.signKey && !this.options.signer) {
-            throw new Error(`Invalid configuration. 'signKey' or 'signer' must be specified`)
-        }
-
-        if (this.options.signKey && !this.options.signer) {
-            this.options.signer = (data: any) => {
-                const privateKeyArray = new Uint8Array(
-                    Buffer.from(options.signKey!.slice(2), 'hex')
-                );
-                return Promise.resolve(EncryptionUtils.signData(data, privateKeyArray))
-            }
+        if (!this.options.signer) {
+            throw new Error(`Invalid configuration. 'signer' must be specified`)
         }
 
         const { address } = interpretIdentifier(options.identifier)
@@ -52,7 +41,7 @@ export default class BlockchainApi {
         }
 
         this.vdaWeb3Client = getVeridaContract(
-            options.callType, 
+            options.callType,
             {...contractInfo,
             ...options.web3Options,
             blockchainAnchor: this.blockchain});
@@ -99,7 +88,7 @@ export default class BlockchainApi {
     ) {
         let rawMsg = ethers.utils.solidityPack(['address', 'string'], [this.didAddress.toLowerCase(), '/']);
         const nonce = await this.nonceFN()
-        
+
         for (let i = 0; i < endpoints.length; i++) {
             rawMsg = ethers.utils.solidityPack(
             ['bytes', 'string', 'string'],
@@ -107,7 +96,7 @@ export default class BlockchainApi {
             );
         }
 
-        return await getVeridaSignWithNonce(rawMsg, this.options.signer!, nonce);
+        return await getVeridaSignWithNonce(rawMsg, this.options.signer, nonce);
     };
 
     /**
@@ -144,19 +133,19 @@ export default class BlockchainApi {
             ['address', 'string', 'address', 'string'],
             [this.didAddress, '/setController/', controller, '/']
         );
-        return await getVeridaSignWithNonce(rawMsg, this.options.signer!, await this.nonceFN());
+        return await getVeridaSignWithNonce(rawMsg, this.options.signer, await this.nonceFN());
     };
 
     /**
      * Set a controller of the {@link BlockchainApi#didAddress} to the blockchain
-     * @param controllerPrivateKey private key of new controller
+     * @param newControllerSigner Signer of new controller
      */
-    public async setController(controllerPrivateKey: string, gasConfig?: Web3GasConfiguration) {
+    public async setController(newControllerSigner: Signer, gasConfig?: Web3GasConfiguration) {
         if (!this.options.signer) {
             throw new Error(`Unable to create DID. No signer specified in config.`)
         }
 
-        const controllerAddress = ethers.utils.computeAddress(controllerPrivateKey).toLowerCase();
+        const controllerAddress = ethers.utils.computeAddress(await newControllerSigner.getAddress()).toLowerCase();
 
         const signature = await this.getControllerSignature(controllerAddress);
 
@@ -176,12 +165,8 @@ export default class BlockchainApi {
             throw new Error('Failed to set controller');
         }
 
-        this.options.signer = (data: any) => {
-            const privateKeyArray = new Uint8Array(
-                Buffer.from(controllerPrivateKey.slice(2), 'hex')
-            );
-            return Promise.resolve(EncryptionUtils.signData(data, privateKeyArray))
-        }
+        // FIXME: Consider another way. Risk the signer is updated everywhere the options is used, which may have undesired side effects
+        this.options.signer = newControllerSigner
     }
 
     public async getController() {
@@ -203,7 +188,7 @@ export default class BlockchainApi {
             ['address', 'string'],
             [this.didAddress.toLowerCase(), '/revoke/']
         );
-        return await getVeridaSignWithNonce(rawMsg, this.options.signer!, await this.nonceFN());
+        return await getVeridaSignWithNonce(rawMsg, this.options.signer, await this.nonceFN());
     };
 
     /**
@@ -213,7 +198,7 @@ export default class BlockchainApi {
         if (!this.options.signer) {
             throw new Error(`Unable to create DID. No signer specified in config.`)
         }
-        
+
         const signature = await this.getRevokeSignature();
         let response: any;
         if (gasConfig !== undefined) {
@@ -221,7 +206,7 @@ export default class BlockchainApi {
         } else {
             response = await this.vdaWeb3Client.revoke(this.didAddress, signature);
         }
-        
+
         if (response.success !== true) {
             throw new Error('Failed to revoke');
         }

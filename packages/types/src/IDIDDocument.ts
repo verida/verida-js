@@ -2,21 +2,22 @@ import { ServiceEndpoint, Service } from 'did-resolver'
 import { SecureContextEndpoints, SecureContextEndpointType, VeridaDocInterface } from "./DocumentInterfaces"
 import { IKeyring } from './IKeyring'
 import { Network } from './NetworkInterfaces'
+import { Signer } from 'ethers'
 
 export interface IDIDDocument {
     get id(): string
 
-    getErrors(): string[] 
+    getErrors(): string[]
 
-    addContext(network: Network, contextName: string, keyring: IKeyring, privateKey: string, endpoints: SecureContextEndpoints): Promise<void>
+    addContext(network: Network, contextName: string, keyring: IKeyring, signer: Signer, endpoints: SecureContextEndpoints): Promise<void>
 
-    removeContext(contextName: string, network?: Network): boolean 
+    removeContext(contextName: string, network?: Network): boolean
 
     setAttributes(attributes: Record<string, any>): void
 
     import(doc: VeridaDocInterface): void
 
-    export(): VeridaDocInterface 
+    export(): VeridaDocInterface
 
     addContextService(network: Network, contextHash: string, endpointType: SecureContextEndpointType, serviceType: string, endpointUris: ServiceEndpoint[]): void
 
@@ -24,7 +25,7 @@ export interface IDIDDocument {
 
     addContextAsymKey(network: Network, contextHash: string, publicKeyHex: string): void
 
-    verifySig(data: any, signature: string): boolean 
+    verifySig(data: any, signature: string): boolean
 
     verifyContextSignature(data: any, network: Network, contextName: string, signature: string, contextIsHash: boolean): boolean
 
@@ -32,7 +33,7 @@ export interface IDIDDocument {
 
     locateContextProof(contextName: string, network: Network): string | undefined
 
-    signProof(privateKey: Uint8Array | string): void
+    signProof(signer: Signer): Promise<void>
 
     verifyProof(): boolean
 

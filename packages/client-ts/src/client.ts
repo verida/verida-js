@@ -167,10 +167,10 @@ class Client implements IClient {
   }
 
   /**
-   * 
+   *
    * @param contextName The name of the context OR a context hash (starting with 0x)
-   * @param did 
-   * @returns 
+   * @param did
+   * @returns
    */
   public async openExternalContext(contextName: string, did: string): Promise<IContext> {
     did = await this.parseDid(did)
@@ -240,7 +240,7 @@ class Client implements IClient {
     if (networkFallback) {
       try {
         const profile = await this.openPublicProfile(did, contextName, profileName, fallbackContext)
-    
+
         if (profile) {
           return profile.getMany({}, {})
         }
@@ -333,14 +333,14 @@ class Client implements IClient {
 
       const signerDid = `did:vda:${sNetwork}:${sDid}`;
 
-      if (!did || signerDid.toLowerCase() == did.toLowerCase()) {
+      if (!did || signerDid.toLowerCase() === did.toLowerCase()) {
         const didDocument = await this.didClient.get(signerDid);
         if (!didDocument) {
           continue;
         }
 
         // Support old signature format (simple string) and new signature format (object)
-        const matchSig = typeof(signature) == 'string' ? signature : signature['secp256k1']
+        const matchSig = typeof(signature) === 'string' ? signature : signature['secp256k1']
 
         const validSig = didDocument.verifyContextSignature(
           _data,
@@ -372,7 +372,7 @@ class Client implements IClient {
 
     // Get the DID document of this user
     // @ts-ignore
-    const didDocument = <DIDDocument> await this.didClient.get(this.did!)
+    const didDocument = await this.didClient.get(this.did!)
     const doc = didDocument.export()
 
     // Find all contexts for this account
@@ -427,7 +427,7 @@ class Client implements IClient {
     }
 
     const endpointUris: ServiceEndpoint[] = <ServiceEndpoint[]> endpointInfo!.serviceEndpoint
-    
+
     // Delete context from all endpoints
     // For each endpoint; this deletes all context databases, plus the database that tracks all databases for a context
     const promises = []
@@ -436,7 +436,7 @@ class Client implements IClient {
       endpointUri = endpointUri.substring(0, endpointUri.length-1)  // strip trailing slash
       const consentMessage = `Delete context (${contextName}) from server: "${endpointUri}"?\n\n${did}\n${timestamp}`
       const signature = await this.account!.sign(consentMessage)
-      
+
       promises.push(Axios.post(`${endpointUri}/user/destroyContext`, {
         did,
         timestamp,
@@ -474,7 +474,7 @@ class Client implements IClient {
     // Get the DID document of this user
     if (!didDocument) {
       // @ts-ignore
-      didDocument = <DIDDocument> await this.didClient.get(this.did!)
+      didDocument = await this.didClient.get(this.did!)
     }
     const services = didDocument.export().service!
 
@@ -528,9 +528,9 @@ class Client implements IClient {
   /**
    * Converts a string that may be either a valid DID or a valid Verida username into
    * a Verida username.
-   * 
+   *
    * @param didOrUsername DID string or Verida username string (ending in `.vda`)
-   * @returns 
+   * @returns
    */
   public async parseDid(didOrUsername: string): Promise<string> {
     if (didOrUsername.match(/\.vda$/)) {
@@ -538,15 +538,15 @@ class Client implements IClient {
       // @throws Error if the username doesn't exist
       return await this.getDID(didOrUsername)
     }
-    
+
     return didOrUsername
   }
 
   /**
    * Get the DID linked to a username
-   * 
-   * @param username 
-   * @returns 
+   *
+   * @param username
+   * @returns
    */
   public async getDID(username: string): Promise<string> {
     return await this.nameClient.getDID(username)
@@ -554,9 +554,9 @@ class Client implements IClient {
 
   /**
    * Get an array of usernames linked to a DID
-   * 
-   * @param did 
-   * @returns 
+   *
+   * @param did
+   * @returns
    */
   public async getUsernames(did: string): Promise<string[]> {
     return await this.nameClient.getUsernames(did)

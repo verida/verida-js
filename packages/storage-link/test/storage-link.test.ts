@@ -3,7 +3,6 @@ const assert = require('assert')
 
 import { StorageLink } from '../src/index'
 import { Keyring } from '@verida/keyring'
-import EncryptionUtils from '@verida/encryption-utils'
 import { DIDDocument } from '@verida/did-document'
 import { Wallet } from 'ethers'
 import { getDIDClient } from './utils'
@@ -11,13 +10,12 @@ import { DIDClient } from '@verida/did-client'
 import { Network, SecureContextConfig } from '@verida/types'
 import { CONTEXT_NAME } from './utils'
 
-const NETWORK = Network.BANKSIA
-const wallet = Wallet.createRandom()
-
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const NETWORK = Network.BANKSIA
+const wallet = Wallet.createRandom()
 console.log(wallet.mnemonic)
 const address = wallet.address.toLowerCase()
 const DID = `did:vda:polamoy:${address}`
@@ -71,20 +69,22 @@ const expectedConfig: SecureContextConfig = {
 }
 const TEST_APP_NAME2 = 'Test App 2'
 
-let didClient: DIDClient, keyring1: Keyring, keyring2: Keyring
+let didClient: DIDClient
+let keyring1: Keyring
+let keyring2: Keyring
 
-async function buildKeyring(did: string, contextName: string) {
+async function buildKeyring(wallet: Wallet, did: string, contextName: string) {
     did = did.toLowerCase()
     const consentMessage = `Do you wish to unlock this storage context: "${contextName}"?\n\n${did}`
-    const signature = await EncryptionUtils.signData(consentMessage, Buffer.from(wallet.privateKey.substring(2), 'hex'))
+    const signature = await wallet.signMessage(consentMessage)
     return new Keyring(signature)
 }
 
 describe('Storage Link', () => {
     before(async () => {
         didClient = await getDIDClient(wallet)
-        keyring1 = await buildKeyring(DID, CONTEXT_NAME)
-        keyring2 = await buildKeyring(DID, TEST_APP_NAME2)
+        keyring1 = await buildKeyring(wallet, DID, CONTEXT_NAME)
+        keyring2 = await buildKeyring(wallet, DID, TEST_APP_NAME2)
     })
 
     describe('Manage DID Links', async function() {
@@ -99,14 +99,14 @@ describe('Storage Link', () => {
 
             let storageConfig = Object.assign({}, expectedConfig)
 
-            const success = await StorageLink.setLink(NETWORK, didClient, testConfig, keyring1, wallet.privateKey)
+            const success = await StorageLink.setLink(NETWORK, didClient, testConfig, keyring1, wallet)
             assert.ok(success, 'Set link succeeded')
             const links = await StorageLink.getLinks(NETWORK, didClient, DID)
             assert.ok(links.length, 1, 'Fetched exactly one saved link')
 
             const fetchedStorageConfig = await StorageLink.getLink(NETWORK, didClient, DID, testConfig.id)
             storageConfig.id = DIDDocument.generateContextHash(DID, CONTEXT_NAME)
-            
+
             assert.deepStrictEqual(fetchedStorageConfig, storageConfig, 'Fetched storage config matches the expected storage config')
         })
 
@@ -114,7 +114,7 @@ describe('Storage Link', () => {
             await sleep(1000)
             let storageConfig = Object.assign({}, expectedConfig)
             storageConfig.id = TEST_APP_NAME2
-            await StorageLink.setLink(NETWORK, didClient, storageConfig, keyring2, wallet.privateKey)
+            await StorageLink.setLink(NETWORK, didClient, storageConfig, keyring2, wallet)
 
             const fetchedStorageConfig = await StorageLink.getLink(NETWORK, didClient, DID, TEST_APP_NAME2)
             storageConfig.id = DIDDocument.generateContextHash(DID, TEST_APP_NAME2)

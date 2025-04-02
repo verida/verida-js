@@ -15,23 +15,23 @@ if (!privateKey) {
     throw new Error('No PRIVATE_KEY in the env file');
 }
 
-const createBlockchainAPI = (didWallet: any, blockchain: BlockchainAnchor, configuration:any) => {
-    return new BlockchainApi(<VdaDidConfigurationOptions>{
-        identifier: `did:vda:${blockchain}:${didWallet.address}`,
-        signKey: didWallet.privateKey,
+const createBlockchainAPI = (wallet: Wallet, blockchain: BlockchainAnchor, configuration:any) => { // TODO: Add strong type to configuration
+    return new BlockchainApi({
+        identifier: `did:vda:${blockchain}:${wallet.address}`,
+        signer: wallet,
         blockchain,
         ...configuration
     })
 }
 
-const checkResult =async (configuration: any,  isSuccess = true, errMsg : string | undefined = undefined) => {
+const checkResult =async (configuration: any,  isSuccess = true, errMsg : string | undefined = undefined) => { // TODO: Add strong type to configuration
     const blockchainApi = createBlockchainAPI(didWallet, testChain, configuration);
 
     if (isSuccess) {
         await blockchainApi.register(endPoints_A);
         const lookupResult = await blockchainApi.lookup(did);
         assert.deepEqual(
-            lookupResult, 
+            lookupResult,
             {didController: didWallet.address, endpoints: endPoints_A},
             'Get same endpoints');
     } else {
@@ -46,13 +46,13 @@ const checkResult =async (configuration: any,  isSuccess = true, errMsg : string
             } else {
                 assert.throws(f, Error);
             }
-            
+
         }
     }
 }
 
 const checkGlobalGasConfig = async (gasOption: Record<string, any>, isSuccess = true, errMsg : string | undefined = undefined) => {
-    const configuration = {
+    const configuration = { // TODO: Add strong type to configuration
         callType: 'web3',
         web3Options: {
             privateKey,
@@ -63,7 +63,7 @@ const checkGlobalGasConfig = async (gasOption: Record<string, any>, isSuccess = 
 }
 
 const checkMethodDefaultGasConfig = async (gasOption: Record<string, any>, isSuccess = true, errMsg : string | undefined = undefined) => {
-    const configuration = {
+    const configuration = { // TODO: Add strong type to configuration
         callType: 'web3',
         web3Options: {
             privateKey,
@@ -80,7 +80,7 @@ const checkRuntimeGasConfig = async (blockchainApi:BlockchainApi, gasOption: Rec
         await blockchainApi.register(endPoints_A, gasOption);
         const lookupResult = await blockchainApi.lookup(did);
         assert.deepEqual(
-            lookupResult, 
+            lookupResult,
             {didController: didWallet.address, endpoints: endPoints_A},
             'Get same endpoints');
     } else {
@@ -95,7 +95,7 @@ const checkRuntimeGasConfig = async (blockchainApi:BlockchainApi, gasOption: Rec
             } else {
                 assert.throws(f, Error);
             }
-            
+
         }
     }
 }
@@ -116,7 +116,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
                 gasOption = {
                     eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
                     // eip1559gasStationUrl: 'https://gasstation.polygon.technology/amoy'
-                    
+
                 }
                 await checkGlobalGasConfig(gasOption, false, 'To use the station gas configuration, need to specify eip1559Mode & eip1559gasStationUrl');
             })
@@ -130,7 +130,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
                         eip1559gasStationUrl: 'https://gasstation-testnet.polygon.technology/v2'
                     }
                     await checkGlobalGasConfig(gasOption, true);
-                }   
+                }
             })
         })
 
@@ -187,7 +187,7 @@ describe('vda-did blockchain api test for different gas configurations', functio
                 }
                 await checkMethodDefaultGasConfig(gasOption, true);
             })
-        })        
+        })
     })
 
     describe('Gas configuration at runtime', function() {
