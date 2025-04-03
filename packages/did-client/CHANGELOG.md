@@ -1,3 +1,8 @@
+2025-04-03 (v.4.4.3)
+-------------------
+
+- Fix: Allow signer in web3config without private key
+
 2024-07-15 (v.4.0.0)
 -------------------
 
