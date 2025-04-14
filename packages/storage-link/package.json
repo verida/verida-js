@@ -1,6 +1,6 @@
 {
   "name": "@verida/storage-link",
-  "version": "4.4.3-pr2",
+  "version": "4.4.3",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
