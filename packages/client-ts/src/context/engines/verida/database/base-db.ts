@@ -6,7 +6,7 @@ import Utils from "./utils";
 import { Context } from "../../../..";
 import { RecordSignature } from "../../../utils"
 import StorageEngineVerida from "./engine"
-import Endpoint from "./endpoint";
+import Endpoint, { EndpointDiedError } from "./endpoint";
 
 import * as PouchDBFind from "pouchdb-find";
 import * as PouchDBLib from "pouchdb"
@@ -366,13 +366,34 @@ class BaseDb extends EventEmitter implements IDatabase {
       }
     }
 
-    this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
+    try {
+      this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
+    } catch (err: any) {
+      if (err.name == "EndpointDiedError") {
+        // remove current endpoint
+        this.engine.dropEndpoint(this.endpoint)
+        await this.replaceEndpoint()
+      } else {
+        throw err
+      }
+    }
   }
 
   // This is called when an endpoint is found to have died
   public async replaceEndpoint() {
     this.endpoint = await this.engine.getActiveEndpoint(true, true)
-    this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
+
+    try {
+      this.db = await this.endpoint.connectDb(this.did, this.databaseName, this.permissions, this.isOwner!)
+    } catch (err: any) {
+      if (err.name == "EndpointDiedError") {
+        // remove current endpoint
+        this.engine.dropEndpoint(this.endpoint)
+        await this.replaceEndpoint()
+      } else {
+        throw err
+      }
+    }
   }
 
   /**

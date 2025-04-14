@@ -72,7 +72,7 @@ class StorageEngineVerida extends BaseStorageEngine {
       try {
         const status = await endpoints[primaryEndpointUri].getStatus()
         if (status.data.status != 'success') {
-          throw new Error('Storage node is not available')
+          throw new Error(`Storage node is not available: ${primaryEndpointUri}`)
         }
 
         return endpoints[primaryEndpointUri]
@@ -87,6 +87,10 @@ class StorageEngineVerida extends BaseStorageEngine {
     }
 
     throw new Error('Unable to locate an available endpoint')
+  }
+
+  public async dropEndpoint(endpoint: Endpoint): Promise<void> {
+    delete this.endpoints[endpoint.toString()]
   }
 
   /**

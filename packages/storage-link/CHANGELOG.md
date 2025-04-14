@@ -1,3 +1,8 @@
+2024-07-15 (v.4.4.3)
+-------------------
+
+- Fix: Mismatch of legacy DID in `StorageLink.getLinks()`
+
 2024-07-15 (v.4.0.0)
 -------------------
 
