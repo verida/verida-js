@@ -17,7 +17,8 @@ export default class StorageLink {
 
         try {
             const didDocument = await didClient.get(did)
-            const isLegacyDid = (didDocument.export().id != did)
+            const _did = did.toLowerCase()
+            const isLegacyDid = (didDocument.export().id !== _did)
             return StorageLink.buildSecureContexts(didDocument, network, isLegacyDid)
         } catch (err) {
             // DID not found
@@ -26,10 +27,10 @@ export default class StorageLink {
     }
 
     /**
-     * 
-     * @param didClient 
-     * @param did 
-     * @param contextName 
+     *
+     * @param didClient
+     * @param did
+     * @param contextName
      * @returns SecureStorageContextConfig | undefined (if not found)
      */
     static async getLink(network: Network, didClient: DIDClient, did: string, context: string, contextIsName: boolean = true): Promise<SecureContextConfig | undefined> {
@@ -49,7 +50,7 @@ export default class StorageLink {
     }
 
     /**
-     * 
+     *
      * @param didClient
      * @param storageConfig (Must have .id as the contextName)
      */
@@ -166,7 +167,7 @@ export default class StorageLink {
             }
 
             const contextHash = assertionParts.query.context
-            
+
             // Get signing key
             const signKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=sign`)
             if (!signKeyVerificationMethod) {
@@ -178,7 +179,7 @@ export default class StorageLink {
             // Get asym key
             const asymKeyVerificationMethod = doc.verificationMethod!.find((entry: any) => entry.id == `${did}?${networkString}context=${contextHash}&type=asym`)
             if (!asymKeyVerificationMethod)  {
-                return 
+                return
             }
 
             const asymKey = asymKeyVerificationMethod!.publicKeyHex
@@ -250,9 +251,9 @@ export default class StorageLink {
 
     /**
      * Ensure the URL has a trailing slash and appropriate port set
-     * 
+     *
      * @param endpoint ServiceEndpoint | ServiceEndpoint[]
-     * @returns 
+     * @returns
      */
     public static standardizeUrls(endpoints: ServiceEndpoint[]): ServiceEndpoint[] {
         const finalEndpoints = []
