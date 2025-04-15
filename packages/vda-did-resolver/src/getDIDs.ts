@@ -4,7 +4,7 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { Contract } from 'ethers';
 import { activeDIDCount } from "./activeDIDCount";
 import { BlockchainAnchor } from '@verida/types'
-  
+
 /**
  * Call lookUp() function of DIDRegistry contract
  * @param network Verida network to retreieve DIDs for
@@ -30,7 +30,7 @@ export async function getDIDs(blockchain: BlockchainAnchor, startIndex: number=0
             // we need to calculate the correct offset
             // Note that startIndex is indexed from the **end** of the list of DIDs
             //   so a startIndex of 0 and count of 20 means get the 20 most recent.
-            const activeDidCount = await activeDIDCount(blockchain)
+            const activeDidCount = await activeDIDCount(blockchain, rpcUrl)
             startIndex = activeDidCount - startIndex - count
             if (startIndex < 0) {
                 startIndex = 0
