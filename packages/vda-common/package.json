@@ -1,6 +1,6 @@
 {
   "name": "@verida/vda-common",
-  "version": "4.4.1",
+  "version": "4.4.5",
   "description": "Common utils & contract addresses for Verida",
   "main": "dist/index.js",
   "author": "Alex J",

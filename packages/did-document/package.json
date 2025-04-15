@@ -1,6 +1,6 @@
 {
   "name": "@verida/did-document",
-  "version": "4.4.2",
+  "version": "4.4.5",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -23,7 +23,7 @@
     "@verida/encryption-utils": "^4.0.1",
     "@verida/keyring": "^4.4.1",
     "@verida/types": "^4.4.1",
-    "@verida/vda-common": "^4.4.1",
+    "@verida/vda-common": "^4.4.5",
     "did-resolver": "^4.0.1",
     "lodash": "^4.17.21"
   },

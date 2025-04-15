@@ -1,6 +1,6 @@
 {
   "name": "@verida/storage-link",
-  "version": "4.4.4",
+  "version": "4.4.5",
   "main": "dist/index.js",
   "license": "ISC",
   "directories": {
@@ -17,8 +17,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@verida/did-client": "^4.4.3",
-    "@verida/did-document": "^4.4.2",
+    "@verida/did-client": "^4.4.5",
+    "@verida/did-document": "^4.4.5",
     "@verida/encryption-utils": "^4.0.1",
     "@verida/keyring": "^4.4.1",
     "did-resolver": "^4.0.0",
