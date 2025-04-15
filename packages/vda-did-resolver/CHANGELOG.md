@@ -1,3 +1,8 @@
+2025-04-15 (4.4.5)
+-------------------
+
+- Fix: Custom RPC URL not being used when fetching DID count
+
 2024-07-15 (v.4.0.0)
 -------------------
 

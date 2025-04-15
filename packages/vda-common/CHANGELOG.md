@@ -1,7 +1,7 @@
-?
+2025-04-15 (4.4.5)
 -------------------
 
-- npx lerna publish --dist-tag next
+- Update RPC URL for Polygon mainnet
 
 2024-07-15 (v.4.0.0)
 -------------------
