@@ -117,7 +117,7 @@ export class Profile extends EventEmitter implements IProfile {
    * let emailDoc = app.wallet.profile.get('email');
    * app.wallet.profile.set(emailDoc, 'john@doe.com');
    *
-   * // Update a profile profile by key
+   * // Update a profile by key
    * app.wallet.profile.set('email', 'john@doe.com');
    * @returns {boolean} Boolean indicating if the save was successful
    */
