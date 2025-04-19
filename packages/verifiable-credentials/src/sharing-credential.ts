@@ -43,7 +43,7 @@ export default class SharingCredential {
 		return result;
 	}
 	/**
-	 *  Method for for publishing an encrypted credential data
+	 *  Method for publishing an encrypted credential data
 	 * @param did
 	 * @param didJwtVc
 	 * @param contextName
