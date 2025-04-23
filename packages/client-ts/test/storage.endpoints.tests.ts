@@ -166,7 +166,7 @@ describe.skip('Storage endpoint tests', () => {
             assert.deepEqual(databaseList[ENDPOINT_1], databaseList[ENDPOINT_2], 'Endpoints have the same database list')
 
             // Confirm database usage matches
-            // Note: Often small discrepancies, so this tst is ignroed
+            // Note: Often small discrepancies, so this tst is ignored
             // console.log(usage)
             //assert.deepEqual(usage[ENDPOINT_1], usage[ENDPOINT_2], 'Endpoints have the same usage stats')
         })
