@@ -26,7 +26,7 @@ export function isVeridaContract(contractAddress: string) : boolean {
 
 /**
  * Get Polygon fee data to send the transactions
- * @param gasStationUrl Gas station url to pull the gas inforamtion
+ * @param gasStationUrl Gas station url to pull the gas information
  * @returns Matic fee data
  */
 export async function getMaticFee(gasStationUrl: string, mode: string) {
